@@ -1,0 +1,33 @@
+# Environments
+.env
+.venv/
+venv/
+ENV/
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.py[cod]
+
+# Python test/cache
+.pytest_cache/
+
+# OS / editor
+.DS_Store
+
+# IDEs
+.vscode/
+
+# Local env variants
+*.env
+!.env.example
+
+# Playwright artifacts
+test-results/
+
+# Generated scrape outputs
+backend/data/raw/*
+backend/data/processed/*
+!backend/data/raw/.gitkeep
+!backend/data/processed/.gitkeep

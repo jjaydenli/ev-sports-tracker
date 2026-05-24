@@ -20,3 +20,9 @@ DK_USER_AGENT = (
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
 DK_BASE_HEADERS = {"User-Agent": DK_USER_AGENT}
+
+BETR_GRAPHQL_URL = "https://api.fantasy.betr.app/graphql"
+
+BETR_BASE_HEADERS = {
+    "Content-Type": "application/json",
+}

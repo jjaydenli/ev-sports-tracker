@@ -188,7 +188,7 @@ async def main():
     """Orchestrate the Dabble data pipeline from authentication to storage."""
     logger.info("Starting Dabble ingestion...")
     engine = DabbleEngine()
-    output_path = "data/processed/dabble_master_board.json"
+    output_path = "data/archive/dabble/dabble_master_board.json"
     props = await engine.run(output_path)
     logger.success(f"pipeline complete: saved {len(props)} props to {output_path}")
 

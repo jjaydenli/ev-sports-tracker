@@ -15,6 +15,7 @@ STANDARD_PROJECTION_TYPE = "REGULAR"
 
 # TODO: map non-REGULAR types to prop_type and select value vs non_regular_value
 
+
 def _resolve_betr_market(raw_prop: dict) -> str:
     """Resolve canonical market from Betr key, falling back to label."""
     key = raw_prop.get("key")
@@ -26,6 +27,25 @@ def _resolve_betr_market(raw_prop: dict) -> str:
         return get_canonical_market("betr", label)
 
     return ""
+
+
+def _parse_allowed_sides(allowed_options: list[dict]) -> tuple[bool, bool]:
+    """
+    Return (over_allowed, under_allowed) from Betr allowedOptions outcomes.
+
+    Betr uses MORE/LESS in addition to OVER/UNDER (same semantics as Dabble).
+    """
+    over_allowed = False
+    under_allowed = False
+
+    for option in allowed_options:
+        outcome = (option.get("outcome") or "").strip().upper()
+        if outcome in ("OVER", "MORE"):
+            over_allowed = True
+        elif outcome in ("UNDER", "LESS"):
+            under_allowed = True
+
+    return over_allowed, under_allowed
 
 
 def parse_betr_prop(raw_prop: dict) -> dict | None:
@@ -43,14 +63,22 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
     if not market:
         return None
 
+    allowed_options = raw_prop.get("allowed_options") or []
+    if not allowed_options:
+        return None
+
+    over_allowed, under_allowed = _parse_allowed_sides(allowed_options)
+    if not over_allowed and not under_allowed:
+        return None
+
     normalized = {
         "sportsbook": BETR_SPORTSBOOK,
         "player": player,
         "market": market,
         "line": float(value),
         "prop_type": "standard",
-        "over_odds": BETR_STANDARD_ODDS,
-        "under_odds": BETR_STANDARD_ODDS,
+        "over_odds": BETR_STANDARD_ODDS if over_allowed else None,
+        "under_odds": BETR_STANDARD_ODDS if under_allowed else None,
         "raw_multiplier": None,
     }
 

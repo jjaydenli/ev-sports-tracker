@@ -20,6 +20,10 @@ def test_normalize_platform_dispatches_to_betr_parser():
             "type": "REGULAR",
             "value": 20.5,
             "market_id": "1",
+            "allowed_options": [
+                {"market_option_id": "1", "outcome": "OVER"},
+                {"market_option_id": "2", "outcome": "UNDER"},
+            ],
         }
     ]
 
@@ -57,6 +61,10 @@ def test_merge_normalized_combines_platform_lists():
                 "key": "POINTS",
                 "type": "REGULAR",
                 "value": 10.5,
+                "allowed_options": [
+                    {"market_option_id": "1", "outcome": "OVER"},
+                    {"market_option_id": "2", "outcome": "UNDER"},
+                ],
             }
         ]
     )
@@ -99,6 +107,10 @@ def test_normalize_all_writes_per_platform_and_unified(tmp_path):
             "market_id": "betr-1",
             "game": "NY@CLE",
             "team": "NY",
+            "allowed_options": [
+                {"market_option_id": "1", "outcome": "OVER"},
+                {"market_option_id": "2", "outcome": "UNDER"},
+            ],
         }
     ]
     dk_board = [
@@ -135,6 +147,9 @@ def test_normalize_all_skips_missing_platform_without_failing(tmp_path):
                     "key": "REBOUNDS",
                     "type": "REGULAR",
                     "value": 8.5,
+                    "allowed_options": [
+                        {"market_option_id": "1", "outcome": "MORE"},
+                    ],
                 }
             ]
         ),

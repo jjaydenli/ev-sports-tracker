@@ -19,7 +19,19 @@ DK_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 )
-DK_BASE_HEADERS = {"User-Agent": DK_USER_AGENT}
+DK_MARKETS_URL = (
+    "https://sportsbook-nash.draftkings.com/sites/US-SB/api/sportscontent/"
+    "controldata/event/eventSubcategory/v1/markets"
+)
+DK_LEAGUE_EVENTS_URL = (
+    "https://sportsbook-nash.draftkings.com/sites/US-SB/api/sportscontent/"
+    "controldata/league/leagueSubcategory/v1/markets"
+)
+DK_BASE_HEADERS = {
+    "User-Agent": DK_USER_AGENT,
+    "Accept": "application/json",
+    "Referer": "https://sportsbook.draftkings.com/",
+}
 
 BETR_GRAPHQL_URL = "https://api.fantasy.betr.app/graphql"
 

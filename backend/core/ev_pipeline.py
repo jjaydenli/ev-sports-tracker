@@ -67,6 +67,7 @@ def run_ev_scan(
     data_dir: str | Path = "data/processed",
     *,
     min_ev: float = 0.0,
+    top_n: int = 15,
     normalize_first: bool = True,
 ) -> list[dict]:
     """Run the Betr vs DraftKings EV scan and optionally persist results."""
@@ -87,19 +88,22 @@ def run_ev_scan(
         f"comparing {len(betr_props)} betr props against {len(dk_props)} draftkings props"
     )
     opportunities = compare_betr_vs_draftkings(
-        betr_props, dk_props, min_ev=min_ev
+        betr_props, dk_props, min_ev=min_ev, top_n=top_n
     )
+    plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 
     output_path = data_path / EV_OUTPUT_FILENAME
     save_props(opportunities, output_path)
     logger.success(
-        f"found {len(opportunities)} +EV opportunities (min_ev={min_ev}) -> {output_path}"
+        f"top={len(opportunities)} plus_ev={plus_ev_count} "
+        f"(min_ev={min_ev}, top_n={top_n}) -> {output_path}"
     )
 
     for row in opportunities[:5]:
+        ev_label = "+EV" if row.get("plus_ev") else "-EV"
         logger.info(
-            f"  {row['player']} {row['market']} {row['line']} {row['side'].upper()} "
-            f"EV={row['ev_pct']:+.2f}% "
+            f"  [{ev_label}] {row['player']} {row['market']} {row['line']} "
+            f"{row['side'].upper()} EV={row['ev_pct']:+.2f}% "
             f"no-vig={row['no_vig_implied_pct']:.2f}% ({row['no_vig_favored_side']}) "
             f"betr={row['betr_implied_pct']:.2f}% "
             f"DK O{row['dk_over_odds']:+d} U{row['dk_under_odds']:+d}"

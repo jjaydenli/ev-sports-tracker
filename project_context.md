@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-05-25 (update when §3, §5, or §6 change)
+**Last verified:** 2026-05-25 (ops automation: pipeline_runner, betr_auth)
 
 ## 1. Project Overview
 
@@ -25,7 +25,7 @@ The system standardizes disparate naming conventions across books, calculates no
 ### Betr (primary DFS)
 
 * **Access:** `fantasy.betr.app` GraphQL (`LeagueUpcomingEvents`). Bearer JWT via `BETR_BEARER_TOKEN` in `backend/config/.env` (Scrubbed Protocol: `os.getenv()` / `settings.py` only).
-* **Auth:** Token is manually copied from browser DevTools today (~30-day `exp`). Roadmap: Keycloak login or refresh-token automation. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md) → Authentication.
+* **Auth:** `betr_auth.py` — JWT expiry pre-flight, optional Keycloak password/refresh grant (`BETR_USERNAME` / `BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL`), fallback to manual `BETR_BEARER_TOKEN`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md) → Authentication.
 * **Scrape:** `betr_api.py` issues the GraphQL query; `betr_engine.py` / `betr_orchestrator.py` write `data/processed/betr_master_board.json` (wide fetch — see betr.md “Wide fetch policy”).
 * **Data structure:** Flat relational arrays joined in `betr_parser.py` using keys like `marketId`, `selectionId`, `marketOptionId`.
 * **Normalization (v1):** Only `REGULAR` projections become normalized props. Boost/edge/discount types are skipped until `prop_type` and breakeven rules exist (see parser module docstring).
@@ -48,7 +48,7 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 * **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
-* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — multiplicative de-vig on DK over/under, up to one +EV row per allowed Betr side (`over_odds` / `under_odds` not `None`). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120).
+* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — multiplicative de-vig on DK over/under, one row per allowed Betr side (`over_odds` / `under_odds` not `None`), ranked by EV; output capped at `top_n` (default 15) with `plus_ev` when edge exceeds `min_ev`. Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120).
 
 ## 5. Architecture & File Structure
 
@@ -68,7 +68,7 @@ backend/
 ├── scrapers/
 │   ├── base_scraper.py
 │   ├── dfs/
-│   │   ├── betr/               # betr_api, betr_engine, betr_orchestrator
+│   │   ├── betr/               # betr_api, betr_auth, betr_engine, betr_orchestrator
 │   │   └── dabble_engine.py    # legacy
 │   └── sportsbooks/
 │       ├── dk_engine.py
@@ -80,7 +80,8 @@ backend/
 ├── core/
 │   ├── models.py
 │   ├── engine.py
-│   └── ev_pipeline.py
+│   ├── ev_pipeline.py
+│   └── pipeline_runner.py      # run_refresh CLI: scrape → normalize → EV
 ├── archive/dabble/             # archived Dabble parser + README
 ├── data/
 │   ├── processed/              # gitignored: *_master_board.json, *_normalized.json, ev_opportunities.json
@@ -90,13 +91,13 @@ backend/
     └── unit/                   # test_betr_*, test_dk_*, test_ev_*, test_normalize, test_math_utils, archive dabble
 ```
 
-**EV data flow:** Scraper → `data/processed/{betr,dk}_master_board.json` → `parsers/*` + `normalize.py` (`unified_master_board.json`, per-book normalized JSON) → `ev_pipeline.py` → `core/engine.py` → `data/processed/ev_opportunities.json`
+**EV data flow:** `python -m core.pipeline_runner` (or per-stage CLIs) → scrapers → `data/processed/{betr,dk}_master_board.json` → `normalize.py` → `ev_pipeline.py` → `core/engine.py` → `data/processed/ev_opportunities.json`
 
 ## 6. Roadmap
 
 ### Open
 
-* **Betr bearer token automation:** Programmatic Keycloak login or refresh so scrapes self-renew without DevTools copy.
+* **Betr Keycloak discovery:** Confirm `BETR_KEYCLOAK_TOKEN_URL` / client id from a captured login if password grant fails out of the box.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
 * **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.
 
@@ -108,3 +109,5 @@ backend/
 * `normalize.py` active platforms: Betr + DraftKings; Dabble archived.
 * `ev_pipeline.py` load normalized boards → `compare_betr_vs_draftkings` → `ev_opportunities.json`.
 * Offline pytest suite: `tests/unit/test_{betr,dk}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_normalize`, `test_math_utils`, fixtures under `tests/fixtures/`.
+* Betr breakeven aligned at **-120** across `math_utils`, parser side markers, and EV engine.
+* Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) with JWT expiry guard and optional Keycloak refresh via `betr_auth.py`.

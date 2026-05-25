@@ -1,79 +1,104 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-## 1. Project Overview
-This project is a high-throughput Expected Value (+EV) sports betting bot. Its primary goal is to find profitable mathematical discrepancies by comparing fixed-payout player props on Daily Fantasy Sports (DFS) apps (specifically Dabble) against dynamically priced, sharp sportsbook lines (specifically DraftKings).
 
-The system identifies arbitrage and +EV opportunities by standardizing disparate naming conventions across books, mathematically calculating no-vig fair value on the fly, and outputting the data in a standardized JSON format.
+**Last verified:** 2026-05-26 (update when §3, §5, or §6 change)
+
+## 1. Project Overview
+
+This project is a high-throughput Expected Value (+EV) sports betting engine. Its primary goal is to find profitable mathematical discrepancies by comparing fixed-payout player props on Daily Fantasy Sports (DFS) apps (primarily **Betr**) against dynamically priced, sharp sportsbook lines (**DraftKings**).
+
+The system standardizes disparate naming conventions across books, calculates no-vig fair value on the fly, and outputs opportunities in a standardized JSON format. **Dabble** integration is archived under `backend/archive/dabble/`; capture notes remain in `docs/proxyman_dabble_setup.md`.
+
 
 ## 2. Tech Stack & Libraries
-* **Language:** Python (strictly asynchronous using `asyncio`)
-* **Data Ingestion (DFS/APIs):** `httpx` for lightning-fast, asynchronous HTTP requests.
-* **Data Ingestion (Sportsbooks/Web):** `playwright` with `playwright-stealth` to render JavaScript-heavy DOMs and bypass bot detection.
-* **Data Processing:** `json` for relational parsing, `re` for regex string manipulation.
-* **Logging:** `loguru` for color-coded, structured terminal logging.
-* **Testing:** `pytest`, `pytest-asyncio`, `pytest-mock` for strict offline testing.
-* *(Future Integrations): FastAPI, Redis, PostgreSQL, React.*
+
+* **Language:** Python (async-first with `asyncio`)
+* **DFS ingestion:** `httpx` for async HTTP (Betr GraphQL)
+* **Sportsbook ingestion:** `httpx` async HTTP for DraftKings league/event APIs (`dk_api.py`, `dk_engine.py`); tokens via `settings.py` / env
+* **Data processing:** `json`, `re`; relational array joins for DFS payloads
+* **Logging:** `loguru`
+* **Testing:** `pytest`, `pytest-asyncio`, `pytest-mock` (offline fixtures only)
+* *(Future: FastAPI, Redis, PostgreSQL, React)*
 
 ## 3. Platform-Specific Extraction Logic
 
-### Dabble (DFS App)
-* **Access:** App-only platform with no web interface. Traffic is reverse-engineered and intercepted via Proxyman to find hidden API endpoints, JWT Bearer tokens, and precise `User-Agent` headers.
-* **Security Protocol:** All API keys and JWTs must be strictly handled via `.env` variables (`os.getenv()`). This is known as the "Scrubbed Protocol".
-* **Data Structure:** Dabble's JSON payload acts like a relational SQL database. Instead of nested data, it returns flat arrays (`markets`, `prices`, `playerProps`) that must be joined together using keys like `id`, `marketId`, and `selectionId`.
-* **Odds & Multipliers:** * Backend uses decimal odds (e.g., 2.55, 1.68).
-    * Standard props imply a baseline of -122 odds.
-    * **Lightnings & Shields:** Modifiers with varying payout multipliers (e.g., 0.7x, 1.2x). They can be restricted to one-sided bets or have explicit Over/Under offerings.
+### Betr (primary DFS)
 
-### DraftKings (Sharp Sportsbook)
-* **State Management:** The frontend state is entirely driven by URL parameters (e.g., `?category=all-odds&subcategory=points`).
-* **Scraping Strategy:** Instead of global regex, Playwright targets specific `.sportsbook-event-accordion` DOM elements. This "traps" the data extraction within specific market headers to prevent mislabeling combo markets (like "Pts + Reb + Ast") as standard props.
-* **Orchestration:** The scraper dynamically fetches the main NBA league page, extracts all game URLs (`/event/`), deduplicates them using a Python `set()`, and loops through market subcategories concurrently.
+* **Access:** `fantasy.betr.app` GraphQL (`LeagueUpcomingEvents`). Bearer JWT via `BETR_BEARER_TOKEN` in `backend/config/.env` (Scrubbed Protocol: `os.getenv()` / `settings.py` only).
+* **Auth:** Token is manually copied from browser DevTools today (~30-day `exp`). Roadmap: Keycloak login or refresh-token automation. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md) → Authentication.
+* **Data structure:** Flat relational arrays joined in `betr_parser.py` using keys like `marketId`, `selectionId`, `marketOptionId`.
+* **Side availability:** Parser reads `allowedOptions` (`OVER`/`UNDER`/`MORE`/`LESS`). EV engine only evaluates sides Betr actually offers; empty `allowed_options` on `REGULAR` props are skipped.
+* **Breakeven:** Standard picks use **-120** (54.55% implied) vs de-vigged DK fair value. Boost/edge types documented in `docs/betting_odds/betr.md`.
+* **Code:** `backend/scrapers/dfs/betr/` (`betr_api.py`, `betr_engine.py`, `betr_orchestrator.py`), `backend/parsers/betr_parser.py`.
+
+### DraftKings (sharp sportsbook)
+
+* **Access:** Authenticated `httpx` calls to DK league/event endpoints; bearer tokens in `backend/config/.env` (see `settings.py`).
+* **State:** URL-driven (`category` / `subcategory`); subcategory list in `config/dk_subcategories.py`.
+* **Orchestration:** Resolve event IDs → dedupe → concurrent subcategory/market fetches via `dk_api.py`.
+* **Code:** `backend/scrapers/sportsbooks/dk_engine.py`, `dk_api.py`, `backend/parsers/dk_parser.py`.
+
+### Dabble (archived)
+
+* Archived parser/engine under `backend/archive/dabble/`. Legacy scraper: `backend/scrapers/dfs/dabble_engine.py`. Proxyman capture: [docs/proxyman_dabble_setup.md](docs/proxyman_dabble_setup.md). Fair odds: [docs/betting_odds/dabble.md](docs/betting_odds/dabble.md).
 
 ## 4. Quantitative Modeling & Math
-* **Market Mapping:** Differing market names (e.g., `threes-made` vs `3pt-made`) are run through a canonical standardizer dict (`PLATFORM_MARKET_MAPPINGS` -> `MARKETS`) to ensure accurate 1:1 comparisons.
-* **De-Vigging:** DraftKings odds are converted to implied probabilities. The system strictly uses the **multiplicative method** to remove the vigorish (vig) and find the true "fair value" probability.
-* **EV Calculation:** The true probability is compared against the DFS app's implied probability (e.g., the -122 baseline for standard Dabble props) to isolate +EV.
+
+* **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
+* **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
+* **EV calculation:** Fair probability vs DFS breakeven (`compare_betr_vs_draftkings` in `core/engine.py`). Betr uses -120 baseline for standard lines.
 
 ## 5. Architecture & File Structure
-The project strictly follows a decoupled, multi-platform modular architecture to prevent tight coupling:
+
+Decoupled layout under `backend/`:
 
 ```text
-ev_sports_tracker/
+backend/
 ├── config/
-│   ├── api_headers.py          # Platform-specific user-agents/headers
-│   ├── market_maps.py          # Canonical market translations
-│   └── .env                    # Hidden local secrets
+│   ├── api_headers.py
+│   ├── market_maps.py
+│   ├── settings.py
+│   ├── dk_subcategories.py
+│   └── .env                    # local secrets (gitignored)
 ├── utils/
-│   ├── math_utils.py           # Multiplicative de-vigging, conversion formulas
-│   └── formatting.py           # Standardizers (names, leagues, teams)
+│   ├── math_utils.py
+│   └── formatting.py
 ├── scrapers/
-│   ├── base_scraper.py         # Abstract base class enforcing standard pipeline
+│   ├── base_scraper.py
 │   ├── dfs/
-│   │   └── dabble_engine.py    # Relational JSON parsing
+│   │   ├── betr/               # betr_api, betr_engine, betr_orchestrator
+│   │   └── dabble_engine.py    # legacy
 │   └── sportsbooks/
-│       └── dk_engine.py        # Playwright accordion targeting
+│       ├── dk_engine.py
+│       └── dk_api.py
+├── parsers/
+│   ├── betr_parser.py
+│   ├── dk_parser.py
+│   └── normalize.py
 ├── core/
-│   ├── models.py               # NormalizedProp schemas (Platform agnostic)
-│   └── engine.py               # EV execution calculations
+│   ├── models.py
+│   ├── engine.py
+│   └── ev_pipeline.py
+├── archive/dabble/             # archived Dabble parser
+├── data/processed/             # gitignored scrape + EV output
 └── tests/
-    ├── conftest.py             # Shared fixtures and mock HTTP responses
-    ├── integration/
+    ├── fixtures/
     └── unit/
+```
 
-Coding Standards (Mixed Style)
-Professional Externals: Use PEP 257 docstrings in Sentence Case for all function headers. Focus on intent and expected outcomes.
+**EV data flow:** Scraper raw JSON → platform parser → `normalize.py` → `ev_pipeline.py` → `core/engine.py` → `data/processed/ev_opportunities.json`
 
-Developer Internals: Use Lowercase Shorthand for inline comments (e.g., # isolate network logic). Only comment the "why" behind quirks.
+## 6. Roadmap
 
-The Testing Mandate: Follow the AAA (Arrange, Act, Assert) pattern with logical whitespace separating blocks instead of labels.
+### Open
 
-Roadmap: Next Immediate Steps
+* **Betr bearer token automation:** Programmatic Keycloak login or refresh so scrapes self-renew without DevTools copy.
+* **Granular promos:** Store raw multipliers (e.g. 1.1x, 0.7x) per prop instead of a generic boost tag.
+* **Betr O/U on normal props:** Board should respect `allowedOptions` for both sides (e.g. under-only +EV when Betr only lists over).
+* **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.
 
-**Betr bearer token automation:** Today `BETR_BEARER_TOKEN` is a manually copied JWT from browser DevTools (~30-day `exp`). Add programmatic Keycloak login or refresh-token exchange so scrapes self-renew without opening Network settings. See `docs/betting_odds/betr.md` → Authentication.
+### Completed / archived
 
-Granular Promos: Update parse_game_props to store the raw multiplier (e.g., 1.1x, 0.7x) in the grouped prop object. Distinguish between different boost levels instead of a generic "lightning" tag.
-
-currently the betr board doesnt check the normal props for both over and under availability. for example dean wade 3.5 rebounds is a +ev prop for the under where its +111 on the over and -147 on the under but betr only allows the over.
-
-add race to place parlay odds checker where we construct the same parlay on DK/FD and confirm the odds and compare them to the promo multiplier on betr. then we put a hardcoded number for +ev opportunity giving a rec of take or pass if its say 15% higher on betr compared to the sportsbooks odds. betr gives set increased payout boosts: 2-leg: 3x->4x, 3-leg: 6x->7.5x, 4-leg: 10x->15x, 5-leg: 20x->30x, 6-leg: 35x->50x, 7-leg: 50x-75x, 8-leg: 100x->150x
-
+* Betr GraphQL scrape + parser + normalization pipeline.
+* DK API scrape via `dk_api.py` / `dk_engine.py` + parser.
+* `ev_pipeline.py` unified board → split by book → EV output JSON.

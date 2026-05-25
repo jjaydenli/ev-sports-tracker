@@ -1,6 +1,6 @@
 # EV Sports Tracker
 
-Multi-platform Expected Value (+EV) sports betting engine. Compares fixed-payout player props on DFS apps (Dabble) against dynamically priced sportsbook lines (DraftKings) to find profitable discrepancies.
+Multi-platform Expected Value (+EV) sports betting engine. Compares fixed-payout player props on DFS apps (primarily **Betr**) against dynamically priced sportsbook lines (**DraftKings**) to find profitable discrepancies.
 
 ## Repository layout
 
@@ -17,12 +17,17 @@ backend/
 ├── scrapers/
 │   ├── base_scraper.py         # Abstract base class enforcing standard pipeline
 │   ├── dfs/
-│   │   └── dabble_engine.py    # Relational JSON parsing
+│   │   ├── betr/               # Betr GraphQL (httpx)
+│   │   └── dabble_engine.py    # Legacy
 │   └── sportsbooks/
-│       └── dk_engine.py        # Playwright accordion targeting
+│       ├── dk_engine.py        # DraftKings markets API (httpx)
+│       └── dk_api.py
+├── parsers/
+│   ├── betr_parser.py, dk_parser.py, normalize.py
 ├── core/
 │   ├── models.py               # NormalizedProp schemas (platform agnostic)
-│   └── engine.py               # EV execution calculations
+│   ├── engine.py               # EV calculations
+│   └── ev_pipeline.py          # Unified board → EV output
 ├── tests/
 │   ├── conftest.py             # Shared fixtures and mock HTTP responses
 │   ├── integration/
@@ -34,7 +39,6 @@ backend/
 └── pytest.ini
 ```
 
-See [project_context.md](project_context.md) for architecture, coding standards, and roadmap. DFS breakeven odds live in [docs/BETTING_ODDS.md](docs/BETTING_ODDS.md). Dabble API capture instructions: [docs/proxyman_dabble_setup.md](docs/proxyman_dabble_setup.md).
 
 ## Setup
 
@@ -58,7 +62,7 @@ See [project_context.md](project_context.md) for architecture, coding standards,
    cp config/.env.example config/.env
    ```
 
-   Fill in your Dabble credentials in `config/.env`. Never commit this file or bearer tokens.
+   Fill in platform tokens (e.g. `BETR_BEARER_TOKEN`) in `config/.env`. Never commit this file or bearer tokens.
 
 4. Run tests:
 

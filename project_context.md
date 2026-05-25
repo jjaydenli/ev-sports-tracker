@@ -30,7 +30,7 @@ The system standardizes disparate naming conventions across books, calculates no
 * **Data structure:** Flat relational arrays joined in `betr_parser.py` using keys like `marketId`, `selectionId`, `marketOptionId`.
 * **Normalization (v1):** Only `REGULAR` projections become normalized props. Boost/edge/discount types are skipped until `prop_type` and breakeven rules exist (see parser module docstring).
 * **Side availability:** Parser reads `allowedOptions` (`OVER`/`UNDER`/`MORE`/`LESS`). Sets `over_odds` / `under_odds` to **-120** only for allowed sides (availability flags for the engine). Skips empty `allowed_options` on `REGULAR` props.
-* **Breakeven for EV:** `compare_betr_vs_draftkings` uses `BETR_STANDARD_BREAKEVEN_ODDS` (**-122**) from `utils/math_utils.py` for implied breakeven vs de-vigged DK prices. Product/docs often cite **-120** for standard picks — see [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
+* **Breakeven for EV:** `compare_betr_vs_draftkings` uses `BETR_STANDARD_BREAKEVEN_ODDS` (**-120**, 54.55% implied) from `utils/math_utils.py` for standard REGULAR picks — see [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 * **Code:** `backend/scrapers/dfs/betr/` (`betr_api.py`, `betr_engine.py`, `betr_orchestrator.py`), `backend/parsers/betr_parser.py`.
 
 ### DraftKings (sharp sportsbook)
@@ -48,7 +48,7 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 * **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
-* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — multiplicative de-vig on DK over/under, up to one +EV row per allowed Betr side (`over_odds` / `under_odds` not `None`). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-122).
+* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — multiplicative de-vig on DK over/under, up to one +EV row per allowed Betr side (`over_odds` / `under_odds` not `None`). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120).
 
 ## 5. Architecture & File Structure
 
@@ -98,7 +98,6 @@ backend/
 
 * **Betr bearer token automation:** Programmatic Keycloak login or refresh so scrapes self-renew without DevTools copy.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
-* **Betr breakeven alignment:** Reconcile -120 (docs/parser markers) vs -122 (`math_utils` EV default) if product confirms a single standard line.
 * **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.
 
 ### Completed / archived

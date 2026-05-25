@@ -111,9 +111,9 @@ def test_compare_betr_vs_draftkings_sorts_by_ev_descending():
 
 
 def test_breakeven_probability_matches_betr_standard_odds():
-    assert BETR_STANDARD_BREAKEVEN_ODDS == -122
+    assert BETR_STANDARD_BREAKEVEN_ODDS == -120
     assert american_to_implied(BETR_STANDARD_BREAKEVEN_ODDS) == pytest.approx(
-        0.5495495, rel=1e-4
+        0.5454545, rel=1e-4
     )
 
 

@@ -8,9 +8,9 @@ V1 includes only REGULAR (standard) projections. Deferred pick-type taxonomy:
 """
 
 from config.market_maps import get_canonical_market
+from utils.math_utils import BETR_STANDARD_BREAKEVEN_ODDS
 
 BETR_SPORTSBOOK = "Betr"
-BETR_STANDARD_ODDS = -120
 STANDARD_PROJECTION_TYPE = "REGULAR"
 
 # TODO: map non-REGULAR types to prop_type and select value vs non_regular_value
@@ -77,8 +77,8 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
         "market": market,
         "line": float(value),
         "prop_type": "standard",
-        "over_odds": BETR_STANDARD_ODDS if over_allowed else None,
-        "under_odds": BETR_STANDARD_ODDS if under_allowed else None,
+        "over_odds": BETR_STANDARD_BREAKEVEN_ODDS if over_allowed else None,
+        "under_odds": BETR_STANDARD_BREAKEVEN_ODDS if under_allowed else None,
         "raw_multiplier": None,
     }
 

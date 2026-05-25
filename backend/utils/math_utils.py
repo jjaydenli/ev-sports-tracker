@@ -1,6 +1,6 @@
 """Odds conversion, de-vigging, and EV formulas."""
 
-BETR_STANDARD_BREAKEVEN_ODDS = -122
+BETR_STANDARD_BREAKEVEN_ODDS = -120
 
 
 def decimal_to_american(decimal_price: float) -> int:

@@ -16,15 +16,37 @@ query LeagueUpcomingEvents($league: League!) {
     league
     status
     date
+    competitionType
+    playerStructure
+    dataFeedSourceIds {
+      id
+      source
+    }
+    venueDetails {
+      name
+      city
+      country
+    }
+    attributes {
+      key
+      value
+    }
     ... on TeamVersusEvent {
       teams {
         id
         name
+        league
+        sport
         players {
           id
           firstName
           lastName
           position
+          jerseyNumber
+          attributes {
+            key
+            value
+          }
           projections {
             marketId
             marketStatus
@@ -35,6 +57,21 @@ query LeagueUpcomingEvents($league: League!) {
             key
             value
             nonRegularValue
+            nonRegularPercentage
+            order
+            currentValue
+            allowedOptions {
+              marketOptionId
+              outcome
+            }
+            playerRecentStats {
+              averageValue
+              stats {
+                value
+                matchupDescription
+                date
+              }
+            }
           }
         }
       }

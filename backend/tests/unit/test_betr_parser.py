@@ -1,6 +1,13 @@
 from parsers.betr_parser import parse_betr_prop, parse_betr_props
 
 
+def _both_sides_options():
+    return [
+        {"market_option_id": "opt-over", "outcome": "OVER"},
+        {"market_option_id": "opt-under", "outcome": "UNDER"},
+    ]
+
+
 def _raw_betr_prop(**overrides):
     base = {
         "market_id": "1032605212843962057",
@@ -16,6 +23,7 @@ def _raw_betr_prop(**overrides):
         "non_regular_value": 0.0,
         "market_status": "OPENED",
         "is_live": False,
+        "allowed_options": _both_sides_options(),
     }
     base.update(overrides)
     return base
@@ -37,6 +45,38 @@ def test_parse_betr_prop_regular_projection():
         "game": "NY@CLE",
         "team": "NY",
     }
+
+
+def test_parse_betr_prop_more_only_allows_over():
+    result = parse_betr_prop(
+        _raw_betr_prop(
+            allowed_options=[
+                {"market_option_id": "opt-more", "outcome": "MORE"},
+            ]
+        )
+    )
+
+    assert result is not None
+    assert result["over_odds"] == -120
+    assert result["under_odds"] is None
+
+
+def test_parse_betr_prop_less_only_allows_under():
+    result = parse_betr_prop(
+        _raw_betr_prop(
+            allowed_options=[
+                {"market_option_id": "opt-less", "outcome": "LESS"},
+            ]
+        )
+    )
+
+    assert result is not None
+    assert result["over_odds"] is None
+    assert result["under_odds"] == -120
+
+
+def test_parse_betr_prop_skips_empty_allowed_options():
+    assert parse_betr_prop(_raw_betr_prop(allowed_options=[])) is None
 
 
 def test_parse_betr_prop_skips_edge_and_boosted_types():

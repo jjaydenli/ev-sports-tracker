@@ -7,5 +7,6 @@ Aggregate reference for fixed-payout DFS parlay breakeven odds. The EV engine us
 | Platform | Reference |
 |----------|-----------|
 | Dabble | [betting_odds/dabble.md](betting_odds/dabble.md) |
+| Betr | [betting_odds/betr.md](betting_odds/betr.md) |
 
 Add a new platform by creating `docs/betting_odds/<platform>.md` and linking it here.

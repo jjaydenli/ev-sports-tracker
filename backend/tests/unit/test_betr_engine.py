@@ -8,9 +8,26 @@ def _miles_mcbride_projection(**overrides):
         "isLive": False,
         "type": "EDGE_1",
         "label": "FG Att",
+        "name": "FG Att",
         "key": "FIELD_GOALS_ATTEMPTED",
         "value": 0.5,
         "nonRegularValue": 4.5,
+        "nonRegularPercentage": 0,
+        "order": 30,
+        "currentValue": None,
+        "allowedOptions": [
+            {"marketOptionId": "1032605212979115285", "outcome": "MORE"},
+        ],
+        "playerRecentStats": {
+            "averageValue": 4.2,
+            "stats": [
+                {
+                    "value": 5.0,
+                    "matchupDescription": "vs BOS",
+                    "date": "2026-05-20",
+                }
+            ],
+        },
     }
     base.update(overrides)
     return base
@@ -25,14 +42,25 @@ def _scheduled_event(**overrides):
         "id": "6a0a88ac8e1ce70219715f9e",
         "name": "NY@CLE",
         "status": "SCHEDULED",
+        "competitionType": "VERSUS",
+        "playerStructure": "TEAM",
+        "dataFeedSourceIds": [{"id": "13916387", "source": "BET_GENIUS"}],
+        "venueDetails": {"name": "Rocket Arena", "city": "Cleveland", "country": "USA"},
+        "attributes": [],
         "teams": [
             {
+                "id": "648a048be70ced3cb8eba364",
                 "name": "NY",
+                "league": "NBA",
+                "sport": "BASKETBALL",
                 "players": [
                     {
                         "id": "648a076a6cd5e52740a3fdba",
                         "firstName": "Miles",
                         "lastName": "McBride",
+                        "position": "PG",
+                        "jerseyNumber": 2,
+                        "attributes": [],
                         "projections": [_miles_mcbride_projection()],
                     }
                 ],
@@ -60,6 +88,18 @@ def test_extract_raw_props_returns_raw_fields():
     assert prop["type"] == "EDGE_1"
     assert prop["value"] == 0.5
     assert prop["non_regular_value"] == 4.5
+    assert prop["non_regular_percentage"] == 0
+    assert prop["order"] == 30
+    assert prop["current_value"] is None
+    assert prop["allowed_options"] == [
+        {"market_option_id": "1032605212979115285", "outcome": "MORE"},
+    ]
+    assert prop["player_recent_stats"]["average_value"] == 4.2
+    assert prop["competition_type"] == "VERSUS"
+    assert prop["data_feed_source_ids"] == [{"id": "13916387", "source": "BET_GENIUS"}]
+    assert prop["venue_details"]["city"] == "Cleveland"
+    assert prop["jersey_number"] == 2
+    assert prop["team_league"] == "NBA"
     assert prop["market_status"] == "OPENED"
     assert prop["is_live"] is False
 

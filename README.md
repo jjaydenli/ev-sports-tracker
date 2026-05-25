@@ -34,7 +34,7 @@ backend/
 └── pytest.ini
 ```
 
-See [project_context.md](project_context.md) for architecture, coding standards, and roadmap. DFS breakeven odds live in [docs/BETTING_ODDS.md](docs/BETTING_ODDS.md).
+See [project_context.md](project_context.md) for architecture, coding standards, and roadmap. DFS breakeven odds live in [docs/BETTING_ODDS.md](docs/BETTING_ODDS.md). Dabble API capture instructions: [docs/proxyman_dabble_setup.md](docs/proxyman_dabble_setup.md).
 
 ## Setup
 

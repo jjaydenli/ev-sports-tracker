@@ -1,0 +1,771 @@
+{
+  "sports": [
+    {
+      "id": "2",
+      "seoIdentifier": "basketball",
+      "name": "Basketball",
+      "sortOrder": 59
+    }
+  ],
+  "leagues": [
+    {
+      "id": "42648",
+      "seoIdentifier": "nba",
+      "name": "NBA",
+      "sportId": "2",
+      "sortOrder": 4858,
+      "tags": [
+        "Featured"
+      ],
+      "isTeamSwap": true
+    }
+  ],
+  "events": [
+    {
+      "id": "34178452",
+      "seoIdentifier": "ny-knicks-%40-cle-cavaliers",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "NY Knicks @ CLE Cavaliers",
+      "startEventDate": "2026-05-24T00:13:40.0000000Z",
+      "participants": [
+        {
+          "id": "32908",
+          "name": "CLE Cavaliers",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "rosettaTeamId": "32908",
+            "rosettaTeamName": "Cavaliers",
+            "shortName": "CLE",
+            "teamColor": "#860038"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Cavaliers",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "32940",
+          "name": "NY Knicks",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "rosettaTeamId": "32940",
+            "rosettaTeamName": "Knicks",
+            "shortName": "NY",
+            "teamColor": "#006bb6"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Knicks",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "STARTED",
+      "liveGameState": {
+        "period": "3rd Quarter",
+        "gameTime": 156
+      },
+      "eventScore": {
+        "mainScore": {
+          "homeScore": "72",
+          "awayScore": "85"
+        },
+        "gamePartScores": [
+          {
+            "homeScore": "27",
+            "awayScore": "37",
+            "name": "Q1"
+          },
+          {
+            "homeScore": "27",
+            "awayScore": "23",
+            "name": "Q2"
+          },
+          {
+            "homeScore": "18",
+            "awayScore": "25",
+            "name": "Q3"
+          },
+          {
+            "name": "Q4"
+          }
+        ],
+        "extraPartScores": []
+      },
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "70505050",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "70505050",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "70505050",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "Broadcast_ABC",
+        "FeaturedSubcategory",
+        "Flashbet",
+        "LiveBoxScore",
+        "LivePrePack",
+        "MatchTracker",
+        "OSB",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "29",
+        "numberOfParts": "4",
+        "secondsInOnePart": "720"
+      },
+      "sortOrder": 230977352,
+      "subscriptionKey": "events-1203740925"
+    },
+    {
+      "id": "34183767",
+      "seoIdentifier": "okc-thunder-%40-sa-spurs",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "OKC Thunder @ SA Spurs",
+      "startEventDate": "2026-05-25T00:10:00.0000000Z",
+      "participants": [
+        {
+          "id": "32955",
+          "name": "SA Spurs",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "303",
+            "rosettaTeamId": "32955",
+            "rosettaTeamName": "Spurs",
+            "shortName": "SAS",
+            "teamColor": "#c4ced4"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Spurs",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "32942",
+          "name": "OKC Thunder",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "302",
+            "rosettaTeamId": "32942",
+            "rosettaTeamName": "Thunder",
+            "shortName": "OKC",
+            "teamColor": "#007ac1"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Thunder",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "70505030",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "70505030",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "70505030",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "Broadcast_NBCPeacock",
+        "FeaturedSubcategory",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "29",
+        "numberOfParts": "4",
+        "secondsInOnePart": "720"
+      },
+      "sortOrder": 231121067,
+      "subscriptionKey": "events-1203740925"
+    }
+  ],
+  "markets": [
+    {
+      "id": "1_84879236",
+      "eventId": "34183767",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "Moneyline",
+      "subcategoryId": "4511",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-1203740925",
+      "sortOrder": 184879236,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_84907017",
+      "eventId": "34178452",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "Moneyline",
+      "subcategoryId": "4511",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_39",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-1203740925",
+      "sortOrder": 184907017,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_84879236",
+      "eventId": "34183767",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "Spread",
+      "subcategoryId": "4511",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Spread"
+      },
+      "subscriptionKey": "events-1203740925",
+      "sortOrder": 284879236,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_84907017",
+      "eventId": "34178452",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "Spread",
+      "subcategoryId": "4511",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_39",
+        "betOfferTypeId": 1,
+        "name": "Spread"
+      },
+      "subscriptionKey": "events-1203740925",
+      "sortOrder": 284907017,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_84879236",
+      "eventId": "34183767",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "Total",
+      "subcategoryId": "4511",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-1203740925",
+      "sortOrder": 384879236,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_84907017",
+      "eventId": "34178452",
+      "sportId": "2",
+      "leagueId": "42648",
+      "name": "Total",
+      "subcategoryId": "4511",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_39",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-1203740925",
+      "sortOrder": 384907017,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "statistics": {
+        "live": [
+          {
+            "type": "MarketStat",
+            "prefix": "Current",
+            "value": 157
+          }
+        ]
+      },
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0ML84907017_3",
+      "marketId": "1_84907017",
+      "label": "NY Knicks",
+      "displayOdds": {
+        "american": "\u2212810",
+        "decimal": "1.12",
+        "fractional": "10/81"
+      },
+      "trueOdds": 1.1234568,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "32940",
+          "name": "NY Knicks",
+          "type": "Team",
+          "seoIdentifier": "Knicks",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "7329"
+          }
+        }
+      ],
+      "sortOrder": 9428153,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML84907017_1",
+      "marketId": "1_84907017",
+      "label": "CLE Cavaliers",
+      "displayOdds": {
+        "american": "+500",
+        "decimal": "6.00",
+        "fractional": "5/1"
+      },
+      "trueOdds": 6,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "32908",
+          "name": "CLE Cavaliers",
+          "type": "Team",
+          "seoIdentifier": "Cavaliers",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "19947"
+          }
+        }
+      ],
+      "sortOrder": 9448149,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC84907017N850_3",
+      "marketId": "2_84907017",
+      "label": "NY Knicks",
+      "displayOdds": {
+        "american": "\u2212125",
+        "decimal": "1.80",
+        "fractional": "4/5"
+      },
+      "trueOdds": 1.8,
+      "points": -8.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "32940",
+          "name": "NY Knicks",
+          "type": "Team",
+          "seoIdentifier": "Knicks",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "7329"
+          }
+        }
+      ],
+      "sortOrder": -8501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC84907017P850_1",
+      "marketId": "2_84907017",
+      "label": "CLE Cavaliers",
+      "displayOdds": {
+        "american": "\u2212105",
+        "decimal": "1.95",
+        "fractional": "20/21"
+      },
+      "trueOdds": 1.95238096,
+      "points": 8.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "32908",
+          "name": "CLE Cavaliers",
+          "type": "Team",
+          "seoIdentifier": "Cavaliers",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "19947"
+          }
+        }
+      ],
+      "sortOrder": -8499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU84907017O22250_1",
+      "marketId": "3_84907017",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 222.5,
+      "outcomeType": "Over",
+      "sortOrder": 222500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU84907017U22250_3",
+      "marketId": "3_84907017",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212120",
+        "decimal": "1.83",
+        "fractional": "5/6"
+      },
+      "trueOdds": 1.83333334,
+      "points": 222.5,
+      "outcomeType": "Under",
+      "sortOrder": 222502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML84879236_3",
+      "marketId": "1_84879236",
+      "label": "OKC Thunder",
+      "displayOdds": {
+        "american": "+120",
+        "decimal": "2.20",
+        "fractional": "6/5"
+      },
+      "trueOdds": 2.2,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "32942",
+          "name": "OKC Thunder",
+          "type": "Team",
+          "seoIdentifier": "Thunder",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "59136"
+          }
+        }
+      ],
+      "sortOrder": 8849778,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML84879236_1",
+      "marketId": "1_84879236",
+      "label": "SA Spurs",
+      "displayOdds": {
+        "american": "\u2212142",
+        "decimal": "1.70",
+        "fractional": "50/71"
+      },
+      "trueOdds": 1.70422536,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "32955",
+          "name": "SA Spurs",
+          "type": "Team",
+          "seoIdentifier": "Spurs",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "19948"
+          }
+        }
+      ],
+      "sortOrder": 8869774,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC84879236P250_3",
+      "marketId": "2_84879236",
+      "label": "OKC Thunder",
+      "displayOdds": {
+        "american": "\u2212105",
+        "decimal": "1.95",
+        "fractional": "20/21"
+      },
+      "trueOdds": 1.95238096,
+      "points": 2.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "32942",
+          "name": "OKC Thunder",
+          "type": "Team",
+          "seoIdentifier": "Thunder",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "59136"
+          }
+        }
+      ],
+      "sortOrder": 2499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC84879236N250_1",
+      "marketId": "2_84879236",
+      "label": "SA Spurs",
+      "displayOdds": {
+        "american": "\u2212115",
+        "decimal": "1.86",
+        "fractional": "20/23"
+      },
+      "trueOdds": 1.86956522,
+      "points": -2.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "32955",
+          "name": "SA Spurs",
+          "type": "Team",
+          "seoIdentifier": "Spurs",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "19948"
+          }
+        }
+      ],
+      "sortOrder": 2501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU84879236O21850_1",
+      "marketId": "3_84879236",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212115",
+        "decimal": "1.86",
+        "fractional": "20/23"
+      },
+      "trueOdds": 1.86956522,
+      "points": 218.5,
+      "outcomeType": "Over",
+      "sortOrder": 218500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU84879236U21850_3",
+      "marketId": "3_84879236",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212105",
+        "decimal": "1.95",
+        "fractional": "20/21"
+      },
+      "trueOdds": 1.95238096,
+      "points": 218.5,
+      "outcomeType": "Under",
+      "sortOrder": 218502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "events-1203740925": {
+      "entity": "events",
+      "query": "$filter=leagueId eq '42648' AND clientMetadata/Subcategories/any(s: s/Id eq '4511') and tags/any(t: t eq 'OSB')",
+      "includeMarkets": "$filter=clientMetadata/subCategoryId eq '4511' AND tags/all(t: t ne 'SportcastBetBuilder')",
+      "locale": "en"
+    }
+  }
+}

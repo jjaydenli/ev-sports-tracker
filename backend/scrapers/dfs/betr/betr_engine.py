@@ -15,6 +15,67 @@ def _build_player_name(player: dict[str, Any]) -> str:
     return f"{player.get('firstName', '')} {player.get('lastName', '')}".strip()
 
 
+def _normalize_key_value_pairs(items: list[dict[str, Any]] | None) -> list[dict[str, Any]]:
+    """Map GraphQL key/value attribute lists to snake_case dicts."""
+    if not items:
+        return []
+    return [{"key": item.get("key"), "value": item.get("value")} for item in items]
+
+
+def _normalize_allowed_options(
+    options: list[dict[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    """Map allowedOptions to snake_case for master board storage."""
+    if not options:
+        return []
+    return [
+        {
+            "market_option_id": option.get("marketOptionId"),
+            "outcome": option.get("outcome"),
+        }
+        for option in options
+    ]
+
+
+def _normalize_player_recent_stats(
+    stats_block: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Map playerRecentStats nested object to snake_case."""
+    if not stats_block:
+        return None
+    return {
+        "average_value": stats_block.get("averageValue"),
+        "stats": [
+            {
+                "value": stat.get("value"),
+                "matchup_description": stat.get("matchupDescription"),
+                "date": stat.get("date"),
+            }
+            for stat in stats_block.get("stats") or []
+        ],
+    }
+
+
+def _normalize_data_feed_source_ids(
+    sources: list[dict[str, Any]] | None,
+) -> list[dict[str, Any]]:
+    """Map dataFeedSourceIds to snake_case."""
+    if not sources:
+        return []
+    return [{"id": source.get("id"), "source": source.get("source")} for source in sources]
+
+
+def _normalize_venue_details(venue: dict[str, Any] | None) -> dict[str, Any] | None:
+    """Map venueDetails to snake_case."""
+    if not venue:
+        return None
+    return {
+        "name": venue.get("name"),
+        "city": venue.get("city"),
+        "country": venue.get("country"),
+    }
+
+
 def _is_open_prematch_projection(projection: dict[str, Any]) -> bool:
     """Keep only open, pre-match projections."""
     return projection.get("marketStatus") == "OPENED" and not projection.get("isLive")
@@ -32,18 +93,34 @@ def iter_projections(event: dict[str, Any]) -> Iterator[dict[str, Any]]:
     """
     Walk teams -> players -> projections and yield raw prop context.
 
-    Each yielded dict includes event/player context plus the projection fields.
+    Each yielded dict includes event/player context plus projection fields (snake_case).
     """
     event_id = event.get("id", "")
     game = event.get("name", "Unknown Game")
+    event_context = {
+        "competition_type": event.get("competitionType"),
+        "player_structure": event.get("playerStructure"),
+        "data_feed_source_ids": _normalize_data_feed_source_ids(
+            event.get("dataFeedSourceIds")
+        ),
+        "venue_details": _normalize_venue_details(event.get("venueDetails")),
+        "event_attributes": _normalize_key_value_pairs(event.get("attributes")),
+    }
 
     for team in event.get("teams", []):
         team_name = team.get("name", "")
+        team_league = team.get("league")
+        team_sport = team.get("sport")
         for player in team.get("players", []):
             player_id = player.get("id", "")
             player_name = _build_player_name(player)
             if not player_name:
                 continue
+
+            player_context = {
+                "jersey_number": player.get("jerseyNumber"),
+                "player_attributes": _normalize_key_value_pairs(player.get("attributes")),
+            }
 
             for projection in player.get("projections", []):
                 if not _is_open_prematch_projection(projection):
@@ -58,15 +135,29 @@ def iter_projections(event: dict[str, Any]) -> Iterator[dict[str, Any]]:
                     "event_id": event_id,
                     "game": game,
                     "team": team_name,
+                    "team_league": team_league,
+                    "team_sport": team_sport,
                     "player_id": player_id,
                     "player": player_name,
                     "label": projection.get("label"),
                     "key": projection.get("key"),
+                    "name": projection.get("name"),
                     "type": projection.get("type"),
                     "value": projection.get("value"),
                     "non_regular_value": projection.get("nonRegularValue"),
+                    "non_regular_percentage": projection.get("nonRegularPercentage"),
+                    "order": projection.get("order"),
+                    "current_value": projection.get("currentValue"),
+                    "allowed_options": _normalize_allowed_options(
+                        projection.get("allowedOptions")
+                    ),
+                    "player_recent_stats": _normalize_player_recent_stats(
+                        projection.get("playerRecentStats")
+                    ),
                     "market_status": projection.get("marketStatus"),
                     "is_live": projection.get("isLive", False),
+                    **event_context,
+                    **player_context,
                 }
 
 

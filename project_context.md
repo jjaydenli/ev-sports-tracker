@@ -14,7 +14,7 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Language:** Python (async-first with `asyncio`)
 * **DFS ingestion:** `httpx` for async HTTP (Betr GraphQL)
-* **Sportsbook ingestion:** `httpx` async HTTP for DraftKings league/event APIs (`dk_api.py`, `dk_engine.py`); tokens via `settings.py` / env
+* **Sportsbook ingestion:** `httpx` async HTTP for DraftKings league/event/market APIs (`dk_api.py`, `dk_engine.py`); headers via `api_headers.py` (no DK credential in `settings.py` today)
 * **Data processing:** `json`, `re`; relational array joins for DFS payloads
 * **Logging:** `loguru`
 * **Testing:** `pytest`, `pytest-asyncio`, `pytest-mock` (offline fixtures only)

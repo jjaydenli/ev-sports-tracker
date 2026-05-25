@@ -68,16 +68,12 @@ Developer Internals: Use Lowercase Shorthand for inline comments (e.g., # isolat
 The Testing Mandate: Follow the AAA (Arrange, Act, Assert) pattern with logical whitespace separating blocks instead of labels.
 
 Roadmap: Next Immediate Steps
-Phase 1: Dabble Bulletproofing (Completion)
-Refactor Utilities: Move decimal_to_american logic to app/utils/odds.py and update imports.
+
+**Betr bearer token automation:** Today `BETR_BEARER_TOKEN` is a manually copied JWT from browser DevTools (~30-day `exp`). Add programmatic Keycloak login or refresh-token exchange so scrapes self-renew without opening Network settings. See `docs/betting_odds/betr.md` → Authentication.
 
 Granular Promos: Update parse_game_props to store the raw multiplier (e.g., 1.1x, 0.7x) in the grouped prop object. Distinguish between different boost levels instead of a generic "lightning" tag.
 
-Authentication Testing: Create integration tests for get_fresh_token (mocking the login response) and get_all_active_game_ids (mocking the schedule response).
+currently the betr board doesnt check the normal props for both over and under availability. for example dean wade 3.5 rebounds is a +ev prop for the under where its +111 on the over and -147 on the under but betr only allows the over.
 
-Phase 2: DraftKings Refactor
-Slate Orchestration: Transition dk_engine.py from single-page scraping to dynamic slate navigation.
+add race to place parlay odds checker where we construct the same parlay on DK/FD and confirm the odds and compare them to the promo multiplier on betr. then we put a hardcoded number for +ev opportunity giving a rec of take or pass if its say 15% higher on betr compared to the sportsbooks odds. betr gives set increased payout boosts: 2-leg: 3x->4x, 3-leg: 6x->7.5x, 4-leg: 10x->15x, 5-leg: 20x->30x, 6-leg: 35x->50x, 7-leg: 50x-75x, 8-leg: 100x->150x
 
-Accordion Logic: Implement the Playwright strategy that targets .sportsbook-event-accordion elements to safely isolate "combo" markets.
-
-Market Mapping: Align DK extracted titles (e.g., "Pts + Reb") with the MARKET_MAPPING established in config.py.

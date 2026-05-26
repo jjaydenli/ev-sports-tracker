@@ -77,29 +77,64 @@ Regex: trailing `-{eventId}` — [`parse_event_id_from_url`](../../backend/confi
 
 **Endpoint:** `GET /api/event-page` with `eventId` and `tab`.
 
-| Tab (NBA) | Use |
-|-----------|-----|
-| `player-points` | Points O/U and related |
-| `player-rebounds` | Rebounds |
-| `player-assists` | Assists |
-| `same-game-parlay-` | Large SGP board (many prop market types) |
-
 **Builder:** [`build_event_page_url`](../../backend/config/fd_competitions.py)
 
-**Event-level fields** (event-page only): `inPlay`, `primaryMarketId`, `openDate`.
+**Event-level fields** (event-page only): `inPlay`, `primaryMarketId`, `openDate`. In-play events are skipped during flatten (`event_page_in_play`).
 
-**Sample market types** (from capture): `PLAYER_*_POINTS`, `2+_MADE_THREES`, `TOTAL_POINTS_(OVER/UNDER)`, `MONEY_LINE`.
+### Market catalog
 
-Step 1 (fixture): live `GET /api/event-page` → redacted fixture `fd_event_35639109_player_points.json`.
+Source of truth: [`backend/config/fd_markets.py`](../../backend/config/fd_markets.py). Canonical keys match `market_maps.py` / Betr / DK.
 
-Step 2 (flatten): `flatten_event_page_response` maps main + alt O/U ladders into master-board rows.
+#### Default scrape (`FD_DEFAULT_SCRAPE_MARKETS`)
 
-Step 3 (EV): `fd_normalized.json` → `resolve_multi_book_sharp_quote` — when **both** DK and FD have exact O/U at the Betr line, de-vig each book and average fair probs (equal weight; see `SHARP_BOOK_WEIGHTS`). FD is exact-only (no interpolation). If FD is exact and DK only interpolated, FD wins. `pipeline_runner` scrapes FD alongside DK; use `--skip-fd` to opt out.
+`pipeline_runner` and `fd_engine` scrape these unless you pass a custom `markets=` list:
+
+| Canonical | Tab / fetch | `marketType` pattern (main / alt) |
+|-----------|-------------|-----------------------------------|
+| `points` | `player-points` | `PLAYER_*_TOTAL_POINTS` / `PLAYER_*_ALT_TOTAL_POINTS` |
+| `rebounds` | `player-rebounds` | `PLAYER_*_TOTAL_REBOUNDS` / `PLAYER_*_ALT_TOTAL_REBOUNDS` |
+| `assists` | `player-assists` | `PLAYER_*_TOTAL_ASSISTS` / `PLAYER_*_ALT_TOTAL_ASSISTS` |
+| `threes` | `same-game-parlay-` (filtered) | `PLAYER_*_TOTAL_MADE_3_POINT_FIELD_GOALS` / alt |
+| `pts+reb` | SGP | `PLAYER_*_TOTAL_PTS_+_REB` (also `POINTS_+_REBOUNDS`) |
+| `pts+ast` | SGP | `PLAYER_*_TOTAL_PTS_+_AST` (`POINTS_+_ASSISTS`) |
+| `pra` | SGP | `PLAYER_*_TOTAL_PTS_+_REB_+_AST` (`POINTS_+_REB_+_AST`) |
+| `reb+ast` | SGP | `PLAYER_*_TOTAL_REB_+_AST` (`REBOUNDS_+_ASSISTS`) |
+
+Core stats use one dedicated tab each (`FD_TAB_CANONICAL_MARKETS`). Extended combo stats and threes share a **single** SGP tab request per event; `fd_engine.scrape_targets_for_markets` filters `marketType` to the requested canonical set.
+
+Parser: `parse_player_ou_market_type` — regex `^PLAYER_[A-Z]_(ALT_)?TOTAL_(?P<stat>.+)$` with suffix → canonical via `_STAT_SUFFIX_TO_CANONICAL` (longest match first).
+
+#### On the board but not scraped (sharp / EV)
+
+Present on event-page JSON (especially SGP and stat tabs) but **ignored** by `flatten_event_page_response` today:
+
+| Family | Example `marketType` | Notes |
+|--------|-------------------|--------|
+| Milestone (score) | `TO_SCORE_10+_POINTS`, `TO_SCORE_25+_POINTS` | Yes/no ladders; unlike DK milestone sharp policy |
+| Milestone (record) | `TO_RECORD_6+_REBOUNDS`, `TO_RECORD_10+_ASSISTS` | Same |
+| Made-threes milestone | `2+_MADE_THREES`, `N+_MADE_THREES` | Not O/U ladders |
+| Double / triple | `TO_RECORD_A_DOUBLE-DOUBLE`, triple-double variants | |
+| Quarter / half | `1ST_QUARTER_-_TO_SCORE_*`, period splits | |
+| Game lines | `MONEY_LINE`, `TOTAL_POINTS_(OVER/UNDER)`, spreads | |
+| Steals / blocks O/U | — | **Not observed** on FD NBA event pages (2026-05-26 probe) |
+
+Future work: branch `feat/fd-milestone-props` — ingest `TO_SCORE_*` / `TO_RECORD_*` / double-double boards with DK-like milestone EV policy.
+
+#### Alternate lines
+
+- Main: `PLAYER_{A–Z}_TOTAL_{STAT}` — one primary line per player (`is_main_line=True` in flatten).
+- Alt: `PLAYER_{A–Z}_ALT_TOTAL_{STAT}` — 1-point ladder steps; grouped under one master-board prop per player + canonical market (`group_fd_line_rows`).
+
+### Pipeline flow
+
+1. **Fixture / live fetch:** `GET /api/event-page` → e.g. `fd_event_35639109_player_points.json` (and `*_rebounds`, `*_assists` for core tabs).
+2. **Flatten:** `flatten_event_page_response` — main + alt O/U only → grouped `fd_master_board.json`.
+3. **EV:** `fd_normalized.json` → `resolve_multi_book_sharp_quote` — when **both** DK and FD have exact O/U at the Betr line, de-vig each book and average fair probs (equal weight; see `SHARP_BOOK_WEIGHTS`). FD is exact-only (no interpolation). If FD is exact and DK only interpolated, FD wins. `pipeline_runner` scrapes Betr + DK + FD in parallel; use `--skip-fd` / `--skip-dk` to reuse existing normalized boards.
 
 ```bash
 cd backend && python -m core.pipeline_runner
 cd backend && python -m core.pipeline_runner --skip-scrape   # reuse boards
-cd backend && python -m core.pipeline_runner --skip-fd       # DK-only sharp
+cd backend && python -m core.pipeline_runner --skip-fd       # omit FD scrape; reuse fd_normalized.json
 ```
 
 ## NBA constants (verified 2026-05-25)
@@ -127,16 +162,11 @@ Do not add `fd_engine` / flatten until step 4 matches the browser slate.
 ## Fixtures
 
 - [`backend/tests/fixtures/fd_league_nba_events.json`](../../backend/tests/fixtures/fd_league_nba_events.json) — redacted league page (6 events, 5 sample markets)
-- [`backend/tests/fixtures/fd_event_35639109_player_points.json`](../../backend/tests/fixtures/fd_event_35639109_player_points.json) — redacted event-page (`player-points` tab, 5 sample markets)
+- [`backend/tests/fixtures/fd_event_35639109_player_points.json`](../../backend/tests/fixtures/fd_event_35639109_player_points.json) — redacted event-page (`player-points` tab)
+- [`backend/tests/fixtures/fd_event_35639109_player_rebounds.json`](../../backend/tests/fixtures/fd_event_35639109_player_rebounds.json) — `player-rebounds` tab
+- [`backend/tests/fixtures/fd_event_35639109_player_assists.json`](../../backend/tests/fixtures/fd_event_35639109_player_assists.json) — `player-assists` tab
 
-## Open questions (increment 2)
-
-| Question | Notes |
-|----------|--------|
-| Tab → canonical market map | `config/fd_markets.py` — `player-points` → `points`, etc. |
-| Alternate lines | Alt ladder `PLAYER_*_ALT_TOTAL_*` — 1pt increments; `is_main_line` from main market |
-| `inPlay` filter | Skipped in `flatten_event_page_response` when event is live |
-| Milestone vs O/U | **Alt O/U only** for sharp quotes; `TO_SCORE_*` skipped (unlike DK milestones) |
+SGP / extended O/U: use live `probe_fd_events --tab same-game-parlay-` or add a redacted fixture when stabilizing extended-market tests.
 
 ## EV pipeline
 

@@ -110,6 +110,7 @@ def persist_match_diagnostics(
         f"({stats['betr_match_rate_pct']}%) "
         f"unmatched_betr={stats['unmatched_betr']} "
         f"(no_dk_market={stats['unmatched_betr_no_dk_market']} "
+        f"no_exact_sharp={stats['unmatched_betr_no_exact_sharp_line']} "
         f"line_mismatch={stats['unmatched_betr_line_mismatch']} "
         f"flat_skipped={stats['unmatched_betr_flat_line_skipped']}) "
         f"unmatched_dk={stats['unmatched_dk']}"

@@ -92,7 +92,7 @@ def test_list_unmatched_dk_flags_no_betr_line():
     assert unmatched[0]["reason"] == "no_betr_line"
 
 
-def test_compute_match_stats_aligns_line_mismatch_via_adjustment():
+def test_compute_match_stats_extrapolated_only_counts_no_exact_sharp_line():
     betr = [
         {
             "player": "Shai Gilgeous-Alexander",
@@ -115,8 +115,44 @@ def test_compute_match_stats_aligns_line_mismatch_via_adjustment():
 
     stats = compute_match_stats(betr, dk)
 
+    assert stats["matched_keys"] == 0
+    assert stats["unmatched_betr"] == 1
+    assert stats["unmatched_betr_no_exact_sharp_line"] == 1
+
+
+def test_compute_match_stats_interpolated_line_counts_as_matched():
+    betr = [
+        {
+            "player": "Test Player",
+            "market": "points",
+            "line": 28.5,
+            "over_odds": -120,
+            "under_odds": -120,
+        },
+    ]
+    dk = [
+        {
+            "player": "Test Player",
+            "market": "points",
+            "line": 27.5,
+            "over_odds": -130,
+            "under_odds": 100,
+            "is_main_line": False,
+        },
+        {
+            "player": "Test Player",
+            "market": "points",
+            "line": 29.5,
+            "over_odds": -145,
+            "under_odds": 110,
+            "is_main_line": True,
+        },
+    ]
+
+    stats = compute_match_stats(betr, dk)
+
     assert stats["matched_keys"] == 1
-    assert stats["unmatched_betr"] == 0
+    assert stats["unmatched_betr_no_exact_sharp_line"] == 0
 
 
 def test_persist_match_diagnostics_writes_report_files(tmp_path):

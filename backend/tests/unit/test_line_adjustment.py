@@ -1,7 +1,10 @@
 from core.engine import find_ev_opportunities, normalize_player_name
 from core.line_adjustment import (
+    _extrapolate_fair_probs,
+    _fair_probs_from_odds,
     build_milestone_ladder,
     build_player_market_ladder,
+    is_ev_eligible_quote,
     resolve_sharp_quote,
 )
 
@@ -216,7 +219,7 @@ def test_milestone_fallback_when_ou_extrapolated():
     assert quote.dk_line_kind == "milestone"
 
 
-def test_find_ev_opportunities_uses_line_adjustment_for_mismatch():
+def test_find_ev_opportunities_skips_extrapolated_line_mismatch():
     betr = [
         {
             "sportsbook": "Betr",
@@ -241,14 +244,71 @@ def test_find_ev_opportunities_uses_line_adjustment_for_mismatch():
 
     results = find_ev_opportunities(betr, dk, min_ev=0.0)
 
-    assert results
-    assert results[0]["line_source"] == "dk_extrapolated"
-    assert results[0]["betr_line"] == 28.5
-    assert results[0]["dk_matched_line"] == 29.5
-    assert results[0]["dk_quote_one_sided"] is False
+    assert results == []
 
 
-def test_find_ev_opportunities_flags_milestone_quote():
+def test_fox_points_extrapolated_resolves_but_not_ev_eligible():
+    """De'Aaron Fox 13.5 under: DK scrape had 14.5 only (May 2026 audit)."""
+    betr = {
+        "player": "De'Aaron Fox",
+        "market": "points",
+        "line": 13.5,
+        "over_odds": -120,
+        "under_odds": -120,
+    }
+    ladder = build_player_market_ladder(
+        [
+            {
+                "player": "De'Aaron Fox",
+                "market": "points",
+                "line": 14.5,
+                "over_odds": -102,
+                "under_odds": -124,
+                "is_main_line": True,
+            },
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+
+    quote, reason = resolve_sharp_quote(
+        betr, ladder, normalize_player_name=normalize_player_name
+    )
+
+    assert reason is None
+    assert quote is not None
+    assert quote.adjustment_method == "dk_extrapolated"
+    assert not is_ev_eligible_quote(quote)
+
+    dk_rows = [
+        {
+            "sportsbook": "DraftKings",
+            "player": "De'Aaron Fox",
+            "market": "points",
+            "line": 14.5,
+            "over_odds": -102,
+            "under_odds": -124,
+            "is_main_line": True,
+        },
+    ]
+    assert find_ev_opportunities(
+        [{"sportsbook": "Betr", **betr}], dk_rows, min_ev=0.0
+    ) == []
+
+
+def test_extrapolate_lower_line_increases_fair_over():
+    fair_over, fair_under = _fair_probs_from_odds(-102, -124)
+    lower_over, lower_under = _extrapolate_fair_probs(
+        fair_over,
+        fair_under,
+        anchor_line=14.5,
+        target_line=13.5,
+        market="points",
+    )
+    assert lower_over > fair_over
+    assert lower_under < fair_under
+
+
+def test_find_ev_opportunities_skips_milestone_quote():
     betr = [
         {
             "sportsbook": "Betr",
@@ -273,12 +333,4 @@ def test_find_ev_opportunities_flags_milestone_quote():
 
     results = find_ev_opportunities(betr, dk, min_ev=0.0)
 
-    assert results
-    over_row = next(r for r in results if r["side"] == "over")
-    assert over_row["line_source"] == "dk_milestone_exact"
-    assert over_row["dk_quote_one_sided"] is True
-    assert over_row["undisclosed_vig_caveat"] is True
-    assert over_row["plus_ev"] is True
-    assert over_row["plus_ev_milestone_caveat"] is True
-    assert over_row["dk_under_odds"] is None
-    assert over_row["dk_line_kind"] == "milestone"
+    assert results == []

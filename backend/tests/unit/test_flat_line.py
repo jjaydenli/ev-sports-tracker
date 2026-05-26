@@ -65,7 +65,7 @@ def test_find_ev_includes_flat_lines_when_flag_set():
             "sportsbook": "DraftKings",
             "player": "Player A",
             "market": "rebounds",
-            "line": 4.5,
+            "line": 4.0,
             "over_odds": -140,
             "under_odds": 120,
             "is_main_line": True,

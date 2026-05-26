@@ -11,6 +11,7 @@ from core.line_adjustment import (
     ResolvedSharpQuote,
     build_milestone_ladder,
     build_player_market_ladder,
+    is_ev_eligible_quote,
     resolve_sharp_quote,
 )
 from utils.math_utils import (
@@ -144,8 +145,9 @@ def find_ev_opportunities(
     """
     Match DFS props to sharp sportsbook lines and return ranked plays.
 
-    Resolves DK main, alternate, interpolated, or extrapolated prices onto each
-    Betr line before de-vig and EV calculation.
+    Resolves DK prices onto each Betr line before de-vig and EV calculation.
+    Only exact, alternate, or interpolated O/U quotes are ranked; extrapolated
+    and milestone quotes are skipped until multi-book exact alts are available.
     """
     ou_ladder = build_player_market_ladder(
         sportsbook_props, normalize_player_name=normalize_player_name
@@ -170,7 +172,7 @@ def find_ev_opportunities(
             normalize_player_name=normalize_player_name,
             milestone_ladder=milestone_ladder,
         )
-        if resolved is None:
+        if resolved is None or not is_ev_eligible_quote(resolved):
             continue
 
         fair_over, fair_under = _fair_probs_from_resolved(resolved)
@@ -253,15 +255,17 @@ def betr_unmatched_reason(
     if is_flat_line(line) and not include_flat_lines:
         return "flat_line_skipped"
 
-    _resolved, reason = resolve_sharp_quote(
+    resolved, reason = resolve_sharp_quote(
         betr_prop,
         ou_ladder,
         normalize_player_name=normalize_player_name,
         milestone_ladder=milestone_ladder,
     )
-    if _resolved is not None:
-        return None
-    return reason or "no_dk_market"
+    if resolved is None:
+        return reason or "no_dk_market"
+    if not is_ev_eligible_quote(resolved):
+        return "no_exact_sharp_line"
+    return None
 
 
 def betr_match_reason(
@@ -293,6 +297,7 @@ def compute_match_stats(
     matched = 0
     _REASON_COUNT_KEYS = {
         "no_dk_market": "unmatched_betr_no_dk_market",
+        "no_exact_sharp_line": "unmatched_betr_no_exact_sharp_line",
         "line_mismatch": "unmatched_betr_line_mismatch",
         "no_dk_bracket_for_interp": "unmatched_betr_no_dk_bracket",
         "flat_line_skipped": "unmatched_betr_flat_line_skipped",
@@ -329,9 +334,13 @@ def compute_match_stats(
         "matched_keys": matched,
         "unmatched_betr": unmatched_betr,
         "unmatched_betr_no_dk_line": counts["unmatched_betr_no_dk_market"]
+        + counts["unmatched_betr_no_exact_sharp_line"]
         + counts["unmatched_betr_line_mismatch"]
         + counts["unmatched_betr_no_dk_bracket"],
         "unmatched_betr_no_dk_market": counts["unmatched_betr_no_dk_market"],
+        "unmatched_betr_no_exact_sharp_line": counts[
+            "unmatched_betr_no_exact_sharp_line"
+        ],
         "unmatched_betr_line_mismatch": counts["unmatched_betr_line_mismatch"],
         "unmatched_betr_no_dk_bracket": counts["unmatched_betr_no_dk_bracket"],
         "unmatched_betr_flat_line_skipped": counts["unmatched_betr_flat_line_skipped"],

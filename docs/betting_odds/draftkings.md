@@ -62,9 +62,11 @@ The scraper fetches O/U for every market in `DK_STAT_CATEGORIES` and milestone t
 
 4. **dk_milestone_exact** / **dk_milestone_interpolated** / **dk_milestone_extrapolated** — over-only N+ ladder; always `corroborated: false`
 
-Extrapolation shifts fair probabilities in logit space by `EXTRAPOLATION_LOGIT_SHIFT_PER_POINT[market]` per 1.0 point of line gap (`target - anchor`). Lower target vs anchor raises over probability.
+Extrapolation shifts fair probabilities in logit space by `EXTRAPOLATION_LOGIT_SHIFT_PER_POINT[market]` per 1.0 point of gap (`anchor - target`). Lower target vs anchor raises over probability. Extrapolation is for diagnostics only until FanDuel (or other books) supply exact alts.
 
-EV rows include `line_source`, `betr_line`, `dk_matched_line`, `dk_main_line`, `corroborated`, `dk_line_kind` (`ou` | `milestone`), `dk_quote_one_sided`, `undisclosed_vig_caveat` (milestone sharp quote), and `plus_ev_milestone_caveat` (actionable +EV on a one-sided quote — treat edge as potentially overstated vs true O/U de-vig).
+**+EV eligibility:** `find_ev_opportunities` ranks only `exact`, `dk_alt`, and `dk_interpolated` true O/U quotes (`is_ev_eligible_quote`). `dk_extrapolated`, milestone methods, and other non-exact paths yield `no_exact_sharp_line` in match stats and are omitted from `ev_opportunities.json`. After FanDuel (or other books) alt lines are scraped, extrapolation output can be calibrated against those exact alts; it remains out of ranked +EV until then.
+
+EV rows include `line_source`, `betr_line`, `dk_matched_line`, `dk_main_line`, `corroborated`, `dk_line_kind` (`ou` | `milestone`).
 
 Milestone matches use over implied probability only; under fair prob is estimated as `1 - fair_over` (not a true DK under price). The pipeline logs `one-sided` on top rows when `plus_ev_milestone_caveat` is set.
 

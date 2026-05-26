@@ -26,6 +26,11 @@ EXTRAPOLATION_LOGIT_SHIFT_PER_POINT: dict[str, float] = {
 
 DkLineKind = Literal["ou", "milestone"]
 
+# Sharp quotes eligible for +EV until multi-book exact alts (e.g. FanDuel) land.
+EV_ELIGIBLE_ADJUSTMENT_METHODS: frozenset[str] = frozenset(
+    {"exact", "dk_alt", "dk_interpolated"}
+)
+
 
 @dataclass(frozen=True)
 class ResolvedSharpQuote:
@@ -39,6 +44,14 @@ class ResolvedSharpQuote:
     corroborated: bool
     dk_main_line: float | None
     dk_line_kind: DkLineKind = "ou"
+
+
+def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
+    """True when the sharp quote uses corroborated O/U at the Betr line (no extrapolation)."""
+    return (
+        quote.dk_line_kind == "ou"
+        and quote.adjustment_method in EV_ELIGIBLE_ADJUSTMENT_METHODS
+    )
 
 
 def _logit(probability: float) -> float:
@@ -140,8 +153,8 @@ def _extrapolate_fair_probs(
 
     Lower target vs anchor -> higher over / lower under probability.
     """
-    delta = target_line - anchor_line
-    shift = _shift_per_point(market) * delta
+    gap = anchor_line - target_line
+    shift = _shift_per_point(market) * gap
     fair_over = _inv_logit(_logit(fair_over) + shift)
     fair_under = _inv_logit(_logit(fair_under) - shift)
     total = fair_over + fair_under
@@ -157,8 +170,8 @@ def _extrapolate_milestone_fair_over(
     target_line: float,
     market: str,
 ) -> float:
-    delta = target_line - anchor_line
-    shift = _shift_per_point(market) * delta
+    gap = anchor_line - target_line
+    shift = _shift_per_point(market) * gap
     return _inv_logit(_logit(fair_over) + shift)
 
 

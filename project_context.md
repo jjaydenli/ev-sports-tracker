@@ -38,7 +38,7 @@ The system standardizes disparate naming conventions across books, calculates no
 * **Access:** Unauthenticated `httpx` calls to DK `sportscontent` league/event/market endpoints (`config/api_headers.py` — `DK_BASE_HEADERS`, no DK token in `settings.py` today).
 * **State:** URL-driven (`category` / `subcategory`); subcategory list in `config/dk_subcategories.py` (core stats + O/U extended: `threes`, `steals`, `blocks`, `stl+blk`; milestone 1+/2+/3+ fallback via `DK_MILESTONE_STAT_CATEGORIES`; pending Betr markets in `DK_PENDING_STAT_CATEGORIES`).
 * **Orchestration:** Resolve event IDs → dedupe → concurrent subcategory/market fetches via `dk_api.py`; `dk_engine.py` extends `base_scraper.py`. `dk_api` ingests main and alternate point lines (`is_main_line` on master board rows).
-* **Line alignment:** `core/line_adjustment.py` maps DK prices onto each Betr line (O/U preferred; milestone 1+/2+/3+ fallback when O/U is missing or extrapolated-only). EV rows include `line_source`, `corroborated`, `betr_line`, `dk_matched_line`, `plus_ev_milestone_caveat` for one-sided sharp quotes. See [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
+* **Line alignment:** `core/line_adjustment.py` maps DK prices onto each Betr line (exact alt, interpolated bracket, or extrapolated single-anchor). **+EV ranking** only uses `exact`, `dk_alt`, and `dk_interpolated` O/U (`is_ev_eligible_quote`); extrapolated and milestone quotes are diagnostics-only (`no_exact_sharp_line` in match stats) until FanDuel multi-book exact alts land. See [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
 * **Flat Betr lines:** Integer lines (push risk) skipped by default; `--include-flat-lines` uses `core/flat_line.py` adjusted breakeven.
 * **Code:** `backend/scrapers/sportsbooks/dk_engine.py`, `dk_api.py`, `backend/parsers/dk_parser.py`.
 
@@ -50,7 +50,7 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 * **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
-* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve DK to Betr line via `line_adjustment.py`, multiplicative de-vig, one row per allowed Betr side, ranked by EV; output capped at `top_n` (default 15) with `plus_ev` when edge exceeds `min_ev`. Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
+* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve DK to Betr line via `line_adjustment.py`, skip non-exact sharp quotes, multiplicative de-vig on eligible O/U only, one row per allowed Betr side, ranked by EV; output capped at `top_n` (default 15) with `plus_ev` when edge exceeds `min_ev`. Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
 
 ## 5. Architecture & File Structure
 
@@ -99,6 +99,7 @@ backend/
 
 ### Open
 
+* **FanDuel sharp + multi-book exact alts:** Scrape/normalize FD O/U ladders; consensus de-vig across DK + FD only when each book has an exact line match (no extrapolation in +EV). Planned under `scrapers/sportsbooks/` + `resolve_sharp_quote` multi-book extension. Once alt ladders exist, compare `dk_extrapolated` vs exact alts (e.g. Fox 13.5) to calibrate logit-per-point slope — diagnostics only until then.
 * **Betr Keycloak discovery:** Confirm `BETR_KEYCLOAK_TOKEN_URL` / client id from a captured login if password grant fails out of the box.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
 * **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.

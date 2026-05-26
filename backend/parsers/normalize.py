@@ -8,11 +8,13 @@ from loguru import logger
 
 from parsers.betr_parser import parse_betr_props
 from parsers.dk_parser import parse_dk_props
+from parsers.fd_parser import parse_fd_props
 
 # Active platforms included in normalize_all(). Dabble is archived under archive/dabble/.
 PLATFORM_CONFIG = {
     "betr": ("betr_master_board.json", "betr_normalized.json", parse_betr_props),
     "draftkings": ("dk_master_board.json", "dk_normalized.json", parse_dk_props),
+    "fanduel": ("fd_master_board.json", "fd_normalized.json", parse_fd_props),
 }
 
 UNIFIED_OUTPUT_FILENAME = "unified_master_board.json"

@@ -64,7 +64,7 @@ The scraper fetches O/U for every market in `DK_STAT_CATEGORIES` and milestone t
 
 Extrapolation shifts fair probabilities in logit space by `EXTRAPOLATION_LOGIT_SHIFT_PER_POINT[market]` per 1.0 point of gap (`anchor - target`). Lower target vs anchor raises over probability. Extrapolation is for diagnostics only until FanDuel (or other books) supply exact alts.
 
-**+EV eligibility:** `find_ev_opportunities` ranks only `exact`, `dk_alt`, and `dk_interpolated` true O/U quotes (`is_ev_eligible_quote`). `dk_extrapolated`, milestone methods, and other non-exact paths yield `no_exact_sharp_line` in match stats and are omitted from `ev_opportunities.json`. After FanDuel (or other books) alt lines are scraped, extrapolation output can be calibrated against those exact alts; it remains out of ranked +EV until then.
+**+EV eligibility:** `find_ev_opportunities` ranks `exact`, `dk_alt`, `dk_interpolated`, `fd_exact`, `fd_alt`, and `multi_book_consensus` O/U quotes. Milestone and extrapolated paths remain diagnostics-only.
 
 EV rows include `line_source`, `betr_line`, `dk_matched_line`, `dk_main_line`, `corroborated`, `dk_line_kind` (`ou` | `milestone`).
 

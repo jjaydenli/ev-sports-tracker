@@ -15,6 +15,7 @@ from core.engine import (
     list_unmatched_betr_props,
     list_unmatched_dk_props,
 )
+from core.ev_display import format_ev_opportunities_table
 from parsers.normalize import normalize_all, save_props
 
 EV_OUTPUT_FILENAME = "ev_opportunities.json"
@@ -23,6 +24,7 @@ UNMATCHED_BETR_FILENAME = "unmatched_betr.json"
 UNMATCHED_DK_FILENAME = "unmatched_dk.json"
 BETR_NORMALIZED = "betr_normalized.json"
 DK_NORMALIZED = "dk_normalized.json"
+FD_NORMALIZED = "fd_normalized.json"
 
 
 def load_json_list(path: Path) -> list[dict]:
@@ -40,36 +42,39 @@ def load_json_list(path: Path) -> list[dict]:
     return data
 
 
-def split_normalized_by_sportsbook(unified_props: list[dict]) -> tuple[list[dict], list[dict]]:
-    """Split a unified board into Betr and DraftKings lists."""
+def split_normalized_by_sportsbook(
+    unified_props: list[dict],
+) -> tuple[list[dict], list[dict], list[dict]]:
+    """Split a unified board into Betr, DraftKings, and FanDuel lists."""
     betr_props = [
         prop for prop in unified_props if prop.get("sportsbook") == "Betr"
     ]
     dk_props = [
         prop for prop in unified_props if prop.get("sportsbook") == "DraftKings"
     ]
-    return betr_props, dk_props
+    fd_props = [
+        prop for prop in unified_props if prop.get("sportsbook") == "FanDuel"
+    ]
+    return betr_props, dk_props, fd_props
 
 
-def load_comparison_inputs(data_dir: Path) -> tuple[list[dict], list[dict]]:
-    """Load normalized Betr and DraftKings props from disk."""
-    betr_path = data_dir / BETR_NORMALIZED
-    dk_path = data_dir / DK_NORMALIZED
-
-    betr_props = load_json_list(betr_path)
-    dk_props = load_json_list(dk_path)
-
-    if betr_props and dk_props:
-        return betr_props, dk_props
+def load_comparison_inputs(data_dir: Path) -> tuple[list[dict], list[dict], list[dict]]:
+    """Load normalized Betr, DraftKings, and FanDuel props from disk."""
+    betr_props = load_json_list(data_dir / BETR_NORMALIZED)
+    dk_props = load_json_list(data_dir / DK_NORMALIZED)
+    fd_props = load_json_list(data_dir / FD_NORMALIZED)
 
     unified_path = data_dir / "unified_master_board.json"
-    if unified_path.exists():
+    if unified_path.exists() and (not betr_props or not dk_props):
         unified = load_json_list(unified_path)
-        betr_from_unified, dk_from_unified = split_normalized_by_sportsbook(unified)
+        betr_from_unified, dk_from_unified, fd_from_unified = (
+            split_normalized_by_sportsbook(unified)
+        )
         betr_props = betr_props or betr_from_unified
         dk_props = dk_props or dk_from_unified
+        fd_props = fd_props or fd_from_unified
 
-    return betr_props, dk_props
+    return betr_props, dk_props, fd_props
 
 
 def persist_match_diagnostics(
@@ -77,12 +82,16 @@ def persist_match_diagnostics(
     betr_props: list[dict],
     dk_props: list[dict],
     *,
+    fd_props: list[dict] | None = None,
     include_flat_lines: bool = False,
 ) -> dict[str, int | float]:
     """Write match stats and unmatched prop lists for scrape/match efficacy checks."""
     data_path = Path(data_dir)
     stats = compute_match_stats(
-        betr_props, dk_props, include_flat_lines=include_flat_lines
+        betr_props,
+        dk_props,
+        fanduel_props=fd_props,
+        include_flat_lines=include_flat_lines,
     )
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -95,7 +104,10 @@ def persist_match_diagnostics(
         json.dump(report, file, indent=4)
     save_props(
         list_unmatched_betr_props(
-            betr_props, dk_props, include_flat_lines=include_flat_lines
+            betr_props,
+            dk_props,
+            fanduel_props=fd_props,
+            include_flat_lines=include_flat_lines,
         ),
         data_path / UNMATCHED_BETR_FILENAME,
     )
@@ -106,7 +118,8 @@ def persist_match_diagnostics(
 
     logger.info(
         "match diagnostics: "
-        f"betr={stats['betr_props']} matched={stats['matched_keys']} "
+        f"betr={stats['betr_props']} dk={stats['dk_props']} fd={stats.get('fd_props', 0)} "
+        f"matched={stats['matched_keys']} "
         f"({stats['betr_match_rate_pct']}%) "
         f"unmatched_betr={stats['unmatched_betr']} "
         f"(no_dk_market={stats['unmatched_betr_no_dk_market']} "
@@ -132,7 +145,7 @@ def run_ev_scan(
     if normalize_first:
         normalize_all(data_path)
 
-    betr_props, dk_props = load_comparison_inputs(data_path)
+    betr_props, dk_props, fd_props = load_comparison_inputs(data_path)
     if not betr_props:
         logger.error(f"no betr props found in {data_path}")
         return []
@@ -141,11 +154,13 @@ def run_ev_scan(
         return []
 
     logger.info(
-        f"comparing {len(betr_props)} betr props against {len(dk_props)} draftkings props"
+        f"comparing {len(betr_props)} betr props against "
+        f"{len(dk_props)} draftkings + {len(fd_props)} fanduel props"
     )
     opportunities = compare_betr_vs_draftkings(
         betr_props,
         dk_props,
+        fanduel_props=fd_props or None,
         min_ev=min_ev,
         top_n=top_n,
         include_flat_lines=include_flat_lines,
@@ -159,23 +174,8 @@ def run_ev_scan(
         f"(min_ev={min_ev}, top_n={top_n}) -> {output_path}"
     )
 
-    for row in opportunities[:5]:
-        ev_label = "+EV" if row.get("plus_ev") else "-EV"
-        if row.get("plus_ev_milestone_caveat"):
-            ev_label = f"{ev_label} one-sided"
-        under = row.get("dk_under_odds")
-        dk_odds = (
-            f"DK O{row['dk_over_odds']:+d} U{under:+d}"
-            if under is not None
-            else f"DK O{row['dk_over_odds']:+d} U—"
-        )
-        logger.info(
-            f"  [{ev_label}] {row['player']} {row['market']} {row['line']} "
-            f"{row['side'].upper()} EV={row['ev_pct']:+.2f}% "
-            f"no-vig={row['no_vig_implied_pct']:.2f}% ({row['no_vig_favored_side']}) "
-            f"betr={row['betr_implied_pct']:.2f}% "
-            f"{dk_odds} src={row.get('line_source', 'exact')}"
-        )
+    if opportunities:
+        logger.info("ranked plays:\n" + format_ev_opportunities_table(opportunities))
 
     return opportunities
 

@@ -1,0 +1,2296 @@
+{
+  "layout": {
+    "defaultTab": 302,
+    "page": {
+      "eventTypeId": 7522,
+      "competitionId": "10547864",
+      "eventId": 35639109
+    },
+    "tabs": {
+      "168": {
+        "id": 168,
+        "title": "Player Points",
+        "cards": [
+          {
+            "id": 168
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      }
+    }
+  },
+  "attachments": {
+    "eventTypes": {
+      "7522": {
+        "eventTypeId": 7522,
+        "name": "Basketball"
+      }
+    },
+    "competitions": {
+      "10547864": {
+        "key": "COMP:10547864",
+        "name": "NBA",
+        "competitionId": 10547864,
+        "eventId": 28049020,
+        "eventTypeId": 7522,
+        "region": "USA"
+      }
+    },
+    "events": {
+      "35639109": {
+        "competitionId": 10547864,
+        "inPlay": false,
+        "eventId": 35639109,
+        "key": "EVENT:35639109",
+        "name": "San Antonio Spurs @ Oklahoma City Thunder",
+        "eventTypeId": 7522,
+        "countryCode": "GB",
+        "timezone": "GMT",
+        "openDate": "2026-05-27T00:40:00.000Z",
+        "videoAvailable": false,
+        "primaryMarketId": "734.169929297"
+      }
+    },
+    "markets": {
+      "734.169929296": {
+        "marketId": "734.169929296",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "Moneyline",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -9000,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 237471,
+            "handicap": 0,
+            "runnerName": "San Antonio Spurs",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "nameAbbr": "SA Spurs",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 162,
+                "americanOddsInt": 162
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.62
+                },
+                "fractionalOdds": {
+                  "numerator": 162,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 164,
+                  "americanOddsInt": 164
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.64
+                  },
+                  "fractionalOdds": {
+                    "numerator": 164,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 3319741,
+            "handicap": 0,
+            "runnerName": "Oklahoma City Thunder",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "nameAbbr": "OKC Thunder",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -194,
+                "americanOddsInt": -194
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.515463917525773
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 194
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -196,
+                  "americanOddsInt": -196
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.510204081632653
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 196
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580335770"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170267438": {
+        "marketId": "734.170267438",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "Total Points",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 216.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -115,
+                "americanOddsInt": -115
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.869565217391304
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 115
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -112,
+                  "americanOddsInt": -112
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.892857142857143
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 112
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 216.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -105,
+                "americanOddsInt": -105
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.952380952380952
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 105
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -108,
+                  "americanOddsInt": -108
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.925925925925926
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 108
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580972036"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170268160": {
+        "marketId": "734.170268160",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "Victor Wembanyama - Points",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "PLAYER_A_TOTAL_POINTS",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8800,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 61967224,
+            "handicap": 25.5,
+            "runnerName": "Victor Wembanyama Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -118,
+                  "americanOddsInt": -118
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.847457627118644
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 118
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 61967225,
+            "handicap": 25.5,
+            "runnerName": "Victor Wembanyama Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -112,
+                  "americanOddsInt": -112
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.892857142857143
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 112
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580973357"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170268161": {
+        "marketId": "734.170268161",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "To Score 25+ Points",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "TO_SCORE_25+_POINTS",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 4,
+        "numberOfActiveRunners": 4,
+        "numberOfWinners": 1,
+        "sortPriority": -8887,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 18970806,
+            "handicap": 0,
+            "runnerName": "Shai Gilgeous-Alexander",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/6659bd6b-742a-4e45-bfb2-57253fd160c7/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -330,
+                "americanOddsInt": -330
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.303030303030303
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 33
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -350,
+                  "americanOddsInt": -350
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.285714285714286
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 35
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 51589519,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -140,
+                "americanOddsInt": -140
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.714285714285714
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 140
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -142,
+                  "americanOddsInt": -142
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.704225352112676
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 142
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 64155911,
+            "handicap": 0,
+            "runnerName": "Stephon Castle",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/c2191276-db27-40e1-8dd8-e0e24f84546a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 500,
+                "americanOddsInt": 500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 6
+                },
+                "fractionalOdds": {
+                  "numerator": 50,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 480,
+                  "americanOddsInt": 480
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 5.8
+                  },
+                  "fractionalOdds": {
+                    "numerator": 48,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 13323008,
+            "handicap": 0,
+            "runnerName": "De'Aaron Fox",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16ec7e47-7af3-4269-a099-1bd193ff12c0/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1060,
+                "americanOddsInt": 1060
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 11.6
+                },
+                "fractionalOdds": {
+                  "numerator": 106,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 1100,
+                  "americanOddsInt": 1100
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 12
+                  },
+                  "fractionalOdds": {
+                    "numerator": 110,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580973375"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170372582": {
+        "marketId": "734.170372582",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "Victor Wembanyama - Alt Points",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "PLAYER_A_ALT_TOTAL_POINTS",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 38,
+        "numberOfActiveRunners": 38,
+        "numberOfWinners": 1,
+        "sortPriority": 1113,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 62135074,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 16.5",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -1200,
+                "americanOddsInt": -1200
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.083333333333333
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 120
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -1400,
+                  "americanOddsInt": -1400
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.071428571428571
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 140
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135071,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 17.5",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -900,
+                "americanOddsInt": -900
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.111111111111111
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 90
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -850,
+                  "americanOddsInt": -850
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.117647058823529
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 85
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135051,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 18.5",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -600,
+                "americanOddsInt": -600
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.166666666666667
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 60
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -650,
+                  "americanOddsInt": -650
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.153846153846154
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 65
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135059,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 19.5",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -450,
+                "americanOddsInt": -450
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.222222222222222
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 45
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -470,
+                  "americanOddsInt": -470
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.212765957446809
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 47
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135088,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 20.5",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -350,
+                "americanOddsInt": -350
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.285714285714286
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 35
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -360,
+                  "americanOddsInt": -360
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.277777777777778
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 36
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135040,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 21.5",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -280,
+                "americanOddsInt": -280
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.357142857142857
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 28
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -270,
+                  "americanOddsInt": -270
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.37037037037037
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 27
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135034,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 22.5",
+            "sortPriority": 7,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -225,
+                "americanOddsInt": -225
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.444444444444444
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 225
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -215,
+                  "americanOddsInt": -215
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.465116279069767
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 215
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135058,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 23.5",
+            "sortPriority": 8,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -182,
+                "americanOddsInt": -182
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.549450549450549
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 182
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -174,
+                  "americanOddsInt": -174
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.574712643678161
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 174
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135047,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 24.5",
+            "sortPriority": 9,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -144,
+                "americanOddsInt": -144
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.694444444444444
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 144
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -140,
+                  "americanOddsInt": -140
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.714285714285714
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 140
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135077,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 25.5",
+            "sortPriority": 10,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -118,
+                  "americanOddsInt": -118
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.847457627118644
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 118
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135049,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 26.5",
+            "sortPriority": 11,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 108,
+                "americanOddsInt": 108
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.08
+                },
+                "fractionalOdds": {
+                  "numerator": 108,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 106,
+                  "americanOddsInt": 106
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.06
+                  },
+                  "fractionalOdds": {
+                    "numerator": 106,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135055,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 27.5",
+            "sortPriority": 12,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 132,
+                "americanOddsInt": 132
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.32
+                },
+                "fractionalOdds": {
+                  "numerator": 132,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 134,
+                  "americanOddsInt": 134
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.34
+                  },
+                  "fractionalOdds": {
+                    "numerator": 134,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135075,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 28.5",
+            "sortPriority": 13,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 158,
+                "americanOddsInt": 158
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.58
+                },
+                "fractionalOdds": {
+                  "numerator": 158,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 162,
+                  "americanOddsInt": 162
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.62
+                  },
+                  "fractionalOdds": {
+                    "numerator": 162,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135053,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 29.5",
+            "sortPriority": 14,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 194,
+                "americanOddsInt": 194
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.94
+                },
+                "fractionalOdds": {
+                  "numerator": 194,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 198,
+                  "americanOddsInt": 198
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.98
+                  },
+                  "fractionalOdds": {
+                    "numerator": 198,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135068,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 30.5",
+            "sortPriority": 15,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 230,
+                "americanOddsInt": 230
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.3
+                },
+                "fractionalOdds": {
+                  "numerator": 230,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 235,
+                  "americanOddsInt": 235
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 3.35
+                  },
+                  "fractionalOdds": {
+                    "numerator": 235,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135052,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 31.5",
+            "sortPriority": 16,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 280,
+                "americanOddsInt": 280
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.8
+                },
+                "fractionalOdds": {
+                  "numerator": 28,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 290,
+                  "americanOddsInt": 290
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 3.9
+                  },
+                  "fractionalOdds": {
+                    "numerator": 29,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135067,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 32.5",
+            "sortPriority": 17,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 350,
+                "americanOddsInt": 350
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.5
+                },
+                "fractionalOdds": {
+                  "numerator": 35,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 320,
+                  "americanOddsInt": 320
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 4.2
+                  },
+                  "fractionalOdds": {
+                    "numerator": 32,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135054,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 33.5",
+            "sortPriority": 18,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 410,
+                "americanOddsInt": 410
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.1
+                },
+                "fractionalOdds": {
+                  "numerator": 41,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 400,
+                  "americanOddsInt": 400
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 5
+                  },
+                  "fractionalOdds": {
+                    "numerator": 40,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135045,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Over 34.5",
+            "sortPriority": 19,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 490,
+                "americanOddsInt": 490
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.9
+                },
+                "fractionalOdds": {
+                  "numerator": 49,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 520,
+                  "americanOddsInt": 520
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 6.2
+                  },
+                  "fractionalOdds": {
+                    "numerator": 52,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135042,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 17.5",
+            "sortPriority": 20,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 490,
+                "americanOddsInt": 490
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.9
+                },
+                "fractionalOdds": {
+                  "numerator": 49,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 470,
+                  "americanOddsInt": 470
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 5.7
+                  },
+                  "fractionalOdds": {
+                    "numerator": 47,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135028,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 18.5",
+            "sortPriority": 21,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 370,
+                "americanOddsInt": 370
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.7
+                },
+                "fractionalOdds": {
+                  "numerator": 37,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 390,
+                  "americanOddsInt": 390
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 4.9
+                  },
+                  "fractionalOdds": {
+                    "numerator": 39,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135048,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 19.5",
+            "sortPriority": 22,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 300,
+                "americanOddsInt": 300
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4
+                },
+                "fractionalOdds": {
+                  "numerator": 30,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 310,
+                  "americanOddsInt": 310
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 4.1
+                  },
+                  "fractionalOdds": {
+                    "numerator": 31,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135046,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 20.5",
+            "sortPriority": 23,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 240,
+                "americanOddsInt": 240
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.4
+                },
+                "fractionalOdds": {
+                  "numerator": 240,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 250,
+                  "americanOddsInt": 250
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 3.5
+                  },
+                  "fractionalOdds": {
+                    "numerator": 25,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135076,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 21.5",
+            "sortPriority": 24,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 200,
+                "americanOddsInt": 200
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3
+                },
+                "fractionalOdds": {
+                  "numerator": 200,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 194,
+                  "americanOddsInt": 194
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.94
+                  },
+                  "fractionalOdds": {
+                    "numerator": 194,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135073,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 22.5",
+            "sortPriority": 25,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 164,
+                "americanOddsInt": 164
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.64
+                },
+                "fractionalOdds": {
+                  "numerator": 164,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 158,
+                  "americanOddsInt": 158
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.58
+                  },
+                  "fractionalOdds": {
+                    "numerator": 158,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135057,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 23.5",
+            "sortPriority": 26,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 136,
+                "americanOddsInt": 136
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.36
+                },
+                "fractionalOdds": {
+                  "numerator": 136,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 130,
+                  "americanOddsInt": 130
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.3
+                  },
+                  "fractionalOdds": {
+                    "numerator": 130,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135056,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 24.5",
+            "sortPriority": 27,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 108,
+                "americanOddsInt": 108
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.08
+                },
+                "fractionalOdds": {
+                  "numerator": 108,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 106,
+                  "americanOddsInt": 106
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.06
+                  },
+                  "fractionalOdds": {
+                    "numerator": 106,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135031,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 25.5",
+            "sortPriority": 28,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -112,
+                  "americanOddsInt": -112
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.892857142857143
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 112
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135066,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 26.5",
+            "sortPriority": 29,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -144,
+                "americanOddsInt": -144
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.694444444444444
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 144
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -140,
+                  "americanOddsInt": -140
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.714285714285714
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 140
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135063,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 27.5",
+            "sortPriority": 30,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -178,
+                "americanOddsInt": -178
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.561797752808989
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 178
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -180,
+                  "americanOddsInt": -180
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.555555555555556
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 180
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135043,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 28.5",
+            "sortPriority": 31,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -215,
+                "americanOddsInt": -215
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.465116279069767
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 215
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -220,
+                  "americanOddsInt": -220
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.454545454545455
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 220
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135095,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 29.5",
+            "sortPriority": 32,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -270,
+                "americanOddsInt": -270
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.37037037037037
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 27
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -280,
+                  "americanOddsInt": -280
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.357142857142857
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 28
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135085,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 30.5",
+            "sortPriority": 33,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -330,
+                "americanOddsInt": -330
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.303030303030303
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 33
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -340,
+                  "americanOddsInt": -340
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.294117647058824
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 34
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135072,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 31.5",
+            "sortPriority": 34,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -420,
+                "americanOddsInt": -420
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.238095238095238
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 42
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -440,
+                  "americanOddsInt": -440
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.227272727272727
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 44
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135094,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 32.5",
+            "sortPriority": 35,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -550,
+                "americanOddsInt": -550
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.181818181818182
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 55
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -500,
+                  "americanOddsInt": -500
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.2
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 50
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135080,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 33.5",
+            "sortPriority": 36,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -700,
+                "americanOddsInt": -700
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.142857142857143
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 70
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -670,
+                  "americanOddsInt": -670
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.149253731343284
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 670
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135078,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 34.5",
+            "sortPriority": 37,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -900,
+                "americanOddsInt": -900
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.111111111111111
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 90
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -1000,
+                  "americanOddsInt": -1000
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.1
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 62135060,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama Under 35.5",
+            "sortPriority": 38,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -1400,
+                "americanOddsInt": -1400
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.071428571428571
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 140
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -1200,
+                  "americanOddsInt": -1200
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.083333333333333
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 120
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": false,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.581195565"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      }
+    }
+  }
+}

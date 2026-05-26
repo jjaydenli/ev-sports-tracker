@@ -36,5 +36,6 @@ def test_run_ev_scan_writes_opportunities(tmp_path):
     assert opportunities
     assert (tmp_path / "ev_opportunities.json").exists()
     assert opportunities[0]["side"] == "over"
+    assert "side_hit_pct" in opportunities[0]
     assert "plus_ev" in opportunities[0]
     assert len(opportunities) <= 15

@@ -73,7 +73,7 @@ Event pages end with the numeric id, e.g.:
 
 Regex: trailing `-{eventId}` — [`parse_event_id_from_url`](../../backend/config/fd_competitions.py).
 
-## Per-event markets (increment 2 — not implemented)
+## Per-event markets (increment 2) + EV (increment 3)
 
 **Endpoint:** `GET /api/event-page` with `eventId` and `tab`.
 
@@ -90,7 +90,17 @@ Regex: trailing `-{eventId}` — [`parse_event_id_from_url`](../../backend/confi
 
 **Sample market types** (from capture): `PLAYER_*_POINTS`, `2+_MADE_THREES`, `TOTAL_POINTS_(OVER/UNDER)`, `MONEY_LINE`.
 
-Increment 2 will map tabs → canonical markets and flatten `attachments.markets` / `runners` into `fd_master_board.json` (mirror DraftKings rows).
+Step 1 (fixture): live `GET /api/event-page` → redacted fixture `fd_event_35639109_player_points.json`.
+
+Step 2 (flatten): `flatten_event_page_response` maps main + alt O/U ladders into master-board rows.
+
+Step 3 (EV): `fd_normalized.json` → `resolve_multi_book_sharp_quote` — when **both** DK and FD have exact O/U at the Betr line, de-vig each book and average fair probs (equal weight; see `SHARP_BOOK_WEIGHTS`). FD is exact-only (no interpolation). If FD is exact and DK only interpolated, FD wins. `pipeline_runner` scrapes FD alongside DK; use `--skip-fd` to opt out.
+
+```bash
+cd backend && python -m core.pipeline_runner
+cd backend && python -m core.pipeline_runner --skip-scrape   # reuse boards
+cd backend && python -m core.pipeline_runner --skip-fd       # DK-only sharp
+```
 
 ## NBA constants (verified 2026-05-25)
 
@@ -117,16 +127,17 @@ Do not add `fd_engine` / flatten until step 4 matches the browser slate.
 ## Fixtures
 
 - [`backend/tests/fixtures/fd_league_nba_events.json`](../../backend/tests/fixtures/fd_league_nba_events.json) — redacted league page (6 events, 5 sample markets)
+- [`backend/tests/fixtures/fd_event_35639109_player_points.json`](../../backend/tests/fixtures/fd_event_35639109_player_points.json) — redacted event-page (`player-points` tab, 5 sample markets)
 
 ## Open questions (increment 2)
 
 | Question | Notes |
 |----------|--------|
-| Tab → canonical market map | Confirm `player-points` / `player-rebounds` / … vs `same-game-parlay-` for full ladders |
-| Alternate lines | DK uses `MainPointLine`; FD runner/handicap shape TBD |
-| `inPlay` filter | Slate lacks status; may filter via event-page before scrape |
-| Multi-state host | Document which `sbapi.*` host matches your account |
+| Tab → canonical market map | `config/fd_markets.py` — `player-points` → `points`, etc. |
+| Alternate lines | Alt ladder `PLAYER_*_ALT_TOTAL_*` — 1pt increments; `is_main_line` from main market |
+| `inPlay` filter | Skipped in `flatten_event_page_response` when event is live |
+| Milestone vs O/U | **Alt O/U only** for sharp quotes; `TO_SCORE_*` skipped (unlike DK milestones) |
 
 ## EV pipeline
 
-Not wired yet. Roadmap: multi-book exact alts with DraftKings in `resolve_sharp_quote` ([`project_context.md`](../../project_context.md) §6).
+Multi-book with DraftKings: `compare_betr_vs_draftkings(..., fanduel_props=)`. Output rows include `sharp_books`, `fd_over_odds`, `fd_under_odds`, `line_source` (`multi_book_consensus`, `fd_exact`, `fd_alt`, …). Adding a third sharp book requires revisiting equal-weight consensus in `line_adjustment.py`.

@@ -21,6 +21,7 @@ from parsers.normalize import normalize_all
 from scrapers.dfs.betr.betr_auth import BetrAuthError, ensure_betr_token, validate_betr_token_or_raise
 from scrapers.dfs.betr.betr_engine import run_betr_scrape
 from scrapers.sportsbooks.dk_engine import run_dk_scrape
+from scrapers.sportsbooks.fd_engine import run_fd_scrape
 
 DEFAULT_DATA_DIR = "data/processed"
 DEFAULT_LEAGUE = "NBA"
@@ -52,12 +53,43 @@ async def _scrape_dk() -> int:
     return await run_dk_scrape()
 
 
+async def _scrape_fd() -> int:
+    return await run_fd_scrape()
+
+
+async def _run_selected_scrapes(
+    *,
+    run_betr: bool,
+    run_dk: bool,
+    run_fd: bool,
+    league: str,
+) -> dict[str, int]:
+    """Run enabled scrapers in parallel; keys are betr, dk, fd."""
+    labels: list[str] = []
+    coros = []
+    if run_betr:
+        labels.append("betr")
+        coros.append(_scrape_betr(league))
+    if run_dk:
+        labels.append("dk")
+        coros.append(_scrape_dk())
+    if run_fd:
+        labels.append("fd")
+        coros.append(_scrape_fd())
+    if not coros:
+        return {}
+    counts = await asyncio.gather(*coros)
+    return dict(zip(labels, counts, strict=True))
+
+
 def run_refresh(
     *,
     data_dir: str | Path = DEFAULT_DATA_DIR,
     skip_scrape: bool = False,
     betr_only: bool = False,
     dk_only: bool = False,
+    skip_dk: bool = False,
+    skip_fd: bool = False,
     league: str = DEFAULT_LEAGUE,
     min_ev: float = 0.0,
     top_n: int = 15,
@@ -71,44 +103,32 @@ def run_refresh(
     """
     data_path = Path(data_dir)
     run_betr = not dk_only
-    run_dk = not betr_only
+    run_dk = not betr_only and not skip_dk
+    run_fd = not betr_only and not dk_only and not skip_fd
 
     if run_betr and not skip_scrape:
         _preflight_betr_auth(skip_expiry_check=skip_expiry_check)
 
     if not skip_scrape:
-        if run_betr and run_dk:
-            async def _both() -> tuple[int, int]:
-                betr_count, dk_count = await asyncio.gather(
-                    _scrape_betr(league),
-                    _scrape_dk(),
+        try:
+            counts = asyncio.run(
+                _run_selected_scrapes(
+                    run_betr=run_betr,
+                    run_dk=run_dk,
+                    run_fd=run_fd,
+                    league=league,
                 )
-                return betr_count, dk_count
-
-            try:
-                betr_count, dk_count = asyncio.run(_both())
-            except Exception as exc:
-                logger.error(f"scrape failed: {exc}")
-                return 1
-            logger.info(f"scrapes complete: betr={betr_count} dk={dk_count}")
-        elif run_betr:
-            try:
-                betr_count = asyncio.run(_scrape_betr(league))
-            except Exception as exc:
-                logger.error(f"betr scrape failed: {exc}")
-                return 1
-            logger.info(f"betr scrape complete: {betr_count} props")
-        elif run_dk:
-            try:
-                dk_count = asyncio.run(_scrape_dk())
-            except Exception as exc:
-                logger.error(f"draftkings scrape failed: {exc}")
-                return 1
-            logger.info(f"draftkings scrape complete: {dk_count} props")
+            )
+        except Exception as exc:
+            logger.error(f"scrape failed: {exc}")
+            return 1
+        if counts:
+            summary = " ".join(f"{name}={count}" for name, count in counts.items())
+            logger.info(f"scrapes complete: {summary}")
     else:
         logger.info("skipping scrape — using existing master boards")
 
-    if run_betr or run_dk:
+    if run_betr or run_dk or run_fd:
         normalize_all(data_path)
     elif not skip_scrape:
         normalize_all(data_path)
@@ -123,7 +143,7 @@ def run_refresh(
         logger.error(f"no normalized boards in {data_path}; run scrape first")
         return 1
 
-    betr_props, dk_props = load_comparison_inputs(data_path)
+    betr_props, dk_props, fd_props = load_comparison_inputs(data_path)
     if not betr_props or not dk_props:
         logger.error("missing betr or draftkings normalized props for EV scan")
         return 1
@@ -132,6 +152,7 @@ def run_refresh(
         data_path,
         betr_props,
         dk_props,
+        fd_props=fd_props or None,
         include_flat_lines=include_flat_lines,
     )
     opportunities = run_ev_scan(
@@ -145,7 +166,7 @@ def run_refresh(
 
     logger.success(
         "refresh summary: "
-        f"betr={stats['betr_props']} dk={stats['dk_props']} "
+        f"betr={stats['betr_props']} dk={stats['dk_props']} fd={stats.get('fd_props', 0)} "
         f"matched={stats['matched_keys']} ({stats['betr_match_rate_pct']}%) "
         f"unmatched_betr={stats['unmatched_betr']} unmatched_dk={stats['unmatched_dk']} "
         f"top={len(opportunities)} plus_ev={plus_ev_count} "
@@ -173,6 +194,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--dk-only",
         action="store_true",
         help="Scrape/normalize DraftKings only (no Betr scrape, no EV scan)",
+    )
+    parser.add_argument(
+        "--skip-dk",
+        action="store_true",
+        help="Skip DraftKings scrape (use existing dk_normalized.json for EV)",
+    )
+    parser.add_argument(
+        "--skip-fd",
+        action="store_true",
+        help="Skip FanDuel scrape (use existing fd_normalized.json for EV)",
     )
     parser.add_argument(
         "--league",
@@ -217,12 +248,17 @@ def main(argv: list[str] | None = None) -> None:
     if args.betr_only and args.dk_only:
         logger.error("use at most one of --betr-only and --dk-only")
         raise SystemExit(1)
+    if args.dk_only and args.skip_dk:
+        logger.error("--dk-only conflicts with --skip-dk")
+        raise SystemExit(1)
 
     code = run_refresh(
         data_dir=args.data_dir,
         skip_scrape=args.skip_scrape,
         betr_only=args.betr_only,
         dk_only=args.dk_only,
+        skip_dk=args.skip_dk,
+        skip_fd=args.skip_fd,
         league=args.league,
         min_ev=args.min_ev,
         top_n=args.top_n,

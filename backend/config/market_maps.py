@@ -89,6 +89,11 @@ PLATFORM_MARKET_MAPPINGS = {
     "dabble": DABBLE_MARKET_MAP,
     "betr": BETR_MARKET_MAP,
     "draftkings": DK_MARKET_MAP,
+    "fanduel": {
+        "points": "points",
+        "rebounds": "rebounds",
+        "assists": "assists",
+    },
 }
 
 

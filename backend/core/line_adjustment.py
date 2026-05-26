@@ -26,15 +26,33 @@ EXTRAPOLATION_LOGIT_SHIFT_PER_POINT: dict[str, float] = {
 
 DkLineKind = Literal["ou", "milestone"]
 
-# Sharp quotes eligible for +EV until multi-book exact alts (e.g. FanDuel) land.
+# Sharp quotes eligible for +EV ranking.
 EV_ELIGIBLE_ADJUSTMENT_METHODS: frozenset[str] = frozenset(
-    {"exact", "dk_alt", "dk_interpolated"}
+    {
+        "exact",
+        "dk_alt",
+        "dk_interpolated",
+        "fd_exact",
+        "fd_alt",
+        "multi_book_consensus",
+    }
 )
+
+# True O/U at the Betr target line (not interpolated) — used for multi-book consensus.
+EXACT_AT_TARGET_METHODS: frozenset[str] = frozenset(
+    {"exact", "dk_alt", "fd_exact", "fd_alt"}
+)
+
+# Equal weight per book when combining fair probs (future books: revisit weighting).
+SHARP_BOOK_WEIGHTS: dict[str, float] = {
+    "DraftKings": 1.0,
+    "FanDuel": 1.0,
+}
 
 
 @dataclass(frozen=True)
 class ResolvedSharpQuote:
-    """DK prices aligned to the Betr target line."""
+    """Sharp-book prices aligned to the Betr target line."""
 
     over_odds: int
     under_odds: int | None
@@ -44,6 +62,11 @@ class ResolvedSharpQuote:
     corroborated: bool
     dk_main_line: float | None
     dk_line_kind: DkLineKind = "ou"
+    dk_over_odds: int | None = None
+    dk_under_odds: int | None = None
+    fd_over_odds: int | None = None
+    fd_under_odds: int | None = None
+    sharp_books: tuple[str, ...] = ()
 
 
 def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
@@ -394,3 +417,156 @@ def resolve_sharp_quote(
     if ou_quote is not None:
         return ou_quote, None
     return None, ou_reason or "no_dk_market"
+
+
+def _resolve_fd_exact_quote(
+    betr_prop: dict,
+    fd_ladder: dict[str, dict[float, dict[str, Any]]],
+    *,
+    normalize_player_name,
+) -> tuple[ResolvedSharpQuote | None, str | None]:
+    """Resolve FanDuel O/U only when an exact alt or main line exists at the Betr line."""
+    player = normalize_player_name(betr_prop["player"])
+    market = betr_prop["market"]
+    target_line = float(betr_prop["line"])
+    pm_key = f"{player}|{market}"
+    lines = fd_ladder.get(pm_key)
+    if not lines:
+        return None, "no_fd_market"
+    if target_line not in lines:
+        return None, "no_fd_exact_line"
+
+    row = lines[target_line]
+    main_lines = sorted(
+        line for line, entry in lines.items() if entry.get("is_main_line", True)
+    )
+    fd_main_line = main_lines[0] if main_lines else None
+    method = "fd_alt" if not row.get("is_main_line", True) else "fd_exact"
+    return (
+        ResolvedSharpQuote(
+            over_odds=row["over_odds"],
+            under_odds=row["under_odds"],
+            dk_line=target_line,
+            betr_line=target_line,
+            adjustment_method=method,
+            corroborated=True,
+            dk_main_line=fd_main_line,
+            dk_line_kind="ou",
+            fd_over_odds=row["over_odds"],
+            fd_under_odds=row["under_odds"],
+            sharp_books=("FanDuel",),
+        ),
+        None,
+    )
+
+
+def _consensus_sharp_quote(
+    *,
+    betr_line: float,
+    dk_quote: ResolvedSharpQuote,
+    fd_quote: ResolvedSharpQuote,
+) -> ResolvedSharpQuote:
+    """Equal-weight average of de-vigged fair probs across exact sharp books."""
+    fair_dk = _fair_probs_from_odds(dk_quote.over_odds, dk_quote.under_odds or 0)
+    fair_fd = _fair_probs_from_odds(fd_quote.over_odds, fd_quote.under_odds or 0)
+    weight_dk = SHARP_BOOK_WEIGHTS.get("DraftKings", 1.0)
+    weight_fd = SHARP_BOOK_WEIGHTS.get("FanDuel", 1.0)
+    total_weight = weight_dk + weight_fd
+    fair_over = (fair_dk[0] * weight_dk + fair_fd[0] * weight_fd) / total_weight
+    fair_under = (fair_dk[1] * weight_dk + fair_fd[1] * weight_fd) / total_weight
+    norm = fair_over + fair_under
+    if norm > 0:
+        fair_over /= norm
+        fair_under /= norm
+    over_odds, under_odds = _odds_from_fair_probs(fair_over, fair_under)
+    return ResolvedSharpQuote(
+        over_odds=over_odds,
+        under_odds=under_odds,
+        dk_line=betr_line,
+        betr_line=betr_line,
+        adjustment_method="multi_book_consensus",
+        corroborated=True,
+        dk_main_line=dk_quote.dk_main_line,
+        dk_line_kind="ou",
+        dk_over_odds=dk_quote.over_odds,
+        dk_under_odds=dk_quote.under_odds,
+        fd_over_odds=fd_quote.over_odds,
+        fd_under_odds=fd_quote.under_odds,
+        sharp_books=("DraftKings", "FanDuel"),
+    )
+
+
+def resolve_multi_book_sharp_quote(
+    betr_prop: dict,
+    dk_ou_ladder: dict[str, dict[float, dict[str, Any]]],
+    fd_ou_ladder: dict[str, dict[float, dict[str, Any]]],
+    *,
+    normalize_player_name,
+    milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
+) -> tuple[ResolvedSharpQuote | None, str | None]:
+    """
+    Resolve DK + FanDuel sharp prices for a Betr prop.
+
+    FanDuel contributes exact main/alt lines only. When both books have exact
+    O/U at the Betr line, fair probs are de-vigged per book and combined with
+    equal weight (see SHARP_BOOK_WEIGHTS — revisit when adding books).
+    """
+    dk_quote, dk_reason = resolve_sharp_quote(
+        betr_prop,
+        dk_ou_ladder,
+        normalize_player_name=normalize_player_name,
+        milestone_ladder=milestone_ladder,
+    )
+    fd_quote, fd_reason = _resolve_fd_exact_quote(
+        betr_prop,
+        fd_ou_ladder,
+        normalize_player_name=normalize_player_name,
+    )
+
+    dk_exact = (
+        dk_quote is not None
+        and dk_quote.adjustment_method in EXACT_AT_TARGET_METHODS
+        and dk_quote.dk_line_kind == "ou"
+    )
+    fd_exact = fd_quote is not None
+
+    if dk_exact and fd_exact and dk_quote is not None and fd_quote is not None:
+        target_line = float(betr_prop["line"])
+        return (
+            _consensus_sharp_quote(
+                betr_line=target_line,
+                dk_quote=dk_quote,
+                fd_quote=fd_quote,
+            ),
+            None,
+        )
+
+    if fd_exact and fd_quote is not None:
+        if dk_quote is None or dk_quote.adjustment_method == "dk_interpolated":
+            return fd_quote, None
+        if not is_ev_eligible_quote(dk_quote):
+            return fd_quote, None
+
+    if dk_quote is not None:
+        if dk_quote.adjustment_method in {"exact", "dk_alt", "dk_interpolated"}:
+            enriched = ResolvedSharpQuote(
+                over_odds=dk_quote.over_odds,
+                under_odds=dk_quote.under_odds,
+                dk_line=dk_quote.dk_line,
+                betr_line=dk_quote.betr_line,
+                adjustment_method=dk_quote.adjustment_method,
+                corroborated=dk_quote.corroborated,
+                dk_main_line=dk_quote.dk_main_line,
+                dk_line_kind=dk_quote.dk_line_kind,
+                dk_over_odds=dk_quote.over_odds,
+                dk_under_odds=dk_quote.under_odds,
+                sharp_books=("DraftKings",),
+            )
+            return enriched, None
+        if is_ev_eligible_quote(dk_quote):
+            return dk_quote, None
+        return None, "no_exact_sharp_line"
+
+    if fd_quote is not None:
+        return fd_quote, None
+    return None, fd_reason or dk_reason or "no_sharp_market"

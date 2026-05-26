@@ -16,12 +16,14 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from config.api_headers import FD_BASE_HEADERS, FD_SPORTSBOOK_API_HOST  # noqa: E402
 from config.fd_competitions import (  # noqa: E402
+    FD_EVENT_TAB_LABELS,
     FD_LEAGUE_SLATES,
     build_event_page_url,
+    count_event_page_markets,
     extract_event_summaries,
     parse_event_id_from_url,
 )
-from scrapers.sportsbooks.fd_api import fetch_league_events  # noqa: E402
+from scrapers.sportsbooks.fd_api import fetch_event_page, fetch_league_events  # noqa: E402
 
 
 async def _run(
@@ -29,6 +31,7 @@ async def _run(
     league: str,
     event_id: str | None,
     game_url: str | None,
+    tab: str | None,
     include_non_matchup: bool,
     raw: bool,
 ) -> int:
@@ -43,6 +46,24 @@ async def _run(
     async with httpx.AsyncClient(
         headers=FD_BASE_HEADERS, follow_redirects=True, timeout=15.0
     ) as client:
+        if tab:
+            if not event_id:
+                print("--tab requires --event-id or --game-url", file=sys.stderr)
+                return 1
+            payload = await fetch_event_page(client, event_id, tab=tab)
+            if not payload:
+                print("no event-page payload (check host, geo, or FD_API_KEY)", file=sys.stderr)
+                return 1
+            if raw:
+                print(json.dumps(payload, indent=2))
+                return 0
+            market_count = count_event_page_markets(payload)
+            print(
+                f"host={FD_SPORTSBOOK_API_HOST} event_id={event_id} "
+                f"tab={tab} markets={market_count}"
+            )
+            return 0
+
         payload = await fetch_league_events(client, league)
 
     if not payload:
@@ -92,6 +113,11 @@ def main() -> None:
         help="Include futures/draft/awards titles on the NBA page",
     )
     parser.add_argument("--raw", action="store_true", help="Print full JSON payload")
+    parser.add_argument(
+        "--tab",
+        choices=sorted(FD_EVENT_TAB_LABELS),
+        help="Fetch event-page for --event-id and print market count",
+    )
     args = parser.parse_args()
 
     raise SystemExit(
@@ -100,6 +126,7 @@ def main() -> None:
                 league=args.league,
                 event_id=args.event_id,
                 game_url=args.game_url,
+                tab=args.tab,
                 include_non_matchup=args.include_non_matchup,
                 raw=args.raw,
             )

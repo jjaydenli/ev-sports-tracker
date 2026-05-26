@@ -25,6 +25,14 @@ FD_LEAGUE_SLATES: dict[str, dict[str, str]] = {
 # Team @ Team matchups (excludes futures, draft, awards on the NBA custom page).
 MATCHUP_EVENT_NAME_RE = re.compile(r"\s@\s")
 
+# event-page ?tab= slug → layout.tabs[].title (verified on NBA event pages).
+FD_EVENT_TAB_LABELS: dict[str, str] = {
+    "player-points": "Player Points",
+    "player-rebounds": "Player Rebounds",
+    "player-assists": "Player Assists",
+    "same-game-parlay-": "Same Game Parlay\u2122",
+}
+
 EVENT_ID_FROM_URL = re.compile(r"-(\d{6,})(?:\?|$|/)")
 
 
@@ -148,3 +156,40 @@ def extract_event_summaries(
             }
         )
     return summaries
+
+
+def count_event_page_markets(payload: dict[str, Any]) -> int:
+    """Return the number of markets on an event-page payload."""
+    attachments = payload.get("attachments") or {}
+    return len(attachments.get("markets") or {})
+
+
+def extract_event_page_context(
+    payload: dict[str, Any],
+    *,
+    tab: str,
+) -> dict[str, Any]:
+    """
+    Extract event id and tab context from an event-page response.
+
+    Tab slug (query param) is mapped via FD_EVENT_TAB_LABELS to layout.tabs titles.
+    """
+    layout = payload.get("layout") or {}
+    page = layout.get("page") or {}
+    event_id = str(page.get("eventId") or "")
+
+    tab_title = FD_EVENT_TAB_LABELS.get(tab)
+    tabs = layout.get("tabs") or {}
+    tab_entry: dict[str, Any] | None = None
+    for entry in tabs.values():
+        if entry.get("title") == tab_title:
+            tab_entry = entry
+            break
+
+    return {
+        "event_id": event_id,
+        "tab": tab,
+        "tab_title": tab_title,
+        "tab_id": tab_entry.get("id") if tab_entry else None,
+        "tab_present": tab_entry is not None,
+    }

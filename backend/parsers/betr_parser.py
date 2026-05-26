@@ -8,6 +8,7 @@ V1 includes only REGULAR (standard) projections. Deferred pick-type taxonomy:
 """
 
 from config.market_maps import get_canonical_market
+from core.flat_line import line_kind
 from utils.math_utils import BETR_STANDARD_BREAKEVEN_ODDS
 
 BETR_SPORTSBOOK = "Betr"
@@ -71,11 +72,13 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
     if not over_allowed and not under_allowed:
         return None
 
+    line = float(value)
     normalized = {
         "sportsbook": BETR_SPORTSBOOK,
         "player": player,
         "market": market,
-        "line": float(value),
+        "line": line,
+        "line_kind": line_kind(line),
         "prop_type": "standard",
         "over_odds": BETR_STANDARD_BREAKEVEN_ODDS if over_allowed else None,
         "under_odds": BETR_STANDARD_BREAKEVEN_ODDS if under_allowed else None,

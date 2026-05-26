@@ -4,6 +4,7 @@ from pathlib import Path
 import httpx
 import pytest
 
+from config.dk_subcategories import DK_STAT_CATEGORIES
 from scrapers.sportsbooks.dk_api import flatten_markets_response
 from scrapers.sportsbooks.dk_engine import (
     DraftKingsEngine,
@@ -47,11 +48,14 @@ async def test_scrape_fetches_configured_markets(points_payload, monkeypatch):
         if market != "points":
             return []
         return flatten_markets_response(
-            points_payload, event_id=event_id, market=market
+            points_payload,
+            event_id=event_id,
+            market=market,
+            subcategory_id=DK_STAT_CATEGORIES[market],
         )
 
     monkeypatch.setattr(
-        "scrapers.sportsbooks.dk_engine.fetch_and_flatten_markets",
+        "scrapers.sportsbooks.dk_engine.fetch_and_flatten_all_for_market",
         mock_fetch,
     )
 
@@ -89,7 +93,10 @@ async def test_scrape_discovers_event_ids_from_league_slate(
         if market != "points":
             return []
         return flatten_markets_response(
-            points_payload, event_id=event_id, market=market
+            points_payload,
+            event_id=event_id,
+            market=market,
+            subcategory_id=DK_STAT_CATEGORIES[market],
         )
 
     monkeypatch.setattr(
@@ -97,7 +104,7 @@ async def test_scrape_discovers_event_ids_from_league_slate(
         mock_slate,
     )
     monkeypatch.setattr(
-        "scrapers.sportsbooks.dk_engine.fetch_and_flatten_markets",
+        "scrapers.sportsbooks.dk_engine.fetch_and_flatten_all_for_market",
         mock_fetch,
     )
 

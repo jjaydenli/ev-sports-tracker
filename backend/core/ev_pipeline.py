@@ -76,10 +76,14 @@ def persist_match_diagnostics(
     data_dir: str | Path,
     betr_props: list[dict],
     dk_props: list[dict],
+    *,
+    include_flat_lines: bool = False,
 ) -> dict[str, int | float]:
     """Write match stats and unmatched prop lists for scrape/match efficacy checks."""
     data_path = Path(data_dir)
-    stats = compute_match_stats(betr_props, dk_props)
+    stats = compute_match_stats(
+        betr_props, dk_props, include_flat_lines=include_flat_lines
+    )
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         **stats,
@@ -90,7 +94,9 @@ def persist_match_diagnostics(
     with report_path.open("w", encoding="utf-8") as file:
         json.dump(report, file, indent=4)
     save_props(
-        list_unmatched_betr_props(betr_props, dk_props),
+        list_unmatched_betr_props(
+            betr_props, dk_props, include_flat_lines=include_flat_lines
+        ),
         data_path / UNMATCHED_BETR_FILENAME,
     )
     save_props(
@@ -103,8 +109,9 @@ def persist_match_diagnostics(
         f"betr={stats['betr_props']} matched={stats['matched_keys']} "
         f"({stats['betr_match_rate_pct']}%) "
         f"unmatched_betr={stats['unmatched_betr']} "
-        f"(no_dk={stats['unmatched_betr_no_dk_line']} "
-        f"dk_no_odds={stats['unmatched_betr_dk_missing_odds']}) "
+        f"(no_dk_market={stats['unmatched_betr_no_dk_market']} "
+        f"line_mismatch={stats['unmatched_betr_line_mismatch']} "
+        f"flat_skipped={stats['unmatched_betr_flat_line_skipped']}) "
         f"unmatched_dk={stats['unmatched_dk']}"
     )
     return stats
@@ -116,6 +123,7 @@ def run_ev_scan(
     min_ev: float = 0.0,
     top_n: int = 15,
     normalize_first: bool = True,
+    include_flat_lines: bool = False,
 ) -> list[dict]:
     """Run the Betr vs DraftKings EV scan and optionally persist results."""
     data_path = Path(data_dir)
@@ -135,7 +143,11 @@ def run_ev_scan(
         f"comparing {len(betr_props)} betr props against {len(dk_props)} draftkings props"
     )
     opportunities = compare_betr_vs_draftkings(
-        betr_props, dk_props, min_ev=min_ev, top_n=top_n
+        betr_props,
+        dk_props,
+        min_ev=min_ev,
+        top_n=top_n,
+        include_flat_lines=include_flat_lines,
     )
     plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 
@@ -148,12 +160,20 @@ def run_ev_scan(
 
     for row in opportunities[:5]:
         ev_label = "+EV" if row.get("plus_ev") else "-EV"
+        if row.get("plus_ev_milestone_caveat"):
+            ev_label = f"{ev_label} one-sided"
+        under = row.get("dk_under_odds")
+        dk_odds = (
+            f"DK O{row['dk_over_odds']:+d} U{under:+d}"
+            if under is not None
+            else f"DK O{row['dk_over_odds']:+d} U—"
+        )
         logger.info(
             f"  [{ev_label}] {row['player']} {row['market']} {row['line']} "
             f"{row['side'].upper()} EV={row['ev_pct']:+.2f}% "
             f"no-vig={row['no_vig_implied_pct']:.2f}% ({row['no_vig_favored_side']}) "
             f"betr={row['betr_implied_pct']:.2f}% "
-            f"DK O{row['dk_over_odds']:+d} U{row['dk_under_odds']:+d}"
+            f"{dk_odds} src={row.get('line_source', 'exact')}"
         )
 
     return opportunities

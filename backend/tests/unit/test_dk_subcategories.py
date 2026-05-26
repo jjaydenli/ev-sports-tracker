@@ -2,6 +2,9 @@ from urllib.parse import parse_qs, urlparse
 
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
+    DK_MILESTONE_STAT_CATEGORIES,
+    DK_OU_EXTENDED_STAT_CATEGORIES,
+    DK_PENDING_STAT_CATEGORIES,
     DK_STAT_CATEGORIES,
     build_league_events_query,
     build_league_events_url,
@@ -10,17 +13,52 @@ from config.dk_subcategories import (
 )
 
 
-def test_dk_stat_categories_contains_seven_markets():
-    assert len(DK_STAT_CATEGORIES) == 7
+def test_dk_stat_categories_contains_core_extended():
+    assert len(DK_STAT_CATEGORIES) == 11
     assert DK_STAT_CATEGORIES["points"] == "12488"
+    assert DK_STAT_CATEGORIES["threes"] == "12497"
     assert DK_STAT_CATEGORIES["assists"] == "12495"
     assert DK_STAT_CATEGORIES["pra"] == "5001"
+
+
+def test_dk_ou_extended_steals_blocks_stl_blk():
+    assert DK_OU_EXTENDED_STAT_CATEGORIES["steals"] == "2713508"
+    assert DK_OU_EXTENDED_STAT_CATEGORIES["blocks"] == "2713780"
+    assert DK_OU_EXTENDED_STAT_CATEGORIES["stl+blk"] == "2713781"
+    assert DK_STAT_CATEGORIES["steals"] == "2713508"
 
 
 def test_dk_stat_categories_uses_canonical_combo_names():
     assert DK_STAT_CATEGORIES["pts+reb"] == "9976"
     assert DK_STAT_CATEGORIES["pts+ast"] == "9973"
     assert DK_STAT_CATEGORIES["reb+ast"] == "9974"
+
+
+def test_dk_milestone_stat_categories_verified_ids():
+    assert DK_MILESTONE_STAT_CATEGORIES["points"] == "2716477"
+    assert DK_MILESTONE_STAT_CATEGORIES["rebounds"] == "2716479"
+    assert DK_MILESTONE_STAT_CATEGORIES["assists"] == "2716478"
+    assert DK_MILESTONE_STAT_CATEGORIES["threes"] == "2716480"
+    assert DK_MILESTONE_STAT_CATEGORIES["pts+reb"] == "2716482"
+    assert DK_MILESTONE_STAT_CATEGORIES["pts+ast"] == "2716481"
+    assert DK_MILESTONE_STAT_CATEGORIES["reb+ast"] == "2719560"
+    assert DK_MILESTONE_STAT_CATEGORIES["pra"] == "2716483"
+    assert DK_MILESTONE_STAT_CATEGORIES["blocks"] == "2716484"
+    assert DK_MILESTONE_STAT_CATEGORIES["steals"] == "2716485"
+    assert "stl+blk" not in DK_MILESTONE_STAT_CATEGORIES
+    assert len(DK_MILESTONE_STAT_CATEGORIES) == 10
+
+
+def test_build_markets_url_steals_milestone_subcategory():
+    url = build_markets_url("34183767", DK_MILESTONE_STAT_CATEGORIES["steals"])
+    params = parse_qs(urlparse(url).query)
+    assert params["templateVars"] == ["34183767,2716485"]
+
+
+def test_dk_pending_stat_categories_registered():
+    assert DK_PENDING_STAT_CATEGORIES["turnovers"] is None
+    assert DK_PENDING_STAT_CATEGORIES["fantasy_pts"] is None
+    assert "steals" not in DK_PENDING_STAT_CATEGORIES
 
 
 def test_build_markets_query_matches_captured_filter():
@@ -30,6 +68,12 @@ def test_build_markets_query_matches_captured_filter():
         "AND clientMetadata/subCategoryId eq '12488' "
         "AND tags/all(t: t ne 'SportcastBetBuilder')"
     )
+
+
+def test_build_markets_url_steals_subcategory():
+    url = build_markets_url("34183767", DK_STAT_CATEGORIES["steals"])
+    params = parse_qs(urlparse(url).query)
+    assert params["templateVars"] == ["34183767,2713508"]
 
 
 def test_build_markets_url_matches_captured_points_request():

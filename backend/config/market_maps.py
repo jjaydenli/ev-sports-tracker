@@ -77,6 +77,8 @@ DK_MARKET_MAP = {
     "steals": "steals",
     "blocks": "blocks",
     "steals + blocks": "stl+blk",
+    "stl + blk": "stl+blk",
+    "steals & blocks": "stl+blk",
     "pts + reb + ast": "pra",
     "pts + reb": "pts+reb",
     "pts + ast": "pts+ast",

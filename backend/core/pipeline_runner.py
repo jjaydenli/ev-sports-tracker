@@ -62,6 +62,7 @@ def run_refresh(
     min_ev: float = 0.0,
     top_n: int = 15,
     skip_expiry_check: bool = False,
+    include_flat_lines: bool = False,
 ) -> int:
     """
     Run scrape → normalize → EV pipeline.
@@ -127,9 +128,18 @@ def run_refresh(
         logger.error("missing betr or draftkings normalized props for EV scan")
         return 1
 
-    stats = persist_match_diagnostics(data_path, betr_props, dk_props)
+    stats = persist_match_diagnostics(
+        data_path,
+        betr_props,
+        dk_props,
+        include_flat_lines=include_flat_lines,
+    )
     opportunities = run_ev_scan(
-        data_path, normalize_first=False, min_ev=min_ev, top_n=top_n
+        data_path,
+        normalize_first=False,
+        min_ev=min_ev,
+        top_n=top_n,
+        include_flat_lines=include_flat_lines,
     )
     plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 
@@ -191,6 +201,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip JWT expiry pre-flight (not recommended)",
     )
+    parser.add_argument(
+        "--include-flat-lines",
+        action="store_true",
+        help="Include Betr integer lines (push risk) in EV scan with adjusted breakeven",
+    )
     return parser
 
 
@@ -212,6 +227,7 @@ def main(argv: list[str] | None = None) -> None:
         min_ev=args.min_ev,
         top_n=args.top_n,
         skip_expiry_check=args.skip_expiry_check,
+        include_flat_lines=args.include_flat_lines,
     )
     raise SystemExit(code)
 

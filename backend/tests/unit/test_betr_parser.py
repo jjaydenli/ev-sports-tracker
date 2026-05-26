@@ -37,6 +37,7 @@ def test_parse_betr_prop_regular_projection():
         "player": "Miles McBride",
         "market": "fg_attempted",
         "line": 4.5,
+        "line_kind": "half_point",
         "prop_type": "standard",
         "over_odds": -120,
         "under_odds": -120,

@@ -1,0 +1,46 @@
+{
+  "markets": [
+    {
+      "id": "900001",
+      "eventId": "34183767",
+      "name": "Alex Caruso Steals O/U",
+      "subcategoryId": "2713508"
+    }
+  ],
+  "selections": [
+    {
+      "marketId": "900001",
+      "label": "Over",
+      "outcomeType": "Over",
+      "points": 1.5,
+      "displayOdds": {"american": "-120"},
+      "tags": ["MainPointLine"],
+      "participants": [{"name": "Alex Caruso", "type": "Player"}]
+    },
+    {
+      "marketId": "900001",
+      "label": "Under",
+      "outcomeType": "Under",
+      "points": 1.5,
+      "displayOdds": {"american": "-110"},
+      "tags": ["MainPointLine"],
+      "participants": [{"name": "Alex Caruso", "type": "Player"}]
+    },
+    {
+      "marketId": "900001",
+      "label": "Over",
+      "outcomeType": "Over",
+      "points": 0.5,
+      "displayOdds": {"american": "-200"},
+      "participants": [{"name": "Alex Caruso", "type": "Player"}]
+    },
+    {
+      "marketId": "900001",
+      "label": "Under",
+      "outcomeType": "Under",
+      "points": 0.5,
+      "displayOdds": {"american": "+150"},
+      "participants": [{"name": "Alex Caruso", "type": "Player"}]
+    }
+  ]
+}

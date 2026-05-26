@@ -2,6 +2,17 @@
 
 from __future__ import annotations
 
+from core.flat_line import (
+    adjusted_breakeven_probability,
+    is_flat_line,
+    line_kind,
+)
+from core.line_adjustment import (
+    ResolvedSharpQuote,
+    build_milestone_ladder,
+    build_player_market_ladder,
+    resolve_sharp_quote,
+)
 from utils.math_utils import (
     BETR_STANDARD_BREAKEVEN_ODDS,
     american_to_implied,
@@ -28,6 +39,11 @@ def build_prop_key(prop: dict) -> str:
     return f"{player}|{market}|{line}"
 
 
+def build_player_market_key(prop: dict) -> str:
+    """Player + market key (line-agnostic)."""
+    return f"{normalize_player_name(prop['player'])}|{prop['market']}"
+
+
 def index_props_by_key(props: list[dict]) -> dict[str, dict]:
     """Index props by matching key; first occurrence wins on duplicates."""
     indexed: dict[str, dict] = {}
@@ -36,6 +52,30 @@ def index_props_by_key(props: list[dict]) -> dict[str, dict]:
         if key not in indexed:
             indexed[key] = prop
     return indexed
+
+
+def _breakeven_probability(
+    dfs_prop: dict,
+    *,
+    dfs_breakeven_odds: int,
+    include_flat_lines: bool,
+) -> float | None:
+    """Implied breakeven for the DFS side; None when flat lines are skipped."""
+    line = float(dfs_prop["line"])
+    if is_flat_line(line) and not include_flat_lines:
+        return None
+    base = american_to_implied(dfs_breakeven_odds)
+    if is_flat_line(line):
+        return adjusted_breakeven_probability(base, dfs_prop["market"])
+    return base
+
+
+def _fair_probs_from_resolved(resolved: ResolvedSharpQuote) -> tuple[float, float]:
+    """De-vig O/U quotes; milestone uses over implied only for under estimate."""
+    if resolved.dk_line_kind == "milestone" or resolved.under_odds is None:
+        fair_over = american_to_implied(resolved.over_odds)
+        return fair_over, 1.0 - fair_over
+    return multiplicative_devig(resolved.over_odds, resolved.under_odds)
 
 
 def _favored_no_vig(fair_over: float, fair_under: float) -> tuple[str, float]:
@@ -49,35 +89,45 @@ def _append_side_opportunity(
     opportunities: list[dict],
     *,
     dfs_prop: dict,
-    sharp_prop: dict,
+    resolved: ResolvedSharpQuote,
     side: str,
     fair_prob: float,
     breakeven_prob: float,
     fair_over: float,
     fair_under: float,
-    dk_over_odds: int,
-    dk_under_odds: int,
     min_ev: float,
 ) -> None:
     ev = calculate_ev(fair_prob, breakeven_prob)
     no_vig_side, no_vig_prob = _favored_no_vig(fair_over, fair_under)
+    undisclosed_vig_caveat = resolved.dk_line_kind == "milestone"
+    plus_ev = ev > min_ev
 
     opportunities.append(
         {
             "player": dfs_prop["player"],
             "market": dfs_prop["market"],
             "line": float(dfs_prop["line"]),
+            "line_kind": dfs_prop.get("line_kind", line_kind(float(dfs_prop["line"]))),
             "side": side,
             "ev": round(ev, 4),
             "ev_pct": round(calculate_ev_percent(fair_prob, breakeven_prob), 2),
-            "plus_ev": ev > min_ev,
+            "plus_ev": plus_ev,
             "no_vig_implied_pct": implied_prob_to_pct(no_vig_prob),
             "no_vig_favored_side": no_vig_side,
             "betr_implied_pct": implied_prob_to_pct(breakeven_prob),
-            "dk_over_odds": dk_over_odds,
-            "dk_under_odds": dk_under_odds,
+            "dk_over_odds": resolved.over_odds,
+            "dk_under_odds": resolved.under_odds,
+            "betr_line": resolved.betr_line,
+            "dk_matched_line": resolved.dk_line,
+            "dk_main_line": resolved.dk_main_line,
+            "line_source": resolved.adjustment_method,
+            "corroborated": resolved.corroborated,
+            "dk_line_kind": resolved.dk_line_kind,
+            "dk_quote_one_sided": undisclosed_vig_caveat,
+            "undisclosed_vig_caveat": undisclosed_vig_caveat,
+            "plus_ev_milestone_caveat": undisclosed_vig_caveat and plus_ev,
             "dfs_sportsbook": dfs_prop.get("sportsbook", DEFAULT_DFS_SPORTSBOOK),
-            "sharp_sportsbook": sharp_prop.get("sportsbook", DEFAULT_SHARP_SPORTSBOOK),
+            "sharp_sportsbook": DEFAULT_SHARP_SPORTSBOOK,
         }
     )
 
@@ -89,59 +139,64 @@ def find_ev_opportunities(
     dfs_breakeven_odds: int = BETR_STANDARD_BREAKEVEN_ODDS,
     min_ev: float = 0.0,
     top_n: int | None = None,
+    include_flat_lines: bool = False,
 ) -> list[dict]:
     """
     Match DFS props to sharp sportsbook lines and return ranked plays.
 
-    Uses multiplicative de-vig on the sharp book's over/under prices. Each matched
-    line can produce up to two rows (over and under) for allowed Betr sides.
-    Rows include ``plus_ev`` when edge exceeds ``min_ev``. Sorted by ``ev`` desc;
-    optionally sliced to ``top_n``.
+    Resolves DK main, alternate, interpolated, or extrapolated prices onto each
+    Betr line before de-vig and EV calculation.
     """
-    sharp_lookup = index_props_by_key(sportsbook_props)
-    breakeven_prob = american_to_implied(dfs_breakeven_odds)
+    ou_ladder = build_player_market_ladder(
+        sportsbook_props, normalize_player_name=normalize_player_name
+    )
+    milestone_ladder = build_milestone_ladder(
+        sportsbook_props, normalize_player_name=normalize_player_name
+    )
     opportunities: list[dict] = []
 
     for dfs_prop in dfs_props:
-        sharp_prop = sharp_lookup.get(build_prop_key(dfs_prop))
-        if not sharp_prop:
+        breakeven_prob = _breakeven_probability(
+            dfs_prop,
+            dfs_breakeven_odds=dfs_breakeven_odds,
+            include_flat_lines=include_flat_lines,
+        )
+        if breakeven_prob is None:
             continue
 
-        over_odds = sharp_prop.get("over_odds")
-        under_odds = sharp_prop.get("under_odds")
-        if over_odds is None or under_odds is None:
+        resolved, _reason = resolve_sharp_quote(
+            dfs_prop,
+            ou_ladder,
+            normalize_player_name=normalize_player_name,
+            milestone_ladder=milestone_ladder,
+        )
+        if resolved is None:
             continue
 
-        dk_over = int(over_odds)
-        dk_under = int(under_odds)
-        fair_over, fair_under = multiplicative_devig(dk_over, dk_under)
+        fair_over, fair_under = _fair_probs_from_resolved(resolved)
 
         if dfs_prop.get("over_odds") is not None:
             _append_side_opportunity(
                 opportunities,
                 dfs_prop=dfs_prop,
-                sharp_prop=sharp_prop,
+                resolved=resolved,
                 side="over",
                 fair_prob=fair_over,
                 breakeven_prob=breakeven_prob,
                 fair_over=fair_over,
                 fair_under=fair_under,
-                dk_over_odds=dk_over,
-                dk_under_odds=dk_under,
                 min_ev=min_ev,
             )
         if dfs_prop.get("under_odds") is not None:
             _append_side_opportunity(
                 opportunities,
                 dfs_prop=dfs_prop,
-                sharp_prop=sharp_prop,
+                resolved=resolved,
                 side="under",
                 fair_prob=fair_under,
                 breakeven_prob=breakeven_prob,
                 fair_over=fair_over,
                 fair_under=fair_under,
-                dk_over_odds=dk_over,
-                dk_under_odds=dk_under,
                 min_ev=min_ev,
             )
 
@@ -158,6 +213,7 @@ def compare_betr_vs_draftkings(
     min_ev: float = 0.0,
     dfs_breakeven_odds: int = BETR_STANDARD_BREAKEVEN_ODDS,
     top_n: int | None = None,
+    include_flat_lines: bool = False,
 ) -> list[dict]:
     """Compare normalized Betr props against DraftKings and return ranked plays."""
     return find_ev_opportunities(
@@ -166,47 +222,100 @@ def compare_betr_vs_draftkings(
         dfs_breakeven_odds=dfs_breakeven_odds,
         min_ev=min_ev,
         top_n=top_n,
+        include_flat_lines=include_flat_lines,
     )
 
 
-def betr_match_reason(
-    betr_prop: dict, sharp_lookup: dict[str, dict]
-) -> str | None:
-    """
-    Return None when Betr aligns with a DK line that has both sides priced.
+def _build_match_ladders(
+    draftkings_props: list[dict],
+) -> tuple[
+    dict[str, dict[float, dict]],
+    dict[str, dict[float, dict]],
+]:
+    ou_ladder = build_player_market_ladder(
+        draftkings_props, normalize_player_name=normalize_player_name
+    )
+    milestone_ladder = build_milestone_ladder(
+        draftkings_props, normalize_player_name=normalize_player_name
+    )
+    return ou_ladder, milestone_ladder
 
-    Otherwise return a reason code for diagnostics.
-    """
-    sharp_prop = sharp_lookup.get(build_prop_key(betr_prop))
-    if not sharp_prop:
-        return "no_dk_line"
-    if sharp_prop.get("over_odds") is None or sharp_prop.get("under_odds") is None:
-        return "dk_missing_odds"
-    return None
+
+def betr_unmatched_reason(
+    betr_prop: dict,
+    ou_ladder: dict[str, dict[float, dict]],
+    *,
+    include_flat_lines: bool = False,
+    milestone_ladder: dict[str, dict[float, dict]] | None = None,
+) -> str | None:
+    """Return None when the Betr prop can be aligned to DK; else a reason code."""
+    line = float(betr_prop["line"])
+    if is_flat_line(line) and not include_flat_lines:
+        return "flat_line_skipped"
+
+    _resolved, reason = resolve_sharp_quote(
+        betr_prop,
+        ou_ladder,
+        normalize_player_name=normalize_player_name,
+        milestone_ladder=milestone_ladder,
+    )
+    if _resolved is not None:
+        return None
+    return reason or "no_dk_market"
+
+
+def betr_match_reason(
+    betr_prop: dict,
+    ou_ladder: dict[str, dict[float, dict]],
+    *,
+    include_flat_lines: bool = False,
+    milestone_ladder: dict[str, dict[float, dict]] | None = None,
+) -> str | None:
+    """Backward-compatible alias for betr_unmatched_reason."""
+    return betr_unmatched_reason(
+        betr_prop,
+        ou_ladder,
+        include_flat_lines=include_flat_lines,
+        milestone_ladder=milestone_ladder,
+    )
 
 
 def compute_match_stats(
     betr_props: list[dict],
     draftkings_props: list[dict],
+    *,
+    include_flat_lines: bool = False,
 ) -> dict[str, int | float]:
     """Count cross-book matches, unmatched props, and Betr match rate."""
-    sharp_lookup = index_props_by_key(draftkings_props)
+    ou_ladder, milestone_ladder = _build_match_ladders(draftkings_props)
     betr_keys = {build_prop_key(prop) for prop in betr_props}
 
     matched = 0
-    unmatched_betr_no_dk = 0
-    unmatched_betr_dk_missing_odds = 0
+    _REASON_COUNT_KEYS = {
+        "no_dk_market": "unmatched_betr_no_dk_market",
+        "line_mismatch": "unmatched_betr_line_mismatch",
+        "no_dk_bracket_for_interp": "unmatched_betr_no_dk_bracket",
+        "flat_line_skipped": "unmatched_betr_flat_line_skipped",
+        "dk_missing_odds": "unmatched_betr_dk_missing_odds",
+    }
+    counts = {value: 0 for value in _REASON_COUNT_KEYS.values()}
 
     for betr_prop in betr_props:
-        reason = betr_match_reason(betr_prop, sharp_lookup)
+        reason = betr_unmatched_reason(
+            betr_prop,
+            ou_ladder,
+            include_flat_lines=include_flat_lines,
+            milestone_ladder=milestone_ladder,
+        )
         if reason is None:
             matched += 1
-        elif reason == "no_dk_line":
-            unmatched_betr_no_dk += 1
-        else:
-            unmatched_betr_dk_missing_odds += 1
+            continue
+        count_key = _REASON_COUNT_KEYS.get(
+            reason, "unmatched_betr_line_mismatch"
+        )
+        counts[count_key] += 1
 
-    unmatched_betr = unmatched_betr_no_dk + unmatched_betr_dk_missing_odds
+    unmatched_betr = sum(counts.values())
     unmatched_dk = sum(
         1 for prop in draftkings_props if build_prop_key(prop) not in betr_keys
     )
@@ -219,8 +328,14 @@ def compute_match_stats(
         "dk_props": len(draftkings_props),
         "matched_keys": matched,
         "unmatched_betr": unmatched_betr,
-        "unmatched_betr_no_dk_line": unmatched_betr_no_dk,
-        "unmatched_betr_dk_missing_odds": unmatched_betr_dk_missing_odds,
+        "unmatched_betr_no_dk_line": counts["unmatched_betr_no_dk_market"]
+        + counts["unmatched_betr_line_mismatch"]
+        + counts["unmatched_betr_no_dk_bracket"],
+        "unmatched_betr_no_dk_market": counts["unmatched_betr_no_dk_market"],
+        "unmatched_betr_line_mismatch": counts["unmatched_betr_line_mismatch"],
+        "unmatched_betr_no_dk_bracket": counts["unmatched_betr_no_dk_bracket"],
+        "unmatched_betr_flat_line_skipped": counts["unmatched_betr_flat_line_skipped"],
+        "unmatched_betr_dk_missing_odds": counts["unmatched_betr_dk_missing_odds"],
         "unmatched_dk": unmatched_dk,
         "betr_match_rate_pct": match_rate,
     }
@@ -229,22 +344,38 @@ def compute_match_stats(
 def list_unmatched_betr_props(
     betr_props: list[dict],
     draftkings_props: list[dict],
+    *,
+    include_flat_lines: bool = False,
 ) -> list[dict]:
-    """Betr props that cannot be compared to DK, with reason and match key."""
-    sharp_lookup = index_props_by_key(draftkings_props)
+    """Betr props that cannot be compared to DK, with reason and available DK lines."""
+    ou_ladder, milestone_ladder = _build_match_ladders(draftkings_props)
     unmatched: list[dict] = []
 
     for betr_prop in betr_props:
-        reason = betr_match_reason(betr_prop, sharp_lookup)
+        reason = betr_unmatched_reason(
+            betr_prop,
+            ou_ladder,
+            include_flat_lines=include_flat_lines,
+            milestone_ladder=milestone_ladder,
+        )
         if reason is None:
             continue
+        pm_key = build_player_market_key(betr_prop)
+        dk_lines = sorted(
+            set(ou_ladder.get(pm_key, {}).keys())
+            | set(milestone_ladder.get(pm_key, {}).keys())
+        )
         unmatched.append(
             {
                 "player": betr_prop["player"],
                 "market": betr_prop["market"],
                 "line": float(betr_prop["line"]),
+                "line_kind": betr_prop.get(
+                    "line_kind", line_kind(float(betr_prop["line"]))
+                ),
                 "match_key": build_prop_key(betr_prop),
                 "reason": reason,
+                "dk_lines_available": dk_lines,
             }
         )
 
@@ -270,6 +401,7 @@ def list_unmatched_dk_props(
                 "line": float(dk_prop["line"]),
                 "match_key": key,
                 "reason": "no_betr_line",
+                "is_main_line": bool(dk_prop.get("is_main_line", True)),
             }
         )
 

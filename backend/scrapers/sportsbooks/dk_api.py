@@ -1,5 +1,6 @@
 """DraftKings sportsbook markets API client and response flattening."""
 
+import re
 from typing import Any
 
 import httpx
@@ -8,6 +9,7 @@ from loguru import logger
 from config.api_headers import DK_BASE_HEADERS
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
+    DK_MILESTONE_STAT_CATEGORIES,
     DK_STAT_CATEGORIES,
     build_league_events_url,
     build_markets_url,
@@ -16,6 +18,60 @@ from utils.formatting import normalize_odds_string
 
 DK_SPORTSBOOK = "DraftKings"
 MAIN_POINT_LINE_TAG = "MainPointLine"
+MILESTONE_THRESHOLD_RE = re.compile(r"^(\d+)\+$")
+
+LINE_KIND_OU = "ou"
+LINE_KIND_MILESTONE = "milestone"
+
+# Ordered (combo before single-stat). Used to cross-check subCategoryId → market.
+_DK_LABEL_MARKET_PATTERNS: tuple[tuple[str, str], ...] = (
+    ("pts + reb + ast", "pra"),
+    ("points + rebounds + assists", "pra"),
+    ("pts + reb", "pts+reb"),
+    ("points + rebounds", "pts+reb"),
+    ("pts + ast", "pts+ast"),
+    ("points + assists", "pts+ast"),
+    ("reb + ast", "reb+ast"),
+    ("rebounds + assists", "reb+ast"),
+    ("steals + blocks", "stl+blk"),
+    ("stl + blk", "stl+blk"),
+    ("3-pt", "threes"),
+    ("3pt", "threes"),
+    ("threes", "threes"),
+    ("three", "threes"),
+    ("steals", "steals"),
+    ("blocks", "blocks"),
+    ("rebounds", "rebounds"),
+    ("assists", "assists"),
+    ("points", "points"),
+)
+
+
+def _dk_market_label(market: dict[str, Any]) -> str:
+    market_type = market.get("marketType") or {}
+    return str(market_type.get("name") or market.get("name") or "")
+
+
+def infer_canonical_market_from_dk_label(label: str) -> str | None:
+    """
+    Map DraftKings market title / marketType.name text to a canonical market key.
+
+    Combo stats must match before single-stat keywords (e.g. PRA before points).
+    """
+    text = label.lower().replace("&", "+")
+    for needle, market in _DK_LABEL_MARKET_PATTERNS:
+        if needle in text:
+            return market
+    return None
+
+
+def infer_canonical_market_from_dk_payload(payload: dict[str, Any]) -> str | None:
+    """Infer canonical market from the first non-empty market label in a DK payload."""
+    for market in payload.get("markets") or []:
+        inferred = infer_canonical_market_from_dk_label(_dk_market_label(market))
+        if inferred:
+            return inferred
+    return None
 
 
 def parse_american_odds(display_odds: dict[str, Any] | None) -> int | None:
@@ -31,24 +87,82 @@ def parse_american_odds(display_odds: dict[str, Any] | None) -> int | None:
         return None
 
 
-def _is_main_point_line(selection: dict[str, Any]) -> bool:
-    tags = selection.get("tags") or []
-    return MAIN_POINT_LINE_TAG in tags
+def _is_point_line_selection(selection: dict[str, Any]) -> bool:
+    if selection.get("points") is None:
+        return False
+    outcome = selection.get("outcomeType") or selection.get("label")
+    return outcome in ("Over", "Under")
 
 
-def _selections_by_market(
+def _parse_milestone_threshold(selection: dict[str, Any]) -> int | None:
+    """Parse N from milestone labels like '2+' on over-only player props."""
+    label = str(selection.get("label") or "").strip()
+    match = MILESTONE_THRESHOLD_RE.match(label)
+    if match:
+        return int(match.group(1))
+    outcome = selection.get("outcomeType") or selection.get("label")
+    if outcome in ("Over", "Under"):
+        return None
+    points = selection.get("points")
+    if points is not None:
+        try:
+            value = float(points)
+            if value == int(value) and value >= 1:
+                return int(value)
+        except (TypeError, ValueError):
+            pass
+    return None
+
+
+def milestone_threshold_to_line(threshold: int) -> float:
+    """Map DK N+ milestone to Betr half-point line (N+ -> line N - 0.5)."""
+    return float(threshold) - 0.5
+
+
+def _selections_by_market_line(
     selections: list[dict[str, Any]],
-) -> dict[str, dict[str, dict[str, Any]]]:
-    """Group main-line selections by marketId and outcomeType (Over/Under)."""
-    grouped: dict[str, dict[str, dict[str, Any]]] = {}
+) -> dict[tuple[str, float], dict[str, Any]]:
+    """Group Over/Under selections by marketId and point line (main + alternates)."""
+    grouped: dict[tuple[str, float], dict[str, Any]] = {}
     for selection in selections:
-        if not _is_main_point_line(selection):
+        if not _is_point_line_selection(selection):
             continue
         market_id = selection.get("marketId")
-        outcome = selection.get("outcomeType") or selection.get("label")
-        if not market_id or outcome not in ("Over", "Under"):
+        if not market_id:
             continue
-        grouped.setdefault(market_id, {})[outcome] = selection
+        line = float(selection["points"])
+        key = (market_id, line)
+        entry = grouped.setdefault(
+            key,
+            {"Over": None, "Under": None, "is_main_line": False},
+        )
+        outcome = selection.get("outcomeType") or selection.get("label")
+        entry[outcome] = selection
+        if MAIN_POINT_LINE_TAG in (selection.get("tags") or []):
+            entry["is_main_line"] = True
+    return grouped
+
+
+def _milestone_selections_by_market_threshold(
+    selections: list[dict[str, Any]],
+) -> dict[tuple[str, int], dict[str, Any]]:
+    """Group over-only milestone selections by marketId and threshold (N+)."""
+    grouped: dict[tuple[str, int], dict[str, Any]] = {}
+    for selection in selections:
+        threshold = _parse_milestone_threshold(selection)
+        if threshold is None:
+            continue
+        market_id = selection.get("marketId")
+        if not market_id:
+            continue
+        key = (market_id, threshold)
+        entry = grouped.setdefault(
+            key,
+            {"selection": None, "is_main_line": False},
+        )
+        entry["selection"] = selection
+        if MAIN_POINT_LINE_TAG in (selection.get("tags") or []):
+            entry["is_main_line"] = True
     return grouped
 
 
@@ -65,21 +179,21 @@ def flatten_markets_response(
     *,
     event_id: str,
     market: str,
+    subcategory_id: str,
 ) -> list[dict[str, Any]]:
-    """Flatten DK markets JSON into master-board prop rows."""
-    by_market = _selections_by_market(payload.get("selections") or [])
+    """Flatten DK markets JSON into master-board prop rows (main + alternate O/U lines)."""
+    by_market_line = _selections_by_market_line(payload.get("selections") or [])
     props: list[dict[str, Any]] = []
-    seen: set[tuple[str, str, str, float]] = set()
+    seen: set[tuple[str, str, float]] = set()
 
-    for market_id, sides in by_market.items():
+    for (market_id, line), sides in by_market_line.items():
         over = sides.get("Over")
         under = sides.get("Under")
         if not over or not under:
             continue
 
         player = _player_name(over) or _player_name(under)
-        line = over.get("points")
-        if player is None or line is None:
+        if player is None:
             continue
 
         over_odds = parse_american_odds(over.get("displayOdds"))
@@ -87,7 +201,7 @@ def flatten_markets_response(
         if over_odds is None or under_odds is None:
             continue
 
-        dedupe_key = (market_id, player, market, float(line))
+        dedupe_key = (player, market, line)
         if dedupe_key in seen:
             continue
         seen.add(dedupe_key)
@@ -96,15 +210,79 @@ def flatten_markets_response(
             {
                 "sportsbook": DK_SPORTSBOOK,
                 "event_id": event_id,
-                "subcategory_id": DK_STAT_CATEGORIES[market],
+                "subcategory_id": subcategory_id,
                 "market_id": market_id,
                 "player": player,
                 "market": market,
-                "line": float(line),
+                "line": line,
+                "line_kind": LINE_KIND_OU,
                 "over_odds": over_odds,
                 "under_odds": under_odds,
+                "is_main_line": bool(sides.get("is_main_line")),
                 "true_over": over.get("trueOdds"),
                 "true_under": under.get("trueOdds"),
+            }
+        )
+
+    return props
+
+
+def flatten_milestone_markets_response(
+    payload: dict[str, Any],
+    *,
+    event_id: str,
+    market: str,
+    subcategory_id: str,
+) -> list[dict[str, Any]]:
+    """Flatten DK milestone (N+) props into rows comparable to Betr half-point lines."""
+    inferred = infer_canonical_market_from_dk_payload(payload)
+    if inferred and inferred != market:
+        logger.warning(
+            f"dk milestone subcategory {subcategory_id} labeled as {market!r} "
+            f"but DK market text implies {inferred!r} — fix DK_MILESTONE_STAT_CATEGORIES"
+        )
+
+    by_market_threshold = _milestone_selections_by_market_threshold(
+        payload.get("selections") or []
+    )
+    props: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, float]] = set()
+
+    for (market_id, threshold), entry in by_market_threshold.items():
+        selection = entry.get("selection")
+        if not selection:
+            continue
+
+        player = _player_name(selection)
+        if player is None:
+            continue
+
+        over_odds = parse_american_odds(selection.get("displayOdds"))
+        if over_odds is None:
+            continue
+
+        line = milestone_threshold_to_line(threshold)
+        dedupe_key = (player, market, line)
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+
+        props.append(
+            {
+                "sportsbook": DK_SPORTSBOOK,
+                "event_id": event_id,
+                "subcategory_id": subcategory_id,
+                "market_id": market_id,
+                "player": player,
+                "market": market,
+                "line": line,
+                "line_kind": LINE_KIND_MILESTONE,
+                "milestone_threshold": threshold,
+                "over_odds": over_odds,
+                "under_odds": None,
+                "is_main_line": bool(entry.get("is_main_line")),
+                "true_over": selection.get("trueOdds"),
+                "true_under": None,
             }
         )
 
@@ -206,11 +384,43 @@ async def fetch_and_flatten_markets(
     event_id: str,
     market: str,
 ) -> list[dict[str, Any]]:
-    """Fetch markets for one category and return flattened master-board rows."""
+    """Fetch O/U markets for one category and return flattened master-board rows."""
     subcategory_id = DK_STAT_CATEGORIES[market]
     payload = await fetch_event_subcategory_markets(
         client, event_id, subcategory_id
     )
     if not payload:
         return []
-    return flatten_markets_response(payload, event_id=event_id, market=market)
+    return flatten_markets_response(
+        payload,
+        event_id=event_id,
+        market=market,
+        subcategory_id=subcategory_id,
+    )
+
+
+async def fetch_and_flatten_all_for_market(
+    client: httpx.AsyncClient,
+    event_id: str,
+    market: str,
+) -> list[dict[str, Any]]:
+    """Fetch O/U and milestone subcategories for one market when configured."""
+    props = await fetch_and_flatten_markets(client, event_id, market)
+
+    milestone_subcategory_id = DK_MILESTONE_STAT_CATEGORIES.get(market)
+    if not milestone_subcategory_id:
+        return props
+
+    milestone_payload = await fetch_event_subcategory_markets(
+        client, event_id, milestone_subcategory_id
+    )
+    if milestone_payload:
+        props.extend(
+            flatten_milestone_markets_response(
+                milestone_payload,
+                event_id=event_id,
+                market=market,
+                subcategory_id=milestone_subcategory_id,
+            )
+        )
+    return props

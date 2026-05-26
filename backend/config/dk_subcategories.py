@@ -4,8 +4,9 @@ from urllib.parse import quote
 
 from config.api_headers import DK_LEAGUE_EVENTS_URL, DK_MARKETS_URL
 
-# Canonical market name -> DraftKings subCategoryId (event player props)
-DK_STAT_CATEGORIES: dict[str, str] = {
+# Canonical market name -> DraftKings subCategoryId (event player props).
+# Probe per slate: python -m scripts.probe_dk_subcategories (or league markets URL).
+DK_CORE_STAT_CATEGORIES: dict[str, str] = {
     "points": "12488",
     "rebounds": "12492",
     "assists": "12495",
@@ -13,6 +14,53 @@ DK_STAT_CATEGORIES: dict[str, str] = {
     "pts+reb": "9976",
     "pts+ast": "9973",
     "reb+ast": "9974",
+}
+
+# Confirmed O/U subcategories beyond core (NBA).
+DK_OU_EXTENDED_STAT_CATEGORIES: dict[str, str] = {
+    "threes": "12497",
+    "steals": "2713508",
+    "blocks": "2713780",
+    "stl+blk": "2713781",
+}
+
+# Backward-compatible alias for extended O/U stats.
+DK_EXTENDED_STAT_CATEGORIES: dict[str, str] = DK_OU_EXTENDED_STAT_CATEGORIES
+
+# Over-only milestone tabs (1+, 2+, 3+). Verify with:
+#   python -m scripts.probe_dk_subcategories <event_id> --discover-milestones
+# Only include IDs confirmed against DK market names (not sequential guesses).
+# stl+blk: O/U only on DK — no milestone tab observed.
+DK_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
+    "points": "2716477",
+    "rebounds": "2716479",
+    "assists": "2716478",
+    "threes": "2716480",
+    "pts+reb": "2716482",
+    "pts+ast": "2716481",
+    "reb+ast": "2719560",
+    "pra": "2716483",
+    "blocks": "2716484",
+    "steals": "2716485",
+}
+
+# Betr markets awaiting DK subCategoryId discovery (None = skip scrape).
+DK_PENDING_STAT_CATEGORIES: dict[str, str | None] = {
+    "turnovers": None,
+    "fouls": None,
+    "fg_attempted": None,
+    "fg_made": None,
+    "ft_made": None,
+    "ft_attempted": None,
+    "fantasy_pts": None,
+    "3pt_att": None,
+    "double-double": None,
+    "triple-double": None,
+}
+
+DK_STAT_CATEGORIES: dict[str, str] = {
+    **DK_CORE_STAT_CATEGORIES,
+    **DK_OU_EXTENDED_STAT_CATEGORIES,
 }
 
 # League slate pages (e.g. NBA odds) for discovering event IDs

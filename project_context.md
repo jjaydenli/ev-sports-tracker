@@ -36,8 +36,10 @@ The system standardizes disparate naming conventions across books, calculates no
 ### DraftKings (sharp sportsbook)
 
 * **Access:** Unauthenticated `httpx` calls to DK `sportscontent` league/event/market endpoints (`config/api_headers.py` — `DK_BASE_HEADERS`, no DK token in `settings.py` today).
-* **State:** URL-driven (`category` / `subcategory`); subcategory list in `config/dk_subcategories.py`.
-* **Orchestration:** Resolve event IDs → dedupe → concurrent subcategory/market fetches via `dk_api.py`; `dk_engine.py` extends `base_scraper.py`.
+* **State:** URL-driven (`category` / `subcategory`); subcategory list in `config/dk_subcategories.py` (core stats + O/U extended: `threes`, `steals`, `blocks`, `stl+blk`; milestone 1+/2+/3+ fallback via `DK_MILESTONE_STAT_CATEGORIES`; pending Betr markets in `DK_PENDING_STAT_CATEGORIES`).
+* **Orchestration:** Resolve event IDs → dedupe → concurrent subcategory/market fetches via `dk_api.py`; `dk_engine.py` extends `base_scraper.py`. `dk_api` ingests main and alternate point lines (`is_main_line` on master board rows).
+* **Line alignment:** `core/line_adjustment.py` maps DK prices onto each Betr line (O/U preferred; milestone 1+/2+/3+ fallback when O/U is missing or extrapolated-only). EV rows include `line_source`, `corroborated`, `betr_line`, `dk_matched_line`, `plus_ev_milestone_caveat` for one-sided sharp quotes. See [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
+* **Flat Betr lines:** Integer lines (push risk) skipped by default; `--include-flat-lines` uses `core/flat_line.py` adjusted breakeven.
 * **Code:** `backend/scrapers/sportsbooks/dk_engine.py`, `dk_api.py`, `backend/parsers/dk_parser.py`.
 
 ### Dabble (archived)
@@ -48,7 +50,7 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 * **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
-* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — multiplicative de-vig on DK over/under, one row per allowed Betr side (`over_odds` / `under_odds` not `None`), ranked by EV; output capped at `top_n` (default 15) with `plus_ev` when edge exceeds `min_ev`. Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120).
+* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve DK to Betr line via `line_adjustment.py`, multiplicative de-vig, one row per allowed Betr side, ranked by EV; output capped at `top_n` (default 15) with `plus_ev` when edge exceeds `min_ev`. Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
 
 ## 5. Architecture & File Structure
 

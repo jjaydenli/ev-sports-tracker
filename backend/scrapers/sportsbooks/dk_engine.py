@@ -11,7 +11,7 @@ from config.api_headers import DK_BASE_HEADERS
 from config.dk_subcategories import DK_STAT_CATEGORIES
 from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.dk_api import (
-    fetch_and_flatten_markets,
+    fetch_and_flatten_all_for_market,
     fetch_league_event_ids,
 )
 
@@ -103,7 +103,9 @@ class DraftKingsEngine(BaseScraper):
                 event_id: str, market: str
             ) -> list[dict[str, Any]]:
                 async with semaphore:
-                    return await fetch_and_flatten_markets(client, event_id, market)
+                    return await fetch_and_flatten_all_for_market(
+                        client, event_id, market
+                    )
 
             tasks = [
                 fetch_category(event_id, market)

@@ -1,0 +1,34 @@
+{
+  "markets": [
+    {
+      "id": "900002",
+      "eventId": "34183767",
+      "name": "Alex Caruso Steals",
+      "subcategoryId": "2716485"
+    }
+  ],
+  "selections": [
+    {
+      "marketId": "900002",
+      "label": "1+",
+      "outcomeType": "Over",
+      "displayOdds": {"american": "-250"},
+      "tags": ["MainPointLine"],
+      "participants": [{"name": "Alex Caruso", "type": "Player"}]
+    },
+    {
+      "marketId": "900002",
+      "label": "2+",
+      "outcomeType": "Over",
+      "displayOdds": {"american": "+110"},
+      "participants": [{"name": "Alex Caruso", "type": "Player"}]
+    },
+    {
+      "marketId": "900002",
+      "label": "3+",
+      "outcomeType": "Over",
+      "displayOdds": {"american": "+350"},
+      "participants": [{"name": "Alex Caruso", "type": "Player"}]
+    }
+  ]
+}

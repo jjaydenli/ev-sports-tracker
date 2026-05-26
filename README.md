@@ -91,6 +91,9 @@ Use the match files to judge scrape coverage and cross-book alignment before tru
 - `--betr-only` / `--dk-only` — scrape one book only
 - `--top-n 15` — max rows written (default 15)
 - `--min-ev 0.01` — threshold for the `plus_ev` flag (non-+EV rows can still appear in the top-N list)
+- `--include-flat-lines` — include Betr integer lines (push-adjusted breakeven; off by default)
+
+DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
 
 Betr auth: set `BETR_BEARER_TOKEN`, or configure `BETR_USERNAME` / `BETR_PASSWORD` (and optionally `BETR_KEYCLOAK_TOKEN_URL`, `BETR_KEYCLOAK_CLIENT_ID`) for automatic Keycloak refresh. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 

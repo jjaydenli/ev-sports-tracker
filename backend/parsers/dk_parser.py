@@ -23,6 +23,9 @@ def parse_dk_prop(raw_prop: dict) -> dict | None:
         "prop_type": raw_prop.get("prop_type", "standard"),
         "over_odds": raw_prop.get("over_odds"),
         "under_odds": raw_prop.get("under_odds"),
+        "line_kind": raw_prop.get("line_kind", "ou"),
+        "milestone_threshold": raw_prop.get("milestone_threshold"),
+        "is_main_line": bool(raw_prop.get("is_main_line", True)),
         "raw_multiplier": raw_prop.get("raw_multiplier"),
     }
 

@@ -4,14 +4,23 @@ from __future__ import annotations
 
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 from loguru import logger
 
-from core.engine import compare_betr_vs_draftkings
+from core.engine import (
+    compare_betr_vs_draftkings,
+    compute_match_stats,
+    list_unmatched_betr_props,
+    list_unmatched_dk_props,
+)
 from parsers.normalize import normalize_all, save_props
 
 EV_OUTPUT_FILENAME = "ev_opportunities.json"
+MATCH_REPORT_FILENAME = "match_report.json"
+UNMATCHED_BETR_FILENAME = "unmatched_betr.json"
+UNMATCHED_DK_FILENAME = "unmatched_dk.json"
 BETR_NORMALIZED = "betr_normalized.json"
 DK_NORMALIZED = "dk_normalized.json"
 
@@ -61,6 +70,44 @@ def load_comparison_inputs(data_dir: Path) -> tuple[list[dict], list[dict]]:
         dk_props = dk_props or dk_from_unified
 
     return betr_props, dk_props
+
+
+def persist_match_diagnostics(
+    data_dir: str | Path,
+    betr_props: list[dict],
+    dk_props: list[dict],
+) -> dict[str, int | float]:
+    """Write match stats and unmatched prop lists for scrape/match efficacy checks."""
+    data_path = Path(data_dir)
+    stats = compute_match_stats(betr_props, dk_props)
+    report = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        **stats,
+    }
+
+    report_path = data_path / MATCH_REPORT_FILENAME
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    with report_path.open("w", encoding="utf-8") as file:
+        json.dump(report, file, indent=4)
+    save_props(
+        list_unmatched_betr_props(betr_props, dk_props),
+        data_path / UNMATCHED_BETR_FILENAME,
+    )
+    save_props(
+        list_unmatched_dk_props(betr_props, dk_props),
+        data_path / UNMATCHED_DK_FILENAME,
+    )
+
+    logger.info(
+        "match diagnostics: "
+        f"betr={stats['betr_props']} matched={stats['matched_keys']} "
+        f"({stats['betr_match_rate_pct']}%) "
+        f"unmatched_betr={stats['unmatched_betr']} "
+        f"(no_dk={stats['unmatched_betr_no_dk_line']} "
+        f"dk_no_odds={stats['unmatched_betr_dk_missing_odds']}) "
+        f"unmatched_dk={stats['unmatched_dk']}"
+    )
+    return stats
 
 
 def run_ev_scan(

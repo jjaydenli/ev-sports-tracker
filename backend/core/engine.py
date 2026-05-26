@@ -169,22 +169,108 @@ def compare_betr_vs_draftkings(
     )
 
 
+def betr_match_reason(
+    betr_prop: dict, sharp_lookup: dict[str, dict]
+) -> str | None:
+    """
+    Return None when Betr aligns with a DK line that has both sides priced.
+
+    Otherwise return a reason code for diagnostics.
+    """
+    sharp_prop = sharp_lookup.get(build_prop_key(betr_prop))
+    if not sharp_prop:
+        return "no_dk_line"
+    if sharp_prop.get("over_odds") is None or sharp_prop.get("under_odds") is None:
+        return "dk_missing_odds"
+    return None
+
+
 def compute_match_stats(
     betr_props: list[dict],
     draftkings_props: list[dict],
-) -> dict[str, int]:
-    """Count Betr props, DK props, and cross-book key matches with DK O/U odds."""
+) -> dict[str, int | float]:
+    """Count cross-book matches, unmatched props, and Betr match rate."""
     sharp_lookup = index_props_by_key(draftkings_props)
+    betr_keys = {build_prop_key(prop) for prop in betr_props}
+
     matched = 0
+    unmatched_betr_no_dk = 0
+    unmatched_betr_dk_missing_odds = 0
+
     for betr_prop in betr_props:
-        sharp_prop = sharp_lookup.get(build_prop_key(betr_prop))
-        if not sharp_prop:
-            continue
-        if sharp_prop.get("over_odds") is None or sharp_prop.get("under_odds") is None:
-            continue
-        matched += 1
+        reason = betr_match_reason(betr_prop, sharp_lookup)
+        if reason is None:
+            matched += 1
+        elif reason == "no_dk_line":
+            unmatched_betr_no_dk += 1
+        else:
+            unmatched_betr_dk_missing_odds += 1
+
+    unmatched_betr = unmatched_betr_no_dk + unmatched_betr_dk_missing_odds
+    unmatched_dk = sum(
+        1 for prop in draftkings_props if build_prop_key(prop) not in betr_keys
+    )
+
+    betr_total = len(betr_props)
+    match_rate = round(100.0 * matched / betr_total, 1) if betr_total else 0.0
+
     return {
-        "betr_props": len(betr_props),
+        "betr_props": betr_total,
         "dk_props": len(draftkings_props),
         "matched_keys": matched,
+        "unmatched_betr": unmatched_betr,
+        "unmatched_betr_no_dk_line": unmatched_betr_no_dk,
+        "unmatched_betr_dk_missing_odds": unmatched_betr_dk_missing_odds,
+        "unmatched_dk": unmatched_dk,
+        "betr_match_rate_pct": match_rate,
     }
+
+
+def list_unmatched_betr_props(
+    betr_props: list[dict],
+    draftkings_props: list[dict],
+) -> list[dict]:
+    """Betr props that cannot be compared to DK, with reason and match key."""
+    sharp_lookup = index_props_by_key(draftkings_props)
+    unmatched: list[dict] = []
+
+    for betr_prop in betr_props:
+        reason = betr_match_reason(betr_prop, sharp_lookup)
+        if reason is None:
+            continue
+        unmatched.append(
+            {
+                "player": betr_prop["player"],
+                "market": betr_prop["market"],
+                "line": float(betr_prop["line"]),
+                "match_key": build_prop_key(betr_prop),
+                "reason": reason,
+            }
+        )
+
+    return unmatched
+
+
+def list_unmatched_dk_props(
+    betr_props: list[dict],
+    draftkings_props: list[dict],
+) -> list[dict]:
+    """DK props with no Betr line on the same player|market|line key."""
+    betr_keys = {build_prop_key(prop) for prop in betr_props}
+    unmatched: list[dict] = []
+
+    for dk_prop in draftkings_props:
+        key = build_prop_key(dk_prop)
+        if key in betr_keys:
+            continue
+        unmatched.append(
+            {
+                "player": dk_prop["player"],
+                "market": dk_prop["market"],
+                "line": float(dk_prop["line"]),
+                "match_key": key,
+                "reason": "no_betr_line",
+            }
+        )
+
+    return unmatched

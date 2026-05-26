@@ -78,7 +78,14 @@ From `backend/` with `.venv` activated and `config/.env` configured:
 python -m core.pipeline_runner
 ```
 
-This runs Betr scrape → DraftKings scrape → normalize → EV scan and writes `data/processed/ev_opportunities.json` (top 15 matched plays by EV, ranked best first). Useful flags:
+This runs Betr scrape → DraftKings scrape → normalize → EV scan and writes:
+
+- `data/processed/ev_opportunities.json` — top matched plays by EV (default 15)
+- `data/processed/match_report.json` — matched/unmatched counts and `betr_match_rate_pct`
+- `data/processed/unmatched_betr.json` — Betr lines with no DK match (or DK missing odds)
+- `data/processed/unmatched_dk.json` — DK lines with no Betr twin on the same key
+
+Use the match files to judge scrape coverage and cross-book alignment before trusting +EV rows. Useful flags:
 
 - `--skip-scrape` — reuse existing master boards
 - `--betr-only` / `--dk-only` — scrape one book only

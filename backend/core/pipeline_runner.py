@@ -10,11 +10,11 @@ from pathlib import Path
 
 from loguru import logger
 
-from core.engine import compute_match_stats
 from core.ev_pipeline import (
     BETR_NORMALIZED,
     DK_NORMALIZED,
     load_comparison_inputs,
+    persist_match_diagnostics,
     run_ev_scan,
 )
 from parsers.normalize import normalize_all
@@ -127,7 +127,7 @@ def run_refresh(
         logger.error("missing betr or draftkings normalized props for EV scan")
         return 1
 
-    stats = compute_match_stats(betr_props, dk_props)
+    stats = persist_match_diagnostics(data_path, betr_props, dk_props)
     opportunities = run_ev_scan(
         data_path, normalize_first=False, min_ev=min_ev, top_n=top_n
     )
@@ -136,8 +136,10 @@ def run_refresh(
     logger.success(
         "refresh summary: "
         f"betr={stats['betr_props']} dk={stats['dk_props']} "
-        f"matched={stats['matched_keys']} top={len(opportunities)} "
-        f"plus_ev={plus_ev_count} (min_ev={min_ev}, top_n={top_n})"
+        f"matched={stats['matched_keys']} ({stats['betr_match_rate_pct']}%) "
+        f"unmatched_betr={stats['unmatched_betr']} unmatched_dk={stats['unmatched_dk']} "
+        f"top={len(opportunities)} plus_ev={plus_ev_count} "
+        f"(min_ev={min_ev}, top_n={top_n})"
     )
     return 0
 

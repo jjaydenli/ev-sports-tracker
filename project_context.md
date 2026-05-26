@@ -84,14 +84,14 @@ backend/
 │   └── pipeline_runner.py      # run_refresh CLI: scrape → normalize → EV
 ├── archive/dabble/             # archived Dabble parser + README
 ├── data/
-│   ├── processed/              # gitignored: *_master_board.json, *_normalized.json, ev_opportunities.json
+│   ├── processed/              # gitignored: boards, ev_opportunities.json, match_report.json, unmatched_*.json
 │   └── archive/dabble/         # sample legacy board (not live pipeline)
 └── tests/
     ├── fixtures/               # dk_league_*, dk_markets_* JSON
     └── unit/                   # test_betr_*, test_dk_*, test_ev_*, test_normalize, test_math_utils, archive dabble
 ```
 
-**EV data flow:** `python -m core.pipeline_runner` (or per-stage CLIs) → scrapers → `data/processed/{betr,dk}_master_board.json` → `normalize.py` → `ev_pipeline.py` → `core/engine.py` → `data/processed/ev_opportunities.json`
+**EV data flow:** `python -m core.pipeline_runner` (or per-stage CLIs) → scrapers → `data/processed/{betr,dk}_master_board.json` → `normalize.py` → `ev_pipeline.py` (`persist_match_diagnostics` → `match_report.json`, `unmatched_*.json`) → `core/engine.py` → `data/processed/ev_opportunities.json`
 
 ## 6. Roadmap
 

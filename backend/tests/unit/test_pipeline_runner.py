@@ -39,6 +39,9 @@ def test_run_refresh_skip_scrape_writes_ev(mock_preflight, tmp_path):
 
     assert code == 0
     mock_preflight.assert_not_called()
+    assert (tmp_path / "match_report.json").exists()
+    assert (tmp_path / "unmatched_betr.json").exists()
+    assert (tmp_path / "unmatched_dk.json").exists()
     output = tmp_path / "ev_opportunities.json"
     assert output.exists()
     opportunities = json.loads(output.read_text(encoding="utf-8"))

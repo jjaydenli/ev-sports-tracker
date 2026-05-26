@@ -70,6 +70,23 @@ backend/
    pytest
    ```
 
+## Daily refresh
+
+From `backend/` with `.venv` activated and `config/.env` configured:
+
+```bash
+python -m core.pipeline_runner
+```
+
+This runs Betr scrape → DraftKings scrape → normalize → EV scan and writes `data/processed/ev_opportunities.json` (top 15 matched plays by EV, ranked best first). Useful flags:
+
+- `--skip-scrape` — reuse existing master boards
+- `--betr-only` / `--dk-only` — scrape one book only
+- `--top-n 15` — max rows written (default 15)
+- `--min-ev 0.01` — threshold for the `plus_ev` flag (non-+EV rows can still appear in the top-N list)
+
+Betr auth: set `BETR_BEARER_TOKEN`, or configure `BETR_USERNAME` / `BETR_PASSWORD` (and optionally `BETR_KEYCLOAK_TOKEN_URL`, `BETR_KEYCLOAK_CLIENT_ID`) for automatic Keycloak refresh. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
+
 ## Security
 
 All API keys, passwords, and JWTs must stay in `.env` and be loaded via `os.getenv()`. Do not hardcode credentials or tokens in source files.

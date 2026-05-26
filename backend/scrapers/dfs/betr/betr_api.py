@@ -161,13 +161,20 @@ async def main(league: str = "NBA") -> None:
     from pathlib import Path
 
     from config.settings import BETR_BEARER_TOKEN
+    from scrapers.dfs.betr.betr_auth import BetrAuthError, ensure_betr_token
 
-    if not BETR_BEARER_TOKEN:
-        logger.error("missing BETR_BEARER_TOKEN in backend/.env")
+    try:
+        token = await ensure_betr_token()
+    except BetrAuthError as exc:
+        logger.error(str(exc))
+        return
+
+    if not token and not BETR_BEARER_TOKEN:
+        logger.error("missing Betr credentials in config/.env")
         return
 
     logger.info(f"fetching LeagueUpcomingEvents for {league}...")
-    raw_json = await fetch_league_upcoming_events(league, BETR_BEARER_TOKEN)
+    raw_json = await fetch_league_upcoming_events(league, token)
 
     if not raw_json:
         logger.error("request failed — check token and headers")

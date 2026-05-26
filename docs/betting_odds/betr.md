@@ -79,15 +79,30 @@ Or paste the token into [jwt.io](https://jwt.io) and read the `exp` claim.
 
 Verify with: `.venv/bin/python -m scrapers.dfs.betr.betr_api`
 
-### TODO: automate token refresh
+### Automated refresh (`betr_auth.py`)
 
-**Goal:** Stop copying tokens from browser Network tabs. Options to explore (in priority order):
+The pipeline and scrapers call `ensure_betr_token()` before Betr requests:
 
-1. **Programmatic login** — Reverse-engineer Betr/Keycloak sign-in (username/password or refresh token) like Dabble sign-in, persist access + refresh tokens, refresh before `exp`.
-2. **Refresh token flow** — If the web app stores a refresh token, capture it once and exchange for new access tokens on a schedule.
-3. **Pre-flight guard** — Before scrape, decode JWT `exp`; if within N hours of expiry, log a warning or attempt refresh automatically.
+1. Valid cached token in `data/processed/.betr_token_cache.json` (gitignored)
+2. Valid `BETR_BEARER_TOKEN` from `.env`
+3. Keycloak **refresh_token** grant when `BETR_REFRESH_TOKEN` (or cache) is set
+4. Keycloak **password** grant when `BETR_USERNAME` and `BETR_PASSWORD` are set
 
-Until then, tokens typically last ~30 days; refresh when the API returns 401/403 or `betr_api` logs a blocked request.
+JWT **expiry pre-flight** fails the run if the token is expired or expires within 24 hours (configurable in code). Override only for debugging: `python -m core.pipeline_runner --skip-expiry-check`.
+
+**Env vars** (see `config/.env.example`):
+
+| Variable | Purpose |
+|----------|---------|
+| `BETR_BEARER_TOKEN` | Manual JWT (DevTools copy) |
+| `BETR_KEYCLOAK_TOKEN_URL` | Full OIDC token endpoint (optional if JWT `iss` is present) |
+| `BETR_KEYCLOAK_CLIENT_ID` | Keycloak client id for password/refresh grants |
+| `BETR_USERNAME` / `BETR_PASSWORD` | Password grant |
+| `BETR_REFRESH_TOKEN` | Refresh grant |
+
+If password/refresh grants return 401, capture the real token URL and client id from a browser login and set `BETR_KEYCLOAK_TOKEN_URL` explicitly.
+
+**Daily command:** `cd backend && python -m core.pipeline_runner`
 
 ## API
 

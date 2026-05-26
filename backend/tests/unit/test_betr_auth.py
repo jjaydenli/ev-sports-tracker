@@ -1,0 +1,125 @@
+import base64
+import json
+import time
+from unittest.mock import AsyncMock
+
+import pytest
+
+from scrapers.dfs.betr.betr_auth import (
+    BetrAuthError,
+    decode_jwt_payload,
+    ensure_betr_token,
+    fetch_keycloak_tokens,
+    jwt_expiry_status,
+    keycloak_token_url_from_issuer,
+    resolve_keycloak_token_url,
+    save_token_cache,
+    validate_betr_token_or_raise,
+)
+
+
+def _make_jwt(payload: dict) -> str:
+    header = base64.urlsafe_b64encode(
+        json.dumps({"alg": "none"}).encode()
+    ).decode().rstrip("=")
+    body = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+    return f"{header}.{body}.signature"
+
+
+def test_decode_jwt_payload_reads_exp():
+    token = _make_jwt({"exp": 4_102_444_800, "sub": "user-1"})
+    assert decode_jwt_payload(token)["sub"] == "user-1"
+
+
+def test_jwt_expiry_status_detects_expired_token():
+    past = int(time.time()) - 60
+    token = _make_jwt({"exp": past})
+    status = jwt_expiry_status(token, warn_hours=24, now=int(time.time()))
+    assert status.is_expired
+    assert status.expires_within_warn_window
+
+
+def test_validate_betr_token_or_raise_rejects_expiring_soon():
+    soon = int(time.time()) + 3600
+    token = _make_jwt({"exp": soon})
+    with pytest.raises(BetrAuthError, match="expires within"):
+        validate_betr_token_or_raise(token, warn_hours=24)
+
+
+def test_keycloak_token_url_from_issuer():
+    url = keycloak_token_url_from_issuer("https://auth.example.com/realms/betr")
+    assert url.endswith("/protocol/openid-connect/token")
+
+
+def test_resolve_keycloak_token_url_from_jwt_iss(monkeypatch):
+    monkeypatch.delenv("BETR_KEYCLOAK_TOKEN_URL", raising=False)
+    token = _make_jwt({"iss": "https://auth.example.com/realms/betr", "exp": 9_999_999_999})
+    assert resolve_keycloak_token_url(token) == (
+        "https://auth.example.com/realms/betr/protocol/openid-connect/token"
+    )
+
+
+@pytest.mark.asyncio
+async def test_fetch_keycloak_tokens_password_grant(monkeypatch):
+    mock_response = AsyncMock()
+    mock_response.raise_for_status = lambda: None
+    mock_response.json = lambda: {"access_token": "fresh-token", "refresh_token": "refresh-1"}
+
+    mock_client = AsyncMock()
+    mock_client.post = AsyncMock(return_value=mock_response)
+    mock_client.aclose = AsyncMock()
+
+    monkeypatch.setattr(
+        "scrapers.dfs.betr.betr_auth.httpx.AsyncClient",
+        lambda: mock_client,
+    )
+
+    body = await fetch_keycloak_tokens(
+        grant_type="password",
+        token_url="https://auth.example.com/realms/betr/protocol/openid-connect/token",
+        client_id="betr-web",
+        username="user@example.com",
+        password="secret",
+        client=mock_client,
+    )
+
+    assert body["access_token"] == "fresh-token"
+    mock_client.post.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_ensure_betr_token_uses_valid_env_token(monkeypatch, tmp_path):
+    future = int(time.time()) + 86400 * 30
+    token = _make_jwt({"exp": future})
+    monkeypatch.setenv("BETR_BEARER_TOKEN", token)
+    monkeypatch.delenv("BETR_USERNAME", raising=False)
+    monkeypatch.delenv("BETR_REFRESH_TOKEN", raising=False)
+
+    result = await ensure_betr_token(skip_expiry_check=True, data_dir=tmp_path)
+    assert result == token
+
+
+@pytest.mark.asyncio
+async def test_ensure_betr_token_password_login_when_expired(monkeypatch, tmp_path):
+    past = int(time.time()) - 10
+    expired = _make_jwt({"exp": past, "iss": "https://auth.example.com/realms/betr"})
+    monkeypatch.setenv("BETR_BEARER_TOKEN", expired)
+    monkeypatch.setenv("BETR_USERNAME", "user@example.com")
+    monkeypatch.setenv("BETR_PASSWORD", "secret")
+    monkeypatch.setenv("BETR_KEYCLOAK_CLIENT_ID", "betr-web")
+    monkeypatch.delenv("BETR_REFRESH_TOKEN", raising=False)
+
+    future = int(time.time()) + 86400
+    fresh = _make_jwt({"exp": future})
+
+    async def _fake_login(**_kwargs):
+        save_token_cache(fresh, refresh_token="new-refresh", data_dir=tmp_path)
+        return fresh
+
+    monkeypatch.setattr(
+        "scrapers.dfs.betr.betr_auth.login_with_password",
+        _fake_login,
+    )
+
+    result = await ensure_betr_token(data_dir=tmp_path)
+    assert result == fresh

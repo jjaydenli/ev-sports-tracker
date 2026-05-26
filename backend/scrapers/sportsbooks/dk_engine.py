@@ -125,15 +125,30 @@ class DraftKingsEngine(BaseScraper):
         return all_props
 
 
+DK_MASTER_BOARD_PATH = "data/processed/dk_master_board.json"
+
+
+async def run_dk_scrape(
+    output_path: str = DK_MASTER_BOARD_PATH,
+    *,
+    event_ids: list[str] | None = None,
+    game_urls: list[str] | None = None,
+) -> int:
+    """Scrape DraftKings and persist the master board; return prop count."""
+    engine = DraftKingsEngine(event_ids=event_ids, game_urls=game_urls)
+    props = await engine.run(output_path)
+    if not props:
+        raise RuntimeError("draftkings scrape returned no props — check slate and subcategories")
+    logger.success(f"draftkings scrape: saved {len(props)} props to {output_path}")
+    return len(props)
+
+
 async def main(
     event_ids: list[str] | None = None,
     game_urls: list[str] | None = None,
 ):
     """Scrape DraftKings props and persist the master board."""
-    engine = DraftKingsEngine(event_ids=event_ids, game_urls=game_urls)
-    output_path = "data/processed/dk_master_board.json"
-    props = await engine.run(output_path)
-    logger.success(f"pipeline complete: saved {len(props)} props to {output_path}")
+    await run_dk_scrape(event_ids=event_ids, game_urls=game_urls)
 
 
 if __name__ == "__main__":

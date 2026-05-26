@@ -8,6 +8,7 @@ from loguru import logger
 from config.settings import BETR_BEARER_TOKEN
 from scrapers.base_scraper import BaseScraper
 from scrapers.dfs.betr.betr_api import fetch_league_upcoming_events
+from scrapers.dfs.betr.betr_auth import BetrAuthError, ensure_betr_token
 
 
 def _build_player_name(player: dict[str, Any]) -> str:
@@ -186,7 +187,13 @@ class BetrEngine(BaseScraper):
         self.league = league or self.default_league
 
     async def authenticate(self) -> str | None:
-        return self.bearer_token
+        if self.bearer_token:
+            return self.bearer_token
+        try:
+            return await ensure_betr_token()
+        except BetrAuthError as exc:
+            logger.error(str(exc))
+            return None
 
     async def scrape(self) -> list[dict]:
         token = await self.authenticate()
@@ -212,13 +219,27 @@ class BetrEngine(BaseScraper):
         return props
 
 
+BETR_MASTER_BOARD_PATH = "data/processed/betr_master_board.json"
+
+
+async def run_betr_scrape(
+    output_path: str = BETR_MASTER_BOARD_PATH,
+    *,
+    league: str | None = None,
+) -> int:
+    """Scrape Betr and persist the master board; return prop count."""
+    logger.info("Starting Betr ingestion...")
+    engine = BetrEngine(league=league)
+    props = await engine.run(output_path)
+    if not props:
+        raise RuntimeError("betr scrape returned no props — check auth and slate")
+    logger.success(f"betr scrape: saved {len(props)} props to {output_path}")
+    return len(props)
+
+
 async def main():
     """Orchestrate the Betr data pipeline from slate fetch to disk persistence."""
-    logger.info("Starting Betr ingestion...")
-    engine = BetrEngine()
-    output_path = "data/processed/betr_master_board.json"
-    props = await engine.run(output_path)
-    logger.success(f"pipeline complete: saved {len(props)} props to {output_path}")
+    await run_betr_scrape()
 
 
 if __name__ == "__main__":

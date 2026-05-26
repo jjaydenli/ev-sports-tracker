@@ -25,7 +25,7 @@ def test_format_ev_opportunity_row_columns():
         "line_source": "multi_book_consensus",
     }
     line = format_ev_opportunity_row(row)
-    assert "Shai Gilgeous-Alexa" in line
+    assert "Shai Gilgeous-A" in line
     assert "OVER" in line
     assert "points" in line
     assert "29.5" in line
@@ -33,7 +33,7 @@ def test_format_ev_opportunity_row_columns():
     assert "+110/-130" not in line
     assert "-130/+110" in line
     assert "-125/+105" in line
-    assert "mb_consensus" in line
+    assert "mb_cons" in line
 
 
 def test_format_ev_opportunity_row_fd_only_shows_dk_dash():
@@ -59,6 +59,8 @@ def test_format_ev_opportunities_table_includes_header():
     table = format_ev_opportunities_table([])
     assert "Player" in table
     assert "Hit%" in table
+    assert "EV%" in table
+    assert "+EV" in table
     assert "DK" in table
     assert "FD" in table
     assert "Src" in table

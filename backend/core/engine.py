@@ -175,6 +175,7 @@ def find_ev_opportunities(
     min_ev: float = 0.0,
     top_n: int | None = None,
     include_flat_lines: bool = False,
+    filter_min_ev: bool = False,
 ) -> list[dict]:
     """
     Match DFS props to sharp sportsbook lines and return ranked plays.
@@ -254,6 +255,8 @@ def find_ev_opportunities(
             )
 
     opportunities.sort(key=lambda row: row["ev"], reverse=True)
+    if filter_min_ev:
+        opportunities = [row for row in opportunities if row["plus_ev"]]
     if top_n is not None:
         return opportunities[:top_n]
     return opportunities
@@ -268,6 +271,7 @@ def compare_betr_vs_draftkings(
     dfs_breakeven_odds: int = BETR_STANDARD_BREAKEVEN_ODDS,
     top_n: int | None = None,
     include_flat_lines: bool = False,
+    filter_min_ev: bool = False,
 ) -> list[dict]:
     """Compare normalized Betr props against sharp books and return ranked plays."""
     return find_ev_opportunities(
@@ -278,6 +282,7 @@ def compare_betr_vs_draftkings(
         min_ev=min_ev,
         top_n=top_n,
         include_flat_lines=include_flat_lines,
+        filter_min_ev=filter_min_ev,
     )
 
 

@@ -88,6 +88,7 @@ def run_refresh(
     skip_scrape: bool = False,
     betr_only: bool = False,
     dk_only: bool = False,
+    skip_betr: bool = False,
     skip_dk: bool = False,
     skip_fd: bool = False,
     league: str = DEFAULT_LEAGUE,
@@ -95,6 +96,7 @@ def run_refresh(
     top_n: int = 15,
     skip_expiry_check: bool = False,
     include_flat_lines: bool = False,
+    plus_ev_only: bool = False,
 ) -> int:
     """
     Run scrape → normalize → EV pipeline.
@@ -102,7 +104,7 @@ def run_refresh(
     Returns process exit code (0 success, 1 failure).
     """
     data_path = Path(data_dir)
-    run_betr = not dk_only
+    run_betr = not dk_only and not skip_betr
     run_dk = not betr_only and not skip_dk
     run_fd = not betr_only and not dk_only and not skip_fd
 
@@ -137,6 +139,8 @@ def run_refresh(
         logger.info("skipping EV scan (--betr-only or --dk-only)")
         return 0
 
+    filter_min_ev = plus_ev_only or min_ev > 0
+
     betr_path = data_path / BETR_NORMALIZED
     dk_path = data_path / DK_NORMALIZED
     if not betr_path.exists() and not dk_path.exists():
@@ -161,6 +165,7 @@ def run_refresh(
         min_ev=min_ev,
         top_n=top_n,
         include_flat_lines=include_flat_lines,
+        filter_min_ev=filter_min_ev,
     )
     plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 
@@ -196,6 +201,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Scrape/normalize DraftKings only (no Betr scrape, no EV scan)",
     )
     parser.add_argument(
+        "--skip-betr",
+        action="store_true",
+        help="Skip Betr scrape and JWT pre-flight (use existing betr_normalized.json for EV)",
+    )
+    parser.add_argument(
         "--skip-dk",
         action="store_true",
         help="Skip DraftKings scrape (use existing dk_normalized.json for EV)",
@@ -214,7 +224,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--min-ev",
         type=float,
         default=0.0,
-        help="Edge threshold for plus_ev flag (rows below still appear in top-N)",
+        help="Edge threshold: plus_ev when ev > value; also filters output when > 0 (see --plus-ev-only)",
+    )
+    parser.add_argument(
+        "--plus-ev-only",
+        action="store_true",
+        help="Only include rows with ev > --min-ev in output (use --min-ev 0 for positive-EV only)",
     )
     parser.add_argument(
         "--top-n",
@@ -248,6 +263,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.betr_only and args.dk_only:
         logger.error("use at most one of --betr-only and --dk-only")
         raise SystemExit(1)
+    if args.betr_only and args.skip_betr:
+        logger.error("--betr-only conflicts with --skip-betr")
+        raise SystemExit(1)
     if args.dk_only and args.skip_dk:
         logger.error("--dk-only conflicts with --skip-dk")
         raise SystemExit(1)
@@ -257,6 +275,7 @@ def main(argv: list[str] | None = None) -> None:
         skip_scrape=args.skip_scrape,
         betr_only=args.betr_only,
         dk_only=args.dk_only,
+        skip_betr=args.skip_betr,
         skip_dk=args.skip_dk,
         skip_fd=args.skip_fd,
         league=args.league,
@@ -264,6 +283,7 @@ def main(argv: list[str] | None = None) -> None:
         top_n=args.top_n,
         skip_expiry_check=args.skip_expiry_check,
         include_flat_lines=args.include_flat_lines,
+        plus_ev_only=args.plus_ev_only,
     )
     raise SystemExit(code)
 

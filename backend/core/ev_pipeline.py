@@ -138,6 +138,7 @@ def run_ev_scan(
     top_n: int = 15,
     normalize_first: bool = True,
     include_flat_lines: bool = False,
+    filter_min_ev: bool = False,
 ) -> list[dict]:
     """Run the Betr vs DraftKings EV scan and optionally persist results."""
     data_path = Path(data_dir)
@@ -164,6 +165,7 @@ def run_ev_scan(
         min_ev=min_ev,
         top_n=top_n,
         include_flat_lines=include_flat_lines,
+        filter_min_ev=filter_min_ev,
     )
     plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 

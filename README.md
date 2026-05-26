@@ -72,10 +72,11 @@ backend/
 
 ## Daily refresh
 
-From `backend/` with `.venv` activated and `config/.env` configured:
+From the repo root (activates `backend/.venv` if present) or from `backend/` with `.venv` active:
 
 ```bash
-python -m core.pipeline_runner
+./ev
+# same as: cd backend && python -m core.pipeline_runner
 ```
 
 This runs Betr scrape → DraftKings scrape → normalize → EV scan and writes:
@@ -88,9 +89,11 @@ This runs Betr scrape → DraftKings scrape → normalize → EV scan and writes
 Use the match files to judge scrape coverage and cross-book alignment before trusting +EV rows. Useful flags:
 
 - `--skip-scrape` — reuse existing master boards
+- `--skip-betr` / `--skip-dk` / `--skip-fd` — sharp-only refresh: scrape the others, reuse that book’s normalized file for EV
 - `--betr-only` / `--dk-only` — scrape one book only
 - `--top-n 15` — max rows written (default 15)
-- `--min-ev 0.01` — threshold for the `plus_ev` flag (non-+EV rows can still appear in the top-N list)
+- `--min-ev 0.01` — mark `plus_ev` when edge > 1%; also **filters** output to those rows (default `0` shows all edges in top-N)
+- `--plus-ev-only` — filter to `ev > --min-ev` (use with `--min-ev 0` for strictly positive EV only)
 - `--include-flat-lines` — include Betr integer lines (push-adjusted breakeven; off by default)
 
 DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).

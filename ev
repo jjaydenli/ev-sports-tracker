@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Short entrypoint for the daily refresh pipeline (same flags as python -m core.pipeline_runner).
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+cd "$ROOT/backend"
+if [[ -f .venv/bin/activate ]]; then
+  # shellcheck source=/dev/null
+  source .venv/bin/activate
+fi
+exec python -m core.pipeline_runner "$@"

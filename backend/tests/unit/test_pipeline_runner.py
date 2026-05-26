@@ -82,3 +82,24 @@ def test_run_refresh_skip_dk_scrapes_betr_and_fd_only(
     mock_scrape_betr.assert_awaited_once()
     mock_scrape_fd.assert_awaited_once()
     mock_scrape_dk.assert_not_awaited()
+
+
+@patch("core.pipeline_runner._scrape_fd", new_callable=AsyncMock)
+@patch("core.pipeline_runner._scrape_dk", new_callable=AsyncMock)
+@patch("core.pipeline_runner._scrape_betr", new_callable=AsyncMock)
+@patch("core.pipeline_runner._preflight_betr_auth")
+def test_run_refresh_skip_betr_scrapes_dk_and_fd_only(
+    mock_preflight, mock_scrape_betr, mock_scrape_dk, mock_scrape_fd, tmp_path
+):
+    mock_scrape_dk.return_value = 8
+    mock_scrape_fd.return_value = 12
+    _write_normalized(tmp_path, betr_count=1, dk_count=1)
+
+    with patch("core.pipeline_runner.normalize_all"):
+        code = run_refresh(data_dir=tmp_path, skip_betr=True)
+
+    assert code == 0
+    mock_preflight.assert_not_called()
+    mock_scrape_betr.assert_not_awaited()
+    mock_scrape_dk.assert_awaited_once()
+    mock_scrape_fd.assert_awaited_once()

@@ -9,17 +9,20 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
     "Stat",
     "Line",
     "Hit%",
+    "EV%",
+    "+EV",
     "DK",
     "FD",
     "Src",
 )
 
-# Minimum column widths (excluding separator spaces).
-EV_TABLE_WIDTHS: tuple[int, ...] = (20, 5, 8, 5, 6, 12, 12, 14)
+# Minimum column widths (excluding separator spaces). Tight layout (~103 chars
+# wide with 10 columns) — EV%/+EV kept; player/DK/FD/Src trimmed vs legacy 8-col.
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 6, 4, 5, 5, 3, 10, 10, 9)
 
 # Shorter labels for console table (raw values still in JSON output).
 _LINE_SOURCE_DISPLAY: dict[str, str] = {
-    "multi_book_consensus": "mb_consensus",
+    "multi_book_consensus": "mb_cons",
 }
 
 
@@ -55,11 +58,14 @@ def format_ev_table_header() -> str:
 
 
 def format_ev_opportunity_row(row: dict) -> str:
-    """One pipeline table row: player | side | stat | line | hit% | dk | fd | src."""
+    """One pipeline table row: player | side | stat | line | hit% | ev | dk | fd | src."""
     line = row.get("line")
     line_text = str(int(line)) if line is not None and float(line) == int(float(line)) else str(line)
     hit_pct = row.get("side_hit_pct")
     hit_text = f"{hit_pct:.1f}%" if hit_pct is not None else "—"
+    ev_pct = row.get("ev_pct")
+    ev_text = f"{ev_pct:+.1f}" if ev_pct is not None else "—"
+    plus_ev_text = "Y" if row.get("plus_ev") else "—"
 
     cells = (
         row.get("player", ""),
@@ -67,6 +73,8 @@ def format_ev_opportunity_row(row: dict) -> str:
         row.get("market", ""),
         line_text,
         hit_text,
+        ev_text,
+        plus_ev_text,
         format_ou_odds(row.get("dk_over_odds"), row.get("dk_under_odds")),
         format_ou_odds(row.get("fd_over_odds"), row.get("fd_under_odds")),
         _format_line_source(str(row.get("line_source", ""))),

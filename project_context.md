@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-05-26 (FanDuel market catalog in `docs/betting_odds/fanduel.md`)
+**Last verified:** 2026-05-26 (`./ev` CLI, `--min-ev` / `--plus-ev-only` output filter)
 
 ## 1. Project Overview
 
@@ -51,7 +51,7 @@ The system standardizes disparate naming conventions across books, calculates no
 * **Normalization:** `fd_parser.py` + `market_maps.py` → `fd_normalized.json` (with Betr/DK via `normalize.py`).
 * **EV / multi-book:** `resolve_multi_book_sharp_quote` in `line_adjustment.py` — equal-weight de-vig when DK and FD both have exact O/U at the Betr line; otherwise FD exact-only or DK ladder methods. `compare_betr_vs_draftkings(..., fanduel_props=)` in `engine.py`.
 * **Probe (live):** `python -m scripts.probe_fd_events --league nba` — optional `--event-id`, `--game-url`, `--tab`, `--raw`. Offline: `test_fd_event_discovery`, `test_fd_event_page`; fixtures `fd_event_*_player_{points,rebounds,assists}.json` (SGP / extended O/U fixture TBD — live `probe_fd_events --tab same-game-parlay-`).
-* **Pipeline:** `pipeline_runner` runs Betr + DK + FD scrapes in parallel (`_run_selected_scrapes`); `--skip-dk` / `--skip-fd` reuse existing normalized boards for EV.
+* **Pipeline:** `pipeline_runner` (or repo-root `./ev`) runs Betr + DK + FD scrapes in parallel (`_run_selected_scrapes`); `--skip-betr` / `--skip-dk` / `--skip-fd` skip that book’s scrape and JWT (Betr only), reusing existing normalized boards for EV.
 * **Code:** `backend/config/fd_competitions.py`, `fd_markets.py`, `backend/scrapers/sportsbooks/fd_api.py`, `fd_engine.py`, `backend/parsers/fd_parser.py`, `backend/scripts/probe_fd_events.py`. **Docs:** [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md).
 
 ### Dabble (archived)
@@ -62,62 +62,62 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 * **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
-* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve sharp quote per Betr line via `line_adjustment.py` (DK ladder, optional FD exact, optional `multi_book_consensus`), multiplicative de-vig on eligible O/U, one row per allowed Betr side, ranked by EV. `run_ev_scan` logs a ranked plays table (`core/ev_display.py`: DK/FD O/U columns, `line_source`). JSON output capped at `top_n` (default 15) with `plus_ev` when edge exceeds `min_ev`. Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
+* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve sharp quote per Betr line via `line_adjustment.py` (DK ladder, optional FD exact, optional `multi_book_consensus`), multiplicative de-vig on eligible O/U, one row per allowed Betr side, ranked by EV. Each row gets `plus_ev` when `ev > min_ev`. Optional `filter_min_ev` drops sub-threshold rows before `top_n` (pipeline: auto when `--min-ev > 0`, or `--plus-ev-only` with any `--min-ev`). `run_ev_scan` logs a ranked plays table (`core/ev_display.py`: Hit%, EV%, +EV, DK/FD O/U, `line_source` — compact widths). JSON output capped at `top_n` (default 15). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
 
 ## 5. Architecture & File Structure
 
-Decoupled layout under `backend/`:
-
 ```text
-backend/
-├── config/
-│   ├── api_headers.py
-│   ├── market_maps.py
-│   ├── settings.py
-│   ├── dk_subcategories.py
-│   ├── fd_competitions.py
-│   ├── fd_markets.py           # tab ↔ canonical; FD_DEFAULT_SCRAPE_MARKETS; parse_player_ou_market_type
-│   ├── .env.example            # optional FD_SPORTSBOOK_API_HOST, FD_API_KEY
-│   └── .env                    # local secrets (gitignored)
-├── scripts/
-│   ├── probe_dk_subcategories.py
-│   └── probe_fd_events.py
-├── utils/
-│   ├── math_utils.py
-│   └── formatting.py
-├── scrapers/
-│   ├── base_scraper.py
-│   ├── dfs/
-│   │   ├── betr/               # betr_api, betr_auth, betr_engine, betr_orchestrator
-│   │   └── dabble_engine.py    # legacy
-│   └── sportsbooks/
-│       ├── dk_engine.py
-│       ├── dk_api.py
-│       ├── fd_api.py           # league discovery; flatten_event_page_response; group_fd_line_rows
-│       └── fd_engine.py        # tab/SGP scrape_targets_for_markets → master board
-├── parsers/
-│   ├── betr_parser.py
-│   ├── dk_parser.py
-│   ├── fd_parser.py
-│   └── normalize.py
-├── core/
-│   ├── models.py
-│   ├── engine.py
-│   ├── line_adjustment.py      # DK/FD ladders, multi_book_consensus
-│   ├── flat_line.py
-│   ├── ev_pipeline.py
-│   ├── ev_display.py           # ranked plays CLI table
-│   └── pipeline_runner.py      # run_refresh: scrape → normalize → EV (--skip-dk, --skip-fd)
-├── archive/dabble/             # archived Dabble parser + README
-├── data/
-│   ├── processed/              # gitignored: *master_board.json, *_normalized.json, ev_opportunities.json, match_report.json, unmatched_*.json
-│   └── archive/dabble/         # sample legacy board (not live pipeline)
-└── tests/
-    ├── fixtures/               # dk_league_*, dk_markets_*, fd_league_nba_events, fd_event_*_player_{points,rebounds,assists}.json
-    └── unit/                   # test_betr_*, test_dk_*, test_fd_*, test_ev_*, test_line_adjustment_multi_book, test_pipeline_runner, …
+ev-sports-tracker/
+├── ev                            # bash wrapper → backend pipeline_runner (same flags)
+└── backend/
+    ├── config/
+    │   ├── api_headers.py
+    │   ├── market_maps.py
+    │   ├── settings.py
+    │   ├── dk_subcategories.py
+    │   ├── fd_competitions.py
+    │   ├── fd_markets.py       # tab ↔ canonical; FD_DEFAULT_SCRAPE_MARKETS; parse_player_ou_market_type
+    │   ├── .env.example        # optional FD_SPORTSBOOK_API_HOST, FD_API_KEY
+    │   └── .env                # local secrets (gitignored)
+    ├── scripts/
+    │   ├── probe_dk_subcategories.py
+    │   └── probe_fd_events.py
+    ├── utils/
+    │   ├── math_utils.py
+    │   └── formatting.py
+    ├── scrapers/
+    │   ├── base_scraper.py
+    │   ├── dfs/
+    │   │   ├── betr/           # betr_api, betr_auth, betr_engine, betr_orchestrator
+    │   │   └── dabble_engine.py
+    │   └── sportsbooks/
+    │       ├── dk_engine.py
+    │       ├── dk_api.py
+    │       ├── fd_api.py       # league discovery; flatten; group_fd_line_rows
+    │       └── fd_engine.py
+    ├── parsers/
+    │   ├── betr_parser.py
+    │   ├── dk_parser.py
+    │   ├── fd_parser.py
+    │   └── normalize.py
+    ├── core/
+    │   ├── models.py
+    │   ├── engine.py           # find_ev_opportunities; filter_min_ev
+    │   ├── line_adjustment.py
+    │   ├── flat_line.py
+    │   ├── ev_pipeline.py
+    │   ├── ev_display.py       # ranked table: Hit%, EV%, +EV, DK, FD, Src
+    │   └── pipeline_runner.py  # --min-ev, --plus-ev-only, --skip-betr/dk/fd
+    ├── archive/dabble/
+    ├── data/
+    │   ├── processed/          # gitignored outputs
+    │   └── archive/dabble/
+    └── tests/
+        ├── fixtures/
+        └── unit/
 ```
 
-**EV data flow:** `python -m core.pipeline_runner` (or per-stage CLIs) → scrapers → `data/processed/{betr,dk,fd}_master_board.json` → `normalize.py` → `{betr,dk,fd}_normalized.json` → `ev_pipeline.py` (`persist_match_diagnostics` → `match_report.json`, `unmatched_*.json`; `run_ev_scan` → ranked table + `ev_opportunities.json` via `engine.py`)
+**EV data flow:** `./ev` or `python -m core.pipeline_runner` from `backend/` → scrapers → `data/processed/{betr,dk,fd}_master_board.json` → `normalize.py` → `{betr,dk,fd}_normalized.json` → `ev_pipeline.py` (`persist_match_diagnostics` → `match_report.json`, `unmatched_*.json`; `run_ev_scan` → ranked table + `ev_opportunities.json` via `engine.py`)
 
 ## 6. Roadmap
 
@@ -138,7 +138,9 @@ backend/
 * `ev_pipeline.py` loads `{betr,dk,fd}_normalized.json` → `compare_betr_vs_draftkings` → `ev_opportunities.json`; ranked plays table via `ev_display.py`.
 * Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_ev_display`, `test_line_adjustment_multi_book`, `test_pipeline_runner`, `test_normalize`, `test_math_utils`; fixtures incl. `fd_league_nba_events.json`, `fd_event_*_player_{points,rebounds,assists}.json`.
 * Betr breakeven aligned at **-120** across `math_utils`, parser side markers, and EV engine.
-* Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — parallel sharp scrapes, `--skip-dk` / `--skip-fd`, JWT pre-flight via `betr_auth.py`.
+* Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — parallel scrapes, `--skip-betr` / `--skip-dk` / `--skip-fd`, JWT pre-flight via `betr_auth.py`; repo-root `./ev` wrapper.
+* Pipeline `--min-ev` / `--plus-ev-only`: filter ranked output to `ev > min_ev`; `plus_ev` flag on each row; default `min_ev=0` shows top-N including negative EV.
+* Ranked plays table: `ev_display.py` — compact 10-column layout (Hit%, EV%, +EV, DK/FD O/U, Src).
 * FanDuel NBA event discovery: `fd_competitions.py`, `fd_api.fetch_league_event_ids`, `probe_fd_events`, `test_fd_event_discovery`.
 * FanDuel event-page props + normalization: `fd_markets.py`, `fd_engine`, `fd_parser`, `test_fd_event_page`, `test_normalize_fd`.
 * FanDuel core O/U default scrape: points / rebounds / assists via `FD_DEFAULT_SCRAPE_MARKETS` (`fd_engine` + `pipeline_runner`); multi-tab fixtures and tests.

@@ -88,9 +88,23 @@ def test_find_ev_opportunities_respects_min_ev_threshold():
     over_rows = [row for row in all_results if row["side"] == "over"]
     assert over_rows and over_rows[0]["plus_ev"]
 
-    high_threshold = find_ev_opportunities(betr, dk, min_ev=0.5)
-    assert high_threshold
-    assert all(not row["plus_ev"] for row in high_threshold)
+    flagged_only = find_ev_opportunities(betr, dk, min_ev=0.5)
+    assert flagged_only
+    assert all(not row["plus_ev"] for row in flagged_only)
+
+    filtered = find_ev_opportunities(betr, dk, min_ev=0.5, filter_min_ev=True)
+    assert filtered == []
+
+
+def test_filter_min_ev_keeps_plus_ev_rows():
+    betr = [_betr_prop("Test Player", "points", 20.5)]
+    dk = [_dk_prop("Test Player", "points", 20.5, -140, 120)]
+
+    results = find_ev_opportunities(betr, dk, min_ev=0.01, filter_min_ev=True, top_n=15)
+
+    assert results
+    assert all(row["plus_ev"] for row in results)
+    assert all(row["ev"] > 0.01 for row in results)
 
 
 def test_even_sharp_line_negative_ev_at_minus_120_breakeven():

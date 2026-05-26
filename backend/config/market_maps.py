@@ -93,6 +93,11 @@ PLATFORM_MARKET_MAPPINGS = {
         "points": "points",
         "rebounds": "rebounds",
         "assists": "assists",
+        "threes": "threes",
+        "pts+reb": "pts+reb",
+        "pts+ast": "pts+ast",
+        "pra": "pra",
+        "reb+ast": "reb+ast",
     },
 }
 

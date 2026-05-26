@@ -8,16 +8,24 @@ from loguru import logger
 
 from config.api_headers import FD_BASE_HEADERS
 from config.fd_competitions import FD_LEAGUE_SLATES, parse_event_id_from_url
-from config.fd_markets import FD_CANONICAL_TO_TAB, tab_for_canonical_market
+from config.fd_markets import (
+    FD_CANONICAL_TO_TAB,
+    FD_DEFAULT_SCRAPE_MARKETS,
+    FD_EXTENDED_OU_MARKETS,
+    FD_SGP_TAB,
+    is_core_ou_market,
+    is_extended_ou_market,
+    tab_for_canonical_market,
+)
 from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.fd_api import (
+    count_fd_line_rows,
     fetch_and_flatten_event_page,
     fetch_league_event_ids,
 )
 
 DEFAULT_CONCURRENCY = 8
 DEFAULT_LEAGUE = "nba"
-DEFAULT_MARKETS = ("points",)
 
 
 def parse_event_ids(
@@ -43,6 +51,33 @@ def parse_event_ids(
     return resolved
 
 
+def scrape_targets_for_markets(
+    markets: list[str],
+) -> list[tuple[str, set[str] | None]]:
+    """
+    Map requested canonical markets to event-page tab fetches.
+
+    Core stats use dedicated tabs; extended stats share one SGP tab request.
+    """
+    targets: list[tuple[str, set[str] | None]] = []
+    seen_tabs: set[str] = set()
+    extended: set[str] = set()
+
+    for market in markets:
+        if is_core_ou_market(market):
+            tab = tab_for_canonical_market(market)
+            if tab and tab not in seen_tabs:
+                seen_tabs.add(tab)
+                targets.append((tab, {market}))
+        elif is_extended_ou_market(market):
+            extended.add(market)
+
+    if extended:
+        targets.append((FD_SGP_TAB, extended))
+
+    return targets
+
+
 class FanDuelEngine(BaseScraper):
     sportsbook_name = "FanDuel"
 
@@ -58,7 +93,7 @@ class FanDuelEngine(BaseScraper):
             event_ids=event_ids, game_urls=game_urls
         )
         self.league = league
-        self.markets = markets or list(DEFAULT_MARKETS)
+        self.markets = markets or list(FD_DEFAULT_SCRAPE_MARKETS)
         self.concurrency = concurrency
 
     async def authenticate(self) -> str | None:
@@ -74,23 +109,14 @@ class FanDuelEngine(BaseScraper):
         )
         return event_ids
 
-    def _tabs_for_markets(self) -> list[str]:
-        tabs: list[str] = []
-        for market in self.markets:
-            tab = tab_for_canonical_market(market)
-            if not tab:
-                logger.error(f"unknown fanduel market: {market}")
-                continue
-            if tab not in tabs:
-                tabs.append(tab)
-        return tabs
-
     async def scrape(self) -> list[dict[str, Any]]:
-        tabs = self._tabs_for_markets()
-        if not tabs:
+        targets = scrape_targets_for_markets(self.markets)
+        if not targets:
             return []
 
-        unknown_markets = set(self.markets) - set(FD_CANONICAL_TO_TAB)
+        unknown_markets = set(self.markets) - set(FD_CANONICAL_TO_TAB) - set(
+            FD_EXTENDED_OU_MARKETS
+        )
         if unknown_markets:
             logger.error(f"Unknown FanDuel markets: {sorted(unknown_markets)}")
             return []
@@ -108,16 +134,18 @@ class FanDuelEngine(BaseScraper):
                 logger.warning("No FanDuel event IDs available to scrape.")
                 return []
 
-            async def fetch_tab(event_id: str, tab: str) -> list[dict[str, Any]]:
+            async def fetch_tab(
+                event_id: str, tab: str, markets: set[str] | None
+            ) -> list[dict[str, Any]]:
                 async with semaphore:
                     return await fetch_and_flatten_event_page(
-                        client, event_id, tab=tab
+                        client, event_id, tab=tab, markets=markets
                     )
 
             tasks = [
-                fetch_tab(event_id, tab)
+                fetch_tab(event_id, tab, markets)
                 for event_id in event_ids
-                for tab in tabs
+                for tab, markets in targets
             ]
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -127,9 +155,10 @@ class FanDuelEngine(BaseScraper):
                 continue
             all_props.extend(result)
 
+        line_count = count_fd_line_rows(all_props)
         logger.info(
-            f"fetched {len(all_props)} fanduel props from {len(event_ids)} events "
-            f"x {len(tabs)} tabs"
+            f"fetched {len(all_props)} fanduel props ({line_count} O/U lines) "
+            f"from {len(event_ids)} events x {len(targets)} tab fetches"
         )
         return all_props
 
@@ -144,7 +173,7 @@ async def run_fd_scrape(
     game_urls: list[str] | None = None,
     markets: list[str] | None = None,
 ) -> int:
-    """Scrape FanDuel and persist the master board; return prop count."""
+    """Scrape FanDuel and persist the master board; return grouped prop count."""
     engine = FanDuelEngine(
         event_ids=event_ids,
         game_urls=game_urls,
@@ -155,7 +184,10 @@ async def run_fd_scrape(
         raise RuntimeError(
             "fanduel scrape returned no props — check slate, tabs, or in-play filter"
         )
-    logger.success(f"fanduel scrape: saved {len(props)} props to {output_path}")
+    logger.success(
+        f"fanduel scrape: saved {len(props)} props "
+        f"({count_fd_line_rows(props)} O/U lines) to {output_path}"
+    )
     return len(props)
 
 

@@ -16,6 +16,7 @@ from config.fd_competitions import (
     extract_event_ids,
 )
 from config.fd_markets import (
+    FD_SGP_TAB,
     canonical_market_for_tab,
     is_player_ou_market_for_tab,
     parse_player_ou_market_type,
@@ -293,6 +294,61 @@ def merge_prop_rows(props: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return list(merged.values())
 
 
+def group_fd_line_rows(line_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Group flattened O/U line rows into one master-board prop per player + market.
+
+    Each prop carries a ``lines`` ladder (main + alts). Downstream normalization
+    expands these back to line-level rows for ``build_player_market_ladder``.
+    """
+    grouped: dict[tuple[str, str, str], dict[str, Any]] = {}
+
+    for row in line_rows:
+        key = (str(row["event_id"]), row["player"], row["market"])
+        prop = grouped.get(key)
+        if prop is None:
+            prop = {
+                "sportsbook": row.get("sportsbook", FD_SPORTSBOOK),
+                "event_id": row["event_id"],
+                "tab": row.get("tab"),
+                "player": row["player"],
+                "market": row["market"],
+                "line_kind": row.get("line_kind", LINE_KIND_OU),
+                "lines": [],
+            }
+            grouped[key] = prop
+
+        prop["lines"].append(
+            {
+                "line": float(row["line"]),
+                "over_odds": row["over_odds"],
+                "under_odds": row["under_odds"],
+                "is_main_line": bool(row.get("is_main_line", False)),
+                "market_id": row.get("market_id"),
+                "market_type": row.get("market_type"),
+            }
+        )
+
+    for prop in grouped.values():
+        prop["lines"].sort(
+            key=lambda entry: (not entry["is_main_line"], entry["line"])
+        )
+
+    return list(grouped.values())
+
+
+def count_fd_line_rows(props: list[dict[str, Any]]) -> int:
+    """Count O/U line rows across grouped or legacy flat master-board props."""
+    total = 0
+    for prop in props:
+        lines = prop.get("lines")
+        if lines:
+            total += len(lines)
+        elif prop.get("line") is not None:
+            total += 1
+    return total
+
+
 def event_page_in_play(payload: dict[str, Any], event_id: str) -> bool:
     attachments = payload.get("attachments") or {}
     events = attachments.get("events") or {}
@@ -305,40 +361,62 @@ def flatten_event_page_response(
     *,
     event_id: str,
     tab: str,
+    markets: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     """
-    Flatten FanDuel event-page attachments.markets into O/U master-board rows.
+    Flatten FanDuel event-page attachments.markets into grouped O/U master-board props.
 
     Uses main (PLAYER_*_TOTAL_*) and alt (PLAYER_*_ALT_TOTAL_*) ladders only.
     Skips milestones (TO_SCORE_*), game lines, and quarter props.
     """
-    canonical_market = canonical_market_for_tab(tab)
-    if not canonical_market:
-        logger.error(f"unknown fanduel tab for flatten: {tab}")
-        return []
-
     if event_page_in_play(payload, event_id):
         logger.info(f"skip in-play fanduel event {event_id}")
         return []
 
     attachments = payload.get("attachments") or {}
-    markets = attachments.get("markets") or {}
-    props: list[dict[str, Any]] = []
+    fd_markets = attachments.get("markets") or {}
+    line_rows: list[dict[str, Any]] = []
 
-    for fd_market in markets.values():
-        market_type = str(fd_market.get("marketType") or "")
-        if not is_player_ou_market_for_tab(market_type, tab):
-            continue
-        props.extend(
-            flatten_player_ou_market(
-                fd_market,
-                event_id=event_id,
-                tab=tab,
-                canonical_market=canonical_market,
+    if tab == FD_SGP_TAB:
+        allowed = markets
+        for fd_market in fd_markets.values():
+            market_type = str(fd_market.get("marketType") or "")
+            parsed = parse_player_ou_market_type(market_type)
+            if not parsed:
+                continue
+            canonical_market, _ = parsed
+            if allowed is not None and canonical_market not in allowed:
+                continue
+            line_rows.extend(
+                flatten_player_ou_market(
+                    fd_market,
+                    event_id=event_id,
+                    tab=tab,
+                    canonical_market=canonical_market,
+                )
             )
-        )
+    else:
+        canonical_market = canonical_market_for_tab(tab)
+        if not canonical_market:
+            logger.error(f"unknown fanduel tab for flatten: {tab}")
+            return []
+        if markets is not None and canonical_market not in markets:
+            return []
 
-    return merge_prop_rows(props)
+        for fd_market in fd_markets.values():
+            market_type = str(fd_market.get("marketType") or "")
+            if not is_player_ou_market_for_tab(market_type, tab):
+                continue
+            line_rows.extend(
+                flatten_player_ou_market(
+                    fd_market,
+                    event_id=event_id,
+                    tab=tab,
+                    canonical_market=canonical_market,
+                )
+            )
+
+    return group_fd_line_rows(merge_prop_rows(line_rows))
 
 
 async def fetch_and_flatten_event_page(
@@ -346,9 +424,12 @@ async def fetch_and_flatten_event_page(
     event_id: str,
     *,
     tab: str,
+    markets: set[str] | None = None,
 ) -> list[dict[str, Any]]:
-    """Fetch one event-page tab and return flattened O/U prop rows."""
+    """Fetch one event-page tab and return grouped O/U master-board props."""
     payload = await fetch_event_page(client, event_id, tab=tab)
     if not payload:
         return []
-    return flatten_event_page_response(payload, event_id=event_id, tab=tab)
+    return flatten_event_page_response(
+        payload, event_id=event_id, tab=tab, markets=markets
+    )

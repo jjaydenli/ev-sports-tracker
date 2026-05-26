@@ -29,10 +29,14 @@ def test_parse_fd_props_preserves_alt_line_flag():
                 "sportsbook": "FanDuel",
                 "player": "Victor Wembanyama",
                 "market": "points",
-                "line": 22.5,
-                "over_odds": -110,
-                "under_odds": -110,
-                "is_main_line": False,
+                "lines": [
+                    {
+                        "line": 22.5,
+                        "over_odds": -110,
+                        "under_odds": -110,
+                        "is_main_line": False,
+                    }
+                ],
             }
         ]
     )

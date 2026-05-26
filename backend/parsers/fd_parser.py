@@ -3,17 +3,29 @@
 from config.market_maps import get_canonical_market
 
 FD_SPORTSBOOK = "FanDuel"
-REQUIRED_FIELDS = ("player", "market", "line")
+REQUIRED_LINE_FIELDS = ("line", "over_odds", "under_odds")
+
+
+def _line_entries(raw_prop: dict) -> list[dict]:
+    """Return line-level dicts from a grouped or legacy flat master-board row."""
+    lines = raw_prop.get("lines")
+    if lines:
+        return lines
+    if raw_prop.get("line") is not None:
+        return [raw_prop]
+    return []
 
 
 def parse_fd_prop(raw_prop: dict) -> dict | None:
-    """Validate and normalize a single FanDuel prop row."""
-    if not all(raw_prop.get(field) is not None for field in REQUIRED_FIELDS):
-        return None
-
+    """Validate and normalize a single FanDuel line row."""
     player = raw_prop.get("player")
     raw_market = raw_prop.get("market", "")
     line = raw_prop.get("line")
+
+    if not player or raw_market is None or line is None:
+        return None
+    if raw_prop.get("over_odds") is None or raw_prop.get("under_odds") is None:
+        return None
 
     return {
         "sportsbook": raw_prop.get("sportsbook", FD_SPORTSBOOK),
@@ -33,10 +45,25 @@ def parse_fd_prop(raw_prop: dict) -> dict | None:
 
 
 def parse_fd_props(raw_props: list[dict]) -> list[dict]:
-    """Normalize a list of FanDuel master board rows."""
+    """
+    Normalize FanDuel master board props into line-level rows.
+
+    Grouped master-board entries (``lines`` ladder per player/market) expand to
+    one normalized row per O/U line for ``build_player_market_ladder``.
+    """
     normalized: list[dict] = []
     for raw_prop in raw_props:
-        prop = parse_fd_prop(raw_prop)
-        if prop:
-            normalized.append(prop)
+        base = {
+            "sportsbook": raw_prop.get("sportsbook", FD_SPORTSBOOK),
+            "player": raw_prop.get("player"),
+            "market": raw_prop.get("market"),
+            "line_kind": raw_prop.get("line_kind", "ou"),
+            "event_id": raw_prop.get("event_id"),
+            "tab": raw_prop.get("tab"),
+        }
+        for line_row in _line_entries(raw_prop):
+            merged = {**base, **line_row}
+            prop = parse_fd_prop(merged)
+            if prop:
+                normalized.append(prop)
     return normalized

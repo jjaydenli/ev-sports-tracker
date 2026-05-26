@@ -1,0 +1,1739 @@
+{
+  "layout": {
+    "page": {
+      "title": "NBA",
+      "path": "nba",
+      "type": "CUSTOM",
+      "seo": 42
+    },
+    "defaultTab": 35
+  },
+  "attachments": {
+    "eventTypes": {
+      "7522": {
+        "name": "Basketball",
+        "eventTypeId": 7522
+      }
+    },
+    "competitions": {
+      "10547864": {
+        "name": "NBA",
+        "competitionId": 10547864,
+        "eventTypeId": 7522,
+        "eventId": 28049020
+      },
+      "12739957": {
+        "name": "NBA Futures",
+        "competitionId": 12739957,
+        "eventTypeId": 7522,
+        "eventId": 34409523
+      }
+    },
+    "events": {
+      "28279720": {
+        "eventId": 28279720,
+        "name": "NBA Draft Markets",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "openDate": "2025-06-26T00:00:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "28301194": {
+        "eventId": 28301194,
+        "name": " NBA Player Awards",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "US",
+        "openDate": "2023-07-08T00:05:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "34409523": {
+        "eventId": 34409523,
+        "name": "NBA Futures",
+        "eventTypeId": 7522,
+        "competitionId": 12739957,
+        "countryCode": "GB",
+        "openDate": "2026-06-10T19:55:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": false
+      },
+      "35639109": {
+        "eventId": 35639109,
+        "name": "San Antonio Spurs @ Oklahoma City Thunder",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-05-27T00:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "35652199": {
+        "eventId": 35652199,
+        "name": "New York Knicks @ Oklahoma City Thunder",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-06-04T00:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "35652200": {
+        "eventId": 35652200,
+        "name": "New York Knicks @ San Antonio Spurs",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-06-04T00:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      }
+    },
+    "markets": {
+      "734.170268242": {
+        "marketId": "734.170268242",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "2+ Made Threes",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "2+_MADE_THREES",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 15,
+        "numberOfActiveRunners": 15,
+        "numberOfWinners": 1,
+        "sortPriority": -8859,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 28305700,
+            "handicap": 0,
+            "runnerName": "Devin Vassell",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/11ed88d4-292c-4c0b-b190-3d32f04f4242/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -330,
+                "americanOddsInt": -330
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.303030303030303
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 33
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 63388072,
+            "handicap": 0,
+            "runnerName": "Jared McCain",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/ef771b2b-55fa-47c4-856b-d9caa47ccc74/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -220,
+                "americanOddsInt": -220
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.454545454545455
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 220
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472494,
+            "handicap": 0,
+            "runnerName": "Julian Champagnie",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/f193a961-2712-4367-a8e2-0e47af823970/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -186,
+                "americanOddsInt": -186
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.537634408602151
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 186
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 51589519,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -154,
+                "americanOddsInt": -154
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.649350649350649
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 154
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 18970806,
+            "handicap": 0,
+            "runnerName": "Shai Gilgeous-Alexander",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/6659bd6b-742a-4e45-bfb2-57253fd160c7/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 102,
+                "americanOddsInt": 102
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.02
+                },
+                "fractionalOdds": {
+                  "numerator": 102,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 50343315,
+            "handicap": 0,
+            "runnerName": "Cason Wallace",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16446db3-fe82-4c58-b940-886edd5d5d33/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 108,
+                "americanOddsInt": 108
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.08
+                },
+                "fractionalOdds": {
+                  "numerator": 108,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 17971698,
+            "handicap": 0,
+            "runnerName": "Alex Caruso",
+            "sortPriority": 7,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/08233b9b-4198-4bb1-8587-b92f3d1efa75/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 108,
+                "americanOddsInt": 108
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.08
+                },
+                "fractionalOdds": {
+                  "numerator": 108,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 64155911,
+            "handicap": 0,
+            "runnerName": "Stephon Castle",
+            "sortPriority": 8,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/c2191276-db27-40e1-8dd8-e0e24f84546a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 118,
+                "americanOddsInt": 118
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.18
+                },
+                "fractionalOdds": {
+                  "numerator": 118,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 13323008,
+            "handicap": 0,
+            "runnerName": "De'Aaron Fox",
+            "sortPriority": 9,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16ec7e47-7af3-4269-a099-1bd193ff12c0/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 128,
+                "americanOddsInt": 128
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.28
+                },
+                "fractionalOdds": {
+                  "numerator": 128,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 27614550,
+            "handicap": 0,
+            "runnerName": "Luguentz Dort",
+            "sortPriority": 10,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/54af6285-d295-4a50-b14d-03398dd2d925/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 148,
+                "americanOddsInt": 148
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.48
+                },
+                "fractionalOdds": {
+                  "numerator": 148,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 43526394,
+            "handicap": 0,
+            "runnerName": "Jaylin Williams",
+            "sortPriority": 11,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/8771aa32-ec42-438d-932b-d81c90e3564c/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 162,
+                "americanOddsInt": 162
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.62
+                },
+                "fractionalOdds": {
+                  "numerator": 162,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472490,
+            "handicap": 0,
+            "runnerName": "Chet Holmgren",
+            "sortPriority": 12,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/fa53c0f4-d8e6-4e2c-939c-3ad2e912b2a7/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 215,
+                "americanOddsInt": 215
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.15
+                },
+                "fractionalOdds": {
+                  "numerator": 215,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 23316207,
+            "handicap": 0,
+            "runnerName": "Keldon Johnson",
+            "sortPriority": 13,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2dd2544d-aa2c-4b86-b5ce-74cd0c9a10c2/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 285,
+                "americanOddsInt": 285
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.85
+                },
+                "fractionalOdds": {
+                  "numerator": 285,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 43321244,
+            "handicap": 0,
+            "runnerName": "Jalen Williams",
+            "sortPriority": 14,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/e0b6ad79-7707-4f05-8e72-d531d594f28b/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 320,
+                "americanOddsInt": 320
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.2
+                },
+                "fractionalOdds": {
+                  "numerator": 32,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 76042495,
+            "handicap": 0,
+            "runnerName": "Dylan Harper",
+            "sortPriority": 15,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/faf74f74-5570-4baa-bc8d-c8ce47112430/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 330,
+                "americanOddsInt": 330
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.3
+                },
+                "fractionalOdds": {
+                  "numerator": 33,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580973396"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170268186": {
+        "marketId": "734.170268186",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "3+ Made Threes",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "3+_MADE_THREES",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 15,
+        "numberOfActiveRunners": 15,
+        "numberOfWinners": 1,
+        "sortPriority": -8858,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 28305700,
+            "handicap": 0,
+            "runnerName": "Devin Vassell",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/11ed88d4-292c-4c0b-b190-3d32f04f4242/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -108,
+                "americanOddsInt": -108
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.925925925925926
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 108
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 63388072,
+            "handicap": 0,
+            "runnerName": "Jared McCain",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/ef771b2b-55fa-47c4-856b-d9caa47ccc74/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 136,
+                "americanOddsInt": 136
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.36
+                },
+                "fractionalOdds": {
+                  "numerator": 136,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472494,
+            "handicap": 0,
+            "runnerName": "Julian Champagnie",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/f193a961-2712-4367-a8e2-0e47af823970/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 172,
+                "americanOddsInt": 172
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.72
+                },
+                "fractionalOdds": {
+                  "numerator": 172,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 51589519,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 215,
+                "americanOddsInt": 215
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.15
+                },
+                "fractionalOdds": {
+                  "numerator": 215,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 17971698,
+            "handicap": 0,
+            "runnerName": "Alex Caruso",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/08233b9b-4198-4bb1-8587-b92f3d1efa75/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 300,
+                "americanOddsInt": 300
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4
+                },
+                "fractionalOdds": {
+                  "numerator": 30,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 18970806,
+            "handicap": 0,
+            "runnerName": "Shai Gilgeous-Alexander",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/6659bd6b-742a-4e45-bfb2-57253fd160c7/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 320,
+                "americanOddsInt": 320
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.2
+                },
+                "fractionalOdds": {
+                  "numerator": 32,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 50343315,
+            "handicap": 0,
+            "runnerName": "Cason Wallace",
+            "sortPriority": 7,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16446db3-fe82-4c58-b940-886edd5d5d33/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 320,
+                "americanOddsInt": 320
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.2
+                },
+                "fractionalOdds": {
+                  "numerator": 32,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 64155911,
+            "handicap": 0,
+            "runnerName": "Stephon Castle",
+            "sortPriority": 8,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/c2191276-db27-40e1-8dd8-e0e24f84546a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 360,
+                "americanOddsInt": 360
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.6
+                },
+                "fractionalOdds": {
+                  "numerator": 36,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 13323008,
+            "handicap": 0,
+            "runnerName": "De'Aaron Fox",
+            "sortPriority": 9,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16ec7e47-7af3-4269-a099-1bd193ff12c0/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 420,
+                "americanOddsInt": 420
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.2
+                },
+                "fractionalOdds": {
+                  "numerator": 42,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 27614550,
+            "handicap": 0,
+            "runnerName": "Luguentz Dort",
+            "sortPriority": 10,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/54af6285-d295-4a50-b14d-03398dd2d925/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 470,
+                "americanOddsInt": 470
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.7
+                },
+                "fractionalOdds": {
+                  "numerator": 47,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 43526394,
+            "handicap": 0,
+            "runnerName": "Jaylin Williams",
+            "sortPriority": 11,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/8771aa32-ec42-438d-932b-d81c90e3564c/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 500,
+                "americanOddsInt": 500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 6
+                },
+                "fractionalOdds": {
+                  "numerator": 50,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472490,
+            "handicap": 0,
+            "runnerName": "Chet Holmgren",
+            "sortPriority": 12,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/fa53c0f4-d8e6-4e2c-939c-3ad2e912b2a7/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 750,
+                "americanOddsInt": 750
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 8.5
+                },
+                "fractionalOdds": {
+                  "numerator": 75,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 23316207,
+            "handicap": 0,
+            "runnerName": "Keldon Johnson",
+            "sortPriority": 13,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2dd2544d-aa2c-4b86-b5ce-74cd0c9a10c2/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 900,
+                "americanOddsInt": 900
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 10
+                },
+                "fractionalOdds": {
+                  "numerator": 90,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 43321244,
+            "handicap": 0,
+            "runnerName": "Jalen Williams",
+            "sortPriority": 14,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/e0b6ad79-7707-4f05-8e72-d531d594f28b/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1060,
+                "americanOddsInt": 1060
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 11.6
+                },
+                "fractionalOdds": {
+                  "numerator": 106,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 76042495,
+            "handicap": 0,
+            "runnerName": "Dylan Harper",
+            "sortPriority": 15,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/faf74f74-5570-4baa-bc8d-c8ce47112430/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1060,
+                "americanOddsInt": 1060
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 11.6
+                },
+                "fractionalOdds": {
+                  "numerator": 106,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580973397"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170268135": {
+        "marketId": "734.170268135",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "4+ Made Threes",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "4+_MADE_THREES",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 13,
+        "numberOfActiveRunners": 13,
+        "numberOfWinners": 1,
+        "sortPriority": -8857,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 28305700,
+            "handicap": 0,
+            "runnerName": "Devin Vassell",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/11ed88d4-292c-4c0b-b190-3d32f04f4242/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 240,
+                "americanOddsInt": 240
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.4
+                },
+                "fractionalOdds": {
+                  "numerator": 240,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 63388072,
+            "handicap": 0,
+            "runnerName": "Jared McCain",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/ef771b2b-55fa-47c4-856b-d9caa47ccc74/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 330,
+                "americanOddsInt": 330
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.3
+                },
+                "fractionalOdds": {
+                  "numerator": 33,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472494,
+            "handicap": 0,
+            "runnerName": "Julian Champagnie",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/f193a961-2712-4367-a8e2-0e47af823970/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 440,
+                "americanOddsInt": 440
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.4
+                },
+                "fractionalOdds": {
+                  "numerator": 44,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 51589519,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 560,
+                "americanOddsInt": 560
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 6.6
+                },
+                "fractionalOdds": {
+                  "numerator": 56,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 17971698,
+            "handicap": 0,
+            "runnerName": "Alex Caruso",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/08233b9b-4198-4bb1-8587-b92f3d1efa75/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 750,
+                "americanOddsInt": 750
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 8.5
+                },
+                "fractionalOdds": {
+                  "numerator": 75,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 50343315,
+            "handicap": 0,
+            "runnerName": "Cason Wallace",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16446db3-fe82-4c58-b940-886edd5d5d33/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 830,
+                "americanOddsInt": 830
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 9.3
+                },
+                "fractionalOdds": {
+                  "numerator": 83,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 18970806,
+            "handicap": 0,
+            "runnerName": "Shai Gilgeous-Alexander",
+            "sortPriority": 7,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/6659bd6b-742a-4e45-bfb2-57253fd160c7/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 900,
+                "americanOddsInt": 900
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 10
+                },
+                "fractionalOdds": {
+                  "numerator": 90,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 64155911,
+            "handicap": 0,
+            "runnerName": "Stephon Castle",
+            "sortPriority": 8,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/c2191276-db27-40e1-8dd8-e0e24f84546a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1060,
+                "americanOddsInt": 1060
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 11.6
+                },
+                "fractionalOdds": {
+                  "numerator": 106,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 13323008,
+            "handicap": 0,
+            "runnerName": "De'Aaron Fox",
+            "sortPriority": 9,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16ec7e47-7af3-4269-a099-1bd193ff12c0/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1060,
+                "americanOddsInt": 1060
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 11.6
+                },
+                "fractionalOdds": {
+                  "numerator": 106,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 27614550,
+            "handicap": 0,
+            "runnerName": "Luguentz Dort",
+            "sortPriority": 10,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/54af6285-d295-4a50-b14d-03398dd2d925/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1300,
+                "americanOddsInt": 1300
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 14
+                },
+                "fractionalOdds": {
+                  "numerator": 130,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 43526394,
+            "handicap": 0,
+            "runnerName": "Jaylin Williams",
+            "sortPriority": 11,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/8771aa32-ec42-438d-932b-d81c90e3564c/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1300,
+                "americanOddsInt": 1300
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 14
+                },
+                "fractionalOdds": {
+                  "numerator": 130,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472490,
+            "handicap": 0,
+            "runnerName": "Chet Holmgren",
+            "sortPriority": 12,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/fa53c0f4-d8e6-4e2c-939c-3ad2e912b2a7/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1700,
+                "americanOddsInt": 1700
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 18
+                },
+                "fractionalOdds": {
+                  "numerator": 170,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 23316207,
+            "handicap": 0,
+            "runnerName": "Keldon Johnson",
+            "sortPriority": 13,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2dd2544d-aa2c-4b86-b5ce-74cd0c9a10c2/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 2000,
+                "americanOddsInt": 2000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 21
+                },
+                "fractionalOdds": {
+                  "numerator": 20,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580973398"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170268221": {
+        "marketId": "734.170268221",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "5+ Made Threes",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "5+_MADE_THREES",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 6,
+        "numberOfActiveRunners": 6,
+        "numberOfWinners": 1,
+        "sortPriority": -8856,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 28305700,
+            "handicap": 0,
+            "runnerName": "Devin Vassell",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/11ed88d4-292c-4c0b-b190-3d32f04f4242/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 550,
+                "americanOddsInt": 550
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 6.5
+                },
+                "fractionalOdds": {
+                  "numerator": 55,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 63388072,
+            "handicap": 0,
+            "runnerName": "Jared McCain",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/ef771b2b-55fa-47c4-856b-d9caa47ccc74/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 750,
+                "americanOddsInt": 750
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 8.5
+                },
+                "fractionalOdds": {
+                  "numerator": 75,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472494,
+            "handicap": 0,
+            "runnerName": "Julian Champagnie",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/f193a961-2712-4367-a8e2-0e47af823970/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1000,
+                "americanOddsInt": 1000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 11
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 51589519,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1400,
+                "americanOddsInt": 1400
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 15
+                },
+                "fractionalOdds": {
+                  "numerator": 14,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 17971698,
+            "handicap": 0,
+            "runnerName": "Alex Caruso",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/08233b9b-4198-4bb1-8587-b92f3d1efa75/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1600,
+                "americanOddsInt": 1600
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 17
+                },
+                "fractionalOdds": {
+                  "numerator": 16,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 50343315,
+            "handicap": 0,
+            "runnerName": "Cason Wallace",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/16446db3-fe82-4c58-b940-886edd5d5d33/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1900,
+                "americanOddsInt": 1900
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 20
+                },
+                "fractionalOdds": {
+                  "numerator": 19,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580973399"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.170268188": {
+        "marketId": "734.170268188",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 35639109,
+        "marketName": "6+ Made Threes",
+        "marketTime": "2026-05-27T00:40:00.000Z",
+        "marketType": "6+_MADE_THREES",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 5,
+        "numberOfActiveRunners": 5,
+        "numberOfWinners": 1,
+        "sortPriority": -8854,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 51589519,
+            "handicap": 0,
+            "runnerName": "Victor Wembanyama",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/2897a812-2f3c-4a6c-8409-bcaaef86713a/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 3000,
+                "americanOddsInt": 3000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 31
+                },
+                "fractionalOdds": {
+                  "numerator": 30,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 28305700,
+            "handicap": 0,
+            "runnerName": "Devin Vassell",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/11ed88d4-292c-4c0b-b190-3d32f04f4242/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1100,
+                "americanOddsInt": 1100
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 12
+                },
+                "fractionalOdds": {
+                  "numerator": 110,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 41472494,
+            "handicap": 0,
+            "runnerName": "Julian Champagnie",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/f193a961-2712-4367-a8e2-0e47af823970/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 2000,
+                "americanOddsInt": 2000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 21
+                },
+                "fractionalOdds": {
+                  "numerator": 20,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 17971698,
+            "handicap": 0,
+            "runnerName": "Alex Caruso",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/08233b9b-4198-4bb1-8587-b92f3d1efa75/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 3000,
+                "americanOddsInt": 3000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 31
+                },
+                "fractionalOdds": {
+                  "numerator": 30,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 63388072,
+            "handicap": 0,
+            "runnerName": "Jared McCain",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2025/ef771b2b-55fa-47c4-856b-d9caa47ccc74/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/oklahoma_city_thunder.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1400,
+                "americanOddsInt": 1400
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 15
+                },
+                "fractionalOdds": {
+                  "numerator": 140,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35639109,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.580973400"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      }
+    }
+  }
+}

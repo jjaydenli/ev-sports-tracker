@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-05-25 (ops automation: pipeline_runner, betr_auth)
+**Last verified:** 2026-05-25 (FanDuel event discovery: fd_api, probe_fd_events)
 
 ## 1. Project Overview
 
@@ -14,7 +14,7 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Language:** Python (async-first with `asyncio`)
 * **DFS ingestion:** `httpx` for async HTTP (Betr GraphQL)
-* **Sportsbook ingestion:** `httpx` async HTTP for DraftKings league/event/market APIs (`dk_api.py`, `dk_engine.py`); headers via `api_headers.py` (no DK credential in `settings.py` today)
+* **Sportsbook ingestion:** `httpx` async HTTP for DraftKings league/event/market APIs (`dk_api.py`, `dk_engine.py`) and FanDuel league event discovery (`fd_api.py`); headers via `api_headers.py` (`DK_*`, `FD_*`; no sportsbook bearer in `settings.py` today)
 * **Data processing:** `json`, `re`; relational array joins for DFS payloads
 * **Logging:** `loguru`
 * **Testing:** `pytest`, `pytest-asyncio`, `pytest-mock` (offline fixtures only)
@@ -42,6 +42,15 @@ The system standardizes disparate naming conventions across books, calculates no
 * **Flat Betr lines:** Integer lines (push risk) skipped by default; `--include-flat-lines` uses `core/flat_line.py` adjusted breakeven.
 * **Code:** `backend/scrapers/sportsbooks/dk_engine.py`, `dk_api.py`, `backend/parsers/dk_parser.py`.
 
+### FanDuel (sharp sportsbook — event discovery)
+
+* **Access:** State-specific `sbapi.{state}.sportsbook.fanduel.com` — `FD_SPORTSBOOK_API_HOST` in `config/.env` (default `https://sbapi.nj.sportsbook.fanduel.com`). Public web client key `_ak` via `FD_API_KEY` (see `config/.env.example`). No bearer token for league JSON today.
+* **Event discovery:** `GET /api/content-managed-page` with `customPageId=nba` → `attachments.events` (dict keyed by `eventId`). Scrapable matchups: `competitionId=10547864` (NBA; not futures `12739957`) and name contains ` @ `. URL builders and `extract_event_ids` in `config/fd_competitions.py`; live fetch in `fd_api.fetch_league_event_ids`.
+* **Probe (live):** `python -m scripts.probe_fd_events --league nba` — optional `--event-id`, `--game-url`, `--raw`. Offline tests: `tests/unit/test_fd_event_discovery.py` + fixture `tests/fixtures/fd_league_nba_events.json`.
+* **Per-event props (increment 2):** `GET /api/event-page` with `eventId` + `tab` (e.g. `player-points`; `build_event_page_url` in `fd_competitions.py`) — not scraped, no `fd_master_board.json` / `fd_parser` yet.
+* **EV:** Not wired into `normalize.py` or `compare_betr_vs_draftkings`; multi-book exact alts planned with DK in `resolve_sharp_quote`. See [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md).
+* **Code:** `backend/config/fd_competitions.py`, `backend/scrapers/sportsbooks/fd_api.py`, `backend/scripts/probe_fd_events.py`.
+
 ### Dabble (archived)
 
 * Archived parser/engine under `backend/archive/dabble/`. Legacy scraper: `backend/scrapers/dfs/dabble_engine.py`. Proxyman capture: [docs/proxyman_dabble_setup.md](docs/proxyman_dabble_setup.md). Fair odds: [docs/betting_odds/dabble.md](docs/betting_odds/dabble.md).
@@ -63,7 +72,12 @@ backend/
 │   ├── market_maps.py
 │   ├── settings.py
 │   ├── dk_subcategories.py
+│   ├── fd_competitions.py
+│   ├── .env.example            # optional FD_SPORTSBOOK_API_HOST, FD_API_KEY
 │   └── .env                    # local secrets (gitignored)
+├── scripts/
+│   ├── probe_dk_subcategories.py
+│   └── probe_fd_events.py
 ├── utils/
 │   ├── math_utils.py
 │   └── formatting.py
@@ -74,7 +88,8 @@ backend/
 │   │   └── dabble_engine.py    # legacy
 │   └── sportsbooks/
 │       ├── dk_engine.py
-│       └── dk_api.py
+│       ├── dk_api.py
+│       └── fd_api.py           # league event discovery (increment 2: props)
 ├── parsers/
 │   ├── betr_parser.py
 │   ├── dk_parser.py
@@ -89,8 +104,8 @@ backend/
 │   ├── processed/              # gitignored: boards, ev_opportunities.json, match_report.json, unmatched_*.json
 │   └── archive/dabble/         # sample legacy board (not live pipeline)
 └── tests/
-    ├── fixtures/               # dk_league_*, dk_markets_* JSON
-    └── unit/                   # test_betr_*, test_dk_*, test_ev_*, test_normalize, test_math_utils, archive dabble
+    ├── fixtures/               # dk_league_*, dk_markets_*, fd_league_nba_events JSON
+    └── unit/                   # test_betr_*, test_dk_*, test_fd_*, test_ev_*, test_normalize, test_math_utils
 ```
 
 **EV data flow:** `python -m core.pipeline_runner` (or per-stage CLIs) → scrapers → `data/processed/{betr,dk}_master_board.json` → `normalize.py` → `ev_pipeline.py` (`persist_match_diagnostics` → `match_report.json`, `unmatched_*.json`) → `core/engine.py` → `data/processed/ev_opportunities.json`
@@ -99,7 +114,7 @@ backend/
 
 ### Open
 
-* **FanDuel sharp + multi-book exact alts:** Scrape/normalize FD O/U ladders; consensus de-vig across DK + FD only when each book has an exact line match (no extrapolation in +EV). Planned under `scrapers/sportsbooks/` + `resolve_sharp_quote` multi-book extension. Once alt ladders exist, compare `dk_extrapolated` vs exact alts (e.g. Fox 13.5) to calibrate logit-per-point slope — diagnostics only until then.
+* **FanDuel props + multi-book exact alts:** Event IDs via `fd_api` / `probe_fd_events` (done). Next: `event-page` tab scrape, `fd_parser`, normalize, then consensus de-vig with DK on exact lines only (`resolve_sharp_quote` multi-book). Extrapolation calibration vs FD alts remains diagnostics-only.
 * **Betr Keycloak discovery:** Confirm `BETR_KEYCLOAK_TOKEN_URL` / client id from a captured login if password grant fails out of the box.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
 * **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.
@@ -111,6 +126,7 @@ backend/
 * DK markets API scrape via `dk_api.py` / `dk_engine.py` + `dk_parser.py` (httpx, no Playwright).
 * `normalize.py` active platforms: Betr + DraftKings; Dabble archived.
 * `ev_pipeline.py` load normalized boards → `compare_betr_vs_draftkings` → `ev_opportunities.json`.
-* Offline pytest suite: `tests/unit/test_{betr,dk}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_normalize`, `test_math_utils`, fixtures under `tests/fixtures/`.
+* Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_normalize`, `test_math_utils`, fixtures under `tests/fixtures/` (incl. `fd_league_nba_events.json`).
 * Betr breakeven aligned at **-120** across `math_utils`, parser side markers, and EV engine.
 * Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) with JWT expiry guard and optional Keycloak refresh via `betr_auth.py`.
+* FanDuel NBA event discovery: `fd_competitions.py`, `fd_api.fetch_league_event_ids`, `probe_fd_events`, fixture `fd_league_nba_events.json`, `test_fd_event_discovery`.

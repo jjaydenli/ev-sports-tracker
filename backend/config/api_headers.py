@@ -1,5 +1,7 @@
 """Platform-specific endpoints, user-agents, and request headers."""
 
+import os
+
 DABBLE_AUTH_URL = "https://api.dabble.com/sign-in"
 DABBLE_SCHEDULE_URL = (
     "https://api.dabble.com/search/dfs/competitions/"
@@ -31,6 +33,24 @@ DK_BASE_HEADERS = {
     "User-Agent": DK_USER_AGENT,
     "Accept": "application/json",
     "Referer": "https://sportsbook.draftkings.com/",
+}
+
+# FanDuel sportsbook (state-specific sbapi host; default NJ).
+FD_SPORTSBOOK_API_HOST = os.getenv(
+    "FD_SPORTSBOOK_API_HOST", "https://sbapi.nj.sportsbook.fanduel.com"
+).rstrip("/")
+FD_CONTENT_MANAGED_PAGE_PATH = "/api/content-managed-page"
+FD_EVENT_PAGE_PATH = "/api/event-page"
+# Public web client key (_ak query param); override via env if FD rotates it.
+FD_API_KEY = os.getenv("FD_API_KEY", "FhMFpcPWXMeyZxOx")
+FD_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+)
+FD_BASE_HEADERS = {
+    "User-Agent": FD_USER_AGENT,
+    "Accept": "application/json",
+    "Referer": "https://sportsbook.fanduel.com/",
 }
 
 BETR_GRAPHQL_URL = "https://api.fantasy.betr.app/graphql"

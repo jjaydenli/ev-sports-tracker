@@ -87,22 +87,67 @@ pick_pr_title() {
 }
 
 build_pr_body() {
-  local title="$1"
-  local commits
-  commits="$(git log "${BASE_BRANCH}..HEAD" --reverse --format='- %s')"
-  cat <<EOF
-## Summary
+  PR_BASE="$BASE_BRANCH" python3 <<'PY'
+import os
+import re
+import subprocess
 
-${title}
+base = os.environ["PR_BASE"]
+hashes = subprocess.run(
+    ["git", "log", f"{base}..HEAD", "--reverse", "--format=%H"],
+    capture_output=True,
+    text=True,
+    check=True,
+).stdout.splitlines()
+
+summary_bullets: list[str] = []
+commit_subjects: list[str] = []
+
+for commit_hash in hashes:
+    if not commit_hash.strip():
+        continue
+    message = subprocess.run(
+        ["git", "log", "-1", "--format=%B", commit_hash.strip()],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    lines = [line.strip() for line in message.splitlines() if line.strip()]
+    if not lines:
+        continue
+    subject = lines[0]
+    commit_subjects.append(subject)
+    body_lines = lines[1:]
+    if body_lines:
+        body_text = re.sub(r"\s+", " ", " ".join(body_lines)).strip()
+        summary_bullets.extend(
+            sentence.strip()
+            for sentence in re.split(r"(?<=\.)\s+", body_text)
+            if sentence.strip()
+        )
+    elif len(hashes) == 1:
+        summary_bullets.append(subject)
+
+if not summary_bullets and commit_subjects:
+    summary_bullets = commit_subjects
+
+summary = "\n".join(f"- {line}" for line in summary_bullets)
+commits = "\n".join(f"- {subject}" for subject in commit_subjects)
+
+print(
+    f"""## Summary
+
+{summary}
 
 ## Test plan
 
-- [x] \`cd backend && pytest -q\`
+- [x] `cd backend && pytest -q`
 
 ## Commits
 
-${commits}
-EOF
+{commits}"""
+)
+PY
 }
 
 github_repo_slug() {
@@ -149,7 +194,7 @@ PY
 }
 
 TITLE="$(pick_pr_title)"
-BODY="$(build_pr_body "$TITLE")"
+BODY="$(build_pr_body)"
 SLUG="$(github_repo_slug)"
 COMPARE_URL="$(build_compare_url "$SLUG" "$TITLE" "$BODY")"
 

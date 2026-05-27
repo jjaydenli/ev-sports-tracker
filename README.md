@@ -82,6 +82,8 @@ From the repo root (activates `backend/.venv` if present) or from `backend/` wit
 This runs Betr scrape → DraftKings scrape → normalize → EV scan and writes:
 
 - `data/processed/ev_opportunities.json` — top matched plays by EV (default 15)
+- `data/processed/ev_opportunities.previous.json` — prior run’s top-N (rotated before overwrite)
+- `data/processed/ev_run_diff.json` — new / removed / improved / fell vs previous top-N
 - `data/processed/match_report.json` — matched/unmatched counts and `betr_match_rate_pct`
 - `data/processed/unmatched_betr.json` — Betr lines with no DK match (or DK missing odds)
 - `data/processed/unmatched_dk.json` — DK lines with no Betr twin on the same key

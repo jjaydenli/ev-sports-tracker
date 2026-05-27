@@ -62,7 +62,7 @@ The system standardizes disparate naming conventions across books, calculates no
 
 * **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 * **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
-* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve sharp quote per Betr line via `line_adjustment.py` (DK ladder, optional FD exact, optional `multi_book_consensus`), multiplicative de-vig on eligible O/U, one row per allowed Betr side, ranked by EV. Each row gets `plus_ev` when `ev > min_ev`. Optional `filter_min_ev` drops sub-threshold rows before `top_n` (pipeline: auto when `--min-ev > 0`, or `--plus-ev-only` with any `--min-ev`). `run_ev_scan` logs a ranked plays table (`core/ev_display.py`: Hit%, EV%, +EV, DK/FD O/U, `line_source` — compact widths). JSON output capped at `top_n` (default 15). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
+* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve sharp quote per Betr line via `line_adjustment.py` (DK ladder, optional FD exact, optional `multi_book_consensus`), multiplicative de-vig on eligible O/U, one row per allowed Betr side, ranked by EV. Each row gets `plus_ev` when `ev > min_ev`. Optional `filter_min_ev` drops sub-threshold rows before `top_n` (pipeline: auto when `--min-ev > 0`, or `--plus-ev-only` with any `--min-ev`). `run_ev_scan` logs a ranked plays table (`core/ev_display.py`: Hit%, EV%, +EV, DK/FD O/U, `line_source` — compact widths) plus run-over-run diff (`core/ev_run_diff.py`: new / removed / improved / fell vs prior top-N). JSON output capped at `top_n` (default 15). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
 
 ## 5. Architecture & File Structure
 
@@ -107,6 +107,7 @@ ev-sports-tracker/
     │   ├── flat_line.py
     │   ├── ev_pipeline.py
     │   ├── ev_display.py       # ranked table: Hit%, EV%, +EV, DK, FD, Src
+    │   ├── ev_run_diff.py      # consecutive top-N diff vs prior ev_opportunities.json
     │   └── pipeline_runner.py  # --min-ev, --plus-ev-only, --skip-betr/dk/fd
     ├── archive/dabble/
     ├── data/
@@ -117,7 +118,7 @@ ev-sports-tracker/
         └── unit/
 ```
 
-**EV data flow:** `./ev` or `python -m core.pipeline_runner` from `backend/` → scrapers → `data/processed/{betr,dk,fd}_master_board.json` → `normalize.py` → `{betr,dk,fd}_normalized.json` → `ev_pipeline.py` (`persist_match_diagnostics` → `match_report.json`, `unmatched_*.json`; `run_ev_scan` → ranked table + `ev_opportunities.json` via `engine.py`)
+**EV data flow:** `./ev` or `python -m core.pipeline_runner` from `backend/` → scrapers → `data/processed/{betr,dk,fd}_master_board.json` → `normalize.py` → `{betr,dk,fd}_normalized.json` → `ev_pipeline.py` (`persist_match_diagnostics` → `match_report.json`, `unmatched_*.json`; `run_ev_scan` → ranked table + `ev_opportunities.json` via `engine.py`; rotate prior output to `ev_opportunities.previous.json`, CLI run-diff summary + `ev_run_diff.json` via `ev_run_diff.py`)
 
 ## 6. Roadmap
 
@@ -147,3 +148,4 @@ ev-sports-tracker/
 * FanDuel extended O/U scrape + grouped master board: threes / combo stats via SGP tab; `group_fd_line_rows` + parser line expansion; `FD_EXTENDED_OU_MARKETS`.
 * FanDuel market catalog in [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md): default scrape table, skipped boards, tab/SGP fetch model, core-tab fixtures.
 * Multi-book consensus EV: `resolve_multi_book_sharp_quote`, `fd_exact` / `fd_alt` eligibility, `test_line_adjustment_multi_book`.
+* EV run diff (consecutive `./ev`): `core/ev_run_diff.py` — rotate `ev_opportunities.json` → `ev_opportunities.previous.json`, compare top-N rows (`build_prop_key|side` buckets: new / removed / improved / fell), CLI summary after ranked table, `ev_run_diff.json`; `test_ev_run_diff.py`.

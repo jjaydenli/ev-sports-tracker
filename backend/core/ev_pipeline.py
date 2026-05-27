@@ -16,6 +16,13 @@ from core.engine import (
     list_unmatched_dk_props,
 )
 from core.ev_display import format_ev_opportunities_table
+from core.ev_run_diff import (
+    EV_DIFF_FILENAME,
+    compute_run_diff,
+    format_run_diff_summary,
+    rotate_ev_opportunities_file,
+    write_run_diff_json,
+)
 from parsers.normalize import normalize_all, save_props
 
 EV_OUTPUT_FILENAME = "ev_opportunities.json"
@@ -169,8 +176,15 @@ def run_ev_scan(
     )
     plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 
+    previous_rows = rotate_ev_opportunities_file(data_path)
     output_path = data_path / EV_OUTPUT_FILENAME
     save_props(opportunities, output_path)
+
+    diff = None
+    if previous_rows:
+        diff = compute_run_diff(previous_rows, opportunities)
+        write_run_diff_json(diff, data_path / EV_DIFF_FILENAME)
+
     logger.success(
         f"top={len(opportunities)} plus_ev={plus_ev_count} "
         f"(min_ev={min_ev}, top_n={top_n}) -> {output_path}"
@@ -178,6 +192,10 @@ def run_ev_scan(
 
     if opportunities:
         logger.info("ranked plays:\n" + format_ev_opportunities_table(opportunities))
+    if diff is not None:
+        summary = format_run_diff_summary(diff)
+        if summary:
+            logger.info(summary)
 
     return opportunities
 

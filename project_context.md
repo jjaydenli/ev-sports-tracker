@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-03 (DK markets scrape hardening on `main`; `DK_MARKETS_MAX_CONCURRENT`, 403/429 retries)
+**Last verified:** 2026-06-03 (DK markets scrape hardening: `DK_MARKETS_MAX_CONCURRENT`, 403/429 retries; `./ev --timing` via `pipeline_timing.py`)
 
 ## 1. Project Overview
 
@@ -108,7 +108,8 @@ ev-sports-tracker/
     │   ├── ev_pipeline.py
     │   ├── ev_display.py       # ranked table: Hit%, EV%, +EV, DK, FD, Src
     │   ├── ev_run_diff.py      # consecutive top-N diff vs prior ev_opportunities.json
-    │   └── pipeline_runner.py  # --min-ev, --plus-ev-only, --skip-betr/dk/fd
+    │   ├── pipeline_timing.py  # wall-clock stage timer for --timing
+    │   └── pipeline_runner.py  # --min-ev, --plus-ev-only, --skip-betr/dk/fd, --timing
     ├── archive/dabble/
     ├── data/
     │   ├── processed/          # gitignored outputs
@@ -150,3 +151,4 @@ ev-sports-tracker/
 * FanDuel market catalog in [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md): default scrape table, skipped boards, tab/SGP fetch model, core-tab fixtures.
 * Multi-book consensus EV: `resolve_multi_book_sharp_quote`, `fd_exact` / `fd_alt` eligibility, `test_line_adjustment_multi_book`.
 * EV run diff (consecutive `./ev`): `core/ev_run_diff.py` — rotate `ev_opportunities.json` → `ev_opportunities.previous.json`, compare top-N rows (`build_prop_key|side` buckets: new / removed / improved / fell), CLI summary after ranked table, `ev_run_diff.json`; `test_ev_run_diff.py`.
+* Pipeline stage timing: `core/pipeline_timing.py` + `--timing` on `pipeline_runner` / `./ev` — wall-clock summary for scrape, normalize, and EV stages; `test_pipeline_timing.py`.

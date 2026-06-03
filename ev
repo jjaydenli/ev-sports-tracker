@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Short entrypoint for the daily refresh pipeline (same flags as python -m core.pipeline_runner).
+# Example: ./ev --timing  # print per-stage wall-clock summary at the end
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT/backend"

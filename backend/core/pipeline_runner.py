@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import os
-import sys
+import time
 from pathlib import Path
 
 from loguru import logger
@@ -17,6 +17,7 @@ from core.ev_pipeline import (
     persist_match_diagnostics,
     run_ev_scan,
 )
+from core.pipeline_timing import PipelineTimer
 from parsers.normalize import normalize_all
 from scrapers.dfs.betr.betr_auth import BetrAuthError, ensure_betr_token, validate_betr_token_or_raise
 from scrapers.dfs.betr.betr_engine import run_betr_scrape
@@ -57,28 +58,44 @@ async def _scrape_fd() -> int:
     return await run_fd_scrape()
 
 
+async def _timed_scrape(label: str, coro, timer: PipelineTimer) -> int:
+    if not timer.enabled:
+        return await coro
+    started = time.perf_counter()
+    try:
+        return await coro
+    finally:
+        timer.record(f"scrape {label}", time.perf_counter() - started)
+
+
 async def _run_selected_scrapes(
     *,
     run_betr: bool,
     run_dk: bool,
     run_fd: bool,
     league: str,
+    timer: PipelineTimer,
 ) -> dict[str, int]:
     """Run enabled scrapers in parallel; keys are betr, dk, fd."""
     labels: list[str] = []
     coros = []
     if run_betr:
         labels.append("betr")
-        coros.append(_scrape_betr(league))
+        coros.append(_timed_scrape("betr", _scrape_betr(league), timer))
     if run_dk:
         labels.append("dk")
-        coros.append(_scrape_dk())
+        coros.append(_timed_scrape("dk", _scrape_dk(), timer))
     if run_fd:
         labels.append("fd")
-        coros.append(_scrape_fd())
+        coros.append(_timed_scrape("fd", _scrape_fd(), timer))
     if not coros:
         return {}
-    counts = await asyncio.gather(*coros)
+    if timer.enabled:
+        wall_start = time.perf_counter()
+        counts = await asyncio.gather(*coros)
+        timer.record("scrapes (parallel wall)", time.perf_counter() - wall_start)
+    else:
+        counts = await asyncio.gather(*coros)
     return dict(zip(labels, counts, strict=True))
 
 
@@ -97,87 +114,99 @@ def run_refresh(
     skip_expiry_check: bool = False,
     include_flat_lines: bool = False,
     plus_ev_only: bool = False,
+    timing: bool = False,
 ) -> int:
     """
     Run scrape → normalize → EV pipeline.
 
     Returns process exit code (0 success, 1 failure).
     """
+    timer = PipelineTimer() if timing else PipelineTimer.disabled()
     data_path = Path(data_dir)
     run_betr = not dk_only and not skip_betr
     run_dk = not betr_only and not skip_dk
     run_fd = not betr_only and not dk_only and not skip_fd
 
-    if run_betr and not skip_scrape:
-        _preflight_betr_auth(skip_expiry_check=skip_expiry_check)
+    try:
+        if run_betr and not skip_scrape:
+            with timer.stage("betr auth"):
+                _preflight_betr_auth(skip_expiry_check=skip_expiry_check)
 
-    if not skip_scrape:
-        try:
-            counts = asyncio.run(
-                _run_selected_scrapes(
-                    run_betr=run_betr,
-                    run_dk=run_dk,
-                    run_fd=run_fd,
-                    league=league,
+        if not skip_scrape:
+            try:
+                counts = asyncio.run(
+                    _run_selected_scrapes(
+                        run_betr=run_betr,
+                        run_dk=run_dk,
+                        run_fd=run_fd,
+                        league=league,
+                        timer=timer,
+                    )
                 )
-            )
-        except Exception as exc:
-            logger.error(f"scrape failed: {exc}")
+            except Exception as exc:
+                logger.error(f"scrape failed: {exc}")
+                return 1
+            if counts:
+                summary = " ".join(f"{name}={count}" for name, count in counts.items())
+                logger.info(f"scrapes complete: {summary}")
+        else:
+            logger.info("skipping scrape — using existing master boards")
+
+        if run_betr or run_dk or run_fd:
+            with timer.stage("normalize"):
+                normalize_all(data_path)
+        elif not skip_scrape:
+            with timer.stage("normalize"):
+                normalize_all(data_path)
+
+        if betr_only or dk_only:
+            logger.info("skipping EV scan (--betr-only or --dk-only)")
+            return 0
+
+        filter_min_ev = plus_ev_only or min_ev > 0
+
+        betr_path = data_path / BETR_NORMALIZED
+        dk_path = data_path / DK_NORMALIZED
+        if not betr_path.exists() and not dk_path.exists():
+            logger.error(f"no normalized boards in {data_path}; run scrape first")
             return 1
-        if counts:
-            summary = " ".join(f"{name}={count}" for name, count in counts.items())
-            logger.info(f"scrapes complete: {summary}")
-    else:
-        logger.info("skipping scrape — using existing master boards")
 
-    if run_betr or run_dk or run_fd:
-        normalize_all(data_path)
-    elif not skip_scrape:
-        normalize_all(data_path)
+        with timer.stage("load comparison inputs"):
+            betr_props, dk_props, fd_props = load_comparison_inputs(data_path)
+        if not betr_props or not dk_props:
+            logger.error("missing betr or draftkings normalized props for EV scan")
+            return 1
 
-    if betr_only or dk_only:
-        logger.info("skipping EV scan (--betr-only or --dk-only)")
+        with timer.stage("match diagnostics"):
+            stats = persist_match_diagnostics(
+                data_path,
+                betr_props,
+                dk_props,
+                fd_props=fd_props or None,
+                include_flat_lines=include_flat_lines,
+            )
+        with timer.stage("ev scan"):
+            opportunities = run_ev_scan(
+                data_path,
+                normalize_first=False,
+                min_ev=min_ev,
+                top_n=top_n,
+                include_flat_lines=include_flat_lines,
+                filter_min_ev=filter_min_ev,
+            )
+        plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
+
+        logger.success(
+            "refresh summary: "
+            f"betr={stats['betr_props']} dk={stats['dk_props']} fd={stats.get('fd_props', 0)} "
+            f"matched={stats['matched_keys']} ({stats['betr_match_rate_pct']}%) "
+            f"unmatched_betr={stats['unmatched_betr']} unmatched_dk={stats['unmatched_dk']} "
+            f"top={len(opportunities)} plus_ev={plus_ev_count} "
+            f"(min_ev={min_ev}, top_n={top_n})"
+        )
         return 0
-
-    filter_min_ev = plus_ev_only or min_ev > 0
-
-    betr_path = data_path / BETR_NORMALIZED
-    dk_path = data_path / DK_NORMALIZED
-    if not betr_path.exists() and not dk_path.exists():
-        logger.error(f"no normalized boards in {data_path}; run scrape first")
-        return 1
-
-    betr_props, dk_props, fd_props = load_comparison_inputs(data_path)
-    if not betr_props or not dk_props:
-        logger.error("missing betr or draftkings normalized props for EV scan")
-        return 1
-
-    stats = persist_match_diagnostics(
-        data_path,
-        betr_props,
-        dk_props,
-        fd_props=fd_props or None,
-        include_flat_lines=include_flat_lines,
-    )
-    opportunities = run_ev_scan(
-        data_path,
-        normalize_first=False,
-        min_ev=min_ev,
-        top_n=top_n,
-        include_flat_lines=include_flat_lines,
-        filter_min_ev=filter_min_ev,
-    )
-    plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
-
-    logger.success(
-        "refresh summary: "
-        f"betr={stats['betr_props']} dk={stats['dk_props']} fd={stats.get('fd_props', 0)} "
-        f"matched={stats['matched_keys']} ({stats['betr_match_rate_pct']}%) "
-        f"unmatched_betr={stats['unmatched_betr']} unmatched_dk={stats['unmatched_dk']} "
-        f"top={len(opportunities)} plus_ev={plus_ev_count} "
-        f"(min_ev={min_ev}, top_n={top_n})"
-    )
-    return 0
+    finally:
+        timer.log_summary()
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -252,6 +281,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Include Betr integer lines (push risk) in EV scan with adjusted breakeven",
     )
+    parser.add_argument(
+        "--timing",
+        action="store_true",
+        help="Print wall-clock timing for each pipeline stage at the end",
+    )
     return parser
 
 
@@ -284,6 +318,7 @@ def main(argv: list[str] | None = None) -> None:
         skip_expiry_check=args.skip_expiry_check,
         include_flat_lines=args.include_flat_lines,
         plus_ev_only=args.plus_ev_only,
+        timing=args.timing,
     )
     raise SystemExit(code)
 

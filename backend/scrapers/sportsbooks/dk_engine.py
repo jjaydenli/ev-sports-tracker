@@ -11,13 +11,16 @@ from config.api_headers import DK_BASE_HEADERS
 from config.dk_subcategories import DK_STAT_CATEGORIES
 from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.dk_api import (
-    fetch_and_flatten_all_for_market,
-    fetch_league_event_ids,
+    extract_event_ids,
+    fetch_event_all_markets,
+    fetch_league_events,
+    warm_up_dk_session,
 )
 
-DEFAULT_CONCURRENCY = 12
 DEFAULT_LEAGUE = "nba"
 EVENT_ID_FROM_URL = re.compile(r"/event/[^/]+/(\d+)")
+# Reuse connections across ~21 parallel subcategory calls per event.
+HTTPX_LIMITS = httpx.Limits(max_connections=32, max_keepalive_connections=16)
 
 
 def extract_event_id_from_url(url: str) -> str | None:
@@ -58,14 +61,12 @@ class DraftKingsEngine(BaseScraper):
         game_urls: list[str] | None = None,
         markets: list[str] | None = None,
         league: str = DEFAULT_LEAGUE,
-        concurrency: int = DEFAULT_CONCURRENCY,
     ):
         self.explicit_event_ids = parse_event_ids(
             event_ids=event_ids, game_urls=game_urls
         )
         self.league = league
         self.markets = markets or list(DK_STAT_CATEGORIES.keys())
-        self.concurrency = concurrency
 
     async def authenticate(self) -> str | None:
         return None
@@ -74,7 +75,10 @@ class DraftKingsEngine(BaseScraper):
         if self.explicit_event_ids:
             return self.explicit_event_ids
 
-        event_ids = await fetch_league_event_ids(client, self.league)
+        payload = await fetch_league_events(client, self.league)
+        if not payload:
+            return []
+        event_ids = extract_event_ids(payload)
         logger.info(
             f"discovered {len(event_ids)} {self.league.upper()} events from league slate"
         )
@@ -86,37 +90,34 @@ class DraftKingsEngine(BaseScraper):
             logger.error(f"Unknown DK markets: {sorted(unknown_markets)}")
             return []
 
-        semaphore = asyncio.Semaphore(self.concurrency)
         all_props: list[dict[str, Any]] = []
 
         async with httpx.AsyncClient(
             headers=DK_BASE_HEADERS,
             follow_redirects=True,
             timeout=15.0,
+            limits=HTTPX_LIMITS,
         ) as client:
             event_ids = await self._resolve_event_ids(client)
             if not event_ids:
                 logger.warning("No DraftKings event IDs available to scrape.")
                 return []
 
-            async def fetch_category(
-                event_id: str, market: str
-            ) -> list[dict[str, Any]]:
-                async with semaphore:
-                    return await fetch_and_flatten_all_for_market(
-                        client, event_id, market
-                    )
+            # League slate already hit during discovery; warm up only for cold starts.
+            if self.explicit_event_ids:
+                await warm_up_dk_session(client, self.league)
 
-            tasks = [
-                fetch_category(event_id, market)
-                for event_id in event_ids
-                for market in self.markets
-            ]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            results = await asyncio.gather(
+                *[
+                    fetch_event_all_markets(client, event_id, self.markets)
+                    for event_id in event_ids
+                ],
+                return_exceptions=True,
+            )
 
-        for result in results:
+        for event_id, result in zip(event_ids, results):
             if isinstance(result, Exception):
-                logger.error(f"draftkings fetch failed: {result}")
+                logger.error(f"draftkings fetch failed for {event_id}: {result}")
                 continue
             all_props.extend(result)
 

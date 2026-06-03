@@ -151,6 +151,27 @@ async def test_fetch_event_subcategory_markets_returns_none_on_http_error():
     assert result is None
 
 
+@pytest.mark.asyncio
+async def test_fetch_event_subcategory_markets_retries_transient_403(points_payload):
+    attempts = 0
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal attempts
+        attempts += 1
+        if attempts == 1:
+            return httpx.Response(403, request=request, text="blocked")
+        return httpx.Response(200, json=points_payload, request=request)
+
+    transport = httpx.MockTransport(handler)
+    async with httpx.AsyncClient(transport=transport) as client:
+        result = await fetch_event_subcategory_markets(
+            client, EVENT_ID, DK_STAT_CATEGORIES["points"]
+        )
+
+    assert result == points_payload
+    assert attempts == 2
+
+
 def test_extract_event_ids_returns_not_started_only(league_payload):
     event_ids = extract_event_ids(league_payload)
 

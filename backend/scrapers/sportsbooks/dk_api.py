@@ -1,5 +1,7 @@
 """DraftKings sportsbook markets API client and response flattening."""
 
+import asyncio
+import os
 import re
 from typing import Any
 
@@ -18,6 +20,33 @@ from utils.formatting import normalize_odds_string
 
 DK_SPORTSBOOK = "DraftKings"
 MAIN_POINT_LINE_TAG = "MainPointLine"
+DK_MARKETS_RETRY_STATUS = frozenset({403, 429})
+DK_MARKETS_MAX_ATTEMPTS = 5
+DK_MARKETS_RETRY_DELAYS_SEC = (0.5, 1.0, 2.0, 4.0)
+
+
+def _dk_markets_max_concurrent() -> int:
+    raw = os.getenv("DK_MARKETS_MAX_CONCURRENT", "6")
+    try:
+        value = int(raw)
+    except ValueError:
+        value = 6
+    return max(1, min(value, 16))
+
+
+_DK_MARKETS_HTTP_SEM = asyncio.Semaphore(_dk_markets_max_concurrent())
+
+
+def _subcategory_market_label(subcategory_id: str) -> str | None:
+    for market, sid in DK_STAT_CATEGORIES.items():
+        if sid == subcategory_id:
+            return f"ou:{market}"
+    for market, sid in DK_MILESTONE_STAT_CATEGORIES.items():
+        if sid == subcategory_id:
+            return f"milestone:{market}"
+    return None
+
+
 MILESTONE_THRESHOLD_RE = re.compile(r"^(\d+)\+$")
 
 LINE_KIND_OU = "ou"
@@ -296,19 +325,77 @@ async def fetch_event_subcategory_markets(
 ) -> dict[str, Any] | None:
     """Fetch markets JSON for one event and subcategory."""
     url = build_markets_url(event_id, subcategory_id)
-    try:
-        response = await client.get(url, headers=DK_BASE_HEADERS, timeout=10.0)
-        response.raise_for_status()
-        return response.json()
-    except httpx.HTTPStatusError as exc:
-        body = exc.response.text[:500]
-        logger.error(
-            f"draftkings api blocked request: {exc.response.status_code} — {body}"
-        )
-        return None
-    except httpx.RequestError as exc:
-        logger.error(f"draftkings api request failed: {exc}")
-        return None
+    market_label = _subcategory_market_label(subcategory_id)
+    last_status: int | None = None
+
+    for attempt in range(1, DK_MARKETS_MAX_ATTEMPTS + 1):
+        try:
+            async with _DK_MARKETS_HTTP_SEM:
+                response = await client.get(
+                    url, headers=DK_BASE_HEADERS, timeout=10.0
+                )
+            last_status = response.status_code
+            if response.status_code in DK_MARKETS_RETRY_STATUS:
+                if attempt < DK_MARKETS_MAX_ATTEMPTS:
+                    delay = DK_MARKETS_RETRY_DELAYS_SEC[attempt - 1]
+                    logger.warning(
+                        f"draftkings api transient {response.status_code} for "
+                        f"{market_label or subcategory_id} (attempt {attempt}/"
+                        f"{DK_MARKETS_MAX_ATTEMPTS}); retrying in {delay}s"
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+                logger.error(
+                    f"draftkings api blocked request after {DK_MARKETS_MAX_ATTEMPTS} "
+                    f"attempts: {response.status_code} — {market_label or subcategory_id}"
+                )
+                return None
+
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as exc:
+            last_status = exc.response.status_code
+            body = exc.response.text[:500]
+            if exc.response.status_code in DK_MARKETS_RETRY_STATUS:
+                if attempt < DK_MARKETS_MAX_ATTEMPTS:
+                    delay = DK_MARKETS_RETRY_DELAYS_SEC[attempt - 1]
+                    logger.warning(
+                        f"draftkings api transient {exc.response.status_code} for "
+                        f"{market_label or subcategory_id} (attempt {attempt}/"
+                        f"{DK_MARKETS_MAX_ATTEMPTS}); retrying in {delay}s"
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+                logger.error(
+                    f"draftkings api blocked request after {DK_MARKETS_MAX_ATTEMPTS} "
+                    f"attempts: {exc.response.status_code} — {body[:200]}"
+                )
+                return None
+            logger.error(
+                f"draftkings api blocked request: {exc.response.status_code} — {body}"
+            )
+            return None
+        except httpx.RequestError as exc:
+            if attempt < DK_MARKETS_MAX_ATTEMPTS:
+                delay = DK_MARKETS_RETRY_DELAYS_SEC[attempt - 1]
+                await asyncio.sleep(delay)
+                continue
+            logger.error(f"draftkings api request failed: {exc}")
+            return None
+
+    logger.error(
+        f"draftkings api blocked request after {DK_MARKETS_MAX_ATTEMPTS} attempts: "
+        f"{last_status} — {market_label or subcategory_id}"
+    )
+    return None
+
+
+async def warm_up_dk_session(
+    client: httpx.AsyncClient,
+    league: str = "nba",
+) -> None:
+    """Hit the league slate once so Akamai/session state matches browser flow."""
+    await fetch_league_events(client, league)
 
 
 SCRAPABLE_EVENT_STATUSES = frozenset({"NOT_STARTED"})
@@ -399,28 +486,58 @@ async def fetch_and_flatten_markets(
     )
 
 
+async def _fetch_and_flatten_milestone_markets(
+    client: httpx.AsyncClient,
+    event_id: str,
+    market: str,
+) -> list[dict[str, Any]]:
+    milestone_subcategory_id = DK_MILESTONE_STAT_CATEGORIES.get(market)
+    if not milestone_subcategory_id:
+        return []
+    milestone_payload = await fetch_event_subcategory_markets(
+        client, event_id, milestone_subcategory_id
+    )
+    if not milestone_payload:
+        return []
+    return flatten_milestone_markets_response(
+        milestone_payload,
+        event_id=event_id,
+        market=market,
+        subcategory_id=milestone_subcategory_id,
+    )
+
+
 async def fetch_and_flatten_all_for_market(
     client: httpx.AsyncClient,
     event_id: str,
     market: str,
 ) -> list[dict[str, Any]]:
     """Fetch O/U and milestone subcategories for one market when configured."""
-    props = await fetch_and_flatten_markets(client, event_id, market)
-
-    milestone_subcategory_id = DK_MILESTONE_STAT_CATEGORIES.get(market)
-    if not milestone_subcategory_id:
-        return props
-
-    milestone_payload = await fetch_event_subcategory_markets(
-        client, event_id, milestone_subcategory_id
+    ou_props, milestone_props = await asyncio.gather(
+        fetch_and_flatten_markets(client, event_id, market),
+        _fetch_and_flatten_milestone_markets(client, event_id, market),
     )
-    if milestone_payload:
-        props.extend(
-            flatten_milestone_markets_response(
-                milestone_payload,
-                event_id=event_id,
-                market=market,
-                subcategory_id=milestone_subcategory_id,
-            )
-        )
+    return ou_props + milestone_props
+
+
+async def fetch_event_all_markets(
+    client: httpx.AsyncClient,
+    event_id: str,
+    markets: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Fetch and flatten all configured O/U and milestone tabs for one event in parallel."""
+    market_list = markets or list(DK_STAT_CATEGORIES.keys())
+    coros = []
+    for market in market_list:
+        coros.append(fetch_and_flatten_markets(client, event_id, market))
+        if market in DK_MILESTONE_STAT_CATEGORIES:
+            coros.append(_fetch_and_flatten_milestone_markets(client, event_id, market))
+
+    results = await asyncio.gather(*coros, return_exceptions=True)
+    props: list[dict[str, Any]] = []
+    for result in results:
+        if isinstance(result, Exception):
+            logger.error(f"draftkings market fetch failed for {event_id}: {result}")
+            continue
+        props.extend(result)
     return props

@@ -32,7 +32,15 @@ DK_LEAGUE_EVENTS_URL = (
 DK_BASE_HEADERS = {
     "User-Agent": DK_USER_AGENT,
     "Accept": "application/json",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Origin": "https://sportsbook.draftkings.com",
     "Referer": "https://sportsbook.draftkings.com/",
+    "sec-ch-ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": '"Windows"',
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-site",
 }
 
 # FanDuel sportsbook (state-specific sbapi host; default NJ).

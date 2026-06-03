@@ -42,7 +42,64 @@ Betr-only markets awaiting IDs are listed in `DK_PENDING_STAT_CATEGORIES` (skipp
 - **O/U** (`line_kind: ou`): paired Over/Under with `points` — preferred for line matching.
 - **Milestone** (`line_kind: milestone`): over-only `N+` labels; mapped to Betr half-point line `N - 0.5` (e.g. DK `2+` ↔ Betr `1.5`).
 
-The scraper fetches O/U for every market in `DK_STAT_CATEGORIES` and milestone tabs when `DK_MILESTONE_STAT_CATEGORIES` has an ID.
+The scraper fetches O/U for every market in `DK_STAT_CATEGORIES` and milestone tabs when `DK_MILESTONE_STAT_CATEGORIES` has an ID. Per event, all subcategory calls run in parallel (capped by `DK_MARKETS_MAX_CONCURRENT`, default `6`); transient 403/429 responses are retried with backoff.
+
+## Scrape performance and rate limits
+
+DraftKings serves markets through Akamai on `sportsbook-nash.draftkings.com`. Blocks show up as **403 Access Denied** (HTML), not JSON rate-limit bodies. The scraper treats 403/429 as **transient** and retries with backoff while a global semaphore limits in-flight market GETs.
+
+### HTTP budget (typical NBA slate, auto-discover)
+
+| Step | Calls | Notes |
+|------|------:|-------|
+| League slate (event discovery) | 1 | Always first; also sets cookies for auto-discover |
+| Warm-up league (explicit event IDs only) | +1 | Skipped when IDs come from league discovery |
+| Event subcategory markets | 21 | 11 O/U + 10 milestone (`stl+blk` has no milestone tab) |
+
+For **one** `NOT_STARTED` event, expect **22** HTTP round-trips on the happy path (1 league + 21 markets). Each extra event adds **21** market calls (events are scraped in parallel).
+
+### Tuning `DK_MARKETS_MAX_CONCURRENT`
+
+Set in `backend/config/.env` (see `backend/config/.env.example`).
+
+| Value | Behavior |
+|-------|----------|
+| **4** | Safest if you still see 403 warnings; ~5–6 waves per event |
+| **6** (default) | Balance from production debugging: ~4 waves per event |
+| **8–10** | Faster when your IP is clean; watch logs for 403 retries |
+| **12+** | Not recommended; reproduces the original burst that triggered Akamai |
+
+Retries use delays **0.5s → 1s → 2s → 4s** (up to 5 attempts). A single subcategory that keeps failing adds up to ~7.5s of sleep before the scrape gives up on that tab.
+
+### Wall-clock model (DK scrape only)
+
+Assume ~100–200ms RTT per GET and no 403s:
+
+```
+market_time ≈ ceil(21 / DK_MARKETS_MAX_CONCURRENT) × RTT
+total ≈ RTT_league + market_time
+```
+
+Examples at **RTT = 150ms**:
+
+| Phase | `MAX_CONCURRENT=2` | `=6` (default) | `=12` (old burst) |
+|-------|-------------------:|---------------:|------------------:|
+| Market waves | 11 | 4 | 2 |
+| Market time | ~1.65s | ~0.6s | ~0.3s |
+| + league | +0.15s | +0.15s | +0.15s |
+| **Typical total** | **~1.8s** | **~0.75s** | **~0.45s** (often 403s) |
+
+Real `./ev` runs **Betr, DK, and FanDuel scrapers in parallel**, so DK wall-clock overlaps with other books; only the DK column above is isolated time on the DK client.
+
+### Implementation history (how we got here)
+
+1. **Original** — `DraftKingsEngine` concurrency **12**; each market task fetched O/U **then** milestone **sequentially**, but up to 12 markets at once → bursts of ~11 simultaneous GETs to the same host. No retries, minimal browser headers. **Fast when it worked; intermittent 403 Access Denied** (Akamai).
+2. **Post-403 hardening** — Global semaphore **2**, engine concurrency **2**, always-on league warm-up, browser-like headers, retries with long backoff (1s–6s). **Reliable but ~2–3× slower** on market fetches.
+3. **Current (speed + safety)** — One **`fetch_event_all_markets`** fan-out per event: all 21 subcategory GETs share a pipeline limited by **`DK_MARKETS_MAX_CONCURRENT` (6)**. O/U and milestone for the same stat run in **parallel**. League called **once** on auto-discover (no duplicate warm-up). Keepalive pool on `httpx.AsyncClient`. Retries shortened for faster recovery.
+
+**Compared to original:** similar theoretical parallelism but **controlled** (6 in flight, not 11), plus retries and headers so fewer hard failures.
+
+**Compared to post-403 hardening:** **~2–4× faster** market phase at default 6, with similar reliability if 403s were environmental.
 
 ## Alternate lines
 

@@ -40,8 +40,21 @@ def test_parse_event_ids_deduplicates_and_prefers_explicit_ids():
     ]
 
 
+@pytest.fixture
+def mock_dk_warm_up(monkeypatch):
+    async def _noop_warm_up(client, league="nba"):
+        return None
+
+    monkeypatch.setattr(
+        "scrapers.sportsbooks.dk_engine.warm_up_dk_session",
+        _noop_warm_up,
+    )
+
+
 @pytest.mark.asyncio
-async def test_scrape_fetches_configured_markets(points_payload, monkeypatch):
+async def test_scrape_fetches_configured_markets(
+    points_payload, monkeypatch, mock_dk_warm_up
+):
     async def mock_fetch(
         client: httpx.AsyncClient, event_id: str, market: str
     ) -> list[dict]:
@@ -54,9 +67,18 @@ async def test_scrape_fetches_configured_markets(points_payload, monkeypatch):
             subcategory_id=DK_STAT_CATEGORIES[market],
         )
 
+    async def mock_event_markets(
+        client: httpx.AsyncClient,
+        event_id: str,
+        markets: list[str] | None = None,
+    ) -> list[dict]:
+        if event_id != EVENT_ID:
+            return []
+        return await mock_fetch(client, event_id, "points")
+
     monkeypatch.setattr(
-        "scrapers.sportsbooks.dk_engine.fetch_and_flatten_all_for_market",
-        mock_fetch,
+        "scrapers.sportsbooks.dk_engine.fetch_event_all_markets",
+        mock_event_markets,
     )
 
     engine = DraftKingsEngine(event_ids=[EVENT_ID], markets=["points"])
@@ -68,12 +90,12 @@ async def test_scrape_fetches_configured_markets(points_payload, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_scrape_returns_empty_when_slate_has_no_events(monkeypatch):
-    async def mock_slate(client, league="nba", statuses=None):
-        return []
+    async def mock_league(client, league="nba"):
+        return None
 
     monkeypatch.setattr(
-        "scrapers.sportsbooks.dk_engine.fetch_league_event_ids",
-        mock_slate,
+        "scrapers.sportsbooks.dk_engine.fetch_league_events",
+        mock_league,
     )
 
     engine = DraftKingsEngine()
@@ -82,14 +104,17 @@ async def test_scrape_returns_empty_when_slate_has_no_events(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_scrape_discovers_event_ids_from_league_slate(
-    points_payload, monkeypatch
+    points_payload, monkeypatch, mock_dk_warm_up
 ):
-    async def mock_slate(client, league="nba", statuses=None):
-        return ["34183767"]
+    async def mock_league(client, league="nba"):
+        return {"events": [{"id": "34183767", "status": "NOT_STARTED"}]}
 
-    async def mock_fetch(
-        client: httpx.AsyncClient, event_id: str, market: str
+    async def mock_event_markets(
+        client: httpx.AsyncClient,
+        event_id: str,
+        markets: list[str] | None = None,
     ) -> list[dict]:
+        market = (markets or ["points"])[0]
         if market != "points":
             return []
         return flatten_markets_response(
@@ -100,12 +125,12 @@ async def test_scrape_discovers_event_ids_from_league_slate(
         )
 
     monkeypatch.setattr(
-        "scrapers.sportsbooks.dk_engine.fetch_league_event_ids",
-        mock_slate,
+        "scrapers.sportsbooks.dk_engine.fetch_league_events",
+        mock_league,
     )
     monkeypatch.setattr(
-        "scrapers.sportsbooks.dk_engine.fetch_and_flatten_all_for_market",
-        mock_fetch,
+        "scrapers.sportsbooks.dk_engine.fetch_event_all_markets",
+        mock_event_markets,
     )
 
     engine = DraftKingsEngine(markets=["points"])

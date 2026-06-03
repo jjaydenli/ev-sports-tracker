@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Prepare a PR title/body from branch commits. Default: print autofill link (you open the PR).
-# Optional: --create pushes and runs gh pr create (requires gh auth).
+# Prepare a PR title/body from branch commits and open it on GitHub.
+# Default: gh pr create when gh is authenticated (avoids PR template merge issues).
+# Fallback: print a compare URL (--manual, or when gh is unavailable).
 set -euo pipefail
 
 if git rev-parse --show-toplevel >/dev/null 2>&1; then
@@ -11,31 +12,34 @@ fi
 cd "$REPO_ROOT"
 
 BASE_BRANCH="main"
-MODE="manual"
+MODE="auto"
 DO_PUSH=0
 
 usage() {
   cat <<'EOF'
 Usage: ./scripts/open_pr.sh [options] [base-branch]
 
-  Default (manual): print PR title, description, and a GitHub compare URL with
-  title/body prefilled. You open the link and click "Create pull request".
+  Default: push branch and create/update PR via gh when authenticated.
+  Compare URLs often merge commit bodies with pull_request_template.md and
+  leave Summary/Commits blank — gh sets the full body directly.
 
 Options:
-  --create    Push branch and create/update PR via gh (requires gh auth login)
-  --push      Push branch before printing manual link
+  --create    Force gh pr create (same as default when gh auth works)
+  --manual    Print compare URL only; do not call gh
+  --push      Push branch only (with --manual, skip opening PR)
   -h, --help  Show this help
 
 Examples:
   ./scripts/open_pr.sh
-  ./scripts/open_pr.sh --push
-  ./scripts/open_pr.sh --create
+  ./scripts/open_pr.sh --manual
+  ./scripts/open_pr.sh --push --manual
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --create) MODE="create"; shift ;;
+    --manual) MODE="manual"; shift ;;
     --push) DO_PUSH=1; shift ;;
     -h | --help)
       usage
@@ -77,7 +81,7 @@ pick_pr_title() {
   local subject
   while IFS= read -r subject; do
     case "$subject" in
-      feat:* | fix:*)
+      feat:* | fix:* | chore:* | docs:* | refactor:* | test:* | build:* | ci:* | perf:*)
         printf '%s' "$subject"
         return 0
         ;;
@@ -170,33 +174,37 @@ github_repo_slug() {
   printf '%s' "$url"
 }
 
-build_compare_url() {
-  local slug="$1"
-  local title="$2"
-  local body="$3"
-  PR_TITLE="$title" PR_BODY="$body" PR_BASE="$BASE_BRANCH" PR_HEAD="$CURRENT" PR_SLUG="$slug" \
-    python3 <<'PY'
-import os
-import urllib.parse
+resolve_mode() {
+  if [[ "$MODE" != "auto" ]]; then
+    return 0
+  fi
+  if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+    MODE="create"
+  else
+    MODE="manual"
+  fi
+}
 
-slug = os.environ["PR_SLUG"]
-base = os.environ["PR_BASE"]
-head = os.environ["PR_HEAD"]
-title = os.environ["PR_TITLE"]
-body = os.environ["PR_BODY"]
+gh_pr_create_or_update() {
+  local body_file
+  body_file="$(mktemp)"
+  trap 'rm -f "$body_file"' RETURN
+  printf '%s\n' "$BODY" >"$body_file"
 
-query = urllib.parse.urlencode(
-    {"quick_pull": "1", "title": title, "body": body},
-    quote_via=urllib.parse.quote,
-)
-print(f"https://github.com/{slug}/compare/{base}...{head}?{query}")
-PY
+  if gh pr view --json number >/dev/null 2>&1; then
+    echo "→ updating existing PR title/body..."
+    gh pr edit --title "$TITLE" --body-file "$body_file"
+  else
+    echo "→ creating PR: $TITLE"
+    gh pr create --base "$BASE_BRANCH" --title "$TITLE" --body-file "$body_file"
+  fi
+  gh pr view --web 2>/dev/null || gh pr view
 }
 
 TITLE="$(pick_pr_title)"
 BODY="$(build_pr_body)"
-SLUG="$(github_repo_slug)"
-COMPARE_URL="$(build_compare_url "$SLUG" "$TITLE" "$BODY")"
+
+resolve_mode
 
 if [[ "$MODE" == "create" || "$DO_PUSH" == 1 ]]; then
   echo "→ pushing $CURRENT to origin..."
@@ -208,37 +216,53 @@ if [[ "$MODE" == "create" ]]; then
     echo "error: gh CLI not found. Install: brew install gh && gh auth login" >&2
     exit 1
   fi
-  if gh pr view --json number >/dev/null 2>&1; then
-    echo "→ updating existing PR title/body..."
-    gh pr edit --title "$TITLE" --body "$BODY"
-    gh pr view --web 2>/dev/null || gh pr view
-  else
-    echo "→ creating PR: $TITLE"
-    gh pr create --base "$BASE_BRANCH" --title "$TITLE" --body "$BODY"
-    gh pr view --web 2>/dev/null || gh pr view
+  if ! gh auth status >/dev/null 2>&1; then
+    echo "error: gh not authenticated. Run: gh auth login" >&2
+    exit 1
   fi
+  gh_pr_create_or_update
   exit 0
 fi
 
-# Manual mode: user opens the compare URL themselves.
+# Manual mode: GitHub appends pull_request_template.md to compare URLs and the
+# default "Compare & pull request" button, leaving Summary/Commits empty.
+# Paste the printed body (all three sections filled) over the entire field.
 echo ""
 echo "══════════════════════════════════════════════════════════════"
 echo "  PR: $CURRENT → $BASE_BRANCH"
 echo "══════════════════════════════════════════════════════════════"
 echo ""
-echo "Title (also prefilled in link):"
+echo "Title:"
 echo "  $TITLE"
 echo ""
-echo "Description (copy if needed; also prefilled in link):"
+echo "Description — select all in GitHub's description box and paste this:"
 echo "──────────────────────────────────────────────────────────────"
 printf '%s\n' "$BODY"
 echo "──────────────────────────────────────────────────────────────"
 echo ""
+
+if command -v pbcopy >/dev/null 2>&1; then
+  printf '%s\n' "$BODY" | pbcopy
+  echo "→ Description copied to clipboard (pbcopy)."
+  echo ""
+fi
+
+if [[ "$MODE" == "manual" ]]; then
+  if ! command -v gh >/dev/null 2>&1 || ! gh auth status >/dev/null 2>&1; then
+    echo "Recommended: gh auth login  (then re-run ./scripts/open_pr.sh — creates PR with filled sections)"
+    echo ""
+  fi
+fi
+
+echo "GitHub appends pull_request_template.md when you use the push/email"
+echo "\"Compare & pull request\" button — that leaves Summary/Commits blank."
+echo "Paste the body above (or from clipboard) to replace the entire description."
+echo ""
 if [[ "$DO_PUSH" == 0 ]]; then
-  echo "Before opening, push your branch:"
+  echo "Push first if needed:"
   echo "  git push -u origin HEAD"
   echo ""
 fi
-echo "Open this URL to create the PR (title + body autofill):"
-echo "  $COMPARE_URL"
+echo "Open compare (title prefilled; paste body before Create):"
+echo "  https://github.com/$(github_repo_slug)/compare/${BASE_BRANCH}...${CURRENT}?quick_pull=1&title=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))" "$TITLE")"
 echo ""

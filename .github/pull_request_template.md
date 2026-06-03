@@ -1,6 +1,6 @@
 ## Summary
 
-<!-- 1–3 bullets. Prefilled when opening via scripts/open_pr.sh compare URL. -->
+<!-- Bullets from commit bodies. Run ./scripts/open_pr.sh (or gh auth login && ./scripts/open_pr.sh) for a filled body. -->
 
 ## Test plan
 
@@ -8,4 +8,4 @@
 
 ## Commits
 
-<!-- git log main..HEAD --oneline, or filled by scripts/open_pr.sh -->
+<!-- Conventional commit subjects on this branch. Filled by scripts/open_pr.sh. -->

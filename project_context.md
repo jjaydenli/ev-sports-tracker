@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-05-26 (`./ev` CLI, `--min-ev` / `--plus-ev-only` output filter)
+**Last verified:** 2026-06-03 (DK markets scrape hardening on `main`; `DK_MARKETS_MAX_CONCURRENT`, 403/429 retries)
 
 ## 1. Project Overview
 
@@ -77,7 +77,7 @@ ev-sports-tracker/
     │   ├── dk_subcategories.py
     │   ├── fd_competitions.py
     │   ├── fd_markets.py       # tab ↔ canonical; FD_DEFAULT_SCRAPE_MARKETS; parse_player_ou_market_type
-    │   ├── .env.example        # optional FD_SPORTSBOOK_API_HOST, FD_API_KEY
+    │   ├── .env.example        # FD_SPORTSBOOK_API_HOST, FD_API_KEY; DK_MARKETS_MAX_CONCURRENT
     │   └── .env                # local secrets (gitignored)
     ├── scripts/
     │   ├── probe_dk_subcategories.py
@@ -135,6 +135,7 @@ ev-sports-tracker/
 * Betr GraphQL scrape + parser + normalization pipeline (`betr_api.py`, wide `LeagueUpcomingEvents` fetch).
 * Per-side Betr O/U EV: `allowedOptions` → parser side flags → `compare_betr_vs_draftkings` (under-only / over-only +EV when one side offered).
 * DK markets API scrape via `dk_api.py` / `dk_engine.py` + `dk_parser.py` (httpx, no Playwright).
+* **DK scrape hardening (Akamai 403):** per-event `fetch_event_all_markets`; `DK_MARKETS_MAX_CONCURRENT` semaphore (default 6); 403/429 retry/backoff; browser-like headers; league warm-up skipped on auto-discover — [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
 * `normalize.py` active platforms: Betr + DraftKings + FanDuel; Dabble archived.
 * `ev_pipeline.py` loads `{betr,dk,fd}_normalized.json` → `compare_betr_vs_draftkings` → `ev_opportunities.json`; ranked plays table via `ev_display.py`.
 * Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_ev_display`, `test_line_adjustment_multi_book`, `test_pipeline_runner`, `test_normalize`, `test_math_utils`; fixtures incl. `fd_league_nba_events.json`, `fd_event_*_player_{points,rebounds,assists}.json`.

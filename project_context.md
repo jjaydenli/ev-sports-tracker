@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-03 (DK markets scrape hardening: `DK_MARKETS_MAX_CONCURRENT`, 403/429 retries; `./ev --timing` via `pipeline_timing.py`)
+**Last verified:** 2026-06-06 (live `./ev --timing`: betr=160 dk=129 fd=896 matched=65; docs/README + debug skill synced for FD + parallel scrapes)
 
 ## 1. Project Overview
 

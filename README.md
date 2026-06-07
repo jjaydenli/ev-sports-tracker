@@ -1,42 +1,56 @@
 # EV Sports Tracker
 
-Multi-platform Expected Value (+EV) sports betting engine. Compares fixed-payout player props on DFS apps (primarily **Betr**) against dynamically priced sportsbook lines (**DraftKings**) to find profitable discrepancies.
+Multi-platform Expected Value (+EV) sports betting engine. Compares fixed-payout player props on DFS apps (primarily **Betr**) against dynamically priced sharp sportsbook lines (**DraftKings**, **FanDuel**) to find profitable discrepancies.
 
 ## Repository layout
 
 ```
-backend/
-├── config/
-│   ├── api_headers.py          # Platform-specific user-agents/headers
-│   ├── market_maps.py          # Canonical market translations
-│   ├── settings.py             # Credential loading from .env
-│   └── .env.example            # Template for local secrets
-├── utils/
-│   ├── math_utils.py           # Multiplicative de-vigging, conversion formulas
-│   └── formatting.py           # Standardizers (names, leagues, teams)
-├── scrapers/
-│   ├── base_scraper.py         # Abstract base class enforcing standard pipeline
-│   ├── dfs/
-│   │   ├── betr/               # Betr GraphQL (httpx)
-│   │   └── dabble_engine.py    # Legacy
-│   └── sportsbooks/
-│       ├── dk_engine.py        # DraftKings markets API (httpx)
-│       └── dk_api.py
-├── parsers/
-│   ├── betr_parser.py, dk_parser.py, normalize.py
-├── core/
-│   ├── models.py               # NormalizedProp schemas (platform agnostic)
-│   ├── engine.py               # EV calculations
-│   └── ev_pipeline.py          # Unified board → EV output
-├── tests/
-│   ├── conftest.py             # Shared fixtures and mock HTTP responses
-│   ├── integration/
-│   └── unit/
-├── data/
-│   ├── raw/                    # Local scrape output (gitignored)
-│   └── processed/              # Parsed/normalized output (gitignored)
-├── requirements.txt
-└── pytest.ini
+ev-sports-tracker/
+├── ev                            # bash wrapper → backend pipeline_runner
+└── backend/
+    ├── config/
+    │   ├── api_headers.py        # Platform-specific user-agents/headers
+    │   ├── market_maps.py        # Canonical market translations
+    │   ├── dk_subcategories.py   # DK subCategoryId map
+    │   ├── fd_competitions.py    # FD league/event discovery
+    │   ├── fd_markets.py         # FD tab ↔ canonical market map
+    │   ├── settings.py           # Credential loading from .env
+    │   └── .env.example          # Template for local secrets
+    ├── scripts/
+    │   ├── probe_dk_subcategories.py
+    │   └── probe_fd_events.py
+    ├── utils/
+    │   ├── math_utils.py         # Multiplicative de-vigging, conversion formulas
+    │   └── formatting.py         # Standardizers (names, leagues, teams)
+    ├── scrapers/
+    │   ├── base_scraper.py       # Abstract base class enforcing standard pipeline
+    │   ├── dfs/
+    │   │   ├── betr/             # Betr GraphQL (httpx)
+    │   │   └── dabble_engine.py  # Legacy
+    │   └── sportsbooks/
+    │       ├── dk_engine.py      # DraftKings markets API (httpx)
+    │       ├── dk_api.py
+    │       ├── fd_engine.py      # FanDuel event-page props
+    │       └── fd_api.py
+    ├── parsers/
+    │   ├── betr_parser.py, dk_parser.py, fd_parser.py, normalize.py
+    ├── core/
+    │   ├── models.py             # NormalizedProp schemas (platform agnostic)
+    │   ├── engine.py             # EV calculations
+    │   ├── line_adjustment.py    # DK ladder + FD exact + multi-book consensus
+    │   ├── ev_pipeline.py        # Unified board → EV output
+    │   ├── ev_display.py         # Ranked plays CLI table
+    │   ├── ev_run_diff.py        # Consecutive run diff vs prior top-N
+    │   ├── pipeline_timing.py    # Wall-clock stage timer
+    │   └── pipeline_runner.py    # Daily refresh orchestrator
+    ├── tests/
+    │   ├── conftest.py           # Shared fixtures and mock HTTP responses
+    │   ├── fixtures/
+    │   └── unit/                 # Offline pytest (no live network)
+    ├── data/
+    │   └── processed/            # Parsed/normalized output (gitignored)
+    ├── requirements.txt
+    └── pytest.ini
 ```
 
 
@@ -60,9 +74,10 @@ backend/
 
    ```bash
    cp config/.env.example config/.env
+   # or: cp config/.env.example .env
    ```
 
-   Fill in platform tokens (e.g. `BETR_BEARER_TOKEN`) in `config/.env`. Never commit this file or bearer tokens.
+   Fill in platform tokens (e.g. `BETR_BEARER_TOKEN`) in `config/.env` or `backend/.env`. Never commit this file or bearer tokens.
 
 4. Run tests:
 
@@ -79,26 +94,27 @@ From the repo root (activates `backend/.venv` if present) or from `backend/` wit
 # same as: cd backend && python -m core.pipeline_runner
 ```
 
-This runs Betr scrape → DraftKings scrape → normalize → EV scan and writes:
+This runs **Betr + DraftKings + FanDuel scrapes in parallel**, then normalize → EV scan, and writes:
 
 - `data/processed/ev_opportunities.json` — top matched plays by EV (default 15)
 - `data/processed/ev_opportunities.previous.json` — prior run’s top-N (rotated before overwrite)
 - `data/processed/ev_run_diff.json` — new / removed / improved / fell vs previous top-N
 - `data/processed/match_report.json` — matched/unmatched counts and `betr_match_rate_pct`
-- `data/processed/unmatched_betr.json` — Betr lines with no DK match (or DK missing odds)
+- `data/processed/unmatched_betr.json` — Betr lines with no sharp match
 - `data/processed/unmatched_dk.json` — DK lines with no Betr twin on the same key
 
 Use the match files to judge scrape coverage and cross-book alignment before trusting +EV rows. Useful flags:
 
 - `--skip-scrape` — reuse existing master boards
-- `--skip-betr` / `--skip-dk` / `--skip-fd` — sharp-only refresh: scrape the others, reuse that book’s normalized file for EV
+- `--skip-betr` / `--skip-dk` / `--skip-fd` — scrape the others, reuse that book’s normalized file for EV
 - `--betr-only` / `--dk-only` — scrape one book only
 - `--top-n 15` — max rows written (default 15)
 - `--min-ev 0.01` — mark `plus_ev` when edge > 1%; also **filters** output to those rows (default `0` shows all edges in top-N)
 - `--plus-ev-only` — filter to `ev > --min-ev` (use with `--min-ev 0` for strictly positive EV only)
 - `--include-flat-lines` — include Betr integer lines (push-adjusted breakeven; off by default)
+- `--timing` — wall-clock summary per pipeline stage (scrape, normalize, EV)
 
-DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
+DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md). FanDuel tabs and multi-book consensus: [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md).
 
 Betr auth: set `BETR_BEARER_TOKEN`, or configure `BETR_USERNAME` / `BETR_PASSWORD` (and optionally `BETR_KEYCLOAK_TOKEN_URL`, `BETR_KEYCLOAK_CLIENT_ID`) for automatic Keycloak refresh. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 

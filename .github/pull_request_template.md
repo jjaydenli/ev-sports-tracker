@@ -1,6 +1,6 @@
 ## Summary
 
-<!-- Bullets from commit bodies. Run ./scripts/open_pr.sh (or gh auth login && ./scripts/open_pr.sh) for a filled body. -->
+<!-- Bullets from commit bodies. Run ./scripts/open_pr.sh for a prefilled create page. -->
 
 ## Test plan
 
@@ -8,4 +8,4 @@
 
 ## Commits
 
-<!-- Conventional commit subjects on this branch. Filled by scripts/open_pr.sh. -->
+<!-- Conventional commit subjects on this branch. Filled by scripts/open_pr.sh --browser or --create. -->

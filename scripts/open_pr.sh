@@ -76,8 +76,32 @@ if ! git rev-parse --verify "$BASE_BRANCH" >/dev/null 2>&1; then
   exit 1
 fi
 
-if [[ -z "$(git rev-list "${BASE_BRANCH}..HEAD" 2>/dev/null || true)" ]]; then
-  echo "error: no commits on $CURRENT since $BASE_BRANCH" >&2
+# Git log range for title/body (use origin/main when local main is stale after a merge).
+LOG_BASE="$BASE_BRANCH"
+resolve_log_base() {
+  if [[ "$BASE_BRANCH" != "main" && "$BASE_BRANCH" != "master" ]]; then
+    return 0
+  fi
+  if ! git rev-parse --verify "origin/${BASE_BRANCH}" >/dev/null 2>&1; then
+    return 0
+  fi
+  local local_sha remote_sha
+  local_sha="$(git rev-parse "$BASE_BRANCH")"
+  remote_sha="$(git rev-parse "origin/${BASE_BRANCH}")"
+  if [[ "$local_sha" == "$remote_sha" ]]; then
+    return 0
+  fi
+  if git merge-base --is-ancestor "$local_sha" "$remote_sha"; then
+    echo "→ note: local $BASE_BRANCH is behind origin/$BASE_BRANCH; using origin for PR range" >&2
+    LOG_BASE="origin/${BASE_BRANCH}"
+  fi
+}
+
+resolve_log_base
+
+if [[ -z "$(git rev-list "${LOG_BASE}..HEAD" 2>/dev/null || true)" ]]; then
+  echo "error: no commits on $CURRENT since $LOG_BASE" >&2
+  echo "hint: git fetch origin && git checkout $BASE_BRANCH && git pull" >&2
   exit 1
 fi
 
@@ -90,12 +114,12 @@ pick_pr_title() {
         return 0
         ;;
     esac
-  done < <(git log "${BASE_BRANCH}..HEAD" --reverse --format='%s')
-  git log "${BASE_BRANCH}..HEAD" --reverse --format='%s' | head -n 1
+  done < <(git log "${LOG_BASE}..HEAD" --reverse --format='%s')
+  git log "${LOG_BASE}..HEAD" --reverse --format='%s' | head -n 1
 }
 
 build_pr_body() {
-  PR_BASE="$BASE_BRANCH" python3 <<'PY'
+  PR_BASE="$LOG_BASE" python3 <<'PY'
 import os
 import re
 import subprocess

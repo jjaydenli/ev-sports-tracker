@@ -129,7 +129,7 @@ Future work: branch `feat/fd-milestone-props` — ingest `TO_SCORE_*` / `TO_RECO
 
 1. **Fixture / live fetch:** `GET /api/event-page` → e.g. `fd_event_35639109_player_points.json` (and `*_rebounds`, `*_assists` for core tabs).
 2. **Flatten:** `flatten_event_page_response` — main + alt O/U only → grouped `fd_master_board.json`.
-3. **EV:** `fd_normalized.json` → `resolve_multi_book_sharp_quote` — when **both** DK and FD have exact O/U at the Betr line, de-vig each book and average fair probs (equal weight; see `SHARP_BOOK_WEIGHTS`). FD is exact-only (no interpolation). If FD is exact and DK only interpolated, FD wins. `pipeline_runner` scrapes Betr + DK + FD in parallel; use `--skip-fd` / `--skip-dk` to reuse existing normalized boards.
+3. **EV:** `fd_normalized.json` → `resolve_multi_book_sharp_quote` — when **both** DK and FD have exact O/U at the Betr line, de-vig each book and average fair probs (env-tunable weights via `load_sharp_book_weights()` / `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD`, default 1.0 each). FD is exact-only (no interpolation). If FD is exact and DK only interpolated, FD wins. `pipeline_runner` scrapes Betr + DK + FD in parallel; use `--skip-fd` / `--skip-dk` to reuse existing normalized boards.
 
 ```bash
 cd backend && python -m core.pipeline_runner

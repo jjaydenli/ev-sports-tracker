@@ -96,11 +96,31 @@ JWT **expiry pre-flight** fails the run if the token is expired or expires withi
 |----------|---------|
 | `BETR_BEARER_TOKEN` | Manual JWT (DevTools copy) |
 | `BETR_KEYCLOAK_TOKEN_URL` | Full OIDC token endpoint (optional if JWT `iss` is present) |
-| `BETR_KEYCLOAK_CLIENT_ID` | Keycloak client id for password/refresh grants |
+| `BETR_KEYCLOAK_CLIENT_ID` | Keycloak client id (optional; code default `betr-web` — override if capture differs) |
 | `BETR_USERNAME` / `BETR_PASSWORD` | Password grant |
 | `BETR_REFRESH_TOKEN` | Refresh grant |
 
-If password/refresh grants return 401, capture the real token URL and client id from a browser login and set `BETR_KEYCLOAK_TOKEN_URL` explicitly.
+If password/refresh grants return 401, use the capture checklist below.
+
+### Auth probe
+
+```bash
+cd backend && python -m scrapers.dfs.betr.betr_auth
+cd backend && python -m scrapers.dfs.betr.betr_auth --try-grant
+```
+
+Prints resolved token URL (env vs JWT `iss`), client id (env vs default `betr-web`), bearer expiry, cache presence, and optional grant result (HTTP status only — no tokens).
+
+### Keycloak capture checklist (if grant returns 401)
+
+1. Open [fantasy.betr.app](https://fantasy.betr.app) with DevTools → **Network** open.
+2. Log in (or refresh the session) and filter requests for `openid-connect/token`.
+3. Open the token **POST** request and copy:
+   - **Request URL** → `BETR_KEYCLOAK_TOKEN_URL` (full path ending in `/protocol/openid-connect/token`)
+   - **Form body** `client_id` → `BETR_KEYCLOAK_CLIENT_ID` only if it differs from `betr-web`
+4. For password grant: set `BETR_USERNAME` / `BETR_PASSWORD` in `config/.env`.
+5. For refresh grant: copy `refresh_token` from the token response → `BETR_REFRESH_TOKEN`.
+6. Re-run `python -m scrapers.dfs.betr.betr_auth --try-grant`, then `./ev --skip-dk --skip-fd` to confirm hands-free Betr scrape.
 
 **Daily command:** `cd backend && python -m core.pipeline_runner`
 

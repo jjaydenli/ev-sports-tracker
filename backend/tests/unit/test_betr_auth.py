@@ -7,12 +7,16 @@ import pytest
 
 from scrapers.dfs.betr.betr_auth import (
     BetrAuthError,
+    DEFAULT_KEYCLOAK_CLIENT_ID,
     decode_jwt_payload,
     ensure_betr_token,
     fetch_keycloak_tokens,
     jwt_expiry_status,
     keycloak_token_url_from_issuer,
+    resolve_keycloak_client_id,
     resolve_keycloak_token_url,
+    resolve_keycloak_token_url_source,
+    run_auth_probe,
     save_token_cache,
     validate_betr_token_or_raise,
 )
@@ -57,6 +61,46 @@ def test_resolve_keycloak_token_url_from_jwt_iss(monkeypatch):
     assert resolve_keycloak_token_url(token) == (
         "https://auth.example.com/realms/betr/protocol/openid-connect/token"
     )
+
+
+def test_resolve_keycloak_token_url_source_from_env(monkeypatch):
+    monkeypatch.setenv("BETR_KEYCLOAK_TOKEN_URL", "https://auth.example.com/token")
+    url, source = resolve_keycloak_token_url_source()
+    assert url == "https://auth.example.com/token"
+    assert source == "env:BETR_KEYCLOAK_TOKEN_URL"
+
+
+def test_resolve_keycloak_client_id_defaults_to_betr_web(monkeypatch):
+    monkeypatch.delenv("BETR_KEYCLOAK_CLIENT_ID", raising=False)
+    client_id, source = resolve_keycloak_client_id()
+    assert client_id == DEFAULT_KEYCLOAK_CLIENT_ID
+    assert source == "default"
+
+
+def test_resolve_keycloak_client_id_from_env(monkeypatch):
+    monkeypatch.setenv("BETR_KEYCLOAK_CLIENT_ID", "custom-client")
+    client_id, source = resolve_keycloak_client_id()
+    assert client_id == "custom-client"
+    assert source == "env:BETR_KEYCLOAK_CLIENT_ID"
+
+
+@pytest.mark.asyncio
+async def test_run_auth_probe_without_credentials(monkeypatch, capsys):
+    monkeypatch.delenv("BETR_BEARER_TOKEN", raising=False)
+    monkeypatch.delenv("BETR_KEYCLOAK_TOKEN_URL", raising=False)
+    monkeypatch.delenv("BETR_KEYCLOAK_CLIENT_ID", raising=False)
+    monkeypatch.delenv("BETR_USERNAME", raising=False)
+    monkeypatch.delenv("BETR_PASSWORD", raising=False)
+    monkeypatch.delenv("BETR_REFRESH_TOKEN", raising=False)
+    monkeypatch.setattr("scrapers.dfs.betr.betr_auth.load_token_cache", lambda *a, **k: None)
+
+    exit_code = await run_auth_probe(try_grant=False)
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Betr auth probe" in captured.out
+    assert f"client_id: {DEFAULT_KEYCLOAK_CLIENT_ID}" in captured.out
+    assert "grant_configured: none" in captured.out
 
 
 @pytest.mark.asyncio

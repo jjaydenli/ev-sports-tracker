@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import argparse
+import asyncio
 import base64
 import json
 import os
+import sys
 import time
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +18,9 @@ import httpx
 from loguru import logger
 
 from scrapers.dfs.betr.betr_api import normalize_bearer_token
+
+
+DEFAULT_KEYCLOAK_CLIENT_ID = "betr-web"
 
 
 def _env(name: str) -> str | None:
@@ -123,24 +130,38 @@ def keycloak_token_url_from_issuer(issuer: str) -> str:
     return f"{issuer}/protocol/openid-connect/token"
 
 
-def resolve_keycloak_token_url(token: str | None = None) -> str | None:
-    """Resolve Keycloak token URL from env or JWT iss claim."""
+def resolve_keycloak_token_url_source(token: str | None = None) -> tuple[str | None, str]:
+    """Resolve Keycloak token URL and report whether it came from env or JWT iss."""
     if _env("BETR_KEYCLOAK_TOKEN_URL"):
-        return _env("BETR_KEYCLOAK_TOKEN_URL")
+        return _env("BETR_KEYCLOAK_TOKEN_URL"), "env:BETR_KEYCLOAK_TOKEN_URL"
 
     candidate = token or _env("BETR_BEARER_TOKEN") or ""
     if not candidate:
-        return None
+        return None, "missing"
 
     try:
         payload = decode_jwt_payload(candidate)
     except BetrAuthError:
-        return None
+        return None, "missing"
 
     issuer = payload.get("iss")
     if isinstance(issuer, str) and issuer:
-        return keycloak_token_url_from_issuer(issuer)
-    return None
+        return keycloak_token_url_from_issuer(issuer), "jwt:iss"
+    return None, "missing"
+
+
+def resolve_keycloak_token_url(token: str | None = None) -> str | None:
+    """Resolve Keycloak token URL from env or JWT iss claim."""
+    url, _ = resolve_keycloak_token_url_source(token)
+    return url
+
+
+def resolve_keycloak_client_id() -> tuple[str, str]:
+    """Return Keycloak client id and whether it came from env or the code default."""
+    configured = _env("BETR_KEYCLOAK_CLIENT_ID")
+    if configured:
+        return configured, "env:BETR_KEYCLOAK_CLIENT_ID"
+    return DEFAULT_KEYCLOAK_CLIENT_ID, "default"
 
 
 def token_cache_path(data_dir: Path | str = "data/processed") -> Path:
@@ -251,9 +272,7 @@ async def login_with_password(
             "set BETR_KEYCLOAK_TOKEN_URL or provide a JWT with iss for auto-discovery"
         )
 
-    resolved_client = client_id or _env("BETR_KEYCLOAK_CLIENT_ID")
-    if not resolved_client:
-        raise BetrAuthError("set BETR_KEYCLOAK_CLIENT_ID for password grant login")
+    resolved_client = client_id or resolve_keycloak_client_id()[0]
 
     body = await fetch_keycloak_tokens(
         grant_type="password",
@@ -286,9 +305,7 @@ async def refresh_access_token(
             "set BETR_KEYCLOAK_TOKEN_URL or provide a JWT with iss for auto-discovery"
         )
 
-    resolved_client = client_id or _env("BETR_KEYCLOAK_CLIENT_ID")
-    if not resolved_client:
-        raise BetrAuthError("set BETR_KEYCLOAK_CLIENT_ID for refresh grant")
+    resolved_client = client_id or resolve_keycloak_client_id()[0]
 
     token = refresh_token or _env("BETR_REFRESH_TOKEN")
     if not token:
@@ -355,3 +372,125 @@ async def ensure_betr_token(
     raise BetrAuthError(
         "no valid Betr token — set BETR_BEARER_TOKEN or configure refresh/password credentials"
     )
+
+
+def _format_expiry(expires_at: int | None) -> str:
+    if expires_at is None:
+        return "unknown (no exp claim)"
+    dt = datetime.fromtimestamp(expires_at, tz=timezone.utc)
+    return f"{dt.isoformat()} (unix {expires_at})"
+
+
+def _grant_attempt_label() -> str | None:
+    if _env("BETR_REFRESH_TOKEN"):
+        return "refresh_token"
+    cache = load_token_cache()
+    if cache and cache.get("refresh_token"):
+        return "refresh_token (cache)"
+    if _env("BETR_USERNAME") and _env("BETR_PASSWORD"):
+        return "password"
+    return None
+
+
+async def probe_grant_attempt() -> dict[str, Any]:
+    """Try refresh or password grant; return redacted status (no tokens in output)."""
+    grant = _grant_attempt_label()
+    if not grant:
+        return {"attempted": False, "grant": None, "ok": False, "detail": "no credentials configured"}
+
+    token_url = resolve_keycloak_token_url()
+    client_id, _ = resolve_keycloak_client_id()
+    if not token_url:
+        return {
+            "attempted": False,
+            "grant": grant,
+            "ok": False,
+            "detail": "missing token URL (set BETR_KEYCLOAK_TOKEN_URL or BETR_BEARER_TOKEN with iss)",
+        }
+
+    try:
+        if grant.startswith("refresh_token"):
+            await refresh_access_token(token_url=token_url, client_id=client_id)
+        else:
+            await login_with_password(token_url=token_url, client_id=client_id)
+    except BetrAuthError as exc:
+        message = str(exc)
+        status_code = None
+        if "token request failed:" in message:
+            try:
+                status_code = int(message.split("token request failed:")[1].strip().split()[0])
+            except (IndexError, ValueError):
+                status_code = None
+        return {
+            "attempted": True,
+            "grant": grant,
+            "ok": False,
+            "http_status": status_code,
+            "detail": "grant failed",
+        }
+    except httpx.HTTPStatusError as exc:
+        return {
+            "attempted": True,
+            "grant": grant,
+            "ok": False,
+            "http_status": exc.response.status_code,
+            "detail": "grant failed",
+        }
+
+    return {"attempted": True, "grant": grant, "ok": True, "http_status": 200, "detail": "grant succeeded"}
+
+
+async def run_auth_probe(*, try_grant: bool = False) -> int:
+    """Print resolved auth config and optional grant attempt; return process exit code."""
+    bearer = _env("BETR_BEARER_TOKEN")
+    token_url, url_source = resolve_keycloak_token_url_source(bearer)
+    client_id, client_source = resolve_keycloak_client_id()
+
+    print("Betr auth probe")
+    print(f"  token_url: {token_url or '(not resolved)'} [{url_source}]")
+    print(f"  client_id: {client_id} [{client_source}]")
+
+    if bearer:
+        try:
+            status = jwt_expiry_status(bearer)
+            print(f"  bearer_exp: {_format_expiry(status.expires_at)}")
+            print(f"  bearer_expired: {status.is_expired}")
+            print(f"  bearer_expires_within_{status.warn_hours}h: {status.expires_within_warn_window}")
+        except BetrAuthError as exc:
+            print(f"  bearer_exp: invalid JWT ({exc})")
+    else:
+        print("  bearer_exp: (BETR_BEARER_TOKEN not set)")
+
+    cache = load_token_cache()
+    print(f"  token_cache: {'present' if cache else 'missing'}")
+
+    grant = _grant_attempt_label()
+    print(f"  grant_configured: {grant or 'none'}")
+
+    if try_grant:
+        result = await probe_grant_attempt()
+        print("  grant_probe:")
+        for key, value in result.items():
+            print(f"    {key}: {value}")
+        if result.get("attempted") and not result.get("ok"):
+            return 1
+
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    """CLI entrypoint: python -m scrapers.dfs.betr.betr_auth [--try-grant]."""
+    import config.settings  # noqa: F401 — load config/.env before probing
+
+    parser = argparse.ArgumentParser(description="Probe Betr Keycloak auth configuration.")
+    parser.add_argument(
+        "--try-grant",
+        action="store_true",
+        help="Attempt refresh or password grant (requires credentials in .env)",
+    )
+    args = parser.parse_args(argv)
+    return asyncio.run(run_auth_probe(try_grant=args.try_grant))
+
+
+if __name__ == "__main__":
+    sys.exit(main())

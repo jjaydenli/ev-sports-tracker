@@ -43,11 +43,19 @@ EXACT_AT_TARGET_METHODS: frozenset[str] = frozenset(
     {"exact", "dk_alt", "fd_exact", "fd_alt"}
 )
 
-# Equal weight per book when combining fair probs (future books: revisit weighting).
-SHARP_BOOK_WEIGHTS: dict[str, float] = {
-    "DraftKings": 1.0,
-    "FanDuel": 1.0,
-}
+def load_sharp_book_weights() -> dict[str, float]:
+    """
+    Per-book weights for multi-book consensus (env-tunable; equal 1.0 defaults).
+
+    When adding a third sharp book, extend this dict and each book's eligibility
+    rules (FD: exact O/U only; DK: O/U ladder + milestone fallback; etc.).
+    """
+    from config.settings import SHARP_BOOK_WEIGHTS_DK, SHARP_BOOK_WEIGHTS_FD
+
+    return {
+        "DraftKings": SHARP_BOOK_WEIGHTS_DK,
+        "FanDuel": SHARP_BOOK_WEIGHTS_FD,
+    }
 
 
 @dataclass(frozen=True)
@@ -469,8 +477,9 @@ def _consensus_sharp_quote(
     """Equal-weight average of de-vigged fair probs across exact sharp books."""
     fair_dk = _fair_probs_from_odds(dk_quote.over_odds, dk_quote.under_odds or 0)
     fair_fd = _fair_probs_from_odds(fd_quote.over_odds, fd_quote.under_odds or 0)
-    weight_dk = SHARP_BOOK_WEIGHTS.get("DraftKings", 1.0)
-    weight_fd = SHARP_BOOK_WEIGHTS.get("FanDuel", 1.0)
+    weights = load_sharp_book_weights()
+    weight_dk = weights.get("DraftKings", 1.0)
+    weight_fd = weights.get("FanDuel", 1.0)
     total_weight = weight_dk + weight_fd
     fair_over = (fair_dk[0] * weight_dk + fair_fd[0] * weight_fd) / total_weight
     fair_under = (fair_dk[1] * weight_dk + fair_fd[1] * weight_fd) / total_weight
@@ -509,7 +518,7 @@ def resolve_multi_book_sharp_quote(
 
     FanDuel contributes exact main/alt lines only. When both books have exact
     O/U at the Betr line, fair probs are de-vigged per book and combined with
-    equal weight (see SHARP_BOOK_WEIGHTS — revisit when adding books).
+    configurable weight (see load_sharp_book_weights — extend when adding books).
     """
     dk_quote, dk_reason = resolve_sharp_quote(
         betr_prop,

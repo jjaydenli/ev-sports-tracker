@@ -1,11 +1,13 @@
 import pytest
 
-from core.engine import find_ev_opportunities
+from core.engine import find_ev_opportunities, normalize_player_name
 from core.line_adjustment import (
+    _consensus_sharp_quote,
     build_player_market_ladder,
+    load_sharp_book_weights,
     resolve_multi_book_sharp_quote,
+    ResolvedSharpQuote,
 )
-from core.engine import normalize_player_name
 
 
 def _betr(player: str, market: str, line: float) -> dict:
@@ -41,6 +43,54 @@ def _fd(player: str, market: str, line: float, over: int, under: int, *, main=Tr
         "under_odds": under,
         "is_main_line": main,
     }
+
+
+def test_load_sharp_book_weights_defaults():
+    weights = load_sharp_book_weights()
+    assert weights["DraftKings"] == 1.0
+    assert weights["FanDuel"] == 1.0
+
+
+def test_consensus_weights_skew_toward_heavier_book(monkeypatch):
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_DK", 3.0)
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_FD", 1.0)
+
+    dk_quote = ResolvedSharpQuote(
+        over_odds=-200,
+        under_odds=170,
+        dk_line=22.5,
+        betr_line=22.5,
+        adjustment_method="exact",
+        corroborated=True,
+        dk_main_line=22.5,
+        dk_line_kind="ou",
+    )
+    fd_quote = ResolvedSharpQuote(
+        over_odds=-110,
+        under_odds=-110,
+        dk_line=22.5,
+        betr_line=22.5,
+        adjustment_method="fd_exact",
+        corroborated=True,
+        dk_main_line=22.5,
+        dk_line_kind="ou",
+    )
+
+    weighted = _consensus_sharp_quote(
+        betr_line=22.5,
+        dk_quote=dk_quote,
+        fd_quote=fd_quote,
+    )
+
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_DK", 1.0)
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_FD", 1.0)
+    baseline = _consensus_sharp_quote(
+        betr_line=22.5,
+        dk_quote=dk_quote,
+        fd_quote=fd_quote,
+    )
+
+    assert weighted.over_odds != baseline.over_odds
 
 
 def test_multi_book_consensus_when_both_exact_at_betr_line():

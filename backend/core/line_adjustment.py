@@ -21,6 +21,8 @@ EXTRAPOLATION_LOGIT_SHIFT_PER_POINT: dict[str, float] = {
     "pts+reb": 0.09,
     "pts+ast": 0.09,
     "reb+ast": 0.09,
+    "h+r+rbi": 0.08,
+    "singles": 0.08,
     "default": 0.08,
 }
 

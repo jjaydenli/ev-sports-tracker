@@ -63,13 +63,51 @@ DK_STAT_CATEGORIES: dict[str, str] = {
     **DK_OU_EXTENDED_STAT_CATEGORIES,
 }
 
+# MLB player-prop O/U (pregame). subCategoryId values require probe during slate:
+#   python -m scripts.probe_dk_subcategories <event_id> --league mlb
+DK_MLB_STAT_CATEGORIES: dict[str, str] = {
+    "h+r+rbi": "TBD",
+    "singles": "TBD",
+}
+
+DK_MLB_MILESTONE_STAT_CATEGORIES: dict[str, str] = {}
+
 # League slate pages (e.g. NBA odds) for discovering event IDs
 DK_LEAGUE_SLATES: dict[str, dict[str, str]] = {
     "nba": {
         "league_id": "42648",
         "subcategory_id": "4511",
     },
+    "mlb": {
+        "league_id": "84240",
+        "subcategory_id": "4518",
+    },
 }
+
+
+def stat_categories_for_league(league: str) -> dict[str, str]:
+    """Return O/U subcategory map for a DK slate key (nba, mlb, …)."""
+    key = league.lower()
+    if key == "mlb":
+        return DK_MLB_STAT_CATEGORIES
+    return DK_STAT_CATEGORIES
+
+
+def milestone_categories_for_league(league: str) -> dict[str, str]:
+    """Return milestone subcategory map for a DK slate key."""
+    key = league.lower()
+    if key == "mlb":
+        return DK_MLB_MILESTONE_STAT_CATEGORIES
+    return DK_MILESTONE_STAT_CATEGORIES
+
+
+def configured_stat_categories_for_league(league: str) -> dict[str, str]:
+    """O/U categories with a resolved subCategoryId (excludes TBD placeholders)."""
+    return {
+        market: sid
+        for market, sid in stat_categories_for_league(league).items()
+        if sid and sid != "TBD"
+    }
 
 
 def build_markets_query(event_id: str, subcategory_id: str) -> str:

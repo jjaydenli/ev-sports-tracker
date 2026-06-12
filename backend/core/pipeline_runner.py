@@ -27,6 +27,21 @@ from scrapers.sportsbooks.fd_engine import run_fd_scrape
 DEFAULT_DATA_DIR = "data/processed"
 DEFAULT_LEAGUE = "NBA"
 
+# Betr GraphQL League enum → DraftKings slate key in dk_subcategories.DK_LEAGUE_SLATES
+_BETR_TO_DK_LEAGUE = {
+    "NBA": "nba",
+    "MLB": "mlb",
+}
+
+
+def _dk_league_key(league: str) -> str:
+    """Map pipeline --league (Betr enum) to DraftKings slate key."""
+    return _BETR_TO_DK_LEAGUE.get(league.upper(), league.lower())
+
+
+def _is_mlb_league(league: str) -> bool:
+    return league.upper() == "MLB"
+
 
 def _backend_root() -> Path:
     return Path(__file__).resolve().parent.parent
@@ -50,8 +65,8 @@ async def _scrape_betr(league: str) -> int:
     return await run_betr_scrape(league=league)
 
 
-async def _scrape_dk() -> int:
-    return await run_dk_scrape()
+async def _scrape_dk(league: str) -> int:
+    return await run_dk_scrape(league=_dk_league_key(league))
 
 
 async def _scrape_fd() -> int:
@@ -84,7 +99,7 @@ async def _run_selected_scrapes(
         coros.append(_timed_scrape("betr", _scrape_betr(league), timer))
     if run_dk:
         labels.append("dk")
-        coros.append(_timed_scrape("dk", _scrape_dk(), timer))
+        coros.append(_timed_scrape("dk", _scrape_dk(league), timer))
     if run_fd:
         labels.append("fd")
         coros.append(_timed_scrape("fd", _scrape_fd(), timer))
@@ -125,7 +140,10 @@ def run_refresh(
     data_path = Path(data_dir)
     run_betr = not dk_only and not skip_betr
     run_dk = not betr_only and not skip_dk
-    run_fd = not betr_only and not dk_only and not skip_fd
+    skip_fd_for_league = skip_fd or _is_mlb_league(league)
+    run_fd = not betr_only and not dk_only and not skip_fd_for_league
+    if _is_mlb_league(league) and not skip_fd:
+        logger.info("skipping FanDuel scrape for MLB (no comparable props)")
 
     try:
         if run_betr and not skip_scrape:
@@ -247,7 +265,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--league",
         default=DEFAULT_LEAGUE,
-        help=f"Betr league for LeagueUpcomingEvents (default: {DEFAULT_LEAGUE})",
+        help=(
+            f"Betr league for LeagueUpcomingEvents and DK slate key "
+            f"(default: {DEFAULT_LEAGUE}; MLB auto-skips FanDuel)"
+        ),
     )
     parser.add_argument(
         "--min-ev",

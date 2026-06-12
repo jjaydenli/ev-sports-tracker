@@ -104,6 +104,13 @@ def test_extract_raw_props_returns_raw_fields():
     assert prop["is_live"] is False
 
 
+def test_extract_raw_props_includes_league_and_event_status():
+    result = extract_raw_props(_league_payload(_scheduled_event()), league="MLB")
+    assert len(result) == 1
+    assert result[0]["league"] == "MLB"
+    assert result[0]["event_status"] == "SCHEDULED"
+
+
 def test_extract_raw_props_skips_in_progress_events():
     """Verify only SCHEDULED events contribute props."""
     payload = _league_payload(

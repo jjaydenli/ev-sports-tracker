@@ -1,7 +1,7 @@
 import json
 from unittest.mock import AsyncMock, patch
 
-from core.pipeline_runner import run_refresh
+from core.pipeline_runner import _dk_league_key, run_refresh
 
 
 def _write_normalized(tmp_path, betr_count: int, dk_count: int) -> None:
@@ -103,3 +103,28 @@ def test_run_refresh_skip_betr_scrapes_dk_and_fd_only(
     mock_scrape_betr.assert_not_awaited()
     mock_scrape_dk.assert_awaited_once()
     mock_scrape_fd.assert_awaited_once()
+
+
+def test_dk_league_key_maps_mlb():
+    assert _dk_league_key("MLB") == "mlb"
+    assert _dk_league_key("NBA") == "nba"
+
+
+@patch("core.pipeline_runner._scrape_fd", new_callable=AsyncMock)
+@patch("core.pipeline_runner._scrape_dk", new_callable=AsyncMock)
+@patch("core.pipeline_runner._scrape_betr", new_callable=AsyncMock)
+@patch("core.pipeline_runner._preflight_betr_auth")
+def test_run_refresh_mlb_skips_fd_scrape(
+    mock_preflight, mock_scrape_betr, mock_scrape_dk, mock_scrape_fd, tmp_path
+):
+    mock_scrape_betr.return_value = 3
+    mock_scrape_dk.return_value = 5
+    _write_normalized(tmp_path, betr_count=1, dk_count=1)
+
+    with patch("core.pipeline_runner.normalize_all"):
+        code = run_refresh(data_dir=tmp_path, league="MLB")
+
+    assert code == 0
+    mock_scrape_betr.assert_awaited_once()
+    mock_scrape_dk.assert_awaited_once()
+    mock_scrape_fd.assert_not_awaited()

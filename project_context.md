@@ -125,6 +125,7 @@ ev-sports-tracker/
 
 ### Open
 
+* **MLB props (in progress):** Pregame H+R+RBI O/U and singles O/U — Betr → DK → EV; FD skipped for MLB. Branch: `feat/mlb-pregame` → DK subCategoryId probe → `feat/mlb-ev`. **Live props deferred** (`--live`, `current_value`, suspended markets) until slates exist. Additional markets (hits, runs, RBIs, total bases) in follow-up slices. Betr `key`/`label` and DK `subCategoryId` require Proxyman capture on pregame slate before fixtures.
 * **Additional sharp books:** Add a third sharp book (scrape → normalize → consensus); weights are env-tunable via `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` in `load_sharp_book_weights()`.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
 * **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.

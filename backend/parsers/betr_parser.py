@@ -13,6 +13,7 @@ from utils.math_utils import BETR_STANDARD_BREAKEVEN_ODDS
 
 BETR_SPORTSBOOK = "Betr"
 STANDARD_PROJECTION_TYPE = "REGULAR"
+MLB_V1_MARKETS = frozenset({"h+r+rbi", "singles"})
 
 # TODO: map non-REGULAR types to prop_type and select value vs non_regular_value
 
@@ -64,6 +65,10 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
     if not market:
         return None
 
+    league = (raw_prop.get("league") or "").upper()
+    if league == "MLB" and market not in MLB_V1_MARKETS:
+        return None
+
     allowed_options = raw_prop.get("allowed_options") or []
     if not allowed_options:
         return None
@@ -96,6 +101,13 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
     team = raw_prop.get("team")
     if team:
         normalized["team"] = team
+
+    if league:
+        normalized["league"] = league
+
+    event_status = raw_prop.get("event_status")
+    if event_status:
+        normalized["event_status"] = event_status
 
     return normalized
 

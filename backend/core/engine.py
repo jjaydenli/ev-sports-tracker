@@ -56,7 +56,11 @@ def build_prop_key(prop: dict) -> str:
     player = normalize_player_name(prop["player"])
     market = prop["market"]
     line = prop["line"]
-    return f"{player}|{market}|{line}"
+    key = f"{player}|{market}|{line}"
+    league = prop.get("league")
+    if league:
+        key = f"{key}|{str(league).upper()}"
+    return key
 
 
 def build_player_market_key(prop: dict) -> str:

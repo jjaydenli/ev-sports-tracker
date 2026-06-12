@@ -8,7 +8,11 @@ import httpx
 from loguru import logger
 
 from config.api_headers import DK_BASE_HEADERS
-from config.dk_subcategories import DK_STAT_CATEGORIES
+from config.dk_subcategories import (
+    configured_stat_categories_for_league,
+    milestone_categories_for_league,
+    stat_categories_for_league,
+)
 from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.dk_api import (
     extract_event_ids,
@@ -66,7 +70,9 @@ class DraftKingsEngine(BaseScraper):
             event_ids=event_ids, game_urls=game_urls
         )
         self.league = league
-        self.markets = markets or list(DK_STAT_CATEGORIES.keys())
+        self.stat_categories = stat_categories_for_league(league)
+        self.milestone_categories = milestone_categories_for_league(league)
+        self.markets = markets or list(self.stat_categories.keys())
 
     async def authenticate(self) -> str | None:
         return None
@@ -85,9 +91,22 @@ class DraftKingsEngine(BaseScraper):
         return event_ids
 
     async def scrape(self) -> list[dict[str, Any]]:
-        unknown_markets = set(self.markets) - set(DK_STAT_CATEGORIES)
+        scrape_categories = configured_stat_categories_for_league(self.league)
+        if not scrape_categories:
+            logger.error(
+                f"no configured DK subCategoryIds for league {self.league!r} "
+                f"(probe and update dk_subcategories.py)"
+            )
+            return []
+
+        unknown_markets = set(self.markets) - set(self.stat_categories)
         if unknown_markets:
             logger.error(f"Unknown DK markets: {sorted(unknown_markets)}")
+            return []
+
+        markets_to_scrape = [m for m in self.markets if m in scrape_categories]
+        if not markets_to_scrape:
+            logger.error(f"no scrapeable DK markets for league {self.league!r}")
             return []
 
         all_props: list[dict[str, Any]] = []
@@ -109,7 +128,13 @@ class DraftKingsEngine(BaseScraper):
 
             results = await asyncio.gather(
                 *[
-                    fetch_event_all_markets(client, event_id, self.markets)
+                    fetch_event_all_markets(
+                        client,
+                        event_id,
+                        markets_to_scrape,
+                        stat_categories=scrape_categories,
+                        milestone_categories=self.milestone_categories,
+                    )
                     for event_id in event_ids
                 ],
                 return_exceptions=True,
@@ -119,11 +144,13 @@ class DraftKingsEngine(BaseScraper):
             if isinstance(result, Exception):
                 logger.error(f"draftkings fetch failed for {event_id}: {result}")
                 continue
-            all_props.extend(result)
+            for row in result:
+                row["league"] = self.league.upper()
+                all_props.append(row)
 
         logger.info(
             f"fetched {len(all_props)} props from {len(event_ids)} events "
-            f"x {len(self.markets)} markets"
+            f"x {len(markets_to_scrape)} markets"
         )
         return all_props
 
@@ -136,9 +163,12 @@ async def run_dk_scrape(
     *,
     event_ids: list[str] | None = None,
     game_urls: list[str] | None = None,
+    league: str = DEFAULT_LEAGUE,
 ) -> int:
     """Scrape DraftKings and persist the master board; return prop count."""
-    engine = DraftKingsEngine(event_ids=event_ids, game_urls=game_urls)
+    engine = DraftKingsEngine(
+        event_ids=event_ids, game_urls=game_urls, league=league
+    )
     props = await engine.run(output_path)
     if not props:
         raise RuntimeError("draftkings scrape returned no props — check slate and subcategories")

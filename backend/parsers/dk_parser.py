@@ -15,7 +15,7 @@ def parse_dk_prop(raw_prop: dict) -> dict | None:
     raw_market = raw_prop.get("market", "")
     line = raw_prop.get("line")
 
-    return {
+    normalized = {
         "sportsbook": raw_prop.get("sportsbook", DK_SPORTSBOOK),
         "player": player,
         "market": get_canonical_market("draftkings", raw_market),
@@ -28,6 +28,10 @@ def parse_dk_prop(raw_prop: dict) -> dict | None:
         "is_main_line": bool(raw_prop.get("is_main_line", True)),
         "raw_multiplier": raw_prop.get("raw_multiplier"),
     }
+    league = raw_prop.get("league")
+    if league:
+        normalized["league"] = str(league).upper()
+    return normalized
 
 
 def parse_dk_props(raw_props: list[dict]) -> list[dict]:

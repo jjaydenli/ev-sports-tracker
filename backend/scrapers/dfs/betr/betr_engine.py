@@ -90,7 +90,9 @@ def iter_scheduled_events(raw_json: dict[str, Any]) -> Iterator[dict[str, Any]]:
             yield event
 
 
-def iter_projections(event: dict[str, Any]) -> Iterator[dict[str, Any]]:
+def iter_projections(
+    event: dict[str, Any], *, league: str | None = None
+) -> Iterator[dict[str, Any]]:
     """
     Walk teams -> players -> projections and yield raw prop context.
 
@@ -98,6 +100,7 @@ def iter_projections(event: dict[str, Any]) -> Iterator[dict[str, Any]]:
     """
     event_id = event.get("id", "")
     game = event.get("name", "Unknown Game")
+    event_status = event.get("status")
     event_context = {
         "competition_type": event.get("competitionType"),
         "player_structure": event.get("playerStructure"),
@@ -106,7 +109,10 @@ def iter_projections(event: dict[str, Any]) -> Iterator[dict[str, Any]]:
         ),
         "venue_details": _normalize_venue_details(event.get("venueDetails")),
         "event_attributes": _normalize_key_value_pairs(event.get("attributes")),
+        "event_status": event_status,
     }
+    if league:
+        event_context["league"] = league
 
     for team in event.get("teams", []):
         team_name = team.get("name", "")
@@ -162,13 +168,15 @@ def iter_projections(event: dict[str, Any]) -> Iterator[dict[str, Any]]:
                 }
 
 
-def extract_raw_props(raw_json: dict[str, Any]) -> list[dict[str, Any]]:
+def extract_raw_props(
+    raw_json: dict[str, Any], *, league: str | None = None
+) -> list[dict[str, Any]]:
     """Flatten scheduled events into deduplicated raw prop records keyed by market_id."""
     seen_market_ids: set[str] = set()
     props: list[dict[str, Any]] = []
 
     for event in iter_scheduled_events(raw_json):
-        for prop in iter_projections(event):
+        for prop in iter_projections(event, league=league):
             market_id = prop["market_id"]
             if market_id in seen_market_ids:
                 continue
@@ -210,7 +218,7 @@ class BetrEngine(BaseScraper):
             logger.warning(f"slate empty: no response for league {self.league}")
             return []
 
-        props = extract_raw_props(raw_json)
+        props = extract_raw_props(raw_json, league=self.league)
         scheduled_count = sum(1 for _ in iter_scheduled_events(raw_json))
         logger.info(
             f"fetched {len(props)} raw props from {scheduled_count} scheduled "

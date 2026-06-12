@@ -73,6 +73,10 @@ _DK_LABEL_MARKET_PATTERNS: tuple[tuple[str, str], ...] = (
     ("rebounds", "rebounds"),
     ("assists", "assists"),
     ("points", "points"),
+    ("hits + runs + rbis", "h+r+rbi"),
+    ("hits runs rbis", "h+r+rbi"),
+    ("h+r+rbi", "h+r+rbi"),
+    ("singles", "singles"),
 )
 
 
@@ -470,9 +474,12 @@ async def fetch_and_flatten_markets(
     client: httpx.AsyncClient,
     event_id: str,
     market: str,
+    *,
+    stat_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch O/U markets for one category and return flattened master-board rows."""
-    subcategory_id = DK_STAT_CATEGORIES[market]
+    categories = stat_categories or DK_STAT_CATEGORIES
+    subcategory_id = categories[market]
     payload = await fetch_event_subcategory_markets(
         client, event_id, subcategory_id
     )
@@ -490,8 +497,11 @@ async def _fetch_and_flatten_milestone_markets(
     client: httpx.AsyncClient,
     event_id: str,
     market: str,
+    *,
+    milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
-    milestone_subcategory_id = DK_MILESTONE_STAT_CATEGORIES.get(market)
+    milestones = milestone_categories or DK_MILESTONE_STAT_CATEGORIES
+    milestone_subcategory_id = milestones.get(market)
     if not milestone_subcategory_id:
         return []
     milestone_payload = await fetch_event_subcategory_markets(
@@ -511,11 +521,18 @@ async def fetch_and_flatten_all_for_market(
     client: httpx.AsyncClient,
     event_id: str,
     market: str,
+    *,
+    stat_categories: dict[str, str] | None = None,
+    milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch O/U and milestone subcategories for one market when configured."""
     ou_props, milestone_props = await asyncio.gather(
-        fetch_and_flatten_markets(client, event_id, market),
-        _fetch_and_flatten_milestone_markets(client, event_id, market),
+        fetch_and_flatten_markets(
+            client, event_id, market, stat_categories=stat_categories
+        ),
+        _fetch_and_flatten_milestone_markets(
+            client, event_id, market, milestone_categories=milestone_categories
+        ),
     )
     return ou_props + milestone_props
 
@@ -524,14 +541,30 @@ async def fetch_event_all_markets(
     client: httpx.AsyncClient,
     event_id: str,
     markets: list[str] | None = None,
+    *,
+    stat_categories: dict[str, str] | None = None,
+    milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch and flatten all configured O/U and milestone tabs for one event in parallel."""
-    market_list = markets or list(DK_STAT_CATEGORIES.keys())
+    categories = stat_categories or DK_STAT_CATEGORIES
+    milestones = milestone_categories or DK_MILESTONE_STAT_CATEGORIES
+    market_list = markets or list(categories.keys())
     coros = []
     for market in market_list:
-        coros.append(fetch_and_flatten_markets(client, event_id, market))
-        if market in DK_MILESTONE_STAT_CATEGORIES:
-            coros.append(_fetch_and_flatten_milestone_markets(client, event_id, market))
+        coros.append(
+            fetch_and_flatten_markets(
+                client, event_id, market, stat_categories=categories
+            )
+        )
+        if market in milestones:
+            coros.append(
+                _fetch_and_flatten_milestone_markets(
+                    client,
+                    event_id,
+                    market,
+                    milestone_categories=milestones,
+                )
+            )
 
     results = await asyncio.gather(*coros, return_exceptions=True)
     props: list[dict[str, Any]] = []

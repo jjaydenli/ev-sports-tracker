@@ -71,6 +71,7 @@ async def test_scrape_fetches_configured_markets(
         client: httpx.AsyncClient,
         event_id: str,
         markets: list[str] | None = None,
+        **kwargs,
     ) -> list[dict]:
         if event_id != EVENT_ID:
             return []
@@ -86,6 +87,7 @@ async def test_scrape_fetches_configured_markets(
 
     assert len(props) == 16
     assert props[0]["market"] == "points"
+    assert props[0]["league"] == "NBA"
 
 
 @pytest.mark.asyncio
@@ -113,6 +115,7 @@ async def test_scrape_discovers_event_ids_from_league_slate(
         client: httpx.AsyncClient,
         event_id: str,
         markets: list[str] | None = None,
+        **kwargs,
     ) -> list[dict]:
         market = (markets or ["points"])[0]
         if market != "points":
@@ -137,6 +140,7 @@ async def test_scrape_discovers_event_ids_from_league_slate(
     props = await engine.scrape()
 
     assert len(props) == 16
+    assert props[0]["league"] == "NBA"
 
 
 @pytest.mark.asyncio

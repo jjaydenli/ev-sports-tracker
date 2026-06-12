@@ -66,6 +66,13 @@ BETR_MARKET_MAP = {
     "free_throws_attempted": "ft_attempted",
     "double_double": "double-double",
     "triple_double": "triple-double",
+    # MLB (confirm keys via Proxyman capture on pregame slate)
+    "hits + runs + rbis": "h+r+rbi",
+    "hits runs rbis": "h+r+rbi",
+    "h+r+rbi": "h+r+rbi",
+    "hits_runs_rbis": "h+r+rbi",
+    "singles": "singles",
+    "single": "singles",
 }
 
 DK_MARKET_MAP = {
@@ -83,6 +90,10 @@ DK_MARKET_MAP = {
     "pts + reb": "pts+reb",
     "pts + ast": "pts+ast",
     "reb + ast": "reb+ast",
+    "hits + runs + rbis": "h+r+rbi",
+    "hits runs rbis": "h+r+rbi",
+    "h+r+rbi": "h+r+rbi",
+    "singles": "singles",
 }
 
 PLATFORM_MARKET_MAPPINGS = {

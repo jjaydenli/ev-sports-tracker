@@ -3,6 +3,7 @@ from urllib.parse import parse_qs, urlparse
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
     DK_MILESTONE_STAT_CATEGORIES,
+    DK_MLB_STAT_CATEGORIES,
     DK_OU_EXTENDED_STAT_CATEGORIES,
     DK_PENDING_STAT_CATEGORIES,
     DK_STAT_CATEGORIES,
@@ -10,6 +11,8 @@ from config.dk_subcategories import (
     build_league_events_url,
     build_markets_query,
     build_markets_url,
+    configured_stat_categories_for_league,
+    stat_categories_for_league,
 )
 
 
@@ -103,6 +106,19 @@ def test_build_markets_url_supports_batchable_flag():
 def test_dk_league_slates_contains_nba():
     assert DK_LEAGUE_SLATES["nba"]["league_id"] == "42648"
     assert DK_LEAGUE_SLATES["nba"]["subcategory_id"] == "4511"
+
+
+def test_dk_league_slates_contains_mlb():
+    assert DK_LEAGUE_SLATES["mlb"]["league_id"] == "84240"
+
+
+def test_stat_categories_for_league_mlb():
+    assert set(stat_categories_for_league("mlb")) == {"h+r+rbi", "singles"}
+    assert DK_MLB_STAT_CATEGORIES["h+r+rbi"] == "TBD"
+
+
+def test_configured_stat_categories_excludes_tbd_mlb():
+    assert configured_stat_categories_for_league("mlb") == {}
 
 
 def test_build_league_events_query_matches_captured_filter():

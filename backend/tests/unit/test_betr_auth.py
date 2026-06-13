@@ -13,6 +13,7 @@ from scrapers.dfs.betr.betr_auth import (
     fetch_keycloak_tokens,
     jwt_expiry_status,
     keycloak_token_url_from_issuer,
+    load_token_cache,
     resolve_keycloak_client_id,
     resolve_keycloak_token_url,
     resolve_keycloak_token_url_source,
@@ -58,9 +59,25 @@ def test_keycloak_token_url_from_issuer():
 def test_resolve_keycloak_token_url_from_jwt_iss(monkeypatch):
     monkeypatch.delenv("BETR_KEYCLOAK_TOKEN_URL", raising=False)
     token = _make_jwt({"iss": "https://auth.example.com/realms/betr", "exp": 9_999_999_999})
-    assert resolve_keycloak_token_url(token) == (
-        "https://auth.example.com/realms/betr/protocol/openid-connect/token"
+    url, source = resolve_keycloak_token_url_source(token)
+    assert url == "https://auth.example.com/realms/betr/protocol/openid-connect/token"
+    assert source == "jwt:iss (arg)"
+
+
+def test_resolve_keycloak_token_url_from_cache_access_token(monkeypatch, tmp_path):
+    monkeypatch.delenv("BETR_KEYCLOAK_TOKEN_URL", raising=False)
+    monkeypatch.delenv("BETR_BEARER_TOKEN", raising=False)
+    cached = _make_jwt({"iss": "https://auth.example.com/realms/betr", "exp": 1})
+    save_token_cache(cached, refresh_token="refresh-1", data_dir=tmp_path)
+    monkeypatch.delenv("BETR_BEARER_TOKEN", raising=False)
+    monkeypatch.setattr(
+        "scrapers.dfs.betr.betr_auth.load_token_cache",
+        lambda *a, **k: load_token_cache(tmp_path),
     )
+
+    url, source = resolve_keycloak_token_url_source()
+    assert url == "https://auth.example.com/realms/betr/protocol/openid-connect/token"
+    assert source == "jwt:iss (cache:access_token)"
 
 
 def test_resolve_keycloak_token_url_source_from_env(monkeypatch):
@@ -100,7 +117,31 @@ async def test_run_auth_probe_without_credentials(monkeypatch, capsys):
     assert exit_code == 0
     assert "Betr auth probe" in captured.out
     assert f"client_id: {DEFAULT_KEYCLOAK_CLIENT_ID}" in captured.out
+    assert "env_bearer: not configured" in captured.out
     assert "grant_configured: none" in captured.out
+
+
+@pytest.mark.asyncio
+async def test_run_auth_probe_refresh_path_without_env_bearer(monkeypatch, capsys, tmp_path):
+    monkeypatch.delenv("BETR_BEARER_TOKEN", raising=False)
+    monkeypatch.delenv("BETR_KEYCLOAK_TOKEN_URL", raising=False)
+    monkeypatch.setenv("BETR_REFRESH_TOKEN", "refresh-1")
+    future = int(time.time()) + 86400 * 30
+    cached = _make_jwt({"iss": "https://auth.example.com/realms/betr", "exp": future})
+    save_token_cache(cached, refresh_token="refresh-1", data_dir=tmp_path)
+    monkeypatch.delenv("BETR_BEARER_TOKEN", raising=False)
+    monkeypatch.setattr(
+        "scrapers.dfs.betr.betr_auth.load_token_cache",
+        lambda *a, **k: load_token_cache(tmp_path),
+    )
+
+    exit_code = await run_auth_probe(try_grant=False)
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "env_bearer: not configured (cache/refresh path)" in captured.out
+    assert "cache_access_expired: False" in captured.out
+    assert "grant_configured: refresh_token" in captured.out
 
 
 @pytest.mark.asyncio

@@ -77,7 +77,9 @@ ev-sports-tracker/
    # or: cp config/.env.example .env
    ```
 
-   Fill in platform tokens (e.g. `BETR_BEARER_TOKEN`) in `config/.env` or `backend/.env`. Never commit this file or bearer tokens.
+   Fill in credentials in `config/.env` or `backend/.env`. Never commit this file or tokens.
+
+   **Betr (recommended):** `BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` + `BETR_KEYCLOAK_CLIENT_ID` (from DevTools). Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 
 4. Run tests:
 
@@ -116,7 +118,7 @@ Use the match files to judge scrape coverage and cross-book alignment before tru
 
 DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md). FanDuel tabs and multi-book consensus: [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md).
 
-Betr auth: set `BETR_BEARER_TOKEN`, or configure `BETR_USERNAME` / `BETR_PASSWORD` (and optionally `BETR_KEYCLOAK_TOKEN_URL`, `BETR_KEYCLOAK_CLIENT_ID`) for automatic Keycloak refresh. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
+Betr auth: refresh grant (`BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL`; optional `BETR_KEYCLOAK_CLIENT_ID` from DevTools), or manual `BETR_BEARER_TOKEN`, or password grant. Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 
 ## Security
 

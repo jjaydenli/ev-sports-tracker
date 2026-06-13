@@ -130,23 +130,33 @@ def keycloak_token_url_from_issuer(issuer: str) -> str:
     return f"{issuer}/protocol/openid-connect/token"
 
 
+def _jwt_candidates_for_url_resolution(token: str | None = None) -> list[tuple[str, str]]:
+    """Ordered JWT sources for iss discovery (expiry is not checked)."""
+    candidates: list[tuple[str, str]] = []
+    if token:
+        candidates.append((token, "arg"))
+    bearer = _env("BETR_BEARER_TOKEN")
+    if bearer:
+        candidates.append((bearer, "env:BETR_BEARER_TOKEN"))
+    cache = load_token_cache()
+    if cache and cache.get("access_token"):
+        candidates.append((str(cache["access_token"]), "cache:access_token"))
+    return candidates
+
+
 def resolve_keycloak_token_url_source(token: str | None = None) -> tuple[str | None, str]:
     """Resolve Keycloak token URL and report whether it came from env or JWT iss."""
     if _env("BETR_KEYCLOAK_TOKEN_URL"):
         return _env("BETR_KEYCLOAK_TOKEN_URL"), "env:BETR_KEYCLOAK_TOKEN_URL"
 
-    candidate = token or _env("BETR_BEARER_TOKEN") or ""
-    if not candidate:
-        return None, "missing"
-
-    try:
-        payload = decode_jwt_payload(candidate)
-    except BetrAuthError:
-        return None, "missing"
-
-    issuer = payload.get("iss")
-    if isinstance(issuer, str) and issuer:
-        return keycloak_token_url_from_issuer(issuer), "jwt:iss"
+    for candidate, label in _jwt_candidates_for_url_resolution(token):
+        try:
+            payload = decode_jwt_payload(candidate)
+        except BetrAuthError:
+            continue
+        issuer = payload.get("iss")
+        if isinstance(issuer, str) and issuer:
+            return keycloak_token_url_from_issuer(issuer), f"jwt:iss ({label})"
     return None, "missing"
 
 
@@ -269,7 +279,8 @@ async def login_with_password(
     resolved_url = token_url or resolve_keycloak_token_url()
     if not resolved_url:
         raise BetrAuthError(
-            "set BETR_KEYCLOAK_TOKEN_URL or provide a JWT with iss for auto-discovery"
+            "set BETR_KEYCLOAK_TOKEN_URL, or keep a JWT with iss in BETR_BEARER_TOKEN "
+            "or data/processed/.betr_token_cache.json for auto-discovery"
         )
 
     resolved_client = client_id or resolve_keycloak_client_id()[0]
@@ -302,7 +313,8 @@ async def refresh_access_token(
     resolved_url = token_url or resolve_keycloak_token_url(refresh_token)
     if not resolved_url:
         raise BetrAuthError(
-            "set BETR_KEYCLOAK_TOKEN_URL or provide a JWT with iss for auto-discovery"
+            "set BETR_KEYCLOAK_TOKEN_URL, or keep a JWT with iss in BETR_BEARER_TOKEN "
+            "or data/processed/.betr_token_cache.json for auto-discovery"
         )
 
     resolved_client = client_id or resolve_keycloak_client_id()[0]
@@ -381,6 +393,17 @@ def _format_expiry(expires_at: int | None) -> str:
     return f"{dt.isoformat()} (unix {expires_at})"
 
 
+def _print_jwt_expiry_block(prefix: str, token: str) -> None:
+    """Print exp / expired / warn-window lines for a JWT access token."""
+    try:
+        status = jwt_expiry_status(token)
+        print(f"  {prefix}_exp: {_format_expiry(status.expires_at)}")
+        print(f"  {prefix}_expired: {status.is_expired}")
+        print(f"  {prefix}_expires_within_{status.warn_hours}h: {status.expires_within_warn_window}")
+    except BetrAuthError as exc:
+        print(f"  {prefix}_exp: invalid JWT ({exc})")
+
+
 def _grant_attempt_label() -> str | None:
     if _env("BETR_REFRESH_TOKEN"):
         return "refresh_token"
@@ -405,7 +428,10 @@ async def probe_grant_attempt() -> dict[str, Any]:
             "attempted": False,
             "grant": grant,
             "ok": False,
-            "detail": "missing token URL (set BETR_KEYCLOAK_TOKEN_URL or BETR_BEARER_TOKEN with iss)",
+            "detail": (
+                "missing token URL — set BETR_KEYCLOAK_TOKEN_URL or keep a JWT with iss "
+                "in BETR_BEARER_TOKEN or .betr_token_cache.json"
+            ),
         }
 
     try:
@@ -450,21 +476,20 @@ async def run_auth_probe(*, try_grant: bool = False) -> int:
     print(f"  token_url: {token_url or '(not resolved)'} [{url_source}]")
     print(f"  client_id: {client_id} [{client_source}]")
 
-    if bearer:
-        try:
-            status = jwt_expiry_status(bearer)
-            print(f"  bearer_exp: {_format_expiry(status.expires_at)}")
-            print(f"  bearer_expired: {status.is_expired}")
-            print(f"  bearer_expires_within_{status.warn_hours}h: {status.expires_within_warn_window}")
-        except BetrAuthError as exc:
-            print(f"  bearer_exp: invalid JWT ({exc})")
-    else:
-        print("  bearer_exp: (BETR_BEARER_TOKEN not set)")
-
     cache = load_token_cache()
-    print(f"  token_cache: {'present' if cache else 'missing'}")
-
     grant = _grant_attempt_label()
+
+    if bearer:
+        _print_jwt_expiry_block("env_bearer", bearer)
+    elif grant or (cache and cache.get("access_token")):
+        print("  env_bearer: not configured (cache/refresh path)")
+    else:
+        print("  env_bearer: not configured")
+
+    print(f"  token_cache: {'present' if cache else 'missing'}")
+    if cache and cache.get("access_token"):
+        _print_jwt_expiry_block("cache_access", str(cache["access_token"]))
+
     print(f"  grant_configured: {grant or 'none'}")
 
     if try_grant:

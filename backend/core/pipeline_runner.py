@@ -34,6 +34,11 @@ _BETR_TO_DK_LEAGUE = {
 }
 
 
+def _normalize_betr_league(league: str) -> str:
+    """Betr GraphQL League enum is uppercase (MLB, NBA); DK slate keys stay lowercase."""
+    return league.upper()
+
+
 def _dk_league_key(league: str) -> str:
     """Map pipeline --league (Betr enum) to DraftKings slate key."""
     return _BETR_TO_DK_LEAGUE.get(league.upper(), league.lower())
@@ -140,6 +145,8 @@ def run_refresh(
     data_path = Path(data_dir)
     run_betr = not dk_only and not skip_betr
     run_dk = not betr_only and not skip_dk
+    league = _normalize_betr_league(league)
+
     skip_fd_for_league = skip_fd or _is_mlb_league(league)
     run_fd = not betr_only and not dk_only and not skip_fd_for_league
     if _is_mlb_league(league) and not skip_fd:
@@ -264,10 +271,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--league",
+        type=str.upper,
         default=DEFAULT_LEAGUE,
         help=(
             f"Betr league for LeagueUpcomingEvents and DK slate key "
-            f"(default: {DEFAULT_LEAGUE}; MLB auto-skips FanDuel)"
+            f"(default: {DEFAULT_LEAGUE}; MLB auto-skips FanDuel; case-insensitive)"
         ),
     )
     parser.add_argument(

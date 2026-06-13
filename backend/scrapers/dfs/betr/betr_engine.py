@@ -192,7 +192,7 @@ class BetrEngine(BaseScraper):
 
     def __init__(self, bearer_token: str | None = None, league: str | None = None):
         self.bearer_token = bearer_token or BETR_BEARER_TOKEN
-        self.league = league or self.default_league
+        self.league = (league or self.default_league).upper()
 
     async def authenticate(self) -> str | None:
         if self.bearer_token:
@@ -217,6 +217,9 @@ class BetrEngine(BaseScraper):
         if not raw_json:
             logger.warning(f"slate empty: no response for league {self.league}")
             return []
+
+        for error in raw_json.get("errors") or []:
+            logger.error(f"betr graphql error: {error.get('message')}")
 
         props = extract_raw_props(raw_json, league=self.league)
         scheduled_count = sum(1 for _ in iter_scheduled_events(raw_json))

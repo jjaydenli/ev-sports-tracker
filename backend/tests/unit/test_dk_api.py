@@ -6,6 +6,7 @@ import pytest
 
 from config.dk_subcategories import (
     DK_MILESTONE_STAT_CATEGORIES,
+    DK_MLB_STAT_CATEGORIES,
     DK_STAT_CATEGORIES,
     build_markets_url,
 )
@@ -29,7 +30,11 @@ STEALS_MILESTONE_FIXTURE_PATH = Path(
     "tests/fixtures/dk_markets_steals_milestone_34183767.json"
 )
 LEAGUE_FIXTURE_PATH = Path("tests/fixtures/dk_league_nba_events.json")
+MLB_HITS_FIXTURE_PATH = Path("tests/fixtures/dk_markets_mlb_hits.json")
+MLB_TOTAL_BASES_FIXTURE_PATH = Path("tests/fixtures/dk_markets_mlb_total_bases.json")
+MLB_LEAGUE_FIXTURE_PATH = Path("tests/fixtures/dk_league_mlb_events.json")
 EVENT_ID = "34183767"
+MLB_EVENT_ID = "34267452"
 
 
 @pytest.fixture
@@ -98,6 +103,8 @@ def test_infer_canonical_market_from_dk_label():
     assert infer_canonical_market_from_dk_label("Pts + Reb + Ast O/U") == "pra"
     assert infer_canonical_market_from_dk_label("Pts + Ast O/U") == "pts+ast"
     assert infer_canonical_market_from_dk_label("Steals + Blocks O/U") == "stl+blk"
+    assert infer_canonical_market_from_dk_label("Luis Arraez Hits O/U") == "hits"
+    assert infer_canonical_market_from_dk_label("Casey Schmitt Total Bases O/U") == "total_bases"
 
 
 def test_infer_canonical_market_from_steals_milestone_fixture(steals_milestone_payload):
@@ -170,6 +177,46 @@ async def test_fetch_event_subcategory_markets_retries_transient_403(points_payl
 
     assert result == points_payload
     assert attempts == 2
+
+
+def test_flatten_mlb_hits_fixture():
+    payload = json.loads(MLB_HITS_FIXTURE_PATH.read_text(encoding="utf-8"))
+    props = flatten_markets_response(
+        payload,
+        event_id=MLB_EVENT_ID,
+        market="hits",
+        subcategory_id=DK_MLB_STAT_CATEGORIES["hits"],
+    )
+    assert len(props) == 18
+    arraez = next(p for p in props if p["player"] == "Luis Arraez")
+    assert arraez["market"] == "hits"
+    assert arraez["subcategory_id"] == "6719"
+    assert arraez["line_kind"] == "ou"
+
+
+def test_flatten_mlb_total_bases_fixture():
+    payload = json.loads(MLB_TOTAL_BASES_FIXTURE_PATH.read_text(encoding="utf-8"))
+    props = flatten_markets_response(
+        payload,
+        event_id=MLB_EVENT_ID,
+        market="total_bases",
+        subcategory_id=DK_MLB_STAT_CATEGORIES["total_bases"],
+    )
+    assert props
+    assert props[0]["market"] == "total_bases"
+    assert props[0]["subcategory_id"] == "6607"
+
+
+def test_infer_canonical_market_from_mlb_hits_fixture():
+    payload = json.loads(MLB_HITS_FIXTURE_PATH.read_text(encoding="utf-8"))
+    assert infer_canonical_market_from_dk_payload(payload) == "hits"
+
+
+def test_extract_event_ids_mlb_league_fixture():
+    payload = json.loads(MLB_LEAGUE_FIXTURE_PATH.read_text(encoding="utf-8"))
+    event_ids = extract_event_ids(payload)
+    assert MLB_EVENT_ID in event_ids
+    assert len(event_ids) >= 10
 
 
 def test_extract_event_ids_returns_not_started_only(league_payload):

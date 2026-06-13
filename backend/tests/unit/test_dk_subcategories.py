@@ -110,15 +110,20 @@ def test_dk_league_slates_contains_nba():
 
 def test_dk_league_slates_contains_mlb():
     assert DK_LEAGUE_SLATES["mlb"]["league_id"] == "84240"
+    assert DK_LEAGUE_SLATES["mlb"]["subcategory_id"] == "4519"
 
 
 def test_stat_categories_for_league_mlb():
-    assert set(stat_categories_for_league("mlb")) == {"h+r+rbi", "singles"}
-    assert DK_MLB_STAT_CATEGORIES["h+r+rbi"] == "TBD"
+    assert set(stat_categories_for_league("mlb")) == {"hits", "total_bases"}
+    assert DK_MLB_STAT_CATEGORIES["hits"] == "6719"
+    assert DK_MLB_STAT_CATEGORIES["total_bases"] == "6607"
 
 
-def test_configured_stat_categories_excludes_tbd_mlb():
-    assert configured_stat_categories_for_league("mlb") == {}
+def test_configured_stat_categories_for_league_mlb():
+    assert configured_stat_categories_for_league("mlb") == {
+        "hits": "6719",
+        "total_bases": "6607",
+    }
 
 
 def test_build_league_events_query_matches_captured_filter():

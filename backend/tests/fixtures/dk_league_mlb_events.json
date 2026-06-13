@@ -1,0 +1,5285 @@
+{
+  "sports": [
+    {
+      "id": "7",
+      "seoIdentifier": "baseball",
+      "name": "Baseball",
+      "sortOrder": 58
+    }
+  ],
+  "leagues": [
+    {
+      "id": "84240",
+      "seoIdentifier": "mlb",
+      "name": "MLB",
+      "sportId": "7",
+      "sortOrder": 4855,
+      "tags": [
+        "Featured"
+      ],
+      "isTeamSwap": true
+    }
+  ],
+  "events": [
+    {
+      "id": "34267385",
+      "seoIdentifier": "mia-marlins-%40-pit-pirates",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "MIA Marlins @ PIT Pirates",
+      "startEventDate": "2026-06-12T22:40:00.0000000Z",
+      "participants": [
+        {
+          "id": "29924",
+          "name": "PIT Pirates",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "209",
+            "rosettaTeamId": "29924",
+            "rosettaTeamName": "Pirates",
+            "shortName": "PIT",
+            "startingPitcherPlayerId": "107981",
+            "teamColor": "#27251f",
+            "startingPitcherPlayerName": "Braxton Ashcraft"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Pirates",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29953",
+          "name": "MIA Marlins",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "208",
+            "rosettaTeamId": "29953",
+            "rosettaTeamName": "Marlins",
+            "shortName": "MIA",
+            "startingPitcherPlayerId": "107644",
+            "teamColor": "#00a3e0",
+            "startingPitcherPlayerName": "Sandy Alcantara"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Marlins",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63303583",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303583",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303583",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233848085,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267386",
+      "seoIdentifier": "sea-mariners-%40-was-nationals",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "SEA Mariners @ WAS Nationals",
+      "startEventDate": "2026-06-12T22:45:00.0000000Z",
+      "participants": [
+        {
+          "id": "29836",
+          "name": "WAS Nationals",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "203",
+            "rosettaTeamId": "29836",
+            "rosettaTeamName": "Nationals",
+            "shortName": "WAS",
+            "startingPitcherPlayerId": "109259",
+            "teamColor": "#ab0003",
+            "startingPitcherPlayerName": "Zack Littell"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Nationals",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29815",
+          "name": "SEA Mariners",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "202",
+            "rosettaTeamId": "29815",
+            "rosettaTeamName": "Mariners",
+            "shortName": "SEA",
+            "startingPitcherPlayerId": "161892",
+            "teamColor": "#0c2c56",
+            "startingPitcherPlayerName": "Bryce Miller"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Mariners",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63299159",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299159",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299159",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233848586,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267387",
+      "seoIdentifier": "sd-padres-%40-bal-orioles",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "SD Padres @ BAL Orioles",
+      "startEventDate": "2026-06-12T23:05:00.0000000Z",
+      "participants": [
+        {
+          "id": "29829",
+          "name": "BAL Orioles",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "227",
+            "rosettaTeamId": "29829",
+            "rosettaTeamName": "Orioles",
+            "shortName": "BAL",
+            "startingPitcherPlayerId": "107973",
+            "teamColor": "#df4601",
+            "startingPitcherPlayerName": "Shane Baz"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Orioles",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29942",
+          "name": "SD Padres",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "226",
+            "rosettaTeamId": "29942",
+            "rosettaTeamName": "Padres",
+            "shortName": "SD",
+            "startingPitcherPlayerId": "109101",
+            "teamColor": "#2f241d",
+            "startingPitcherPlayerName": "Griffin Canning"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Padres",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63303265",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303265",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303265",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233850587,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267388",
+      "seoIdentifier": "tex-rangers-%40-bos-red-sox",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "TEX Rangers @ BOS Red Sox",
+      "startEventDate": "2026-06-12T23:10:00.0000000Z",
+      "participants": [
+        {
+          "id": "29976",
+          "name": "BOS Red Sox",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "215",
+            "rosettaTeamId": "29976",
+            "rosettaTeamName": "Red Sox",
+            "shortName": "BOS",
+            "startingPitcherPlayerId": "109296",
+            "teamColor": "#bd3039",
+            "startingPitcherPlayerName": "Sonny Gray"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Red Sox",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29891",
+          "name": "TEX Rangers",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "214",
+            "rosettaTeamId": "29891",
+            "rosettaTeamName": "Rangers",
+            "shortName": "TEX",
+            "startingPitcherPlayerId": "179686",
+            "teamColor": "#003278",
+            "startingPitcherPlayerName": "Jack Leiter"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Rangers",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63299341",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299341",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299341",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233851001,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267390",
+      "seoIdentifier": "det-tigers-%40-cle-guardians",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "DET Tigers @ CLE Guardians",
+      "startEventDate": "2026-06-12T23:10:00.0000000Z",
+      "participants": [
+        {
+          "id": "29913",
+          "name": "CLE Guardians",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "207",
+            "rosettaTeamId": "29913",
+            "rosettaTeamName": "Guardians",
+            "shortName": "CLE",
+            "startingPitcherPlayerId": "161824",
+            "teamColor": "#00385d",
+            "startingPitcherPlayerName": "Tanner Bibee"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Guardians",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29871",
+          "name": "DET Tigers",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "206",
+            "rosettaTeamId": "29871",
+            "rosettaTeamName": "Tigers",
+            "shortName": "DET",
+            "startingPitcherPlayerId": "109245",
+            "teamColor": "#0c2340",
+            "startingPitcherPlayerName": "Jack Flaherty"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Tigers",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63302575",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302575",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302575",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233851002,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267392",
+      "seoIdentifier": "atl-braves-%40-ny-mets",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "ATL Braves @ NY Mets",
+      "startEventDate": "2026-06-12T23:15:00.0000000Z",
+      "participants": [
+        {
+          "id": "29840",
+          "name": "NY Mets",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "205",
+            "rosettaTeamId": "29840",
+            "rosettaTeamName": "Mets",
+            "shortName": "NYM",
+            "startingPitcherPlayerId": "206866",
+            "teamColor": "#002d72",
+            "startingPitcherPlayerName": "Nolan McLean"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Mets",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29861",
+          "name": "ATL Braves",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "204",
+            "rosettaTeamId": "29861",
+            "rosettaTeamName": "Braves",
+            "shortName": "ATL",
+            "startingPitcherPlayerId": "126122",
+            "teamColor": "#ce1141",
+            "startingPitcherPlayerName": "Spencer Strider"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Braves",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63299233",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299233",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299233",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233851503,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267391",
+      "seoIdentifier": "ari-diamondbacks-%40-cin-reds",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "ARI Diamondbacks @ CIN Reds",
+      "startEventDate": "2026-06-12T23:15:00.0000000Z",
+      "participants": [
+        {
+          "id": "29919",
+          "name": "CIN Reds",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "211",
+            "rosettaTeamId": "29919",
+            "rosettaTeamName": "Reds",
+            "shortName": "CIN",
+            "startingPitcherPlayerId": "105915",
+            "teamColor": "#c6011f",
+            "startingPitcherPlayerName": "Nick Lodolo"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Reds",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29934",
+          "name": "ARI Diamondbacks",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "210",
+            "rosettaTeamId": "29934",
+            "rosettaTeamName": "Diamondbacks",
+            "shortName": "ARI",
+            "startingPitcherPlayerId": "107771",
+            "teamColor": "#a71930",
+            "startingPitcherPlayerName": "Eduardo Rodriguez"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Diamondbacks",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63299179",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299179",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63299179",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233851504,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267393",
+      "seoIdentifier": "ny-yankees-%40-tor-blue-jays",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "NY Yankees @ TOR Blue Jays",
+      "startEventDate": "2026-06-12T23:37:00.0000000Z",
+      "participants": [
+        {
+          "id": "29868",
+          "name": "TOR Blue Jays",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "201",
+            "rosettaTeamId": "29868",
+            "rosettaTeamName": "Blue Jays",
+            "shortName": "TOR",
+            "startingPitcherPlayerId": "222700",
+            "teamColor": "#134a8e",
+            "startingPitcherPlayerName": "Trey Yesavage"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Blue Jays",
+          "isNationalTeam": false,
+          "countryCode": "CA"
+        },
+        {
+          "id": "29825",
+          "name": "NY Yankees",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "200",
+            "rosettaTeamId": "29825",
+            "rosettaTeamName": "Yankees",
+            "shortName": "NYY",
+            "startingPitcherPlayerId": "108252",
+            "teamColor": "#003087",
+            "startingPitcherPlayerName": "Ryan Weathers"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Yankees",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63302871",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302871",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302871",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233853793,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267394",
+      "seoIdentifier": "la-dodgers-%40-chi-white-sox",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "LA Dodgers @ CHI White Sox",
+      "startEventDate": "2026-06-12T23:40:00.0000000Z",
+      "participants": [
+        {
+          "id": "29970",
+          "name": "CHI White Sox",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "229",
+            "rosettaTeamId": "29970",
+            "rosettaTeamName": "White Sox",
+            "shortName": "CWS",
+            "startingPitcherPlayerId": "108681",
+            "teamColor": "#27251f",
+            "startingPitcherPlayerName": "Anthony Kay"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "White Sox",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29931",
+          "name": "LA Dodgers",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "228",
+            "rosettaTeamId": "29931",
+            "rosettaTeamName": "Dodgers",
+            "shortName": "LAD",
+            "startingPitcherPlayerId": "198920",
+            "teamColor": "#005a9c",
+            "startingPitcherPlayerName": "Roki Sasaki"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Dodgers",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63302273",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302273",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302273",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233854094,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267395",
+      "seoIdentifier": "phi-phillies-%40-mil-brewers",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "PHI Phillies @ MIL Brewers",
+      "startEventDate": "2026-06-12T23:40:00.0000000Z",
+      "participants": [
+        {
+          "id": "29847",
+          "name": "MIL Brewers",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "225",
+            "rosettaTeamId": "29847",
+            "rosettaTeamName": "Brewers",
+            "shortName": "MIL",
+            "startingPitcherPlayerId": "201007",
+            "teamColor": "#ffc52f",
+            "startingPitcherPlayerName": "Jacob Misiorowski"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Brewers",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29857",
+          "name": "PHI Phillies",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "224",
+            "rosettaTeamId": "29857",
+            "rosettaTeamName": "Phillies",
+            "shortName": "PHI",
+            "startingPitcherPlayerId": "206865",
+            "teamColor": "#e81828",
+            "startingPitcherPlayerName": "Andrew Painter"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Phillies",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63303195",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303195",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303195",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233854095,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267448",
+      "seoIdentifier": "hou-astros-%40-kc-royals",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "HOU Astros @ KC Royals",
+      "startEventDate": "2026-06-13T00:10:00.0000000Z",
+      "participants": [
+        {
+          "id": "29965",
+          "name": "KC Royals",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "221",
+            "rosettaTeamId": "29965",
+            "rosettaTeamName": "Royals",
+            "shortName": "KC",
+            "startingPitcherPlayerId": "197281",
+            "teamColor": "#004687",
+            "startingPitcherPlayerName": "Luinder Avila"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Royals",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29882",
+          "name": "HOU Astros",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "220",
+            "rosettaTeamId": "29882",
+            "rosettaTeamName": "Astros",
+            "shortName": "HOU",
+            "startingPitcherPlayerId": "226995",
+            "teamColor": "#002d62",
+            "startingPitcherPlayerName": "Tatsuya Imai"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Astros",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63302923",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302923",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302923",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233857005,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267449",
+      "seoIdentifier": "stl-cardinals-%40-min-twins",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "STL Cardinals @ MIN Twins",
+      "startEventDate": "2026-06-13T00:10:00.0000000Z",
+      "participants": [
+        {
+          "id": "29909",
+          "name": "MIN Twins",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "213",
+            "rosettaTeamId": "29909",
+            "rosettaTeamName": "Twins",
+            "shortName": "MIN",
+            "startingPitcherPlayerId": "106137",
+            "teamColor": "#002b5c",
+            "startingPitcherPlayerName": "Joe Ryan"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Twins",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29851",
+          "name": "STL Cardinals",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "212",
+            "rosettaTeamId": "29851",
+            "rosettaTeamName": "Cardinals",
+            "shortName": "STL",
+            "startingPitcherPlayerId": "163505",
+            "teamColor": "#c41e3a",
+            "startingPitcherPlayerName": "Kyle Leahy"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Cardinals",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63302989",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302989",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63302989",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233857006,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267450",
+      "seoIdentifier": "tb-rays-%40-la-angels",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "TB Rays @ LA Angels",
+      "startEventDate": "2026-06-13T01:38:00.0000000Z",
+      "participants": [
+        {
+          "id": "29901",
+          "name": "LA Angels",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "217",
+            "rosettaTeamId": "29901",
+            "rosettaTeamName": "Angels",
+            "shortName": "LAA",
+            "startingPitcherPlayerId": "184332",
+            "teamColor": "#003263",
+            "startingPitcherPlayerName": "Samuel Aldegheri"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Angels",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29880",
+          "name": "TB Rays",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "216",
+            "rosettaTeamId": "29880",
+            "rosettaTeamName": "Rays",
+            "shortName": "TB",
+            "startingPitcherPlayerId": "108971",
+            "teamColor": "#092c5c",
+            "startingPitcherPlayerName": "Shane McClanahan"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Rays",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63301065",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63301065",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63301065",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233865850,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267451",
+      "seoIdentifier": "col-rockies-%40-athletics",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "COL Rockies @ Athletics",
+      "startEventDate": "2026-06-13T02:05:00.0000000Z",
+      "participants": [
+        {
+          "id": "29811",
+          "name": "Athletics",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "219",
+            "rosettaTeamId": "29811",
+            "rosettaTeamName": "Athletics",
+            "shortName": "A's",
+            "startingPitcherPlayerId": "228930",
+            "teamColor": "#003831",
+            "startingPitcherPlayerName": "Gage Jump"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Athletics",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29957",
+          "name": "COL Rockies",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "218",
+            "rosettaTeamId": "29957",
+            "rosettaTeamName": "Rockies",
+            "shortName": "COL",
+            "teamColor": "#333366"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Rockies",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63300881",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63300881",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63300881",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233868551,
+      "subscriptionKey": "events-667241289"
+    },
+    {
+      "id": "34267452",
+      "seoIdentifier": "chi-cubs-%40-sf-giants",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "CHI Cubs @ SF Giants",
+      "startEventDate": "2026-06-13T02:15:00.0000000Z",
+      "participants": [
+        {
+          "id": "29945",
+          "name": "SF Giants",
+          "venueRole": "Home",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "223",
+            "rosettaTeamId": "29945",
+            "rosettaTeamName": "Giants",
+            "shortName": "SFG",
+            "startingPitcherPlayerId": "179005",
+            "teamColor": "#fd5a1e",
+            "startingPitcherPlayerName": "Landen Roupp"
+          },
+          "sortOrder": 2,
+          "seoIdentifier": "Giants",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        },
+        {
+          "id": "29894",
+          "name": "CHI Cubs",
+          "venueRole": "Away",
+          "type": "Team",
+          "metadata": {
+            "retailRotNumber": "222",
+            "rosettaTeamId": "29894",
+            "rosettaTeamName": "Cubs",
+            "shortName": "CHC",
+            "startingPitcherPlayerId": "155160",
+            "teamColor": "#0e3386",
+            "startingPitcherPlayerName": "Javier Assad"
+          },
+          "sortOrder": 1,
+          "seoIdentifier": "Cubs",
+          "isNationalTeam": false,
+          "countryCode": "US"
+        }
+      ],
+      "eventParticipantType": "TwoTeam",
+      "status": "NOT_STARTED",
+      "media": [
+        {
+          "providerName": "BetRadarStats",
+          "providerEventId": "63303727",
+          "mediaType": "Stats"
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303727",
+          "mediaType": "MatchTracker",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        },
+        {
+          "providerName": "BetRadarV3",
+          "providerEventId": "63303727",
+          "mediaType": "Scoreboard",
+          "metadata": {
+            "betRadarCoverage": "3"
+          }
+        }
+      ],
+      "tags": [
+        "FeaturedSubcategory",
+        "Flashbet",
+        "MatchTracker",
+        "OSB",
+        "PrePack",
+        "SGP",
+        "Scoreboard",
+        "SgpDynamicOdds",
+        "Stats",
+        "YourBetEligible"
+      ],
+      "metadata": {
+        "masterLeagueId": "233",
+        "numberOfParts": "9"
+      },
+      "sortOrder": 233869552,
+      "subscriptionKey": "events-667241289"
+    }
+  ],
+  "markets": [
+    {
+      "id": "1_85118625",
+      "eventId": "34267385",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118625,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118626",
+      "eventId": "34267386",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118626,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118627",
+      "eventId": "34267387",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118627,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118628",
+      "eventId": "34267388",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118628,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118636",
+      "eventId": "34267390",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118636,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118637",
+      "eventId": "34267391",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118637,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118640",
+      "eventId": "34267392",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118640,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118641",
+      "eventId": "34267393",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118641,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118642",
+      "eventId": "34267394",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118642,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118643",
+      "eventId": "34267395",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118643,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118756",
+      "eventId": "34267448",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118756,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118757",
+      "eventId": "34267449",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118757,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118758",
+      "eventId": "34267450",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118758,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118759",
+      "eventId": "34267451",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118759,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "1_85118760",
+      "eventId": "34267452",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Moneyline",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "1_0",
+        "betOfferTypeId": 2,
+        "name": "Moneyline"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 185118760,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118625",
+      "eventId": "34267385",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118625,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118626",
+      "eventId": "34267386",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118626,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118627",
+      "eventId": "34267387",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118627,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118628",
+      "eventId": "34267388",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118628,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118636",
+      "eventId": "34267390",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118636,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118637",
+      "eventId": "34267391",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118637,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118640",
+      "eventId": "34267392",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118640,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118641",
+      "eventId": "34267393",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118641,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118642",
+      "eventId": "34267394",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118642,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118643",
+      "eventId": "34267395",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118643,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118756",
+      "eventId": "34267448",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118756,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118757",
+      "eventId": "34267449",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118757,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118758",
+      "eventId": "34267450",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118758,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118759",
+      "eventId": "34267451",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118759,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "2_85118760",
+      "eventId": "34267452",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Run Line",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "2_0",
+        "betOfferTypeId": 1,
+        "name": "Run Line"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 285118760,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118625",
+      "eventId": "34267385",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118625,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118626",
+      "eventId": "34267386",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118626,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118627",
+      "eventId": "34267387",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118627,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118628",
+      "eventId": "34267388",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118628,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118636",
+      "eventId": "34267390",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118636,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118637",
+      "eventId": "34267391",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118637,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118640",
+      "eventId": "34267392",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118640,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118641",
+      "eventId": "34267393",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118641,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118642",
+      "eventId": "34267394",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118642,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118643",
+      "eventId": "34267395",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118643,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118756",
+      "eventId": "34267448",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118756,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118757",
+      "eventId": "34267449",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118757,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118758",
+      "eventId": "34267450",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118758,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118759",
+      "eventId": "34267451",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118759,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "3_85118760",
+      "eventId": "34267452",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Total",
+      "subcategoryId": "4519",
+      "componentMapping": {
+        "primary": 210,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "3_0",
+        "betOfferTypeId": 6,
+        "name": "Total"
+      },
+      "subscriptionKey": "events-667241289",
+      "sortOrder": 385118760,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "FeaturedSubcategory",
+        "OSB",
+        "Default",
+        "PrimaryMarket"
+      ],
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0ML85118625_3",
+      "marketId": "1_85118625",
+      "label": "MIA Marlins",
+      "displayOdds": {
+        "american": "+124",
+        "decimal": "2.24",
+        "fractional": "31/25"
+      },
+      "trueOdds": 2.24,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29953",
+          "name": "MIA Marlins",
+          "type": "Team",
+          "seoIdentifier": "Marlins",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "98290"
+          }
+        }
+      ],
+      "sortOrder": 3383951,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118625_1",
+      "marketId": "1_85118625",
+      "label": "PIT Pirates",
+      "displayOdds": {
+        "american": "\u2212149",
+        "decimal": "1.67",
+        "fractional": "100/149"
+      },
+      "trueOdds": 1.67114094,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29924",
+          "name": "PIT Pirates",
+          "type": "Team",
+          "seoIdentifier": "Pirates",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66388"
+          }
+        }
+      ],
+      "sortOrder": 3403947,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118625P150_3",
+      "marketId": "2_85118625",
+      "label": "MIA Marlins",
+      "displayOdds": {
+        "american": "\u2212162",
+        "decimal": "1.61",
+        "fractional": "50/81"
+      },
+      "trueOdds": 1.61728396,
+      "points": 1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29953",
+          "name": "MIA Marlins",
+          "type": "Team",
+          "seoIdentifier": "Marlins",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "98290"
+          }
+        }
+      ],
+      "sortOrder": 1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118625N150_1",
+      "marketId": "2_85118625",
+      "label": "PIT Pirates",
+      "displayOdds": {
+        "american": "+134",
+        "decimal": "2.34",
+        "fractional": "67/50"
+      },
+      "trueOdds": 2.34,
+      "points": -1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29924",
+          "name": "PIT Pirates",
+          "type": "Team",
+          "seoIdentifier": "Pirates",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66388"
+          }
+        }
+      ],
+      "sortOrder": 1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118625O850_1",
+      "marketId": "3_85118625",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 8.5,
+      "outcomeType": "Over",
+      "sortOrder": 8500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118625U850_3",
+      "marketId": "3_85118625",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212109",
+        "decimal": "1.91",
+        "fractional": "100/109"
+      },
+      "trueOdds": 1.9174312,
+      "points": 8.5,
+      "outcomeType": "Under",
+      "sortOrder": 8502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118626_3",
+      "marketId": "1_85118626",
+      "label": "SEA Mariners",
+      "displayOdds": {
+        "american": "\u2212149",
+        "decimal": "1.67",
+        "fractional": "100/149"
+      },
+      "trueOdds": 1.67114094,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29815",
+          "name": "SEA Mariners",
+          "type": "Team",
+          "seoIdentifier": "Mariners",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79872"
+          }
+        }
+      ],
+      "sortOrder": 3383958,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118626_1",
+      "marketId": "1_85118626",
+      "label": "WAS Nationals",
+      "displayOdds": {
+        "american": "+124",
+        "decimal": "2.24",
+        "fractional": "31/25"
+      },
+      "trueOdds": 2.24,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29836",
+          "name": "WAS Nationals",
+          "type": "Team",
+          "seoIdentifier": "Nationals",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79873"
+          }
+        }
+      ],
+      "sortOrder": 3403954,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118626N150_3",
+      "marketId": "2_85118626",
+      "label": "SEA Mariners",
+      "displayOdds": {
+        "american": "+108",
+        "decimal": "2.08",
+        "fractional": "27/25"
+      },
+      "trueOdds": 2.08,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29815",
+          "name": "SEA Mariners",
+          "type": "Team",
+          "seoIdentifier": "Mariners",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79872"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118626P150_1",
+      "marketId": "2_85118626",
+      "label": "WAS Nationals",
+      "displayOdds": {
+        "american": "\u2212131",
+        "decimal": "1.76",
+        "fractional": "100/131"
+      },
+      "trueOdds": 1.76335878,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29836",
+          "name": "WAS Nationals",
+          "type": "Team",
+          "seoIdentifier": "Nationals",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79873"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118626O950_1",
+      "marketId": "3_85118626",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+100",
+        "decimal": "2.00",
+        "fractional": "1/1"
+      },
+      "trueOdds": 2,
+      "points": 9.5,
+      "outcomeType": "Over",
+      "sortOrder": 9500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118626U950_3",
+      "marketId": "3_85118626",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212120",
+        "decimal": "1.83",
+        "fractional": "5/6"
+      },
+      "trueOdds": 1.83333334,
+      "points": 9.5,
+      "outcomeType": "Under",
+      "sortOrder": 9502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118627_3",
+      "marketId": "1_85118627",
+      "label": "SD Padres",
+      "displayOdds": {
+        "american": "+119",
+        "decimal": "2.19",
+        "fractional": "119/100"
+      },
+      "trueOdds": 2.19,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29942",
+          "name": "SD Padres",
+          "type": "Team",
+          "seoIdentifier": "Padres",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79868"
+          }
+        }
+      ],
+      "sortOrder": 3383965,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118627_1",
+      "marketId": "1_85118627",
+      "label": "BAL Orioles",
+      "displayOdds": {
+        "american": "\u2212143",
+        "decimal": "1.69",
+        "fractional": "100/143"
+      },
+      "trueOdds": 1.6993007,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29829",
+          "name": "BAL Orioles",
+          "type": "Team",
+          "seoIdentifier": "Orioles",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66391"
+          }
+        }
+      ],
+      "sortOrder": 3403961,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118627P150_3",
+      "marketId": "2_85118627",
+      "label": "SD Padres",
+      "displayOdds": {
+        "american": "\u2212168",
+        "decimal": "1.59",
+        "fractional": "25/42"
+      },
+      "trueOdds": 1.5952381,
+      "points": 1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29942",
+          "name": "SD Padres",
+          "type": "Team",
+          "seoIdentifier": "Padres",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79868"
+          }
+        }
+      ],
+      "sortOrder": 1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118627N150_1",
+      "marketId": "2_85118627",
+      "label": "BAL Orioles",
+      "displayOdds": {
+        "american": "+139",
+        "decimal": "2.39",
+        "fractional": "139/100"
+      },
+      "trueOdds": 2.39,
+      "points": -1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29829",
+          "name": "BAL Orioles",
+          "type": "Team",
+          "seoIdentifier": "Orioles",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66391"
+          }
+        }
+      ],
+      "sortOrder": 1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118627O850_1",
+      "marketId": "3_85118627",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212120",
+        "decimal": "1.83",
+        "fractional": "5/6"
+      },
+      "trueOdds": 1.83333334,
+      "points": 8.5,
+      "outcomeType": "Over",
+      "sortOrder": 8500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118627U850_3",
+      "marketId": "3_85118627",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212101",
+        "decimal": "1.99",
+        "fractional": "100/101"
+      },
+      "trueOdds": 1.99009901,
+      "points": 8.5,
+      "outcomeType": "Under",
+      "sortOrder": 8502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118628_3",
+      "marketId": "1_85118628",
+      "label": "TEX Rangers",
+      "displayOdds": {
+        "american": "+113",
+        "decimal": "2.13",
+        "fractional": "113/100"
+      },
+      "trueOdds": 2.13,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29891",
+          "name": "TEX Rangers",
+          "type": "Team",
+          "seoIdentifier": "Rangers",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "83166"
+          }
+        }
+      ],
+      "sortOrder": 3383972,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118628_1",
+      "marketId": "1_85118628",
+      "label": "BOS Red Sox",
+      "displayOdds": {
+        "american": "\u2212136",
+        "decimal": "1.73",
+        "fractional": "25/34"
+      },
+      "trueOdds": 1.73529412,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29976",
+          "name": "BOS Red Sox",
+          "type": "Team",
+          "seoIdentifier": "Red Sox",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66387"
+          }
+        }
+      ],
+      "sortOrder": 3403968,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118628P150_3",
+      "marketId": "2_85118628",
+      "label": "TEX Rangers",
+      "displayOdds": {
+        "american": "\u2212193",
+        "decimal": "1.51",
+        "fractional": "100/193"
+      },
+      "trueOdds": 1.51813472,
+      "points": 1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29891",
+          "name": "TEX Rangers",
+          "type": "Team",
+          "seoIdentifier": "Rangers",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "83166"
+          }
+        }
+      ],
+      "sortOrder": 1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118628N150_1",
+      "marketId": "2_85118628",
+      "label": "BOS Red Sox",
+      "displayOdds": {
+        "american": "+158",
+        "decimal": "2.58",
+        "fractional": "79/50"
+      },
+      "trueOdds": 2.58,
+      "points": -1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29976",
+          "name": "BOS Red Sox",
+          "type": "Team",
+          "seoIdentifier": "Red Sox",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66387"
+          }
+        }
+      ],
+      "sortOrder": 1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118628O850_1",
+      "marketId": "3_85118628",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 8.5,
+      "outcomeType": "Over",
+      "sortOrder": 8500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118628U850_3",
+      "marketId": "3_85118628",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 8.5,
+      "outcomeType": "Under",
+      "sortOrder": 8502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118636_3",
+      "marketId": "1_85118636",
+      "label": "DET Tigers",
+      "displayOdds": {
+        "american": "\u2212107",
+        "decimal": "1.93",
+        "fractional": "100/107"
+      },
+      "trueOdds": 1.93457944,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29871",
+          "name": "DET Tigers",
+          "type": "Team",
+          "seoIdentifier": "Tigers",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "76531"
+          }
+        }
+      ],
+      "sortOrder": 3384028,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118636_1",
+      "marketId": "1_85118636",
+      "label": "CLE Guardians",
+      "displayOdds": {
+        "american": "\u2212112",
+        "decimal": "1.89",
+        "fractional": "25/28"
+      },
+      "trueOdds": 1.89285715,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29913",
+          "name": "CLE Guardians",
+          "type": "Team",
+          "seoIdentifier": "Guardians",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79870"
+          }
+        }
+      ],
+      "sortOrder": 3404024,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118636N150_3",
+      "marketId": "2_85118636",
+      "label": "DET Tigers",
+      "displayOdds": {
+        "american": "+153",
+        "decimal": "2.53",
+        "fractional": "153/100"
+      },
+      "trueOdds": 2.53,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29871",
+          "name": "DET Tigers",
+          "type": "Team",
+          "seoIdentifier": "Tigers",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "76531"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118636P150_1",
+      "marketId": "2_85118636",
+      "label": "CLE Guardians",
+      "displayOdds": {
+        "american": "\u2212186",
+        "decimal": "1.53",
+        "fractional": "50/93"
+      },
+      "trueOdds": 1.53763441,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29913",
+          "name": "CLE Guardians",
+          "type": "Team",
+          "seoIdentifier": "Guardians",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79870"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118636O850_1",
+      "marketId": "3_85118636",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 8.5,
+      "outcomeType": "Over",
+      "sortOrder": 8500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118636U850_3",
+      "marketId": "3_85118636",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212109",
+        "decimal": "1.91",
+        "fractional": "100/109"
+      },
+      "trueOdds": 1.9174312,
+      "points": 8.5,
+      "outcomeType": "Under",
+      "sortOrder": 8502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118640_3",
+      "marketId": "1_85118640",
+      "label": "ATL Braves",
+      "displayOdds": {
+        "american": "\u2212102",
+        "decimal": "1.98",
+        "fractional": "50/51"
+      },
+      "trueOdds": 1.98039216,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29861",
+          "name": "ATL Braves",
+          "type": "Team",
+          "seoIdentifier": "Braves",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79875"
+          }
+        }
+      ],
+      "sortOrder": 3384056,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118640_1",
+      "marketId": "1_85118640",
+      "label": "NY Mets",
+      "displayOdds": {
+        "american": "\u2212118",
+        "decimal": "1.84",
+        "fractional": "50/59"
+      },
+      "trueOdds": 1.84745763,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29840",
+          "name": "NY Mets",
+          "type": "Team",
+          "seoIdentifier": "Mets",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79874"
+          }
+        }
+      ],
+      "sortOrder": 3404052,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118640N150_3",
+      "marketId": "2_85118640",
+      "label": "ATL Braves",
+      "displayOdds": {
+        "american": "+161",
+        "decimal": "2.61",
+        "fractional": "161/100"
+      },
+      "trueOdds": 2.61,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29861",
+          "name": "ATL Braves",
+          "type": "Team",
+          "seoIdentifier": "Braves",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79875"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118640P150_1",
+      "marketId": "2_85118640",
+      "label": "NY Mets",
+      "displayOdds": {
+        "american": "\u2212197",
+        "decimal": "1.50",
+        "fractional": "100/197"
+      },
+      "trueOdds": 1.50761422,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29840",
+          "name": "NY Mets",
+          "type": "Team",
+          "seoIdentifier": "Mets",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79874"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118640O800_1",
+      "marketId": "3_85118640",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212114",
+        "decimal": "1.87",
+        "fractional": "50/57"
+      },
+      "trueOdds": 1.87719299,
+      "points": 8,
+      "outcomeType": "Over",
+      "sortOrder": 8000,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118640U800_3",
+      "marketId": "3_85118640",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212105",
+        "decimal": "1.95",
+        "fractional": "20/21"
+      },
+      "trueOdds": 1.95238096,
+      "points": 8,
+      "outcomeType": "Under",
+      "sortOrder": 8002,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118637_3",
+      "marketId": "1_85118637",
+      "label": "ARI Diamondbacks",
+      "displayOdds": {
+        "american": "\u2212112",
+        "decimal": "1.89",
+        "fractional": "25/28"
+      },
+      "trueOdds": 1.89285715,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29934",
+          "name": "ARI Diamondbacks",
+          "type": "Team",
+          "seoIdentifier": "Diamondbacks",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79866"
+          }
+        }
+      ],
+      "sortOrder": 3384035,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118637_1",
+      "marketId": "1_85118637",
+      "label": "CIN Reds",
+      "displayOdds": {
+        "american": "\u2212108",
+        "decimal": "1.92",
+        "fractional": "25/27"
+      },
+      "trueOdds": 1.92592593,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29919",
+          "name": "CIN Reds",
+          "type": "Team",
+          "seoIdentifier": "Reds",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79865"
+          }
+        }
+      ],
+      "sortOrder": 3404031,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118637N150_3",
+      "marketId": "2_85118637",
+      "label": "ARI Diamondbacks",
+      "displayOdds": {
+        "american": "+139",
+        "decimal": "2.39",
+        "fractional": "139/100"
+      },
+      "trueOdds": 2.39,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29934",
+          "name": "ARI Diamondbacks",
+          "type": "Team",
+          "seoIdentifier": "Diamondbacks",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79866"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118637P150_1",
+      "marketId": "2_85118637",
+      "label": "CIN Reds",
+      "displayOdds": {
+        "american": "\u2212168",
+        "decimal": "1.59",
+        "fractional": "25/42"
+      },
+      "trueOdds": 1.5952381,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29919",
+          "name": "CIN Reds",
+          "type": "Team",
+          "seoIdentifier": "Reds",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79865"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118637O950_1",
+      "marketId": "3_85118637",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212102",
+        "decimal": "1.98",
+        "fractional": "50/51"
+      },
+      "trueOdds": 1.98039216,
+      "points": 9.5,
+      "outcomeType": "Over",
+      "sortOrder": 9500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118637U950_3",
+      "marketId": "3_85118637",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212119",
+        "decimal": "1.84",
+        "fractional": "100/119"
+      },
+      "trueOdds": 1.84033614,
+      "points": 9.5,
+      "outcomeType": "Under",
+      "sortOrder": 9502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118641_3",
+      "marketId": "1_85118641",
+      "label": "NY Yankees",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29825",
+          "name": "NY Yankees",
+          "type": "Team",
+          "seoIdentifier": "Yankees",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66386"
+          }
+        }
+      ],
+      "sortOrder": 3384063,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118641_1",
+      "marketId": "1_85118641",
+      "label": "TOR Blue Jays",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29868",
+          "name": "TOR Blue Jays",
+          "type": "Team",
+          "seoIdentifier": "Blue Jays",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "CA",
+          "metadata": {
+            "sdid": "66390"
+          }
+        }
+      ],
+      "sortOrder": 3404059,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118641N150_3",
+      "marketId": "2_85118641",
+      "label": "NY Yankees",
+      "displayOdds": {
+        "american": "+153",
+        "decimal": "2.53",
+        "fractional": "153/100"
+      },
+      "trueOdds": 2.53,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29825",
+          "name": "NY Yankees",
+          "type": "Team",
+          "seoIdentifier": "Yankees",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66386"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118641P150_1",
+      "marketId": "2_85118641",
+      "label": "TOR Blue Jays",
+      "displayOdds": {
+        "american": "\u2212186",
+        "decimal": "1.53",
+        "fractional": "50/93"
+      },
+      "trueOdds": 1.53763441,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29868",
+          "name": "TOR Blue Jays",
+          "type": "Team",
+          "seoIdentifier": "Blue Jays",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "CA",
+          "metadata": {
+            "sdid": "66390"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118641O800_1",
+      "marketId": "3_85118641",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 8,
+      "outcomeType": "Over",
+      "sortOrder": 8000,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118641U800_3",
+      "marketId": "3_85118641",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 8,
+      "outcomeType": "Under",
+      "sortOrder": 8002,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118642_3",
+      "marketId": "1_85118642",
+      "label": "LA Dodgers",
+      "displayOdds": {
+        "american": "\u2212137",
+        "decimal": "1.72",
+        "fractional": "100/137"
+      },
+      "trueOdds": 1.72992701,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29931",
+          "name": "LA Dodgers",
+          "type": "Team",
+          "seoIdentifier": "Dodgers",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "71196"
+          }
+        }
+      ],
+      "sortOrder": 3384070,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118642_1",
+      "marketId": "1_85118642",
+      "label": "CHI White Sox",
+      "displayOdds": {
+        "american": "+114",
+        "decimal": "2.14",
+        "fractional": "57/50"
+      },
+      "trueOdds": 2.14,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29970",
+          "name": "CHI White Sox",
+          "type": "Team",
+          "seoIdentifier": "White Sox",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79878"
+          }
+        }
+      ],
+      "sortOrder": 3404066,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118642N150_3",
+      "marketId": "2_85118642",
+      "label": "LA Dodgers",
+      "displayOdds": {
+        "american": "+119",
+        "decimal": "2.19",
+        "fractional": "119/100"
+      },
+      "trueOdds": 2.19,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29931",
+          "name": "LA Dodgers",
+          "type": "Team",
+          "seoIdentifier": "Dodgers",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "71196"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118642P150_1",
+      "marketId": "2_85118642",
+      "label": "CHI White Sox",
+      "displayOdds": {
+        "american": "\u2212143",
+        "decimal": "1.69",
+        "fractional": "100/143"
+      },
+      "trueOdds": 1.6993007,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29970",
+          "name": "CHI White Sox",
+          "type": "Team",
+          "seoIdentifier": "White Sox",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79878"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118642O900_1",
+      "marketId": "3_85118642",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+101",
+        "decimal": "2.01",
+        "fractional": "101/100"
+      },
+      "trueOdds": 2.01,
+      "points": 9,
+      "outcomeType": "Over",
+      "sortOrder": 9000,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118642U900_3",
+      "marketId": "3_85118642",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212122",
+        "decimal": "1.81",
+        "fractional": "50/61"
+      },
+      "trueOdds": 1.81967214,
+      "points": 9,
+      "outcomeType": "Under",
+      "sortOrder": 9002,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118643_3",
+      "marketId": "1_85118643",
+      "label": "PHI Phillies",
+      "displayOdds": {
+        "american": "+203",
+        "decimal": "3.03",
+        "fractional": "203/100"
+      },
+      "trueOdds": 3.03,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29857",
+          "name": "PHI Phillies",
+          "type": "Team",
+          "seoIdentifier": "Phillies",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79876"
+          }
+        }
+      ],
+      "sortOrder": 3384077,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118643_1",
+      "marketId": "1_85118643",
+      "label": "MIL Brewers",
+      "displayOdds": {
+        "american": "\u2212252",
+        "decimal": "1.39",
+        "fractional": "25/63"
+      },
+      "trueOdds": 1.3968254,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29847",
+          "name": "MIL Brewers",
+          "type": "Team",
+          "seoIdentifier": "Brewers",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79861"
+          }
+        }
+      ],
+      "sortOrder": 3404073,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118643P150_3",
+      "marketId": "2_85118643",
+      "label": "PHI Phillies",
+      "displayOdds": {
+        "american": "\u2212108",
+        "decimal": "1.92",
+        "fractional": "25/27"
+      },
+      "trueOdds": 1.92592593,
+      "points": 1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29857",
+          "name": "PHI Phillies",
+          "type": "Team",
+          "seoIdentifier": "Phillies",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79876"
+          }
+        }
+      ],
+      "sortOrder": 1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118643N150_1",
+      "marketId": "2_85118643",
+      "label": "MIL Brewers",
+      "displayOdds": {
+        "american": "\u2212111",
+        "decimal": "1.90",
+        "fractional": "100/111"
+      },
+      "trueOdds": 1.90090091,
+      "points": -1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29847",
+          "name": "MIL Brewers",
+          "type": "Team",
+          "seoIdentifier": "Brewers",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79861"
+          }
+        }
+      ],
+      "sortOrder": 1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118643O750_1",
+      "marketId": "3_85118643",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212118",
+        "decimal": "1.84",
+        "fractional": "50/59"
+      },
+      "trueOdds": 1.84745763,
+      "points": 7.5,
+      "outcomeType": "Over",
+      "sortOrder": 7500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118643U750_3",
+      "marketId": "3_85118643",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212102",
+        "decimal": "1.98",
+        "fractional": "50/51"
+      },
+      "trueOdds": 1.98039216,
+      "points": 7.5,
+      "outcomeType": "Under",
+      "sortOrder": 7502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118756_3",
+      "marketId": "1_85118756",
+      "label": "HOU Astros",
+      "displayOdds": {
+        "american": "\u2212119",
+        "decimal": "1.84",
+        "fractional": "100/119"
+      },
+      "trueOdds": 1.84033614,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29882",
+          "name": "HOU Astros",
+          "type": "Team",
+          "seoIdentifier": "Astros",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79860"
+          }
+        }
+      ],
+      "sortOrder": 3386772,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118756_1",
+      "marketId": "1_85118756",
+      "label": "KC Royals",
+      "displayOdds": {
+        "american": "\u2212102",
+        "decimal": "1.98",
+        "fractional": "50/51"
+      },
+      "trueOdds": 1.98039216,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29965",
+          "name": "KC Royals",
+          "type": "Team",
+          "seoIdentifier": "Royals",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79863"
+          }
+        }
+      ],
+      "sortOrder": 3406768,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118756N150_3",
+      "marketId": "2_85118756",
+      "label": "HOU Astros",
+      "displayOdds": {
+        "american": "+134",
+        "decimal": "2.34",
+        "fractional": "67/50"
+      },
+      "trueOdds": 2.34,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29882",
+          "name": "HOU Astros",
+          "type": "Team",
+          "seoIdentifier": "Astros",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79860"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118756P150_1",
+      "marketId": "2_85118756",
+      "label": "KC Royals",
+      "displayOdds": {
+        "american": "\u2212162",
+        "decimal": "1.61",
+        "fractional": "50/81"
+      },
+      "trueOdds": 1.61728396,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29965",
+          "name": "KC Royals",
+          "type": "Team",
+          "seoIdentifier": "Royals",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79863"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118756O900_1",
+      "marketId": "3_85118756",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 9,
+      "outcomeType": "Over",
+      "sortOrder": 9000,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118756U900_3",
+      "marketId": "3_85118756",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 9,
+      "outcomeType": "Under",
+      "sortOrder": 9002,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118757_3",
+      "marketId": "1_85118757",
+      "label": "STL Cardinals",
+      "displayOdds": {
+        "american": "+114",
+        "decimal": "2.14",
+        "fractional": "57/50"
+      },
+      "trueOdds": 2.14,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29851",
+          "name": "STL Cardinals",
+          "type": "Team",
+          "seoIdentifier": "Cardinals",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66389"
+          }
+        }
+      ],
+      "sortOrder": 3386779,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118757_1",
+      "marketId": "1_85118757",
+      "label": "MIN Twins",
+      "displayOdds": {
+        "american": "\u2212137",
+        "decimal": "1.72",
+        "fractional": "100/137"
+      },
+      "trueOdds": 1.72992701,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29909",
+          "name": "MIN Twins",
+          "type": "Team",
+          "seoIdentifier": "Twins",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79862"
+          }
+        }
+      ],
+      "sortOrder": 3406775,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118757P150_3",
+      "marketId": "2_85118757",
+      "label": "STL Cardinals",
+      "displayOdds": {
+        "american": "\u2212179",
+        "decimal": "1.55",
+        "fractional": "100/179"
+      },
+      "trueOdds": 1.55865922,
+      "points": 1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29851",
+          "name": "STL Cardinals",
+          "type": "Team",
+          "seoIdentifier": "Cardinals",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "66389"
+          }
+        }
+      ],
+      "sortOrder": 1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118757N150_1",
+      "marketId": "2_85118757",
+      "label": "MIN Twins",
+      "displayOdds": {
+        "american": "+148",
+        "decimal": "2.48",
+        "fractional": "37/25"
+      },
+      "trueOdds": 2.48,
+      "points": -1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29909",
+          "name": "MIN Twins",
+          "type": "Team",
+          "seoIdentifier": "Twins",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79862"
+          }
+        }
+      ],
+      "sortOrder": 1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118757O850_1",
+      "marketId": "3_85118757",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212111",
+        "decimal": "1.90",
+        "fractional": "100/111"
+      },
+      "trueOdds": 1.90090091,
+      "points": 8.5,
+      "outcomeType": "Over",
+      "sortOrder": 8500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118757U850_3",
+      "marketId": "3_85118757",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212109",
+        "decimal": "1.91",
+        "fractional": "100/109"
+      },
+      "trueOdds": 1.9174312,
+      "points": 8.5,
+      "outcomeType": "Under",
+      "sortOrder": 8502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118758_3",
+      "marketId": "1_85118758",
+      "label": "TB Rays",
+      "displayOdds": {
+        "american": "\u2212181",
+        "decimal": "1.55",
+        "fractional": "100/181"
+      },
+      "trueOdds": 1.55248619,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29880",
+          "name": "TB Rays",
+          "type": "Team",
+          "seoIdentifier": "Rays",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "77210"
+          }
+        }
+      ],
+      "sortOrder": 3386786,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118758_1",
+      "marketId": "1_85118758",
+      "label": "LA Angels",
+      "displayOdds": {
+        "american": "+149",
+        "decimal": "2.49",
+        "fractional": "149/100"
+      },
+      "trueOdds": 2.49,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29901",
+          "name": "LA Angels",
+          "type": "Team",
+          "seoIdentifier": "Angels",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79869"
+          }
+        }
+      ],
+      "sortOrder": 3406782,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118758N150_3",
+      "marketId": "2_85118758",
+      "label": "TB Rays",
+      "displayOdds": {
+        "american": "\u2212109",
+        "decimal": "1.91",
+        "fractional": "100/109"
+      },
+      "trueOdds": 1.9174312,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29880",
+          "name": "TB Rays",
+          "type": "Team",
+          "seoIdentifier": "Rays",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "77210"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118758P150_1",
+      "marketId": "2_85118758",
+      "label": "LA Angels",
+      "displayOdds": {
+        "american": "\u2212110",
+        "decimal": "1.90",
+        "fractional": "10/11"
+      },
+      "trueOdds": 1.90909091,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29901",
+          "name": "LA Angels",
+          "type": "Team",
+          "seoIdentifier": "Angels",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79869"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118758O850_1",
+      "marketId": "3_85118758",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212120",
+        "decimal": "1.83",
+        "fractional": "5/6"
+      },
+      "trueOdds": 1.83333334,
+      "points": 8.5,
+      "outcomeType": "Over",
+      "sortOrder": 8500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118758U850_3",
+      "marketId": "3_85118758",
+      "label": "Under",
+      "displayOdds": {
+        "american": "+100",
+        "decimal": "2.00",
+        "fractional": "1/1"
+      },
+      "trueOdds": 2,
+      "points": 8.5,
+      "outcomeType": "Under",
+      "sortOrder": 8502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118759_3",
+      "marketId": "1_85118759",
+      "label": "COL Rockies",
+      "displayOdds": {
+        "american": "+149",
+        "decimal": "2.49",
+        "fractional": "149/100"
+      },
+      "trueOdds": 2.49,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29957",
+          "name": "COL Rockies",
+          "type": "Team",
+          "seoIdentifier": "Rockies",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79864"
+          }
+        }
+      ],
+      "sortOrder": 3386793,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118759_1",
+      "marketId": "1_85118759",
+      "label": "Athletics",
+      "displayOdds": {
+        "american": "\u2212181",
+        "decimal": "1.55",
+        "fractional": "100/181"
+      },
+      "trueOdds": 1.55248619,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29811",
+          "name": "Athletics",
+          "type": "Team",
+          "seoIdentifier": "Athletics",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79871"
+          }
+        }
+      ],
+      "sortOrder": 3406789,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118759P150_3",
+      "marketId": "2_85118759",
+      "label": "COL Rockies",
+      "displayOdds": {
+        "american": "\u2212126",
+        "decimal": "1.79",
+        "fractional": "50/63"
+      },
+      "trueOdds": 1.7936508,
+      "points": 1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29957",
+          "name": "COL Rockies",
+          "type": "Team",
+          "seoIdentifier": "Rockies",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79864"
+          }
+        }
+      ],
+      "sortOrder": 1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118759N150_1",
+      "marketId": "2_85118759",
+      "label": "Athletics",
+      "displayOdds": {
+        "american": "+104",
+        "decimal": "2.04",
+        "fractional": "26/25"
+      },
+      "trueOdds": 2.04,
+      "points": -1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29811",
+          "name": "Athletics",
+          "type": "Team",
+          "seoIdentifier": "Athletics",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79871"
+          }
+        }
+      ],
+      "sortOrder": 1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118759O1350_1",
+      "marketId": "3_85118759",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212112",
+        "decimal": "1.89",
+        "fractional": "25/28"
+      },
+      "trueOdds": 1.89285715,
+      "points": 13.5,
+      "outcomeType": "Over",
+      "sortOrder": 13500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118759U1350_3",
+      "marketId": "3_85118759",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212107",
+        "decimal": "1.93",
+        "fractional": "100/107"
+      },
+      "trueOdds": 1.93457944,
+      "points": 13.5,
+      "outcomeType": "Under",
+      "sortOrder": 13502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118760_3",
+      "marketId": "1_85118760",
+      "label": "CHI Cubs",
+      "displayOdds": {
+        "american": "\u2212107",
+        "decimal": "1.93",
+        "fractional": "100/107"
+      },
+      "trueOdds": 1.93457944,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29894",
+          "name": "CHI Cubs",
+          "type": "Team",
+          "seoIdentifier": "Cubs",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79859"
+          }
+        }
+      ],
+      "sortOrder": 3386800,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0ML85118760_1",
+      "marketId": "1_85118760",
+      "label": "SF Giants",
+      "displayOdds": {
+        "american": "\u2212112",
+        "decimal": "1.89",
+        "fractional": "25/28"
+      },
+      "trueOdds": 1.89285715,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29945",
+          "name": "SF Giants",
+          "type": "Team",
+          "seoIdentifier": "Giants",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79867"
+          }
+        }
+      ],
+      "sortOrder": 3406796,
+      "tags": [
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118760N150_3",
+      "marketId": "2_85118760",
+      "label": "CHI Cubs",
+      "displayOdds": {
+        "american": "+157",
+        "decimal": "2.57",
+        "fractional": "157/100"
+      },
+      "trueOdds": 2.57,
+      "points": -1.5,
+      "outcomeType": "Away",
+      "participants": [
+        {
+          "id": "29894",
+          "name": "CHI Cubs",
+          "type": "Team",
+          "seoIdentifier": "Cubs",
+          "venueRole": "Away",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79859"
+          }
+        }
+      ],
+      "sortOrder": -1501,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0HC85118760P150_1",
+      "marketId": "2_85118760",
+      "label": "SF Giants",
+      "displayOdds": {
+        "american": "\u2212191",
+        "decimal": "1.52",
+        "fractional": "100/191"
+      },
+      "trueOdds": 1.52356021,
+      "points": 1.5,
+      "outcomeType": "Home",
+      "participants": [
+        {
+          "id": "29945",
+          "name": "SF Giants",
+          "type": "Team",
+          "seoIdentifier": "Giants",
+          "venueRole": "Home",
+          "isNationalTeam": false,
+          "countryCode": "US",
+          "metadata": {
+            "sdid": "79867"
+          }
+        }
+      ],
+      "sortOrder": -1499,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118760O800_1",
+      "marketId": "3_85118760",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212105",
+        "decimal": "1.95",
+        "fractional": "20/21"
+      },
+      "trueOdds": 1.95238096,
+      "points": 8,
+      "outcomeType": "Over",
+      "sortOrder": 8000,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0OU85118760U800_3",
+      "marketId": "3_85118760",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212114",
+        "decimal": "1.87",
+        "fractional": "50/57"
+      },
+      "trueOdds": 1.87719299,
+      "points": 8,
+      "outcomeType": "Under",
+      "sortOrder": 8002,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "events-667241289": {
+      "entity": "events",
+      "query": "$filter=leagueId eq '84240' AND clientMetadata/Subcategories/any(s: s/Id eq '4519') and tags/any(t: t eq 'OSB')",
+      "includeMarkets": "$filter=clientMetadata/subCategoryId eq '4519' AND tags/all(t: t ne 'SportcastBetBuilder') and tags/any(t: t eq 'OSB')",
+      "locale": "en"
+    }
+  }
+}

@@ -55,9 +55,9 @@ def test_build_prop_key_normalizes_player_casing():
 
 
 def test_build_prop_key_includes_league_when_present():
-    base = _betr_prop("Aaron Judge", "h+r+rbi", 1.5)
+    base = _betr_prop("Aaron Judge", "hits", 1.5)
     base["league"] = "MLB"
-    assert build_prop_key(base) == "aaron judge|h+r+rbi|1.5|MLB"
+    assert build_prop_key(base) == "aaron judge|hits|1.5|MLB"
 
 
 def test_find_ev_opportunities_returns_empty_when_no_match():

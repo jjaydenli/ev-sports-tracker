@@ -66,11 +66,16 @@ BETR_MARKET_MAP = {
     "free_throws_attempted": "ft_attempted",
     "double_double": "double-double",
     "triple_double": "triple-double",
-    # MLB (confirm keys via Proxyman capture on pregame slate)
+    # MLB (LeagueUpcomingEvents projection key / label)
+    "hits": "hits",
+    "total bases": "total_bases",
+    "total_bases": "total_bases",
+    # deferred until DK posts comparable O/U tabs
     "hits + runs + rbis": "h+r+rbi",
     "hits runs rbis": "h+r+rbi",
     "h+r+rbi": "h+r+rbi",
     "hits_runs_rbis": "h+r+rbi",
+    "hits_runs_runs_batted_in": "h+r+rbi",
     "singles": "singles",
     "single": "singles",
 }
@@ -90,6 +95,10 @@ DK_MARKET_MAP = {
     "pts + reb": "pts+reb",
     "pts + ast": "pts+ast",
     "reb + ast": "reb+ast",
+    "hits o/u": "hits",
+    "total bases o/u": "total_bases",
+    "total bases": "total_bases",
+    "hits": "hits",
     "hits + runs + rbis": "h+r+rbi",
     "hits runs rbis": "h+r+rbi",
     "h+r+rbi": "h+r+rbi",

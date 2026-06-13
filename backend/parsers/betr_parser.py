@@ -13,7 +13,7 @@ from utils.math_utils import BETR_STANDARD_BREAKEVEN_ODDS
 
 BETR_SPORTSBOOK = "Betr"
 STANDARD_PROJECTION_TYPE = "REGULAR"
-MLB_V1_MARKETS = frozenset({"h+r+rbi", "singles"})
+MLB_V1_MARKETS = frozenset({"hits", "total_bases"})
 
 # TODO: map non-REGULAR types to prop_type and select value vs non_regular_value
 

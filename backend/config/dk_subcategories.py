@@ -63,11 +63,11 @@ DK_STAT_CATEGORIES: dict[str, str] = {
     **DK_OU_EXTENDED_STAT_CATEGORIES,
 }
 
-# MLB player-prop O/U (pregame). subCategoryId values require probe during slate:
+# MLB player-prop O/U (pregame). Verify with:
 #   python -m scripts.probe_dk_subcategories <event_id> --league mlb
 DK_MLB_STAT_CATEGORIES: dict[str, str] = {
-    "h+r+rbi": "TBD",
-    "singles": "TBD",
+    "hits": "6719",
+    "total_bases": "6607",
 }
 
 DK_MLB_MILESTONE_STAT_CATEGORIES: dict[str, str] = {}
@@ -80,7 +80,7 @@ DK_LEAGUE_SLATES: dict[str, dict[str, str]] = {
     },
     "mlb": {
         "league_id": "84240",
-        "subcategory_id": "4518",
+        "subcategory_id": "4519",
     },
 }
 

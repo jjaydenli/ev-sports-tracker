@@ -35,6 +35,15 @@ Event player props are fetched per `subCategoryId` in [`backend/config/dk_subcat
 
 `stl+blk` has O/U on DK (`2713781`) but no 1+/2+/3+ milestone tab. `reb+ast` milestone id is outside the default probe scan range (`2716474–2716491`).
 
+**MLB** (pregame O/U) — `DK_MLB_STAT_CATEGORIES`; slate `DK_LEAGUE_SLATES["mlb"]` uses `league_id` 84240 and slate `subcategory_id` 4519:
+
+| Canonical market | subCategoryId (MLB, verified) |
+|------------------|----------------------------|
+| hits | 6719 |
+| total_bases | 6607 |
+
+Probe: `python -m scripts.probe_dk_subcategories <event_id> --league mlb`. See [mlb.md](mlb.md).
+
 Betr-only markets awaiting IDs are listed in `DK_PENDING_STAT_CATEGORIES` (skipped at scrape).
 
 ## O/U vs milestone tabs

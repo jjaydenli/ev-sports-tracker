@@ -4,12 +4,12 @@ Pregame MLB props for the EV pipeline. **Live/in-game props are deferred** until
 
 ## v1 markets
 
-| Canonical | Description |
-|-----------|-------------|
-| `h+r+rbi` | Hits + runs + RBIs O/U |
-| `singles` | Singles O/U |
+| Canonical | Betr key / label | DK subCategoryId |
+|-----------|------------------|------------------|
+| `hits` | `HITS` / Hits | 6719 |
+| `total_bases` | `TOTAL_BASES` / Total Bases | 6607 |
 
-Other MLB props on the Betr board are ignored until a follow-up slice.
+Other MLB props on the Betr board (H+R+RBI, singles, strikeouts, etc.) are ignored until DK posts comparable O/U tabs.
 
 ## Pipeline
 
@@ -23,20 +23,28 @@ cd backend
 
 ## Betr
 
-- League enum: `MLB` (confirm via GraphQL if capture differs).
+- League enum: `MLB`.
 - Pregame: `status == SCHEDULED`, `isLive == false`, `marketStatus == OPENED`.
-- Record projection `key` / `label` for H+R+RBI and singles from a Proxyman capture, then update `BETR_MARKET_MAP` in `backend/config/market_maps.py`.
+- v1 projection keys in `BETR_MARKET_MAP` (`backend/config/market_maps.py`).
 
 ## DraftKings
 
-- Slate: `DK_LEAGUE_SLATES["mlb"]` in `backend/config/dk_subcategories.py`.
-- O/U tabs: `DK_MLB_STAT_CATEGORIES` (`h+r+rbi`, `singles`). Run probe during a pregame slate:
+- Slate: `DK_LEAGUE_SLATES["mlb"]` — `league_id` **84240**, slate `subcategory_id` **4519** (4518 returns zero events).
+- O/U tabs: `DK_MLB_STAT_CATEGORIES` (`hits`, `total_bases`). Verify during a pregame slate:
 
 ```bash
 python -m scripts.probe_dk_subcategories <event_id> --league mlb
 ```
 
-Replace `TBD` subCategoryId placeholders after probe.
+Example event id from capture: `34267452`.
+
+## Capture checklist (new markets)
+
+1. **DK event id** — from game URL (`.../event/.../<id>`) or league slate `templateVars`.
+2. **DK subCategoryIds** — DevTools → click prop tab → GET `.../event/eventSubcategory/v1/markets` → read `subCategoryId` in `marketsQuery` or `templateVars`.
+3. **DK slate ids** — only if `./ev --league MLB` discovers zero events; capture league slate request `leagueId` + slate `subcategory_id`.
+4. **Betr keys** — Proxyman `LeagueUpcomingEvents` for MLB; note projection `key` and `label` on a `SCHEDULED` event.
+5. **Fixtures** — scrub tokens; save under `backend/tests/fixtures/` (`dk_markets_mlb_*.json`, `dk_league_mlb_events.json`, `betr_mlb_pregame.json`).
 
 ## Live props (future)
 

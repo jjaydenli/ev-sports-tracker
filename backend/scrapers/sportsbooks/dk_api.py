@@ -73,9 +73,12 @@ _DK_LABEL_MARKET_PATTERNS: tuple[tuple[str, str], ...] = (
     ("rebounds", "rebounds"),
     ("assists", "assists"),
     ("points", "points"),
+    ("total bases", "total_bases"),
     ("hits + runs + rbis", "h+r+rbi"),
     ("hits runs rbis", "h+r+rbi"),
     ("h+r+rbi", "h+r+rbi"),
+    ("hits o/u", "hits"),
+    ("hits", "hits"),
     ("singles", "singles"),
 )
 

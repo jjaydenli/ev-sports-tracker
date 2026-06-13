@@ -4,7 +4,7 @@ from pathlib import Path
 import httpx
 import pytest
 
-from config.dk_subcategories import DK_STAT_CATEGORIES
+from config.dk_subcategories import DK_MLB_STAT_CATEGORIES, DK_STAT_CATEGORIES
 from scrapers.sportsbooks.dk_api import flatten_markets_response
 from scrapers.sportsbooks.dk_engine import (
     DraftKingsEngine,
@@ -13,7 +13,9 @@ from scrapers.sportsbooks.dk_engine import (
 )
 
 FIXTURE_PATH = Path("tests/fixtures/dk_markets_points_34183767.json")
+MLB_HITS_FIXTURE_PATH = Path("tests/fixtures/dk_markets_mlb_hits.json")
 EVENT_ID = "34183767"
+MLB_EVENT_ID = "34267452"
 
 
 @pytest.fixture
@@ -147,3 +149,38 @@ async def test_scrape_discovers_event_ids_from_league_slate(
 async def test_scrape_rejects_unknown_markets():
     engine = DraftKingsEngine(event_ids=[EVENT_ID], markets=["unknown-stat"])
     assert await engine.scrape() == []
+
+
+@pytest.mark.asyncio
+async def test_scrape_mlb_hits(monkeypatch, mock_dk_warm_up):
+    hits_payload = json.loads(MLB_HITS_FIXTURE_PATH.read_text(encoding="utf-8"))
+
+    async def mock_event_markets(
+        client: httpx.AsyncClient,
+        event_id: str,
+        markets: list[str] | None = None,
+        **kwargs,
+    ) -> list[dict]:
+        market = (markets or ["hits"])[0]
+        if event_id != MLB_EVENT_ID or market != "hits":
+            return []
+        return flatten_markets_response(
+            hits_payload,
+            event_id=event_id,
+            market=market,
+            subcategory_id=DK_MLB_STAT_CATEGORIES[market],
+        )
+
+    monkeypatch.setattr(
+        "scrapers.sportsbooks.dk_engine.fetch_event_all_markets",
+        mock_event_markets,
+    )
+
+    engine = DraftKingsEngine(
+        event_ids=[MLB_EVENT_ID], markets=["hits"], league="mlb"
+    )
+    props = await engine.scrape()
+
+    assert len(props) == 18
+    assert props[0]["market"] == "hits"
+    assert props[0]["league"] == "MLB"

@@ -29,19 +29,32 @@ def _raw_betr_prop(**overrides):
     return base
 
 
-def test_parse_betr_prop_mlb_hrrbi():
+def test_parse_betr_prop_mlb_hits():
     result = parse_betr_prop(
         _raw_betr_prop(
             league="MLB",
-            key="hits_runs_rbis",
-            label="Hits + Runs + RBIs",
+            key="HITS",
+            label="Hits",
             value=1.5,
         )
     )
     assert result is not None
-    assert result["market"] == "h+r+rbi"
+    assert result["market"] == "hits"
     assert result["league"] == "MLB"
     assert result["line"] == 1.5
+
+
+def test_parse_betr_prop_mlb_total_bases():
+    result = parse_betr_prop(
+        _raw_betr_prop(
+            league="MLB",
+            key="TOTAL_BASES",
+            label="Total Bases",
+            value=1.5,
+        )
+    )
+    assert result is not None
+    assert result["market"] == "total_bases"
 
 
 def test_parse_betr_prop_mlb_skips_non_v1_market():

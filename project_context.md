@@ -24,8 +24,8 @@ The system standardizes disparate naming conventions across books, calculates no
 
 ### Betr (primary DFS)
 
-* **Access:** `fantasy.betr.app` GraphQL (`LeagueUpcomingEvents`). JWT via `ensure_betr_token()` — refresh grant (`BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL`) or manual `BETR_BEARER_TOKEN` in `backend/config/.env` (Scrubbed Protocol: `os.getenv()` / `settings.py` only).
-* **Auth:** `betr_auth.py` — JWT expiry pre-flight, Keycloak refresh/password grant, token cache at `data/processed/.betr_token_cache.json`; `iss` auto-discovery from bearer or cache when `BETR_KEYCLOAK_TOKEN_URL` omitted. Probe: `python -m scrapers.dfs.betr.betr_auth`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md) → Authentication.
+* **Access:** `fantasy.betr.app` GraphQL (`LeagueUpcomingEvents`). JWT via `ensure_betr_token()` — refresh grant (`BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` + `BETR_KEYCLOAK_CLIENT_ID`) or manual `BETR_BEARER_TOKEN` in `backend/config/.env` (Scrubbed Protocol: `os.getenv()` / `settings.py` only).
+* **Auth:** `betr_auth.py` — JWT expiry pre-flight, Keycloak refresh/password grant, token cache at `data/processed/.betr_token_cache.json`. Public realm token URL in `.env.example` (`https://account.betr.app/realms/betr/protocol/openid-connect/token`); omit only when JWT `iss` or cache supplies it. `BETR_KEYCLOAK_CLIENT_ID=betr-rn` for fantasy.betr.app refresh (client-bound tokens; code default `betr-web` if unset). Probe: `python -m scrapers.dfs.betr.betr_auth`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md) → Authentication.
 * **Scrape:** `betr_api.py` issues the GraphQL query; `betr_engine.py` / `betr_orchestrator.py` write `data/processed/betr_master_board.json` (wide fetch — see betr.md “Wide fetch policy”).
 * **Data structure:** Flat relational arrays joined in `betr_parser.py` using keys like `marketId`, `selectionId`, `marketOptionId`.
 * **Normalization (v1):** Only `REGULAR` projections become normalized props. Boost/edge/discount types are skipped until `prop_type` and breakeven rules exist (see parser module docstring).
@@ -77,7 +77,7 @@ ev-sports-tracker/
     │   ├── dk_subcategories.py
     │   ├── fd_competitions.py
     │   ├── fd_markets.py       # tab ↔ canonical; FD_DEFAULT_SCRAPE_MARKETS; parse_player_ou_market_type
-    │   ├── .env.example        # FD_SPORTSBOOK_API_HOST, FD_API_KEY; DK_MARKETS_MAX_CONCURRENT
+    │   ├── .env.example        # Betr Keycloak URL + betr-rn; FD_*; DK_MARKETS_MAX_CONCURRENT
     │   └── .env                # local secrets (gitignored)
     ├── scripts/
     │   ├── probe_dk_subcategories.py
@@ -152,5 +152,6 @@ ev-sports-tracker/
 * Multi-book consensus EV: `resolve_multi_book_sharp_quote`, `fd_exact` / `fd_alt` eligibility, `test_line_adjustment_multi_book`.
 * EV run diff (consecutive `./ev`): `core/ev_run_diff.py` — rotate `ev_opportunities.json` → `ev_opportunities.previous.json`, compare top-N rows (`build_prop_key|side` buckets: new / removed / improved / fell), CLI summary after ranked table, `ev_run_diff.json`; `test_ev_run_diff.py`.
 * Pipeline stage timing: `core/pipeline_timing.py` + `--timing` on `pipeline_runner` / `./ev` — wall-clock summary for scrape, normalize, and EV stages; `test_pipeline_timing.py`.
-* Betr Keycloak auth probe: `python -m scrapers.dfs.betr.betr_auth` (`--try-grant`); refresh grant is the documented default; capture `client_id` from DevTools (e.g. `betr-rn`; code default `betr-web` if unset) — [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
+* Betr Keycloak auth probe: `python -m scrapers.dfs.betr.betr_auth` (`--try-grant`); refresh grant is the documented default — [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
+* Betr Keycloak `.env.example` defaults: public token URL (`account.betr.app/realms/betr/…`); `BETR_KEYCLOAK_CLIENT_ID=betr-rn` for fantasy.betr.app (refresh tokens client-bound; code default `betr-web` if unset).
 * Multi-book consensus weights: `load_sharp_book_weights()` in `line_adjustment.py` — `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` env vars (default 1.0 each).

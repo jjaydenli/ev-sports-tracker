@@ -36,7 +36,7 @@ The system standardizes disparate naming conventions across books, calculates no
 ### DraftKings (sharp sportsbook)
 
 * **Access:** Unauthenticated `httpx` calls to DK `sportscontent` league/event/market endpoints (`config/api_headers.py` — `DK_BASE_HEADERS`, no DK token in `settings.py` today).
-* **State:** URL-driven (`category` / `subcategory`); subcategory list in `config/dk_subcategories.py` (core stats + O/U extended: `threes`, `steals`, `blocks`, `stl+blk`; milestone 1+/2+/3+ fallback via `DK_MILESTONE_STAT_CATEGORIES`; pending Betr markets in `DK_PENDING_STAT_CATEGORIES`).
+* **State:** URL-driven (`category` / `subcategory`); prop subcategory maps in `config/dk_subcategories.py` (core stats + O/U extended: `threes`, `steals`, `blocks`, `stl+blk`; milestone 1+/2+/3+ fallback via `DK_MILESTONE_STAT_CATEGORIES`; pending Betr markets in `DK_PENDING_STAT_CATEGORIES`). Game discovery uses `DK_LEAGUE_SLATES` (`league_id` + `slate_subcategory_id`).
 * **Orchestration:** Resolve event IDs → dedupe → per-event parallel subcategory fetches via `fetch_event_all_markets` (`dk_api.py`); global semaphore `DK_MARKETS_MAX_CONCURRENT` (default 6, env-tunable); transient 403/429 retries with backoff; browser-like headers in `api_headers.py`. League slate warm-up skipped on auto-discover. `dk_engine.py` extends `base_scraper.py`. `dk_api` ingests main and alternate point lines (`is_main_line` on master board rows).
 * **Line alignment:** `core/line_adjustment.py` maps DK prices onto each Betr line (exact alt, interpolated bracket, or extrapolated single-anchor). **+EV ranking** uses `exact`, `dk_alt`, `dk_interpolated`, and (with FanDuel loaded) `fd_exact`, `fd_alt`, `multi_book_consensus`; extrapolated and milestone DK quotes stay diagnostics-only. See [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
 * **Flat Betr lines:** Integer lines (push risk) skipped by default; `--include-flat-lines` uses `core/flat_line.py` adjusted breakeven.
@@ -75,11 +75,14 @@ ev-sports-tracker/
     │   ├── market_maps.py
     │   ├── settings.py
     │   ├── dk_subcategories.py
+    │   ├── dk_discovery.py     # wide-scan ID ranges; discovery output paths
+    │   ├── discovery/          # per-league progress manifests (mlb.yaml)
     │   ├── fd_competitions.py
     │   ├── fd_markets.py       # tab ↔ canonical; FD_DEFAULT_SCRAPE_MARKETS; parse_player_ou_market_type
     │   ├── .env.example        # Betr Keycloak URL + betr-rn; FD_*; DK_MARKETS_MAX_CONCURRENT
     │   └── .env                # local secrets (gitignored)
     ├── scripts/
+    │   ├── probe_dk_discover.py
     │   ├── probe_dk_subcategories.py
     │   └── probe_fd_events.py
     ├── utils/
@@ -125,7 +128,8 @@ ev-sports-tracker/
 
 ### Open
 
-* **MLB props (v1):** Pregame hits O/U and total bases O/U — Betr → DK → EV; FD skipped for MLB. DK subCategoryIds: hits `6719`, total_bases `6607`; slate `4519`. **Live props deferred** (`--live`, `current_value`, suspended markets) until slates exist. H+R+RBI, singles, and other Betr-only markets deferred until DK posts comparable O/U tabs.
+* **MLB props (full O/U slate):** 12 pregame markets Betr ↔ DK — see [mlb.md](docs/betting_odds/mlb.md) and `DK_MLB_STAT_CATEGORIES`. FD skipped for MLB. **Deferred v2:** `HITTER_STRIKEOUTS` (milestone-only on DK). Flat/push pitching K + milestone penalty: roadmap below.
+* **MLB / DK milestone EV (v2):** Parser + engine for milestone-only tabs (over-side penalty vs devig). `HITTER_STRIKEOUTS` (`17849`); pitching K push pairing (`15221` + `17323`).
 * **Additional sharp books:** Add a third sharp book (scrape → normalize → consensus); weights are env-tunable via `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` in `load_sharp_book_weights()`.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
 * **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.

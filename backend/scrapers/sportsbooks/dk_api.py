@@ -37,12 +37,12 @@ def _dk_markets_max_concurrent() -> int:
 _DK_MARKETS_HTTP_SEM = asyncio.Semaphore(_dk_markets_max_concurrent())
 
 
-def _subcategory_market_label(subcategory_id: str) -> str | None:
+def _prop_subcategory_market_label(prop_subcategory_id: str) -> str | None:
     for market, sid in DK_STAT_CATEGORIES.items():
-        if sid == subcategory_id:
+        if sid == prop_subcategory_id:
             return f"ou:{market}"
     for market, sid in DK_MILESTONE_STAT_CATEGORIES.items():
-        if sid == subcategory_id:
+        if sid == prop_subcategory_id:
             return f"milestone:{market}"
     return None
 
@@ -77,9 +77,20 @@ _DK_LABEL_MARKET_PATTERNS: tuple[tuple[str, str], ...] = (
     ("hits + runs + rbis", "h+r+rbi"),
     ("hits runs rbis", "h+r+rbi"),
     ("h+r+rbi", "h+r+rbi"),
+    ("hits allowed", "hits_allowed"),
+    ("earned runs allowed", "earned_runs"),
+    ("walks allowed", "pitching_walks"),
+    ("strikeouts thrown", "strikeouts"),
+    ("walks (batter)", "walks"),
+    ("rbis o/u", "rbi"),
+    ("rbis", "rbi"),
+    ("runs o/u", "runs"),
+    ("outs o/u", "total_outs"),
     ("hits o/u", "hits"),
-    ("hits", "hits"),
+    ("singles o/u", "singles"),
     ("singles", "singles"),
+    ("hits", "hits"),
+    ("runs", "runs"),
 )
 
 
@@ -215,7 +226,7 @@ def flatten_markets_response(
     *,
     event_id: str,
     market: str,
-    subcategory_id: str,
+    prop_subcategory_id: str,
 ) -> list[dict[str, Any]]:
     """Flatten DK markets JSON into master-board prop rows (main + alternate O/U lines)."""
     by_market_line = _selections_by_market_line(payload.get("selections") or [])
@@ -246,7 +257,7 @@ def flatten_markets_response(
             {
                 "sportsbook": DK_SPORTSBOOK,
                 "event_id": event_id,
-                "subcategory_id": subcategory_id,
+                "subcategory_id": prop_subcategory_id,
                 "market_id": market_id,
                 "player": player,
                 "market": market,
@@ -268,13 +279,13 @@ def flatten_milestone_markets_response(
     *,
     event_id: str,
     market: str,
-    subcategory_id: str,
+    prop_subcategory_id: str,
 ) -> list[dict[str, Any]]:
     """Flatten DK milestone (N+) props into rows comparable to Betr half-point lines."""
     inferred = infer_canonical_market_from_dk_payload(payload)
     if inferred and inferred != market:
         logger.warning(
-            f"dk milestone subcategory {subcategory_id} labeled as {market!r} "
+            f"dk milestone prop subcategory {prop_subcategory_id} labeled as {market!r} "
             f"but DK market text implies {inferred!r} — fix DK_MILESTONE_STAT_CATEGORIES"
         )
 
@@ -307,7 +318,7 @@ def flatten_milestone_markets_response(
             {
                 "sportsbook": DK_SPORTSBOOK,
                 "event_id": event_id,
-                "subcategory_id": subcategory_id,
+                "subcategory_id": prop_subcategory_id,
                 "market_id": market_id,
                 "player": player,
                 "market": market,
@@ -328,11 +339,11 @@ def flatten_milestone_markets_response(
 async def fetch_event_subcategory_markets(
     client: httpx.AsyncClient,
     event_id: str,
-    subcategory_id: str,
+    prop_subcategory_id: str,
 ) -> dict[str, Any] | None:
-    """Fetch markets JSON for one event and subcategory."""
-    url = build_markets_url(event_id, subcategory_id)
-    market_label = _subcategory_market_label(subcategory_id)
+    """Fetch markets JSON for one event and prop subcategory tab."""
+    url = build_markets_url(event_id, prop_subcategory_id)
+    market_label = _prop_subcategory_market_label(prop_subcategory_id)
     last_status: int | None = None
 
     for attempt in range(1, DK_MARKETS_MAX_ATTEMPTS + 1):
@@ -347,14 +358,14 @@ async def fetch_event_subcategory_markets(
                     delay = DK_MARKETS_RETRY_DELAYS_SEC[attempt - 1]
                     logger.warning(
                         f"draftkings api transient {response.status_code} for "
-                        f"{market_label or subcategory_id} (attempt {attempt}/"
+                        f"{market_label or prop_subcategory_id} (attempt {attempt}/"
                         f"{DK_MARKETS_MAX_ATTEMPTS}); retrying in {delay}s"
                     )
                     await asyncio.sleep(delay)
                     continue
                 logger.error(
                     f"draftkings api blocked request after {DK_MARKETS_MAX_ATTEMPTS} "
-                    f"attempts: {response.status_code} — {market_label or subcategory_id}"
+                    f"attempts: {response.status_code} — {market_label or prop_subcategory_id}"
                 )
                 return None
 
@@ -368,7 +379,7 @@ async def fetch_event_subcategory_markets(
                     delay = DK_MARKETS_RETRY_DELAYS_SEC[attempt - 1]
                     logger.warning(
                         f"draftkings api transient {exc.response.status_code} for "
-                        f"{market_label or subcategory_id} (attempt {attempt}/"
+                        f"{market_label or prop_subcategory_id} (attempt {attempt}/"
                         f"{DK_MARKETS_MAX_ATTEMPTS}); retrying in {delay}s"
                     )
                     await asyncio.sleep(delay)
@@ -392,7 +403,7 @@ async def fetch_event_subcategory_markets(
 
     logger.error(
         f"draftkings api blocked request after {DK_MARKETS_MAX_ATTEMPTS} attempts: "
-        f"{last_status} — {market_label or subcategory_id}"
+        f"{last_status} — {market_label or prop_subcategory_id}"
     )
     return None
 
@@ -444,7 +455,9 @@ async def fetch_league_events(
         logger.error(f"unknown draftkings league: {league}")
         return None
 
-    url = build_league_events_url(slate["league_id"], slate["subcategory_id"])
+    url = build_league_events_url(
+        slate["league_id"], slate["slate_subcategory_id"]
+    )
     try:
         response = await client.get(url, headers=DK_BASE_HEADERS, timeout=10.0)
         response.raise_for_status()
@@ -482,9 +495,9 @@ async def fetch_and_flatten_markets(
 ) -> list[dict[str, Any]]:
     """Fetch O/U markets for one category and return flattened master-board rows."""
     categories = stat_categories or DK_STAT_CATEGORIES
-    subcategory_id = categories[market]
+    prop_subcategory_id = categories[market]
     payload = await fetch_event_subcategory_markets(
-        client, event_id, subcategory_id
+        client, event_id, prop_subcategory_id
     )
     if not payload:
         return []
@@ -492,7 +505,7 @@ async def fetch_and_flatten_markets(
         payload,
         event_id=event_id,
         market=market,
-        subcategory_id=subcategory_id,
+        prop_subcategory_id=prop_subcategory_id,
     )
 
 
@@ -504,11 +517,11 @@ async def _fetch_and_flatten_milestone_markets(
     milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     milestones = milestone_categories or DK_MILESTONE_STAT_CATEGORIES
-    milestone_subcategory_id = milestones.get(market)
-    if not milestone_subcategory_id:
+    milestone_prop_subcategory_id = milestones.get(market)
+    if not milestone_prop_subcategory_id:
         return []
     milestone_payload = await fetch_event_subcategory_markets(
-        client, event_id, milestone_subcategory_id
+        client, event_id, milestone_prop_subcategory_id
     )
     if not milestone_payload:
         return []
@@ -516,7 +529,7 @@ async def _fetch_and_flatten_milestone_markets(
         milestone_payload,
         event_id=event_id,
         market=market,
-        subcategory_id=milestone_subcategory_id,
+        prop_subcategory_id=milestone_prop_subcategory_id,
     )
 
 

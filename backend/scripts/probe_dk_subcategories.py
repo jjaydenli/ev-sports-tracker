@@ -25,11 +25,13 @@ from scrapers.sportsbooks.dk_api import (  # noqa: E402
 )
 
 
-async def _probe(event_id: str, label: str, subcategory_id: str) -> None:
+async def _probe(event_id: str, label: str, prop_subcategory_id: str) -> None:
     async with httpx.AsyncClient(headers=DK_BASE_HEADERS, timeout=15.0) as client:
-        payload = await fetch_event_subcategory_markets(client, event_id, subcategory_id)
+        payload = await fetch_event_subcategory_markets(
+            client, event_id, prop_subcategory_id
+        )
     if not payload:
-        print(f"{label:16} {subcategory_id:8}  (no payload)")
+        print(f"{label:16} {prop_subcategory_id:8}  (no payload)")
         return
     markets = payload.get("markets") or []
     selections = payload.get("selections") or []
@@ -38,7 +40,7 @@ async def _probe(event_id: str, label: str, subcategory_id: str) -> None:
     sample = (markets[0].get("name") if markets else None) or "(no markets)"
     inferred_note = f" -> {inferred}" if inferred else ""
     print(
-        f"{label:16} {subcategory_id:8}  markets={len(markets)} "
+        f"{label:16} {prop_subcategory_id:8}  markets={len(markets)} "
         f"selections={len(selections)} subcategoryIds={sorted(sub_ids)}"
         f"{inferred_note}  sample={sample!r}"
     )
@@ -95,16 +97,16 @@ async def main() -> None:
     milestone_categories = milestone_categories_for_league(args.league)
 
     print(f"Event {args.event_id}  league={args.league}\n")
-    for market, subcategory_id in sorted(ou_categories.items()):
-        if subcategory_id == "TBD":
+    for market, prop_subcategory_id in sorted(ou_categories.items()):
+        if prop_subcategory_id == "TBD":
             print(f"{market:16} {'TBD':8}  (pending — no id)")
             continue
-        await _probe(args.event_id, market, subcategory_id)
+        await _probe(args.event_id, market, prop_subcategory_id)
 
     if milestone_categories:
         print()
-        for market, subcategory_id in sorted(milestone_categories.items()):
-            await _probe(args.event_id, f"{market}+", subcategory_id)
+        for market, prop_subcategory_id in sorted(milestone_categories.items()):
+            await _probe(args.event_id, f"{market}+", prop_subcategory_id)
 
     if args.league == "nba":
         for market in sorted(DK_PENDING_STAT_CATEGORIES):

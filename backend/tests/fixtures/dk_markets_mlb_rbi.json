@@ -1,0 +1,1957 @@
+{
+  "markets": [
+    {
+      "id": "342696651",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Willson Contreras RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 1,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:109242",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696581",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Wilyer Abreu RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 2,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:160747",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696536",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Jake Burger RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 3,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:106246",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696700",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Josh Jung RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 4,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:106148",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696648",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Brandon Nimmo RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 5,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:108287",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696692",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Jarren Duran RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 6,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:105884",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696596",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Wyatt Langford RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 7,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:178894",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696543",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Ezequiel Duran RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 8,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:106020",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696237",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Ceddanne Rafaela RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 9,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:160745",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696248",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Caleb Durbin RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 10,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:197248",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696217",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Kyle Higashioka RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 11,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:109404",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696635",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Masataka Yoshida RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 12,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:160749",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342921865",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Carlos Narvaez RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 13,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:178995",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696638",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Marcelo Mayer RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 14,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:179780",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342927456",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Cody Freeman RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 15,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:203978",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696400",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Isiah Kiner-Falefa RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 16,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:108455",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696658",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Justin Foscue RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 17,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:120774",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342927472",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Alejandro Osuna RBIs O/U",
+      "subcategoryId": "8025",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14023",
+        "betOfferTypeId": 0,
+        "name": "RBIs O/U"
+      },
+      "subscriptionKey": "markets-266324664",
+      "sortOrder": 18,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14023|2:200574",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA342696217#2181492865_13L84240Q11321880357Q20",
+      "marketId": "342696217",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+218",
+        "decimal": "3.18",
+        "fractional": "109/50"
+      },
+      "trueOdds": 3.18,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "32547",
+          "name": "Kyle Higashioka",
+          "type": "Player",
+          "seoIdentifier": "Kyle Higashioka",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 11,
+            "stringValue": "11",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109404"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696217#2181492888_13L84240Q1-565484403Q20",
+      "marketId": "342696217",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212312",
+        "decimal": "1.32",
+        "fractional": "25/78"
+      },
+      "trueOdds": 1.32051283,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "32547",
+          "name": "Kyle Higashioka",
+          "type": "Player",
+          "seoIdentifier": "Kyle Higashioka",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 11,
+            "stringValue": "11",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109404"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696237#2181493508_13L84240Q11321880357Q20",
+      "marketId": "342696237",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+192",
+        "decimal": "2.92",
+        "fractional": "48/25"
+      },
+      "trueOdds": 2.92,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "634730",
+          "name": "Ceddanne Rafaela",
+          "type": "Player",
+          "seoIdentifier": "Ceddanne Rafaela",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 31,
+            "stringValue": "31",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160745"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696237#2181493572_13L84240Q1-565484403Q20",
+      "marketId": "342696237",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212274",
+        "decimal": "1.36",
+        "fractional": "50/137"
+      },
+      "trueOdds": 1.36496351,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "634730",
+          "name": "Ceddanne Rafaela",
+          "type": "Player",
+          "seoIdentifier": "Ceddanne Rafaela",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 31,
+            "stringValue": "31",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160745"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696248#2181492929_13L84240Q11321880357Q20",
+      "marketId": "342696248",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+210",
+        "decimal": "3.10",
+        "fractional": "21/10"
+      },
+      "trueOdds": 3.1,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "638082",
+          "name": "Caleb Durbin",
+          "type": "Player",
+          "seoIdentifier": "Caleb Durbin",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 26,
+            "stringValue": "26",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "197248"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696248#2181492969_13L84240Q1-565484403Q20",
+      "marketId": "342696248",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212300",
+        "decimal": "1.33",
+        "fractional": "1/3"
+      },
+      "trueOdds": 1.33333334,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "638082",
+          "name": "Caleb Durbin",
+          "type": "Player",
+          "seoIdentifier": "Caleb Durbin",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 26,
+            "stringValue": "26",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "197248"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696400#2181493218_13L84240Q11321880357Q20",
+      "marketId": "342696400",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+239",
+        "decimal": "3.39",
+        "fractional": "239/100"
+      },
+      "trueOdds": 3.39,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "31856",
+          "name": "Isiah Kiner-Falefa",
+          "type": "Player",
+          "seoIdentifier": "Isiah Kiner-Falefa",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 12,
+            "stringValue": "12",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108455"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696400#2181493241_13L84240Q1-565484403Q20",
+      "marketId": "342696400",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212346",
+        "decimal": "1.28",
+        "fractional": "50/173"
+      },
+      "trueOdds": 1.28901735,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "31856",
+          "name": "Isiah Kiner-Falefa",
+          "type": "Player",
+          "seoIdentifier": "Isiah Kiner-Falefa",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 12,
+            "stringValue": "12",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108455"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696536#2181493773_13L84240Q11321880357Q20",
+      "marketId": "342696536",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+141",
+        "decimal": "2.41",
+        "fractional": "141/100"
+      },
+      "trueOdds": 2.41,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "110690",
+          "name": "Jake Burger",
+          "type": "Player",
+          "seoIdentifier": "Jake Burger",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 42,
+            "stringValue": "42",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106246"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696536#2181493825_13L84240Q1-565484403Q20",
+      "marketId": "342696536",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212197",
+        "decimal": "1.50",
+        "fractional": "100/197"
+      },
+      "trueOdds": 1.50761422,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "110690",
+          "name": "Jake Burger",
+          "type": "Player",
+          "seoIdentifier": "Jake Burger",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 42,
+            "stringValue": "42",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106246"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696543#2181494379_13L84240Q11321880357Q20",
+      "marketId": "342696543",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+184",
+        "decimal": "2.84",
+        "fractional": "46/25"
+      },
+      "trueOdds": 2.84,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "459835",
+          "name": "Ezequiel Duran",
+          "type": "Player",
+          "seoIdentifier": "Ezequiel Duran",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 35,
+            "stringValue": "35",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106020"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696543#2181494437_13L84240Q1-565484403Q20",
+      "marketId": "342696543",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212261",
+        "decimal": "1.38",
+        "fractional": "100/261"
+      },
+      "trueOdds": 1.38314177,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "459835",
+          "name": "Ezequiel Duran",
+          "type": "Player",
+          "seoIdentifier": "Ezequiel Duran",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 35,
+            "stringValue": "35",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106020"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696581#2181493540_13L84240Q11321880357Q20",
+      "marketId": "342696581",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+136",
+        "decimal": "2.36",
+        "fractional": "34/25"
+      },
+      "trueOdds": 2.36,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "635336",
+          "name": "Wilyer Abreu",
+          "type": "Player",
+          "seoIdentifier": "Wilyer Abreu",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 33,
+            "stringValue": "33",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160747"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696581#2181493686_13L84240Q1-565484403Q20",
+      "marketId": "342696581",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212189",
+        "decimal": "1.52",
+        "fractional": "100/189"
+      },
+      "trueOdds": 1.52910053,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "635336",
+          "name": "Wilyer Abreu",
+          "type": "Player",
+          "seoIdentifier": "Wilyer Abreu",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 33,
+            "stringValue": "33",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160747"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696596#2181494875_13L84240Q11321880357Q20",
+      "marketId": "342696596",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+168",
+        "decimal": "2.68",
+        "fractional": "42/25"
+      },
+      "trueOdds": 2.68,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "721275",
+          "name": "Wyatt Langford",
+          "type": "Player",
+          "seoIdentifier": "Wyatt Langford",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 7,
+            "stringValue": "7",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178894"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696596#2181494882_13L84240Q1-565484403Q20",
+      "marketId": "342696596",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212237",
+        "decimal": "1.42",
+        "fractional": "100/237"
+      },
+      "trueOdds": 1.42194093,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "721275",
+          "name": "Wyatt Langford",
+          "type": "Player",
+          "seoIdentifier": "Wyatt Langford",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 7,
+            "stringValue": "7",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178894"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696635#2181493622_13L84240Q11321880357Q20",
+      "marketId": "342696635",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+220",
+        "decimal": "3.20",
+        "fractional": "11/5"
+      },
+      "trueOdds": 3.2,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "495190",
+          "name": "Masataka Yoshida",
+          "type": "Player",
+          "seoIdentifier": "Masataka Yoshida",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 10,
+            "stringValue": "10",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160749"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696635#2181493753_13L84240Q1-565484403Q20",
+      "marketId": "342696635",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212316",
+        "decimal": "1.31",
+        "fractional": "25/79"
+      },
+      "trueOdds": 1.3164557,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "495190",
+          "name": "Masataka Yoshida",
+          "type": "Player",
+          "seoIdentifier": "Masataka Yoshida",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 10,
+            "stringValue": "10",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160749"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696638#2181494915_13L84240Q11321880357Q20",
+      "marketId": "342696638",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+226",
+        "decimal": "3.26",
+        "fractional": "113/50"
+      },
+      "trueOdds": 3.26,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "587674",
+          "name": "Marcelo Mayer",
+          "type": "Player",
+          "seoIdentifier": "Marcelo Mayer",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 17,
+            "stringValue": "17",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "179780"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696638#2181494917_13L84240Q1-565484403Q20",
+      "marketId": "342696638",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212325",
+        "decimal": "1.30",
+        "fractional": "4/13"
+      },
+      "trueOdds": 1.30769231,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "587674",
+          "name": "Marcelo Mayer",
+          "type": "Player",
+          "seoIdentifier": "Marcelo Mayer",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 17,
+            "stringValue": "17",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "179780"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696648#2181494407_13L84240Q11321880357Q20",
+      "marketId": "342696648",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+160",
+        "decimal": "2.60",
+        "fractional": "8/5"
+      },
+      "trueOdds": 2.6,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "31767",
+          "name": "Brandon Nimmo",
+          "type": "Player",
+          "seoIdentifier": "Brandon Nimmo",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 23,
+            "stringValue": "23",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108287"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696648#2181494421_13L84240Q1-565484403Q20",
+      "marketId": "342696648",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212225",
+        "decimal": "1.44",
+        "fractional": "4/9"
+      },
+      "trueOdds": 1.44444445,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "31767",
+          "name": "Brandon Nimmo",
+          "type": "Player",
+          "seoIdentifier": "Brandon Nimmo",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 23,
+            "stringValue": "23",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108287"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696651#2181493735_13L84240Q11321880357Q20",
+      "marketId": "342696651",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+136",
+        "decimal": "2.36",
+        "fractional": "34/25"
+      },
+      "trueOdds": 2.36,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "32385",
+          "name": "Willson Contreras",
+          "type": "Player",
+          "seoIdentifier": "Willson Contreras",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 41,
+            "stringValue": "41",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109242"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696651#2181493815_13L84240Q1-565484403Q20",
+      "marketId": "342696651",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212190",
+        "decimal": "1.52",
+        "fractional": "10/19"
+      },
+      "trueOdds": 1.52631579,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "32385",
+          "name": "Willson Contreras",
+          "type": "Player",
+          "seoIdentifier": "Willson Contreras",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 41,
+            "stringValue": "41",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109242"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696658#2181493762_13L84240Q11321880357Q20",
+      "marketId": "342696658",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+244",
+        "decimal": "3.44",
+        "fractional": "61/25"
+      },
+      "trueOdds": 3.44,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "494688",
+          "name": "Justin Foscue",
+          "type": "Player",
+          "seoIdentifier": "Justin Foscue",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 9,
+            "stringValue": "9",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "120774"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696658#2181493850_13L84240Q1-565484403Q20",
+      "marketId": "342696658",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212354",
+        "decimal": "1.28",
+        "fractional": "50/177"
+      },
+      "trueOdds": 1.28248588,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "494688",
+          "name": "Justin Foscue",
+          "type": "Player",
+          "seoIdentifier": "Justin Foscue",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 9,
+            "stringValue": "9",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "120774"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696692#2181493898_13L84240Q11321880357Q20",
+      "marketId": "342696692",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+168",
+        "decimal": "2.68",
+        "fractional": "42/25"
+      },
+      "trueOdds": 2.68,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "459743",
+          "name": "Jarren Duran",
+          "type": "Player",
+          "seoIdentifier": "Jarren Duran",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 36,
+            "stringValue": "36",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "105884"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696692#2181494004_13L84240Q1-565484403Q20",
+      "marketId": "342696692",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212236",
+        "decimal": "1.42",
+        "fractional": "25/59"
+      },
+      "trueOdds": 1.42372882,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "459743",
+          "name": "Jarren Duran",
+          "type": "Player",
+          "seoIdentifier": "Jarren Duran",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 36,
+            "stringValue": "36",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "105884"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696700#2181494432_13L84240Q11321880357Q20",
+      "marketId": "342696700",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+158",
+        "decimal": "2.58",
+        "fractional": "79/50"
+      },
+      "trueOdds": 2.58,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "459921",
+          "name": "Josh Jung",
+          "type": "Player",
+          "seoIdentifier": "Josh Jung",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 30,
+            "stringValue": "30",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106148"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696700#2181494471_13L84240Q1-565484403Q20",
+      "marketId": "342696700",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212222",
+        "decimal": "1.45",
+        "fractional": "50/111"
+      },
+      "trueOdds": 1.45045046,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "459921",
+          "name": "Josh Jung",
+          "type": "Player",
+          "seoIdentifier": "Josh Jung",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 30,
+            "stringValue": "30",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106148"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342921865#2182291630_13L84240Q11321880357Q20",
+      "marketId": "342921865",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+225",
+        "decimal": "3.25",
+        "fractional": "9/4"
+      },
+      "trueOdds": 3.25,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "638220",
+          "name": "Carlos Narvaez",
+          "type": "Player",
+          "seoIdentifier": "Carlos Narvaez",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 3,
+            "stringValue": "3",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178995"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342921865#2182291631_13L84240Q1-565484403Q20",
+      "marketId": "342921865",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212324",
+        "decimal": "1.30",
+        "fractional": "25/81"
+      },
+      "trueOdds": 1.30864198,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "638220",
+          "name": "Carlos Narvaez",
+          "type": "Player",
+          "seoIdentifier": "Carlos Narvaez",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 3,
+            "stringValue": "3",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178995"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927456#2182310628_13L84240Q11321880357Q20",
+      "marketId": "342927456",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+229",
+        "decimal": "3.29",
+        "fractional": "229/100"
+      },
+      "trueOdds": 3.29,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "477662",
+          "name": "Cody Freeman",
+          "type": "Player",
+          "seoIdentifier": "Cody Freeman",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "203978"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927456#2182310631_13L84240Q1-565484403Q20",
+      "marketId": "342927456",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212331",
+        "decimal": "1.30",
+        "fractional": "100/331"
+      },
+      "trueOdds": 1.30211481,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "477662",
+          "name": "Cody Freeman",
+          "type": "Player",
+          "seoIdentifier": "Cody Freeman",
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "203978"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927472#2182310683_13L84240Q11321880357Q20",
+      "marketId": "342927472",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+268",
+        "decimal": "3.68",
+        "fractional": "67/25"
+      },
+      "trueOdds": 3.68,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "638329",
+          "name": "Alejandro Osuna",
+          "type": "Player",
+          "seoIdentifier": "Alejandro Osuna",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 9,
+            "stringValue": "9",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "200574"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927472#2182310686_13L84240Q1-565484403Q20",
+      "marketId": "342927472",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212393",
+        "decimal": "1.25",
+        "fractional": "100/393"
+      },
+      "trueOdds": 1.25445293,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "638329",
+          "name": "Alejandro Osuna",
+          "type": "Player",
+          "seoIdentifier": "Alejandro Osuna",
+          "statistic": {
+            "prefix": "RBI",
+            "value": 9,
+            "stringValue": "9",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "200574"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets-266324664": {
+      "entity": "markets",
+      "query": "$filter=eventId eq '34275127' AND clientMetadata/subCategoryId eq '8025' AND tags/all(t: t ne 'SportcastBetBuilder') and tags/any(t: t eq 'OSB')",
+      "locale": "en"
+    }
+  }
+}

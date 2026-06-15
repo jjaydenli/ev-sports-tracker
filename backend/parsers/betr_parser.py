@@ -13,7 +13,23 @@ from utils.math_utils import BETR_STANDARD_BREAKEVEN_ODDS
 
 BETR_SPORTSBOOK = "Betr"
 STANDARD_PROJECTION_TYPE = "REGULAR"
-MLB_V1_MARKETS = frozenset({"hits", "total_bases"})
+MLB_ENABLED_MARKETS = frozenset(
+    {
+        "hits",
+        "total_bases",
+        "h+r+rbi",
+        "runs",
+        "singles",
+        "walks",
+        "earned_runs",
+        "total_outs",
+        "strikeouts",
+        "pitching_walks",
+        "hits_allowed",
+        "rbi",
+    }
+)
+# Deferred v2: hitter_strikeouts (HITTER_STRIKEOUTS) — DK milestone-only
 
 # TODO: map non-REGULAR types to prop_type and select value vs non_regular_value
 
@@ -66,7 +82,7 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
         return None
 
     league = (raw_prop.get("league") or "").upper()
-    if league == "MLB" and market not in MLB_V1_MARKETS:
+    if league == "MLB" and market not in MLB_ENABLED_MARKETS:
         return None
 
     allowed_options = raw_prop.get("allowed_options") or []

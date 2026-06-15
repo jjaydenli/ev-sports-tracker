@@ -1,0 +1,1951 @@
+{
+  "markets": [
+    {
+      "id": "342696303",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Wyatt Langford Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 1,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:178894",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696728",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Brandon Nimmo Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 2,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:108287",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696413",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Josh Jung Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 3,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:106148",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696262",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Ceddanne Rafaela Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 4,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:160745",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342921847",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Carlos Narvaez Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 5,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:178995",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696541",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Justin Foscue Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 6,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:120774",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696590",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Wilyer Abreu Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 7,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:160747",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696281",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Willson Contreras Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 8,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:109242",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342927441",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Cody Freeman Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 9,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:203978",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696277",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Caleb Durbin Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 10,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:197248",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696394",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Ezequiel Duran Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 11,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:106020",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696387",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Kyle Higashioka Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 12,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:109404",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696280",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Jarren Duran Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 13,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:105884",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696285",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Jake Burger Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 14,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:106246",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696291",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Masataka Yoshida Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 15,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:160749",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342927434",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Alejandro Osuna Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 16,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:200574",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696279",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Isiah Kiner-Falefa Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 17,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:108455",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696200",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Marcelo Mayer Walks O/U",
+      "subcategoryId": "17411",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14039",
+        "betOfferTypeId": 0,
+        "name": "Walks (Batter) O/U"
+      },
+      "subscriptionKey": "markets--176129993",
+      "sortOrder": 18,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14039|2:179780",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA342696200#2181492831_13L84240Q1-133994899Q20",
+      "marketId": "342696200",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+296",
+        "decimal": "3.96",
+        "fractional": "74/25"
+      },
+      "trueOdds": 3.96,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "587674",
+          "name": "Marcelo Mayer",
+          "type": "Player",
+          "seoIdentifier": "Marcelo Mayer",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.281,
+            "stringValue": ".281",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "179780"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696200#2181492847_13L84240Q1-1331065155Q20",
+      "marketId": "342696200",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212440",
+        "decimal": "1.22",
+        "fractional": "5/22"
+      },
+      "trueOdds": 1.22727273,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "587674",
+          "name": "Marcelo Mayer",
+          "type": "Player",
+          "seoIdentifier": "Marcelo Mayer",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.281,
+            "stringValue": ".281",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "179780"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696262#2181492971_13L84240Q1-133994899Q20",
+      "marketId": "342696262",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+182",
+        "decimal": "2.82",
+        "fractional": "91/50"
+      },
+      "trueOdds": 2.82,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "634730",
+          "name": "Ceddanne Rafaela",
+          "type": "Player",
+          "seoIdentifier": "Ceddanne Rafaela",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.343,
+            "stringValue": ".343",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160745"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696262#2181493019_13L84240Q1-1331065155Q20",
+      "marketId": "342696262",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212258",
+        "decimal": "1.38",
+        "fractional": "50/129"
+      },
+      "trueOdds": 1.3875969,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "634730",
+          "name": "Ceddanne Rafaela",
+          "type": "Player",
+          "seoIdentifier": "Ceddanne Rafaela",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.343,
+            "stringValue": ".343",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160745"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696277#2181492950_13L84240Q1-133994899Q20",
+      "marketId": "342696277",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+224",
+        "decimal": "3.24",
+        "fractional": "56/25"
+      },
+      "trueOdds": 3.24,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "638082",
+          "name": "Caleb Durbin",
+          "type": "Player",
+          "seoIdentifier": "Caleb Durbin",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.255,
+            "stringValue": ".255",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "197248"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696277#2181493000_13L84240Q1-1331065155Q20",
+      "marketId": "342696277",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212322",
+        "decimal": "1.31",
+        "fractional": "50/161"
+      },
+      "trueOdds": 1.31055901,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "638082",
+          "name": "Caleb Durbin",
+          "type": "Player",
+          "seoIdentifier": "Caleb Durbin",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.255,
+            "stringValue": ".255",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "197248"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696279#2181492941_13L84240Q1-133994899Q20",
+      "marketId": "342696279",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+267",
+        "decimal": "3.67",
+        "fractional": "267/100"
+      },
+      "trueOdds": 3.67,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "31856",
+          "name": "Isiah Kiner-Falefa",
+          "type": "Player",
+          "seoIdentifier": "Isiah Kiner-Falefa",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.336,
+            "stringValue": ".336",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108455"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696279#2181492991_13L84240Q1-1331065155Q20",
+      "marketId": "342696279",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212391",
+        "decimal": "1.25",
+        "fractional": "100/391"
+      },
+      "trueOdds": 1.25575448,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "31856",
+          "name": "Isiah Kiner-Falefa",
+          "type": "Player",
+          "seoIdentifier": "Isiah Kiner-Falefa",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.336,
+            "stringValue": ".336",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108455"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696280#2181492944_13L84240Q1-133994899Q20",
+      "marketId": "342696280",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+237",
+        "decimal": "3.37",
+        "fractional": "237/100"
+      },
+      "trueOdds": 3.37,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "459743",
+          "name": "Jarren Duran",
+          "type": "Player",
+          "seoIdentifier": "Jarren Duran",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.268,
+            "stringValue": ".268",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "105884"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696280#2181492994_13L84240Q1-1331065155Q20",
+      "marketId": "342696280",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212343",
+        "decimal": "1.29",
+        "fractional": "100/343"
+      },
+      "trueOdds": 1.29154519,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "459743",
+          "name": "Jarren Duran",
+          "type": "Player",
+          "seoIdentifier": "Jarren Duran",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.268,
+            "stringValue": ".268",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "105884"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696281#2181493114_13L84240Q1-133994899Q20",
+      "marketId": "342696281",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+208",
+        "decimal": "3.08",
+        "fractional": "52/25"
+      },
+      "trueOdds": 3.08,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "32385",
+          "name": "Willson Contreras",
+          "type": "Player",
+          "seoIdentifier": "Willson Contreras",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.391,
+            "stringValue": ".391",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109242"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696281#2181493129_13L84240Q1-1331065155Q20",
+      "marketId": "342696281",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212298",
+        "decimal": "1.33",
+        "fractional": "50/149"
+      },
+      "trueOdds": 1.33557047,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "32385",
+          "name": "Willson Contreras",
+          "type": "Player",
+          "seoIdentifier": "Willson Contreras",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.391,
+            "stringValue": ".391",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109242"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696285#2181492979_13L84240Q1-133994899Q20",
+      "marketId": "342696285",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+248",
+        "decimal": "3.48",
+        "fractional": "62/25"
+      },
+      "trueOdds": 3.48,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "110690",
+          "name": "Jake Burger",
+          "type": "Player",
+          "seoIdentifier": "Jake Burger",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.307,
+            "stringValue": ".307",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106246"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696285#2181493028_13L84240Q1-1331065155Q20",
+      "marketId": "342696285",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212360",
+        "decimal": "1.27",
+        "fractional": "5/18"
+      },
+      "trueOdds": 1.27777778,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "110690",
+          "name": "Jake Burger",
+          "type": "Player",
+          "seoIdentifier": "Jake Burger",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.307,
+            "stringValue": ".307",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106246"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696291#2181493513_13L84240Q1-133994899Q20",
+      "marketId": "342696291",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+256",
+        "decimal": "3.56",
+        "fractional": "64/25"
+      },
+      "trueOdds": 3.56,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "495190",
+          "name": "Masataka Yoshida",
+          "type": "Player",
+          "seoIdentifier": "Masataka Yoshida",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.329,
+            "stringValue": ".329",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160749"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696291#2181493577_13L84240Q1-1331065155Q20",
+      "marketId": "342696291",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212374",
+        "decimal": "1.26",
+        "fractional": "50/187"
+      },
+      "trueOdds": 1.26737968,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "495190",
+          "name": "Masataka Yoshida",
+          "type": "Player",
+          "seoIdentifier": "Masataka Yoshida",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.329,
+            "stringValue": ".329",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160749"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696303#2181493203_13L84240Q1-133994899Q20",
+      "marketId": "342696303",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+103",
+        "decimal": "2.03",
+        "fractional": "103/100"
+      },
+      "trueOdds": 2.03,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "721275",
+          "name": "Wyatt Langford",
+          "type": "Player",
+          "seoIdentifier": "Wyatt Langford",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.28,
+            "stringValue": ".280",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178894"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696303#2181493205_13L84240Q1-1331065155Q20",
+      "marketId": "342696303",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212142",
+        "decimal": "1.70",
+        "fractional": "50/71"
+      },
+      "trueOdds": 1.70422536,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "721275",
+          "name": "Wyatt Langford",
+          "type": "Player",
+          "seoIdentifier": "Wyatt Langford",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.28,
+            "stringValue": ".280",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178894"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696387#2181493247_13L84240Q1-133994899Q20",
+      "marketId": "342696387",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+228",
+        "decimal": "3.28",
+        "fractional": "57/25"
+      },
+      "trueOdds": 3.28,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "32547",
+          "name": "Kyle Higashioka",
+          "type": "Player",
+          "seoIdentifier": "Kyle Higashioka",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.306,
+            "stringValue": ".306",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109404"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696387#2181493274_13L84240Q1-1331065155Q20",
+      "marketId": "342696387",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212328",
+        "decimal": "1.30",
+        "fractional": "25/82"
+      },
+      "trueOdds": 1.30487805,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "32547",
+          "name": "Kyle Higashioka",
+          "type": "Player",
+          "seoIdentifier": "Kyle Higashioka",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.306,
+            "stringValue": ".306",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "109404"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696394#2181494548_13L84240Q1-133994899Q20",
+      "marketId": "342696394",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+227",
+        "decimal": "3.27",
+        "fractional": "227/100"
+      },
+      "trueOdds": 3.27,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "459835",
+          "name": "Ezequiel Duran",
+          "type": "Player",
+          "seoIdentifier": "Ezequiel Duran",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.339,
+            "stringValue": ".339",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106020"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696394#2181494581_13L84240Q1-1331065155Q20",
+      "marketId": "342696394",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212327",
+        "decimal": "1.30",
+        "fractional": "100/327"
+      },
+      "trueOdds": 1.3058104,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "459835",
+          "name": "Ezequiel Duran",
+          "type": "Player",
+          "seoIdentifier": "Ezequiel Duran",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.339,
+            "stringValue": ".339",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106020"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696413#2181494243_13L84240Q1-133994899Q20",
+      "marketId": "342696413",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+166",
+        "decimal": "2.66",
+        "fractional": "83/50"
+      },
+      "trueOdds": 2.66,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "459921",
+          "name": "Josh Jung",
+          "type": "Player",
+          "seoIdentifier": "Josh Jung",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.362,
+            "stringValue": ".362",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106148"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696413#2181494246_13L84240Q1-1331065155Q20",
+      "marketId": "342696413",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212234",
+        "decimal": "1.42",
+        "fractional": "50/117"
+      },
+      "trueOdds": 1.42735043,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "459921",
+          "name": "Josh Jung",
+          "type": "Player",
+          "seoIdentifier": "Josh Jung",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.362,
+            "stringValue": ".362",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "106148"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696541#2181493733_13L84240Q1-133994899Q20",
+      "marketId": "342696541",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+204",
+        "decimal": "3.04",
+        "fractional": "51/25"
+      },
+      "trueOdds": 3.04,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "494688",
+          "name": "Justin Foscue",
+          "type": "Player",
+          "seoIdentifier": "Justin Foscue",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.293,
+            "stringValue": ".293",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "120774"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696541#2181493813_13L84240Q1-1331065155Q20",
+      "marketId": "342696541",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212292",
+        "decimal": "1.34",
+        "fractional": "25/73"
+      },
+      "trueOdds": 1.34246576,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "494688",
+          "name": "Justin Foscue",
+          "type": "Player",
+          "seoIdentifier": "Justin Foscue",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.293,
+            "stringValue": ".293",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "120774"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696590#2181494215_13L84240Q1-133994899Q20",
+      "marketId": "342696590",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+207",
+        "decimal": "3.07",
+        "fractional": "207/100"
+      },
+      "trueOdds": 3.07,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "635336",
+          "name": "Wilyer Abreu",
+          "type": "Player",
+          "seoIdentifier": "Wilyer Abreu",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.337,
+            "stringValue": ".337",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160747"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696590#2181494278_13L84240Q1-1331065155Q20",
+      "marketId": "342696590",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212296",
+        "decimal": "1.33",
+        "fractional": "25/74"
+      },
+      "trueOdds": 1.33783784,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "635336",
+          "name": "Wilyer Abreu",
+          "type": "Player",
+          "seoIdentifier": "Wilyer Abreu",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.337,
+            "stringValue": ".337",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "160747"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "3rdFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696728#2181494580_13L84240Q1-133994899Q20",
+      "marketId": "342696728",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+143",
+        "decimal": "2.43",
+        "fractional": "143/100"
+      },
+      "trueOdds": 2.43,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "31767",
+          "name": "Brandon Nimmo",
+          "type": "Player",
+          "seoIdentifier": "Brandon Nimmo",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.329,
+            "stringValue": ".329",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108287"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696728#2181494610_13L84240Q1-1331065155Q20",
+      "marketId": "342696728",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212199",
+        "decimal": "1.50",
+        "fractional": "100/199"
+      },
+      "trueOdds": 1.50251257,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "31767",
+          "name": "Brandon Nimmo",
+          "type": "Player",
+          "seoIdentifier": "Brandon Nimmo",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.329,
+            "stringValue": ".329",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "108287"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342921847#2182291571_13L84240Q1-133994899Q20",
+      "marketId": "342921847",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+193",
+        "decimal": "2.93",
+        "fractional": "193/100"
+      },
+      "trueOdds": 2.93,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "638220",
+          "name": "Carlos Narvaez",
+          "type": "Player",
+          "seoIdentifier": "Carlos Narvaez",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.285,
+            "stringValue": ".285",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178995"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342921847#2182291572_13L84240Q1-1331065155Q20",
+      "marketId": "342921847",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212275",
+        "decimal": "1.36",
+        "fractional": "4/11"
+      },
+      "trueOdds": 1.36363637,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "638220",
+          "name": "Carlos Narvaez",
+          "type": "Player",
+          "seoIdentifier": "Carlos Narvaez",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.285,
+            "stringValue": ".285",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "178995"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "2ndFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927434#2182310557_13L84240Q1-133994899Q20",
+      "marketId": "342927434",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+267",
+        "decimal": "3.67",
+        "fractional": "267/100"
+      },
+      "trueOdds": 3.67,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "638329",
+          "name": "Alejandro Osuna",
+          "type": "Player",
+          "seoIdentifier": "Alejandro Osuna",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.376,
+            "stringValue": ".376",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "200574"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927434#2182310559_13L84240Q1-1331065155Q20",
+      "marketId": "342927434",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212391",
+        "decimal": "1.25",
+        "fractional": "100/391"
+      },
+      "trueOdds": 1.25575448,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "638329",
+          "name": "Alejandro Osuna",
+          "type": "Player",
+          "seoIdentifier": "Alejandro Osuna",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.376,
+            "stringValue": ".376",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "200574"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927441#2182310585_13L84240Q1-133994899Q20",
+      "marketId": "342927441",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+219",
+        "decimal": "3.19",
+        "fractional": "219/100"
+      },
+      "trueOdds": 3.19,
+      "points": 0.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "477662",
+          "name": "Cody Freeman",
+          "type": "Player",
+          "seoIdentifier": "Cody Freeman",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.333,
+            "stringValue": ".333",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "203978"
+          }
+        }
+      ],
+      "sortOrder": 500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342927441#2182310586_13L84240Q1-1331065155Q20",
+      "marketId": "342927441",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212315",
+        "decimal": "1.31",
+        "fractional": "20/63"
+      },
+      "trueOdds": 1.31746032,
+      "points": 0.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "477662",
+          "name": "Cody Freeman",
+          "type": "Player",
+          "seoIdentifier": "Cody Freeman",
+          "statistic": {
+            "prefix": "OBP",
+            "value": 0.333,
+            "stringValue": ".333",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "203978"
+          }
+        }
+      ],
+      "sortOrder": 502,
+      "tags": [
+        "MainPointLine",
+        "OSB"
+      ],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets--176129993": {
+      "entity": "markets",
+      "query": "$filter=eventId eq '34275127' AND clientMetadata/subCategoryId eq '17411' AND tags/all(t: t ne 'SportcastBetBuilder') and tags/any(t: t eq 'OSB')",
+      "locale": "en"
+    }
+  }
+}

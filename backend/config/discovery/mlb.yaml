@@ -1,0 +1,134 @@
+# MLB market discovery manifest (progress tracker — not read by ./ev).
+# Source of truth for scrape: config/dk_subcategories.py DK_MLB_STAT_CATEGORIES.
+
+status: expanded  # discovery | v1 | expanded
+
+slate:
+  league_id: "84240"
+  slate_subcategory_id: "4519"
+
+# Enabled in parser (MLB_ENABLED_MARKETS) + dk_subcategories.py
+enabled_markets:
+  - hits
+  - total_bases
+  - h+r+rbi
+  - runs
+  - singles
+  - walks
+  - earned_runs
+  - total_outs
+  - strikeouts
+  - pitching_walks
+  - hits_allowed
+  - rbi
+
+discovered_ou:
+  hits:
+    betr_key: HITS
+    canonical: hits
+    dk_prop_subcategory_id: "6719"
+    dk_label: Hits O/U
+  total_bases:
+    betr_key: TOTAL_BASES
+    canonical: total_bases
+    dk_prop_subcategory_id: "6607"
+    dk_label: Total Bases O/U
+  h+r+rbi:
+    betr_key: HITS_RUNS_RUNS_BATTED_IN
+    canonical: h+r+rbi
+    dk_prop_subcategory_id: "17406"
+    dk_label: Hits + Runs + RBIs O/U
+  runs:
+    betr_key: RUNS
+    canonical: runs
+    dk_prop_subcategory_id: "17407"
+    dk_label: Runs O/U
+  singles:
+    betr_key: SINGLES
+    canonical: singles
+    dk_prop_subcategory_id: "17409"
+    dk_label: Singles O/U
+  walks:
+    betr_key: WALKS
+    canonical: walks
+    dk_prop_subcategory_id: "17411"
+    dk_label: Walks (Batter) O/U
+  earned_runs:
+    betr_key: EARNED_RUNS
+    canonical: earned_runs
+    dk_prop_subcategory_id: "17412"
+    dk_label: Earned Runs Allowed O/U
+  total_outs:
+    betr_key: TOTAL_OUTS
+    canonical: total_outs
+    dk_prop_subcategory_id: "17413"
+    dk_label: Outs O/U
+  strikeouts_pitching:
+    betr_key: STRIKEOUTS
+    canonical: strikeouts
+    dk_prop_subcategory_id: "15221"
+    dk_label: Strikeouts Thrown O/U
+    notes: flat/push integer lines TBD; pair with milestone 17323
+  pitching_walks:
+    betr_key: PITCHING_WALKS
+    canonical: pitching_walks
+    dk_prop_subcategory_id: "15219"
+    dk_label: Walks Allowed O/U
+  hits_allowed:
+    betr_key: HITS_ALLOWED
+    canonical: hits_allowed
+    dk_prop_subcategory_id: "9886"
+    dk_label: Hits Allowed O/U
+  rbi:
+    betr_key: RUNS_BATTED_IN
+    canonical: rbi
+    dk_prop_subcategory_id: "8025"
+    dk_label: RBIs O/U
+
+deferred_v2_milestone:
+  strikeouts_batter:
+    betr_key: HITTER_STRIKEOUTS
+    betr_label: Strikeouts
+    canonical: hitter_strikeouts
+    dk_prop_subcategory_id: "17849"
+    dk_label: Strikeouts (Batter) Milestones
+    reason: milestone-only; enable with v2 milestone EV parser
+
+discovered_milestone:
+  strikeouts_pitching:
+    betr_key: STRIKEOUTS
+    dk_prop_subcategory_id: "17323"
+    dk_label: Strikeouts Thrown Milestones
+  strikeouts_batter:
+    betr_key: HITTER_STRIKEOUTS
+    dk_prop_subcategory_id: "17849"
+    dk_label: Strikeouts (Batter) Milestones
+  hits_allowed:
+    dk_prop_subcategory_id: "19457"
+    dk_label: Hits Allowed (X or Fewer)
+  hits:
+    dk_prop_subcategory_id: "17320"
+    dk_label: Hits Milestones
+  total_bases:
+    dk_prop_subcategory_id: "17321"
+    dk_label: Total Bases Milestones
+  rbi:
+    dk_prop_subcategory_id: "17322"
+    dk_label: RBIs Milestones
+
+milestone_policy:
+  summary: >-
+    Milestone tabs are over-only; books do not offer a true under leg for devig.
+    v2 parser applies an over-side penalty (example -180 → ~-145).
+  flat_push_pairing: >-
+    Pitching K O/U (15221) + Strikeouts Thrown Milestones (17323) for integer/push lines.
+
+discovered_dk_only:
+  stolen_bases:
+    dk_prop_subcategory_id: "17408"
+    dk_label: Stolen Bases O/U
+  doubles:
+    dk_prop_subcategory_id: "17410"
+    dk_label: Doubles O/U
+
+pending: {}

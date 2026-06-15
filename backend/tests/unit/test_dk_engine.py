@@ -66,7 +66,7 @@ async def test_scrape_fetches_configured_markets(
             points_payload,
             event_id=event_id,
             market=market,
-            subcategory_id=DK_STAT_CATEGORIES[market],
+            prop_subcategory_id=DK_STAT_CATEGORIES[market],
         )
 
     async def mock_event_markets(
@@ -126,7 +126,7 @@ async def test_scrape_discovers_event_ids_from_league_slate(
             points_payload,
             event_id=event_id,
             market=market,
-            subcategory_id=DK_STAT_CATEGORIES[market],
+            prop_subcategory_id=DK_STAT_CATEGORIES[market],
         )
 
     monkeypatch.setattr(
@@ -168,7 +168,7 @@ async def test_scrape_mlb_hits(monkeypatch, mock_dk_warm_up):
             hits_payload,
             event_id=event_id,
             market=market,
-            subcategory_id=DK_MLB_STAT_CATEGORIES[market],
+            prop_subcategory_id=DK_MLB_STAT_CATEGORIES[market],
         )
 
     monkeypatch.setattr(

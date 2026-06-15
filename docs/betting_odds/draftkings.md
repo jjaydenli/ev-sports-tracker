@@ -1,8 +1,13 @@
 # DraftKings (sportsbook) — scrape and line matching
 
-## Subcategory IDs
+## Subcategory IDs (slate vs prop)
 
-Event player props are fetched per `subCategoryId` in [`backend/config/dk_subcategories.py`](../../backend/config/dk_subcategories.py).
+DK reuses ``subCategoryId`` at two scopes (see module docstring in `dk_subcategories.py`):
+
+- **Slate** (`slate_subcategory_id` in `DK_LEAGUE_SLATES`): league page gateway — lists scheduled games.
+- **Prop** (values in `DK_STAT_CATEGORIES` / `DK_MLB_STAT_CATEGORIES`): per-event stat tab — player O/U lines.
+
+Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_subcategories.py`](../../backend/config/dk_subcategories.py).
 
 | Canonical market | subCategoryId (NBA, verified) |
 |------------------|----------------------------|
@@ -35,14 +40,23 @@ Event player props are fetched per `subCategoryId` in [`backend/config/dk_subcat
 
 `stl+blk` has O/U on DK (`2713781`) but no 1+/2+/3+ milestone tab. `reb+ast` milestone id is outside the default probe scan range (`2716474–2716491`).
 
-**MLB** (pregame O/U) — `DK_MLB_STAT_CATEGORIES`; slate `DK_LEAGUE_SLATES["mlb"]` uses `league_id` 84240 and slate `subcategory_id` 4519:
+**MLB** (pregame O/U — full slate) — `DK_MLB_STAT_CATEGORIES`; slate `DK_LEAGUE_SLATES["mlb"]` uses `league_id` 84240 and `slate_subcategory_id` 4519:
 
-| Canonical market | subCategoryId (MLB, verified) |
-|------------------|----------------------------|
+| Canonical market | subCategoryId (MLB) |
+|------------------|---------------------|
 | hits | 6719 |
 | total_bases | 6607 |
+| h+r+rbi | 17406 |
+| runs | 17407 |
+| singles | 17409 |
+| walks | 17411 |
+| earned_runs | 17412 |
+| total_outs | 17413 |
+| strikeouts | 15221 |
+| pitching_walks | 15219 |
+| hits_allowed | 9886 |
+| rbi | 8025 |
 
-Probe: `python -m scripts.probe_dk_subcategories <event_id> --league mlb`. See [mlb.md](mlb.md).
 
 Betr-only markets awaiting IDs are listed in `DK_PENDING_STAT_CATEGORIES` (skipped at scrape).
 

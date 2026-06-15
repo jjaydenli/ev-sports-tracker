@@ -57,14 +57,27 @@ def test_parse_betr_prop_mlb_total_bases():
     assert result["market"] == "total_bases"
 
 
-def test_parse_betr_prop_mlb_skips_non_v1_market():
+def test_parse_betr_prop_mlb_singles():
+    result = parse_betr_prop(
+        _raw_betr_prop(
+            league="MLB",
+            key="SINGLES",
+            label="Singles",
+            value=0.5,
+        )
+    )
+    assert result is not None
+    assert result["market"] == "singles"
+
+
+def test_parse_betr_prop_mlb_skips_deferred_hitter_strikeouts():
     assert (
         parse_betr_prop(
             _raw_betr_prop(
                 league="MLB",
-                key="strikeouts",
+                key="HITTER_STRIKEOUTS",
                 label="Strikeouts",
-                value=5.5,
+                value=0.5,
             )
         )
         is None

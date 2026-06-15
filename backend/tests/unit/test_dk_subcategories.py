@@ -105,25 +105,26 @@ def test_build_markets_url_supports_batchable_flag():
 
 def test_dk_league_slates_contains_nba():
     assert DK_LEAGUE_SLATES["nba"]["league_id"] == "42648"
-    assert DK_LEAGUE_SLATES["nba"]["subcategory_id"] == "4511"
+    assert DK_LEAGUE_SLATES["nba"]["slate_subcategory_id"] == "4511"
 
 
 def test_dk_league_slates_contains_mlb():
     assert DK_LEAGUE_SLATES["mlb"]["league_id"] == "84240"
-    assert DK_LEAGUE_SLATES["mlb"]["subcategory_id"] == "4519"
+    assert DK_LEAGUE_SLATES["mlb"]["slate_subcategory_id"] == "4519"
 
 
 def test_stat_categories_for_league_mlb():
-    assert set(stat_categories_for_league("mlb")) == {"hits", "total_bases"}
+    assert len(stat_categories_for_league("mlb")) == 12
     assert DK_MLB_STAT_CATEGORIES["hits"] == "6719"
     assert DK_MLB_STAT_CATEGORIES["total_bases"] == "6607"
+    assert DK_MLB_STAT_CATEGORIES["singles"] == "17409"
+    assert DK_MLB_STAT_CATEGORIES["strikeouts"] == "15221"
+    assert DK_MLB_STAT_CATEGORIES["rbi"] == "8025"
 
 
 def test_configured_stat_categories_for_league_mlb():
-    assert configured_stat_categories_for_league("mlb") == {
-        "hits": "6719",
-        "total_bases": "6607",
-    }
+    assert len(configured_stat_categories_for_league("mlb")) == 12
+    assert configured_stat_categories_for_league("mlb") == DK_MLB_STAT_CATEGORIES
 
 
 def test_build_league_events_query_matches_captured_filter():

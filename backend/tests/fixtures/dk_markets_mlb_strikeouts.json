@@ -1,0 +1,233 @@
+{
+  "markets": [
+    {
+      "id": "342696469",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Connelly Early Strikeouts Thrown O/U",
+      "subcategoryId": "15221",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14018",
+        "betOfferTypeId": 0,
+        "name": "Strikeouts Thrown O/U"
+      },
+      "subscriptionKey": "markets-401072324",
+      "sortOrder": 1,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14018|2:222657",
+      "dynamicMetadata": {}
+    },
+    {
+      "id": "342696356",
+      "eventId": "34275127",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "Nathan Eovaldi Strikeouts Thrown O/U",
+      "subcategoryId": "15221",
+      "componentMapping": {
+        "primary": 8,
+        "fallback": 0
+      },
+      "marketType": {
+        "id": "14018",
+        "betOfferTypeId": 0,
+        "name": "Strikeouts Thrown O/U"
+      },
+      "subscriptionKey": "markets-401072324",
+      "sortOrder": 2,
+      "tags": [
+        "SGP",
+        "YourBetEligible",
+        "Cashout",
+        "IgnoreSortOrderOnPush",
+        "MicroMarketDelayRemoval",
+        "OSB",
+        "PlayerProps"
+      ],
+      "correlatedId": "34275127|14018|2:107706",
+      "dynamicMetadata": {}
+    }
+  ],
+  "selections": [
+    {
+      "id": "0QA342696356#2181543914_13L84240Q1-1450357016Q20",
+      "marketId": "342696356",
+      "label": "Over",
+      "displayOdds": {
+        "american": "\u2212139",
+        "decimal": "1.71",
+        "fractional": "100/139"
+      },
+      "trueOdds": 1.71942447,
+      "points": 4.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "31465",
+          "name": "Nathan Eovaldi",
+          "type": "Player",
+          "seoIdentifier": "Nathan Eovaldi",
+          "statistic": {
+            "prefix": "K/9",
+            "value": 8.63,
+            "stringValue": "8.63",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "107706"
+          }
+        }
+      ],
+      "sortOrder": 4500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696356#2181543915_13L84240Q1377382592Q20",
+      "marketId": "342696356",
+      "label": "Under",
+      "displayOdds": {
+        "american": "+109",
+        "decimal": "2.09",
+        "fractional": "109/100"
+      },
+      "trueOdds": 2.09,
+      "points": 4.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "31465",
+          "name": "Nathan Eovaldi",
+          "type": "Player",
+          "seoIdentifier": "Nathan Eovaldi",
+          "statistic": {
+            "prefix": "K/9",
+            "value": 8.63,
+            "stringValue": "8.63",
+            "showRecentStats": true
+          },
+          "venueRole": "AwayPlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "107706"
+          }
+        }
+      ],
+      "sortOrder": 4502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696469#2181543924_13L84240Q1-2091356037Q20",
+      "marketId": "342696469",
+      "label": "Over",
+      "displayOdds": {
+        "american": "+112",
+        "decimal": "2.12",
+        "fractional": "28/25"
+      },
+      "trueOdds": 2.12,
+      "points": 5.5,
+      "outcomeType": "Over",
+      "participants": [
+        {
+          "id": "808726",
+          "name": "Connelly Early",
+          "type": "Player",
+          "seoIdentifier": "Connelly Early",
+          "statistic": {
+            "prefix": "K/9",
+            "value": 8.75,
+            "stringValue": "8.75",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "222657"
+          }
+        }
+      ],
+      "sortOrder": 5500,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    },
+    {
+      "id": "0QA342696469#2181543925_13L84240Q1848900156Q20",
+      "marketId": "342696469",
+      "label": "Under",
+      "displayOdds": {
+        "american": "\u2212143",
+        "decimal": "1.69",
+        "fractional": "100/143"
+      },
+      "trueOdds": 1.6993007,
+      "points": 5.5,
+      "outcomeType": "Under",
+      "participants": [
+        {
+          "id": "808726",
+          "name": "Connelly Early",
+          "type": "Player",
+          "seoIdentifier": "Connelly Early",
+          "statistic": {
+            "prefix": "K/9",
+            "value": 8.75,
+            "stringValue": "8.75",
+            "showRecentStats": true
+          },
+          "venueRole": "HomePlayer",
+          "isNationalTeam": false,
+          "metadata": {
+            "sdid": "222657"
+          }
+        }
+      ],
+      "sortOrder": 5502,
+      "tags": [
+        "MainPointLine",
+        "SGP",
+        "1stFavorite",
+        "OSB"
+      ],
+      "metadata": {}
+    }
+  ],
+  "subscriptionPartials": {
+    "markets-401072324": {
+      "entity": "markets",
+      "query": "$filter=eventId eq '34275127' AND clientMetadata/subCategoryId eq '15221' AND tags/all(t: t ne 'SportcastBetBuilder') and tags/any(t: t eq 'OSB')",
+      "locale": "en"
+    }
+  }
+}

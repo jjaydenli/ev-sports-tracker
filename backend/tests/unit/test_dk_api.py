@@ -67,7 +67,7 @@ def test_flatten_markets_response_produces_one_row_per_player(points_payload):
         points_payload,
         event_id=EVENT_ID,
         market="points",
-        subcategory_id=DK_STAT_CATEGORIES["points"],
+        prop_subcategory_id=DK_STAT_CATEGORIES["points"],
     )
 
     assert len(props) == 16
@@ -87,7 +87,7 @@ def test_flatten_steals_ou_fixture(steals_ou_payload):
         steals_ou_payload,
         event_id=EVENT_ID,
         market="steals",
-        subcategory_id=DK_STAT_CATEGORIES["steals"],
+        prop_subcategory_id=DK_STAT_CATEGORIES["steals"],
     )
     assert len(props) == 2
     main = next(p for p in props if p["line"] == 1.5)
@@ -105,6 +105,9 @@ def test_infer_canonical_market_from_dk_label():
     assert infer_canonical_market_from_dk_label("Steals + Blocks O/U") == "stl+blk"
     assert infer_canonical_market_from_dk_label("Luis Arraez Hits O/U") == "hits"
     assert infer_canonical_market_from_dk_label("Casey Schmitt Total Bases O/U") == "total_bases"
+    assert infer_canonical_market_from_dk_label("Connor Prielipp Hits Allowed O/U") == "hits_allowed"
+    assert infer_canonical_market_from_dk_label("Connor Prielipp Strikeouts Thrown O/U") == "strikeouts"
+    assert infer_canonical_market_from_dk_label("Byron Buxton RBIs O/U") == "rbi"
 
 
 def test_infer_canonical_market_from_steals_milestone_fixture(steals_milestone_payload):
@@ -121,7 +124,7 @@ def test_flatten_milestone_steals_fixture(steals_milestone_payload):
         steals_milestone_payload,
         event_id=EVENT_ID,
         market="steals",
-        subcategory_id=DK_MILESTONE_STAT_CATEGORIES["steals"],
+        prop_subcategory_id=DK_MILESTONE_STAT_CATEGORIES["steals"],
     )
     assert len(props) == 3
     two_plus = next(p for p in props if p["milestone_threshold"] == 2)
@@ -136,7 +139,7 @@ def test_flatten_markets_response_uses_market_key_directly(points_payload):
         points_payload,
         event_id=EVENT_ID,
         market="pts+reb",
-        subcategory_id=DK_STAT_CATEGORIES["pts+reb"],
+        prop_subcategory_id=DK_STAT_CATEGORIES["pts+reb"],
     )
 
     assert props
@@ -185,7 +188,7 @@ def test_flatten_mlb_hits_fixture():
         payload,
         event_id=MLB_EVENT_ID,
         market="hits",
-        subcategory_id=DK_MLB_STAT_CATEGORIES["hits"],
+        prop_subcategory_id=DK_MLB_STAT_CATEGORIES["hits"],
     )
     assert len(props) == 18
     arraez = next(p for p in props if p["player"] == "Luis Arraez")
@@ -200,7 +203,7 @@ def test_flatten_mlb_total_bases_fixture():
         payload,
         event_id=MLB_EVENT_ID,
         market="total_bases",
-        subcategory_id=DK_MLB_STAT_CATEGORIES["total_bases"],
+        prop_subcategory_id=DK_MLB_STAT_CATEGORIES["total_bases"],
     )
     assert props
     assert props[0]["market"] == "total_bases"
@@ -210,6 +213,38 @@ def test_flatten_mlb_total_bases_fixture():
 def test_infer_canonical_market_from_mlb_hits_fixture():
     payload = json.loads(MLB_HITS_FIXTURE_PATH.read_text(encoding="utf-8"))
     assert infer_canonical_market_from_dk_payload(payload) == "hits"
+
+
+@pytest.mark.parametrize(
+    ("fixture_name", "market", "subcategory_id"),
+    [
+        ("dk_markets_mlb_singles.json", "singles", "17409"),
+        ("dk_markets_mlb_strikeouts.json", "strikeouts", "15221"),
+        ("dk_markets_mlb_hits_allowed.json", "hits_allowed", "9886"),
+        ("dk_markets_mlb_rbi.json", "rbi", "8025"),
+    ],
+)
+def test_flatten_mlb_ou_fixtures(fixture_name, market, subcategory_id):
+    path = Path("tests/fixtures") / fixture_name
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    event_id = payload["markets"][0]["eventId"]
+    props = flatten_markets_response(
+        payload,
+        event_id=event_id,
+        market=market,
+        prop_subcategory_id=subcategory_id,
+    )
+    assert props
+    assert props[0]["market"] == market
+    assert props[0]["subcategory_id"] == subcategory_id
+    assert props[0]["line_kind"] == "ou"
+
+
+def test_infer_canonical_market_from_mlb_hits_allowed_fixture():
+    payload = json.loads(
+        Path("tests/fixtures/dk_markets_mlb_hits_allowed.json").read_text(encoding="utf-8")
+    )
+    assert infer_canonical_market_from_dk_payload(payload) == "hits_allowed"
 
 
 def test_extract_event_ids_mlb_league_fixture():

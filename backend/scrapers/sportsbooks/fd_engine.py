@@ -153,7 +153,9 @@ class FanDuelEngine(BaseScraper):
             if isinstance(result, Exception):
                 logger.error(f"fanduel fetch failed: {result}")
                 continue
-            all_props.extend(result)
+            for row in result:
+                row["league"] = self.league.upper()
+                all_props.append(row)
 
         line_count = count_fd_line_rows(all_props)
         logger.info(
@@ -172,12 +174,14 @@ async def run_fd_scrape(
     event_ids: list[str] | None = None,
     game_urls: list[str] | None = None,
     markets: list[str] | None = None,
+    league: str = DEFAULT_LEAGUE,
 ) -> int:
     """Scrape FanDuel and persist the master board; return grouped prop count."""
     engine = FanDuelEngine(
         event_ids=event_ids,
         game_urls=game_urls,
         markets=markets,
+        league=league,
     )
     props = await engine.run(output_path)
     if not props:

@@ -27,7 +27,7 @@ def parse_fd_prop(raw_prop: dict) -> dict | None:
     if raw_prop.get("over_odds") is None or raw_prop.get("under_odds") is None:
         return None
 
-    return {
+    normalized = {
         "sportsbook": raw_prop.get("sportsbook", FD_SPORTSBOOK),
         "player": player,
         "market": get_canonical_market("fanduel", raw_market),
@@ -42,6 +42,10 @@ def parse_fd_prop(raw_prop: dict) -> dict | None:
         "market_id": raw_prop.get("market_id"),
         "market_type": raw_prop.get("market_type"),
     }
+    league = raw_prop.get("league")
+    if league:
+        normalized["league"] = str(league).upper()
+    return normalized
 
 
 def parse_fd_props(raw_props: list[dict]) -> list[dict]:

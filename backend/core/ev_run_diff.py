@@ -118,26 +118,36 @@ def rotate_ev_opportunities_file(
     *,
     current_filename: str = "ev_opportunities.json",
     previous_filename: str = EV_PREVIOUS_FILENAME,
-) -> list[dict]:
+) -> tuple[list[dict], str | None]:
     """
     If current output exists, read it, rotate to previous, return prior rows.
 
-    Returns an empty list when no prior run output exists (first scan).
+    Returns ``(previous_rows, previous_run_id)``. Empty list when no prior run.
     """
     current_path = data_dir / current_filename
     if not current_path.exists():
-        return []
+        return [], None
 
     with current_path.open(encoding="utf-8") as file:
         data = json.load(file)
 
-    previous_rows = data if isinstance(data, list) else []
+    if isinstance(data, list):
+        previous_rows = data
+        prior_run_id = None
+    elif isinstance(data, dict):
+        props = data.get("props")
+        previous_rows = props if isinstance(props, list) else []
+        raw_id = data.get("run_id")
+        prior_run_id = str(raw_id) if raw_id else None
+    else:
+        previous_rows = []
+        prior_run_id = None
 
     previous_path = data_dir / previous_filename
     if previous_path.exists():
         previous_path.unlink()
     current_path.rename(previous_path)
-    return previous_rows
+    return previous_rows, prior_run_id
 
 
 def _format_player_line(entry: dict) -> str:

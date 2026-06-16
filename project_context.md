@@ -51,7 +51,7 @@ The system standardizes disparate naming conventions across books, calculates no
 * **Normalization:** `fd_parser.py` + `market_maps.py` → `fd_normalized.json` (with Betr/DK via `normalize.py`).
 * **EV / multi-book:** `resolve_multi_book_sharp_quote` in `line_adjustment.py` — equal-weight de-vig when DK and FD both have exact O/U at the Betr line; otherwise FD exact-only or DK ladder methods. `compare_betr_vs_draftkings(..., fanduel_props=)` in `engine.py`.
 * **Probe (live):** `python -m scripts.probe_fd_events --league nba` — optional `--event-id`, `--game-url`, `--tab`, `--raw`. Offline: `test_fd_event_discovery`, `test_fd_event_page`; fixtures `fd_event_*_player_{points,rebounds,assists}.json` (SGP / extended O/U fixture TBD — live `probe_fd_events --tab same-game-parlay-`).
-* **Pipeline:** `pipeline_runner` (or repo-root `./ev`) runs Betr + DK + FD scrapes in parallel (`_run_selected_scrapes`); `--league` selects Betr enum + DK slate (`MLB` auto-skips FanDuel); `--skip-betr` / `--skip-dk` / `--skip-fd` skip that book’s scrape and JWT (Betr only), reusing existing normalized boards for EV.
+* **Pipeline:** `pipeline_runner` (or repo-root `./ev`) loops **all leagues** (`config/pipeline_sources.py`); per league scrapes all dfs + books in parallel; in-memory merge → normalize → EV. `--books` selects sportsbooks; **dfs always refresh** on EV runs. `--skip-scrape` only path that reuses disk. Coverage: `scrape_coverage.json` with `run_id`.
 * **Code:** `backend/config/fd_competitions.py`, `fd_markets.py`, `backend/scrapers/sportsbooks/fd_api.py`, `fd_engine.py`, `backend/parsers/fd_parser.py`, `backend/scripts/probe_fd_events.py`. **Docs:** [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md).
 
 ### Dabble (archived)
@@ -122,7 +122,7 @@ ev-sports-tracker/
         └── unit/
 ```
 
-**EV data flow:** `./ev` or `python -m core.pipeline_runner` from `backend/` → `--league` normalized to Betr GraphQL enum (`_normalize_betr_league`; DK via `_dk_league_key`) → scrapers → `data/processed/{betr,dk,fd}_master_board.json` → `normalize.py` → `{betr,dk,fd}_normalized.json` → `ev_pipeline.py` (`persist_match_diagnostics` → `match_report.json`, `unmatched_*.json`; `run_ev_scan` → ranked table + `ev_opportunities.json` via `engine.py`; rotate prior output to `ev_opportunities.previous.json`, CLI run-diff summary + `ev_run_diff.json` via `ev_run_diff.py`)
+**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run
 
 ## 6. Roadmap
 
@@ -145,7 +145,7 @@ ev-sports-tracker/
 * `ev_pipeline.py` loads `{betr,dk,fd}_normalized.json` → `compare_betr_vs_draftkings` → `ev_opportunities.json`; ranked plays table via `ev_display.py`.
 * Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_ev_display`, `test_line_adjustment_multi_book`, `test_pipeline_runner`, `test_normalize`, `test_math_utils`; fixtures incl. `fd_league_nba_events.json`, `fd_event_*_player_{points,rebounds,assists}.json`.
 * Betr breakeven aligned at **-120** across `math_utils`, parser side markers, and EV engine.
-* Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — parallel scrapes, case-insensitive `--league` (Betr GraphQL enum + DK slate; `MLB` skips FD), `--skip-betr` / `--skip-dk` / `--skip-fd`, JWT pre-flight via `betr_auth.py`; repo-root `./ev` wrapper.
+* Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — multi-league loop, `--dfs` / `--books` / `--leagues`, fresh-only runs with `run_id`, `core/pipeline_scrape.py`, `config/pipeline_sources.py`; repo-root `./ev` wrapper.
 * Betr `--league` case normalization: `_normalize_betr_league` + `BetrEngine` uppercase GraphQL enum; GraphQL `errors` logged on invalid league — fixes empty MLB slate when invoking `./ev --league mlb`.
 * Pipeline `--min-ev` / `--plus-ev-only`: filter ranked output to `ev > min_ev`; `plus_ev` flag on each row; default `min_ev=0` shows top-N including negative EV.
 * Ranked plays table: `ev_display.py` — compact 10-column layout (Hit%, EV%, +EV, DK/FD O/U, Src).

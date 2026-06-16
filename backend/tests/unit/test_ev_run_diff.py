@@ -3,6 +3,7 @@ import json
 import pytest
 
 from core.ev_pipeline import run_ev_scan
+from core.pipeline_artifacts import load_wrapped_board
 from core.ev_run_diff import (
     EV_DIFF_FILENAME,
     EV_PREVIOUS_FILENAME,
@@ -92,9 +93,10 @@ def test_rotate_ev_opportunities_file(tmp_path):
     current = tmp_path / "ev_opportunities.json"
     current.write_text(json.dumps([{"player": "X"}]), encoding="utf-8")
 
-    rows = rotate_ev_opportunities_file(tmp_path)
+    rows, prior_id = rotate_ev_opportunities_file(tmp_path)
 
     assert rows == [{"player": "X"}]
+    assert prior_id is None
     assert not current.exists()
     assert (tmp_path / EV_PREVIOUS_FILENAME).exists()
 
@@ -139,6 +141,8 @@ def test_run_ev_scan_writes_diff_on_second_run(tmp_path):
     assert second
     assert (tmp_path / EV_PREVIOUS_FILENAME).exists()
     assert (tmp_path / EV_DIFF_FILENAME).exists()
+    _, current_opps = load_wrapped_board(tmp_path / "ev_opportunities.json")
+    assert isinstance(current_opps, list)
 
     diff_payload = json.loads((tmp_path / EV_DIFF_FILENAME).read_text(encoding="utf-8"))
     assert diff_payload["has_previous"] is True

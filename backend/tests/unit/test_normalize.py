@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from core.pipeline_artifacts import load_wrapped_board
 from parsers.betr_parser import parse_betr_props
 from parsers.dk_parser import parse_dk_props
 from parsers.normalize import (
@@ -132,7 +133,8 @@ def test_normalize_all_writes_per_platform_and_unified(tmp_path):
     unified = normalize_all(tmp_path)
 
     assert len(unified) == 2
-    assert (tmp_path / "betr_normalized.json").exists()
+    _, betr_norm = load_wrapped_board(tmp_path / "betr_normalized.json")
+    assert len(betr_norm) == 1
     assert (tmp_path / "dk_normalized.json").exists()
     assert (tmp_path / "unified_master_board.json").exists()
     assert not (tmp_path / "dabble_normalized.json").exists()

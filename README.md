@@ -96,20 +96,22 @@ From the repo root (activates `backend/.venv` if present) or from `backend/` wit
 # same as: cd backend && python -m core.pipeline_runner
 ```
 
-This runs **Betr + DraftKings + FanDuel scrapes in parallel**, then normalize → EV scan, and writes:
+This runs **all configured leagues** (NBA, MLB): for each league, dfs + books scrape in parallel, merge in memory, normalize once, then EV scan. Writes:
 
-- `data/processed/ev_opportunities.json` — top matched plays by EV (default 15)
+- `data/processed/scrape_coverage.json` — per source/league status (`ok`, `no_events`, `skipped`, `failed`) and `run_id`
+- `data/processed/ev_opportunities.json` — top matched plays by EV (default 15; wrapped with `run_id`)
 - `data/processed/ev_opportunities.previous.json` — prior run’s top-N (rotated before overwrite)
 - `data/processed/ev_run_diff.json` — new / removed / improved / fell vs previous top-N
-- `data/processed/match_report.json` — matched/unmatched counts and `betr_match_rate_pct`
+- `data/processed/match_report.json` — matched/unmatched counts, `by_league`, and `betr_match_rate_pct`
 - `data/processed/unmatched_betr.json` — Betr lines with no sharp match
 - `data/processed/unmatched_dk.json` — DK lines with no Betr twin on the same key
 
-Use the match files to judge scrape coverage and cross-book alignment before trusting +EV rows. Useful flags:
+Each run uses **fresh scrape data only** (no stale normalized boards). Use the match files to judge scrape coverage and cross-book alignment before trusting +EV rows. Useful flags:
 
-- `--skip-scrape` — reuse existing master boards
-- `--skip-betr` / `--skip-dk` / `--skip-fd` — scrape the others, reuse that book’s normalized file for EV
-- `--betr-only` / `--dk-only` — scrape one book only
+- `--books dk,fd` — scrape selected sportsbooks; **all dfs apps always refresh** on EV runs
+- `--leagues nba,mlb` — subset of leagues (default: all)
+- `--scrape-only` — scrape + normalize only (no EV); `--dfs betr` limits dfs when debugging
+- `--skip-scrape` — normalize + EV from existing master boards on disk (explicit override)
 - `--top-n 15` — max rows written (default 15)
 - `--min-ev 0.01` — mark `plus_ev` when edge > 1%; also **filters** output to those rows (default `0` shows all edges in top-N)
 - `--plus-ev-only` — filter to `ev > --min-ev` (use with `--min-ev 0` for strictly positive EV only)

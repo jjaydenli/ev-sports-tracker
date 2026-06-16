@@ -23,30 +23,24 @@ from core.ev_run_diff import (
     rotate_ev_opportunities_file,
     write_run_diff_json,
 )
-from parsers.normalize import normalize_all, save_props
-
-EV_OUTPUT_FILENAME = "ev_opportunities.json"
-MATCH_REPORT_FILENAME = "match_report.json"
-UNMATCHED_BETR_FILENAME = "unmatched_betr.json"
-UNMATCHED_DK_FILENAME = "unmatched_dk.json"
-BETR_NORMALIZED = "betr_normalized.json"
-DK_NORMALIZED = "dk_normalized.json"
-FD_NORMALIZED = "fd_normalized.json"
+from core.pipeline_artifacts import (
+    BETR_NORMALIZED,
+    DK_NORMALIZED,
+    EV_OUTPUT_FILENAME,
+    FD_NORMALIZED,
+    MATCH_REPORT_FILENAME,
+    UNMATCHED_BETR_FILENAME,
+    UNMATCHED_DK_FILENAME,
+    load_wrapped_board,
+    save_wrapped_board,
+)
+from parsers.normalize import UNIFIED_OUTPUT_FILENAME, normalize_all
 
 
 def load_json_list(path: Path) -> list[dict]:
-    """Load a JSON file containing a list of prop dicts."""
-    if not path.exists():
-        return []
-
-    with path.open(encoding="utf-8") as file:
-        data = json.load(file)
-
-    if not isinstance(data, list):
-        logger.warning(f"expected list in {path}, got {type(data).__name__}")
-        return []
-
-    return data
+    """Load a JSON file containing props (wrapped board or legacy list)."""
+    _, props = load_wrapped_board(path)
+    return props
 
 
 def split_normalized_by_sportsbook(
@@ -65,13 +59,34 @@ def split_normalized_by_sportsbook(
     return betr_props, dk_props, fd_props
 
 
-def load_comparison_inputs(data_dir: Path) -> tuple[list[dict], list[dict], list[dict]]:
+def load_comparison_inputs(
+    data_dir: Path,
+    *,
+    expected_run_id: str | None = None,
+) -> tuple[list[dict], list[dict], list[dict]]:
     """Load normalized Betr, DraftKings, and FanDuel props from disk."""
-    betr_props = load_json_list(data_dir / BETR_NORMALIZED)
-    dk_props = load_json_list(data_dir / DK_NORMALIZED)
-    fd_props = load_json_list(data_dir / FD_NORMALIZED)
+    betr_path = data_dir / BETR_NORMALIZED
+    dk_path = data_dir / DK_NORMALIZED
+    fd_path = data_dir / FD_NORMALIZED
 
-    unified_path = data_dir / "unified_master_board.json"
+    if expected_run_id:
+        betr_run_id, betr_props = load_wrapped_board(betr_path)
+        dk_run_id, dk_props = load_wrapped_board(dk_path)
+        _, fd_props = load_wrapped_board(fd_path)
+        if betr_run_id != expected_run_id:
+            raise ValueError(
+                f"betr normalized run_id mismatch: {betr_run_id!r} != {expected_run_id!r}"
+            )
+        if dk_run_id != expected_run_id:
+            raise ValueError(
+                f"dk normalized run_id mismatch: {dk_run_id!r} != {expected_run_id!r}"
+            )
+    else:
+        betr_props = load_json_list(betr_path)
+        dk_props = load_json_list(dk_path)
+        fd_props = load_json_list(fd_path)
+
+    unified_path = data_dir / UNIFIED_OUTPUT_FILENAME
     if unified_path.exists() and (not betr_props or not dk_props):
         unified = load_json_list(unified_path)
         betr_from_unified, dk_from_unified, fd_from_unified = (
@@ -84,6 +99,56 @@ def load_comparison_inputs(data_dir: Path) -> tuple[list[dict], list[dict], list
     return betr_props, dk_props, fd_props
 
 
+def _league_key(prop: dict) -> str:
+    league = prop.get("league")
+    if league:
+        return str(league).upper()
+    return "UNKNOWN"
+
+
+def compute_by_league_match_stats(
+    betr_props: list[dict],
+    dk_props: list[dict],
+    *,
+    fd_props: list[dict] | None = None,
+    include_flat_lines: bool = False,
+) -> dict[str, dict]:
+    """Per-league match diagnostics derived from normalized props."""
+    leagues = sorted(
+        {
+            _league_key(prop)
+            for prop in betr_props + dk_props + (fd_props or [])
+        }
+    )
+    by_league: dict[str, dict] = {}
+    for league in leagues:
+        betr_subset = [p for p in betr_props if _league_key(p) == league]
+        dk_subset = [p for p in dk_props if _league_key(p) == league]
+        fd_subset = (
+            [p for p in (fd_props or []) if _league_key(p) == league]
+            if fd_props
+            else None
+        )
+        if not betr_subset and not dk_subset and not fd_subset:
+            continue
+        if not betr_subset and not dk_subset:
+            by_league[league] = {
+                "status": "books_only",
+                "fd_props": len(fd_subset or []),
+            }
+            continue
+        stats = compute_match_stats(
+            betr_subset,
+            dk_subset,
+            fanduel_props=fd_subset,
+            include_flat_lines=include_flat_lines,
+        )
+        by_league[league] = dict(stats)
+        if not betr_subset and not dk_subset:
+            by_league[league]["status"] = "no_events"
+    return by_league
+
+
 def persist_match_diagnostics(
     data_dir: str | Path,
     betr_props: list[dict],
@@ -91,7 +156,7 @@ def persist_match_diagnostics(
     *,
     fd_props: list[dict] | None = None,
     include_flat_lines: bool = False,
-) -> dict[str, int | float]:
+) -> dict[str, int | float | dict]:
     """Write match stats and unmatched prop lists for scrape/match efficacy checks."""
     data_path = Path(data_dir)
     stats = compute_match_stats(
@@ -100,15 +165,25 @@ def persist_match_diagnostics(
         fanduel_props=fd_props,
         include_flat_lines=include_flat_lines,
     )
-    report = {
+    by_league = compute_by_league_match_stats(
+        betr_props,
+        dk_props,
+        fd_props=fd_props,
+        include_flat_lines=include_flat_lines,
+    )
+    report: dict[str, int | float | dict | str] = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         **stats,
+        "by_league": by_league,
     }
 
     report_path = data_path / MATCH_REPORT_FILENAME
     report_path.parent.mkdir(parents=True, exist_ok=True)
     with report_path.open("w", encoding="utf-8") as file:
         json.dump(report, file, indent=4)
+
+    from parsers.normalize import save_props
+
     save_props(
         list_unmatched_betr_props(
             betr_props,
@@ -146,6 +221,8 @@ def run_ev_scan(
     normalize_first: bool = True,
     include_flat_lines: bool = False,
     filter_min_ev: bool = False,
+    expected_run_id: str | None = None,
+    previous_run_id: str | None = None,
 ) -> list[dict]:
     """Run the Betr vs DraftKings EV scan and optionally persist results."""
     data_path = Path(data_dir)
@@ -153,7 +230,9 @@ def run_ev_scan(
     if normalize_first:
         normalize_all(data_path)
 
-    betr_props, dk_props, fd_props = load_comparison_inputs(data_path)
+    betr_props, dk_props, fd_props = load_comparison_inputs(
+        data_path, expected_run_id=expected_run_id
+    )
     if not betr_props:
         logger.error(f"no betr props found in {data_path}")
         return []
@@ -176,9 +255,20 @@ def run_ev_scan(
     )
     plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 
-    previous_rows = rotate_ev_opportunities_file(data_path)
+    previous_rows, prior_run_id = rotate_ev_opportunities_file(data_path)
     output_path = data_path / EV_OUTPUT_FILENAME
-    save_props(opportunities, output_path)
+    effective_previous_run_id = previous_run_id or prior_run_id
+    save_wrapped_board(
+        output_path,
+        run_id=expected_run_id or "unknown",
+        props=opportunities,
+    )
+    if effective_previous_run_id and expected_run_id:
+        with output_path.open(encoding="utf-8") as file:
+            payload = json.load(file)
+        payload["previous_run_id"] = effective_previous_run_id
+        with output_path.open("w", encoding="utf-8") as file:
+            json.dump(payload, file, indent=4)
 
     diff = None
     if previous_rows:

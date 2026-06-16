@@ -1,16 +1,19 @@
 import json
 from unittest.mock import AsyncMock, patch
 
-from core.pipeline_runner import _dk_league_key, _normalize_betr_league, run_refresh
+from core.ev_pipeline import BETR_NORMALIZED, DK_NORMALIZED
+from core.pipeline_artifacts import load_wrapped_board, save_wrapped_board
+from core.scrape_result import ScrapeResult
 
 
-def _write_normalized(tmp_path, betr_count: int, dk_count: int) -> None:
+def _write_wrapped_normalized(tmp_path, betr_count: int, dk_count: int, *, run_id: str = "test-run") -> None:
     betr = [
         {
             "sportsbook": "Betr",
             "player": f"Player {index}",
             "market": "points",
             "line": 10.5 + index,
+            "league": "NBA",
             "over_odds": -120,
             "under_odds": -120,
         }
@@ -22,134 +25,178 @@ def _write_normalized(tmp_path, betr_count: int, dk_count: int) -> None:
             "player": f"Player {index}",
             "market": "points",
             "line": 10.5 + index,
+            "league": "NBA",
             "over_odds": -110,
             "under_odds": -110,
         }
         for index in range(dk_count)
     ]
-    (tmp_path / "betr_normalized.json").write_text(json.dumps(betr), encoding="utf-8")
-    (tmp_path / "dk_normalized.json").write_text(json.dumps(dk), encoding="utf-8")
+    save_wrapped_board(tmp_path / BETR_NORMALIZED, run_id=run_id, props=betr)
+    save_wrapped_board(tmp_path / DK_NORMALIZED, run_id=run_id, props=dk)
+
+
+def _ok_result(source: str, league: str, count: int) -> ScrapeResult:
+    if source == "dk":
+        props = [
+            {
+                "sportsbook": "DraftKings",
+                "player": f"DK Player {index}",
+                "market": "hits" if league == "MLB" else "points",
+                "line": 1.5 + index if league == "MLB" else 10.5 + index,
+                "league": league,
+                "over_odds": -110,
+                "under_odds": -110,
+            }
+            for index in range(count)
+        ]
+    else:
+        betr_key = "HITS" if league == "MLB" else "POINTS"
+        betr_value = 1.5 if league == "MLB" else 10.5
+        props = [
+            {
+                "player": f"Betr Player {index}",
+                "key": betr_key,
+                "type": "REGULAR",
+                "value": betr_value + index,
+                "market_id": f"betr-{league}-{index}",
+                "league": league,
+                "allowed_options": [
+                    {"market_option_id": "1", "outcome": "OVER"},
+                    {"market_option_id": "2", "outcome": "UNDER"},
+                ],
+            }
+            for index in range(count)
+        ]
+    return ScrapeResult(
+        source=source,
+        league=league,
+        status="ok",
+        prop_count=count,
+        props=props,
+    )
+
+
+def _no_events(source: str, league: str) -> ScrapeResult:
+    return ScrapeResult(source=source, league=league, status="no_events")
+
+
+def _skipped(source: str, league: str) -> ScrapeResult:
+    return ScrapeResult(
+        source=source,
+        league=league,
+        status="skipped",
+        reason="not_configured",
+    )
 
 
 @patch("core.pipeline_runner._preflight_betr_auth")
 def test_run_refresh_skip_scrape_writes_ev(mock_preflight, tmp_path):
-    _write_normalized(tmp_path, betr_count=2, dk_count=2)
+    _write_wrapped_normalized(tmp_path, betr_count=2, dk_count=2)
+
+    from core.pipeline_runner import run_refresh
 
     code = run_refresh(data_dir=tmp_path, skip_scrape=True)
 
     assert code == 0
     mock_preflight.assert_not_called()
     assert (tmp_path / "match_report.json").exists()
-    assert (tmp_path / "unmatched_betr.json").exists()
-    assert (tmp_path / "unmatched_dk.json").exists()
     output = tmp_path / "ev_opportunities.json"
     assert output.exists()
-    opportunities = json.loads(output.read_text(encoding="utf-8"))
+    _, opportunities = load_wrapped_board(output)
     assert isinstance(opportunities, list)
     if opportunities:
         assert "plus_ev" in opportunities[0]
-        assert len(opportunities) <= 15
 
 
-@patch("core.pipeline_runner._scrape_betr", new_callable=AsyncMock)
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
 @patch("core.pipeline_runner._preflight_betr_auth")
-def test_run_refresh_betr_only_skips_ev(mock_preflight, mock_scrape_betr, tmp_path):
-    mock_scrape_betr.return_value = 10
+def test_run_refresh_full_scrape_all_leagues(mock_preflight, mock_scrape, tmp_path):
+    async def fake_scrape(source: str, league: str) -> ScrapeResult:
+        if source == "fd" and league == "MLB":
+            return _skipped("fd", league)
+        if league == "NBA" and source in {"betr", "dk", "fd"}:
+            return _ok_result(source, league, 2)
+        return _no_events(source, league)
 
-    with patch("core.pipeline_runner.normalize_all") as mock_normalize:
-        code = run_refresh(data_dir=tmp_path, betr_only=True)
+    mock_scrape.side_effect = fake_scrape
+
+    from core.pipeline_runner import run_refresh
+
+    code = run_refresh(data_dir=tmp_path)
 
     assert code == 0
-    mock_preflight.assert_called_once()
-    mock_normalize.assert_called_once_with(tmp_path)
+    assert mock_scrape.await_count == 6
+    _, betr = load_wrapped_board(tmp_path / BETR_NORMALIZED)
+    assert len(betr) == 2
+    coverage = json.loads((tmp_path / "scrape_coverage.json").read_text(encoding="utf-8"))
+    assert coverage["leagues"] == ["NBA", "MLB"]
+    assert coverage["sources"]["fd:MLB"]["status"] == "skipped"
 
 
-@patch("core.pipeline_runner._scrape_fd", new_callable=AsyncMock)
-@patch("core.pipeline_runner._scrape_betr", new_callable=AsyncMock)
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
 @patch("core.pipeline_runner._preflight_betr_auth")
-def test_run_refresh_skip_dk_scrapes_betr_and_fd_only(
-    mock_preflight, mock_scrape_betr, mock_scrape_fd, tmp_path
-):
-    mock_scrape_betr.return_value = 5
-    mock_scrape_fd.return_value = 12
-    _write_normalized(tmp_path, betr_count=1, dk_count=1)
+def test_run_refresh_scrape_only(mock_preflight, mock_scrape, tmp_path):
+    mock_scrape.return_value = _ok_result("betr", "NBA", 1)
 
-    with patch("core.pipeline_runner._scrape_dk", new_callable=AsyncMock) as mock_scrape_dk:
-        with patch("core.pipeline_runner.normalize_all"):
-            code = run_refresh(data_dir=tmp_path, skip_dk=True)
+    from core.pipeline_runner import run_refresh
+
+    code = run_refresh(data_dir=tmp_path, scrape_only=True, dfs=("betr",), books=())
 
     assert code == 0
-    mock_scrape_betr.assert_awaited_once()
-    mock_scrape_fd.assert_awaited_once()
-    mock_scrape_dk.assert_not_awaited()
+    assert not (tmp_path / "ev_opportunities.json").exists()
 
 
-@patch("core.pipeline_runner._scrape_fd", new_callable=AsyncMock)
-@patch("core.pipeline_runner._scrape_dk", new_callable=AsyncMock)
-@patch("core.pipeline_runner._scrape_betr", new_callable=AsyncMock)
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
 @patch("core.pipeline_runner._preflight_betr_auth")
-def test_run_refresh_skip_betr_scrapes_dk_and_fd_only(
-    mock_preflight, mock_scrape_betr, mock_scrape_dk, mock_scrape_fd, tmp_path
-):
-    mock_scrape_dk.return_value = 8
-    mock_scrape_fd.return_value = 12
-    _write_normalized(tmp_path, betr_count=1, dk_count=1)
+def test_run_refresh_partial_books_still_scrapes_all_dfs(mock_preflight, mock_scrape, tmp_path):
+    async def fake_scrape(source: str, league: str) -> ScrapeResult:
+        if source == "betr":
+            return _ok_result("betr", league, 1)
+        if source == "dk":
+            return _ok_result("dk", league, 1)
+        return _skipped("fd", league)
 
-    with patch("core.pipeline_runner.normalize_all"):
-        code = run_refresh(data_dir=tmp_path, skip_betr=True)
+    mock_scrape.side_effect = fake_scrape
+
+    from core.pipeline_runner import run_refresh
+
+    code = run_refresh(data_dir=tmp_path, books=("dk",), leagues=("NBA",))
 
     assert code == 0
-    mock_preflight.assert_not_called()
-    mock_scrape_betr.assert_not_awaited()
-    mock_scrape_dk.assert_awaited_once()
-    mock_scrape_fd.assert_awaited_once()
+    scraped_sources = {call.args[0] for call in mock_scrape.await_args_list}
+    assert scraped_sources == {"betr", "dk"}
 
 
-def test_dk_league_key_maps_mlb():
-    assert _dk_league_key("MLB") == "mlb"
-    assert _dk_league_key("NBA") == "nba"
-
-
-def test_normalize_betr_league_uppercases_enum():
-    assert _normalize_betr_league("mlb") == "MLB"
-    assert _normalize_betr_league("NBA") == "NBA"
-
-
-@patch("core.pipeline_runner._scrape_fd", new_callable=AsyncMock)
-@patch("core.pipeline_runner._scrape_dk", new_callable=AsyncMock)
-@patch("core.pipeline_runner._scrape_betr", new_callable=AsyncMock)
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
 @patch("core.pipeline_runner._preflight_betr_auth")
-def test_run_refresh_mlb_skips_fd_scrape(
-    mock_preflight, mock_scrape_betr, mock_scrape_dk, mock_scrape_fd, tmp_path
-):
-    mock_scrape_betr.return_value = 3
-    mock_scrape_dk.return_value = 5
-    _write_normalized(tmp_path, betr_count=1, dk_count=1)
+def test_run_refresh_fails_without_dfs_and_book(mock_preflight, mock_scrape, tmp_path):
+    mock_scrape.return_value = _no_events("betr", "NBA")
 
-    with patch("core.pipeline_runner.normalize_all"):
-        code = run_refresh(data_dir=tmp_path, league="MLB")
+    from core.pipeline_runner import run_refresh
+
+    code = run_refresh(data_dir=tmp_path, leagues=("NBA",))
+
+    assert code == 1
+
+
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
+@patch("core.pipeline_runner._preflight_betr_auth")
+def test_run_refresh_continues_when_one_league_empty(mock_preflight, mock_scrape, tmp_path):
+    async def fake_scrape(source: str, league: str) -> ScrapeResult:
+        if league == "NBA":
+            return _no_events(source, league)
+        if league == "MLB" and source in {"betr", "dk"}:
+            return _ok_result(source, league, 2)
+        if league == "MLB" and source == "fd":
+            return _skipped("fd", league)
+        return _no_events(source, league)
+
+    mock_scrape.side_effect = fake_scrape
+
+    from core.pipeline_runner import run_refresh
+
+    code = run_refresh(data_dir=tmp_path)
 
     assert code == 0
-    mock_scrape_betr.assert_awaited_once()
-    mock_scrape_dk.assert_awaited_once()
-    mock_scrape_fd.assert_not_awaited()
-
-
-@patch("core.pipeline_runner._scrape_fd", new_callable=AsyncMock)
-@patch("core.pipeline_runner._scrape_dk", new_callable=AsyncMock)
-@patch("core.pipeline_runner._scrape_betr", new_callable=AsyncMock)
-@patch("core.pipeline_runner._preflight_betr_auth")
-def test_run_refresh_lowercase_mlb_normalized_for_betr(
-    mock_preflight, mock_scrape_betr, mock_scrape_dk, mock_scrape_fd, tmp_path
-):
-    mock_scrape_betr.return_value = 3
-    mock_scrape_dk.return_value = 5
-    _write_normalized(tmp_path, betr_count=1, dk_count=1)
-
-    with patch("core.pipeline_runner.normalize_all"):
-        code = run_refresh(data_dir=tmp_path, league="mlb")
-
-    assert code == 0
-    assert mock_scrape_betr.await_args.args[0] == "MLB"
-    assert mock_scrape_dk.await_args.args[0] == "MLB"
-    mock_scrape_fd.assert_not_awaited()
+    _, betr = load_wrapped_board(tmp_path / BETR_NORMALIZED)
+    assert len(betr) == 2

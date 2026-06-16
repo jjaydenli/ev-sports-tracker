@@ -1,6 +1,7 @@
-# Proxyman Setup for Dabble API
+# Proxyman Setup for Dabble API (archived)
 
-Use this guide to capture the exact headers and tokens the Dabble iOS app sends, then wire them into the scraper.
+
+Use this guide to capture the exact headers and tokens the Dabble iOS app sends, then wire them into the legacy scraper.
 
 ## 1. Install and configure Proxyman
 

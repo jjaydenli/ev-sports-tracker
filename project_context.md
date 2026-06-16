@@ -1,13 +1,13 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-16 (agent design-handoff docs; EV pipeline unchanged since 2026-06-13 MLB run)
+**Last verified:** 2026-06-16 (agent workflow trim + proxyman scope; platform detail in docs/betting_odds/)
 
 ## 1. Project Overview
 
 This project is a high-throughput Expected Value (+EV) sports betting engine. Its primary goal is to find profitable mathematical discrepancies by comparing fixed-payout player props on Daily Fantasy Sports (DFS) apps (primarily **Betr**) against dynamically priced sharp sportsbook lines (**DraftKings**, **FanDuel**).
 
-The system standardizes disparate naming conventions across books, calculates no-vig fair value on the fly, and outputs opportunities in a standardized JSON format. **Dabble** integration is archived under `backend/archive/dabble/`; capture notes remain in `docs/proxyman_dabble_setup.md`.
+The system standardizes disparate naming conventions across books, calculates no-vig fair value on the fly, and outputs opportunities in a standardized JSON format. **Dabble** integration is archived under `backend/archive/dabble/`; mobile-only Proxyman capture notes (not used for Betr/DK/FD) remain in `docs/proxyman_dabble_setup.md`.
 
 
 ## 2. Tech Stack & Libraries
@@ -22,41 +22,33 @@ The system standardizes disparate naming conventions across books, calculates no
 
 ## 3. Platform-Specific Extraction Logic
 
+Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below; each doc covers auth, scrape policy, markets, probes, and EV hooks.
+
 ### Betr (primary DFS)
 
-* **Access:** `fantasy.betr.app` GraphQL (`LeagueUpcomingEvents`). JWT via `ensure_betr_token()` — refresh grant (`BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` + `BETR_KEYCLOAK_CLIENT_ID`) or manual `BETR_BEARER_TOKEN` in `backend/config/.env` (Scrubbed Protocol: `os.getenv()` / `settings.py` only).
-* **Auth:** `betr_auth.py` — JWT expiry pre-flight, Keycloak refresh/password grant, token cache at `data/processed/.betr_token_cache.json`. Public realm token URL in `.env.example` (`https://account.betr.app/realms/betr/protocol/openid-connect/token`); omit only when JWT `iss` or cache supplies it. `BETR_KEYCLOAK_CLIENT_ID=betr-rn` for fantasy.betr.app refresh (client-bound tokens; code default `betr-web` if unset). Probe: `python -m scrapers.dfs.betr.betr_auth`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md) → Authentication.
-* **Scrape:** `betr_api.py` issues the GraphQL query; `betr_engine.py` / `betr_orchestrator.py` write `data/processed/betr_master_board.json` (wide fetch — see betr.md “Wide fetch policy”). GraphQL `League` enum is uppercase (`NBA`, `MLB`); `BetrEngine` and `pipeline_runner._normalize_betr_league` uppercase `--league` (CLI case-insensitive). DK slate keys stay lowercase via `_dk_league_key`. GraphQL validation errors (e.g. invalid enum) are logged at scrape time.
-* **Data structure:** Flat relational arrays joined in `betr_parser.py` using keys like `marketId`, `selectionId`, `marketOptionId`.
-* **Normalization (v1):** Only `REGULAR` projections become normalized props. Boost/edge/discount types are skipped until `prop_type` and breakeven rules exist (see parser module docstring).
-* **Side availability:** Parser reads `allowedOptions` (`OVER`/`UNDER`/`MORE`/`LESS`). Sets `over_odds` / `under_odds` to **-120** only for allowed sides (availability flags for the engine). Skips empty `allowed_options` on `REGULAR` props.
-* **Breakeven for EV:** `compare_betr_vs_draftkings` uses `BETR_STANDARD_BREAKEVEN_ODDS` (**-120**, 54.55% implied) from `utils/math_utils.py` for standard REGULAR picks — see [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
-* **Code:** `backend/scrapers/dfs/betr/` (`betr_api.py`, `betr_engine.py`, `betr_orchestrator.py`), `backend/parsers/betr_parser.py`.
+* **Role:** Fixed-payout DFS props compared to sharp books.
+* **Code:** `backend/scrapers/dfs/betr/`, `backend/parsers/betr_parser.py`
+* **Detail:** [docs/betting_odds/betr.md](docs/betting_odds/betr.md) — GraphQL auth, wide fetch, `REGULAR` / `allowedOptions`, -120 breakeven.
 
 ### DraftKings (sharp sportsbook)
 
-* **Access:** Unauthenticated `httpx` calls to DK `sportscontent` league/event/market endpoints (`config/api_headers.py` — `DK_BASE_HEADERS`, no DK token in `settings.py` today).
-* **State:** URL-driven (`category` / `subcategory`); prop subcategory maps in `config/dk_subcategories.py` (core stats + O/U extended: `threes`, `steals`, `blocks`, `stl+blk`; milestone 1+/2+/3+ fallback via `DK_MILESTONE_STAT_CATEGORIES`; pending Betr markets in `DK_PENDING_STAT_CATEGORIES`). Game discovery uses `DK_LEAGUE_SLATES` (`league_id` + `slate_subcategory_id`).
-* **Orchestration:** Resolve event IDs → dedupe → per-event parallel subcategory fetches via `fetch_event_all_markets` (`dk_api.py`); global semaphore `DK_MARKETS_MAX_CONCURRENT` (default 6, env-tunable); transient 403/429 retries with backoff; browser-like headers in `api_headers.py`. League slate warm-up skipped on auto-discover. `dk_engine.py` extends `base_scraper.py`. `dk_api` ingests main and alternate point lines (`is_main_line` on master board rows).
-* **Line alignment:** `core/line_adjustment.py` maps DK prices onto each Betr line (exact alt, interpolated bracket, or extrapolated single-anchor). **+EV ranking** uses `exact`, `dk_alt`, `dk_interpolated`, and (with FanDuel loaded) `fd_exact`, `fd_alt`, `multi_book_consensus`; extrapolated and milestone DK quotes stay diagnostics-only. See [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
-* **Flat Betr lines:** Integer lines (push risk) skipped by default; `--include-flat-lines` uses `core/flat_line.py` adjusted breakeven.
-* **Code:** `backend/scrapers/sportsbooks/dk_engine.py`, `dk_api.py`, `backend/parsers/dk_parser.py`.
+* **Role:** Sharp O/U ladders and milestone fallbacks; primary input to `line_adjustment.py`.
+* **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`
+* **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md) — slates, subcategories, eligible `line_source` values.
 
 ### FanDuel (sharp sportsbook)
 
-* **Access:** State-specific `sbapi.{state}.sportsbook.fanduel.com` — `FD_SPORTSBOOK_API_HOST` in `config/.env` (default `https://sbapi.nj.sportsbook.fanduel.com`). Public web client key `_ak` via `FD_API_KEY` (see `config/.env.example`). No bearer token for league/event JSON today.
-* **Event discovery:** `GET /api/content-managed-page` with `customPageId=nba` → `attachments.events`. Scrapable matchups: NBA `competitionId=10547864` (not futures `12739957`) and name contains ` @ `. Helpers in `config/fd_competitions.py`; live fetch in `fd_api.fetch_league_event_ids`.
-* **Event-page props:** `GET /api/event-page` per matchup × tab → `fd_engine` → `fd_master_board.json`. Tab map and default scrape list in `config/fd_markets.py` (`FD_TAB_CANONICAL_MARKETS`, `FD_DEFAULT_SCRAPE_MARKETS`); full canonical ↔ tab ↔ `marketType` table in [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md). **Core O/U:** `points` / `rebounds` / `assists` — one dedicated tab each (`player-points`, `player-rebounds`, `player-assists`). **Extended O/U:** `threes`, `pts+reb`, `pts+ast`, `pra`, `reb+ast` — one filtered fetch of `same-game-parlay-` per event (`scrape_targets_for_markets`). O/U detection: `parse_player_ou_market_type` (`PLAYER_[A-Z]_(ALT_)?TOTAL_*` → canonical suffix map). Main + alt ladders flattened; `group_fd_line_rows` groups alt steps under one prop per player/market; `fd_parser` expands `lines` for normalization. **In-play** events skipped in flatten (`event_page_in_play`).
-* **Not scraped (catalogued in fanduel.md):** milestones (`TO_SCORE_*`, `TO_RECORD_*`, `N+_MADE_THREES`, double/triple-double), quarter/half props, game lines (`MONEY_LINE`, totals, spreads). **Steals/blocks O/U not observed** on FD NBA event pages (2026-05-26 probe). Milestone EV unlike DK today — see roadmap `feat/fd-milestone-props`.
-* **Normalization:** `fd_parser.py` + `market_maps.py` → `fd_normalized.json` (with Betr/DK via `normalize.py`).
-* **EV / multi-book:** `resolve_multi_book_sharp_quote` in `line_adjustment.py` — equal-weight de-vig when DK and FD both have exact O/U at the Betr line; otherwise FD exact-only or DK ladder methods. `compare_betr_vs_draftkings(..., fanduel_props=)` in `engine.py`.
-* **Probe (live):** `python -m scripts.probe_fd_events --league nba` — optional `--event-id`, `--game-url`, `--tab`, `--raw`. Offline: `test_fd_event_discovery`, `test_fd_event_page`; fixtures `fd_event_*_player_{points,rebounds,assists}.json` (SGP / extended O/U fixture TBD — live `probe_fd_events --tab same-game-parlay-`).
-* **Pipeline:** `pipeline_runner` (or repo-root `./ev`) loops **all leagues** (`config/pipeline_sources.py`); per league scrapes all dfs + books in parallel; in-memory merge → normalize → EV. `--books` selects sportsbooks; **dfs always refresh** on EV runs. `--skip-scrape` only path that reuses disk. Coverage: `scrape_coverage.json` with `run_id`.
-* **Code:** `backend/config/fd_competitions.py`, `fd_markets.py`, `backend/scrapers/sportsbooks/fd_api.py`, `fd_engine.py`, `backend/parsers/fd_parser.py`, `backend/scripts/probe_fd_events.py`. **Docs:** [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md).
+* **Role:** Second sharp book; multi-book consensus when DK+FD align at the Betr line.
+* **Code:** `fd_api.py`, `fd_engine.py`, `fd_parser.py`, `config/fd_markets.py`, `scripts/probe_fd_events.py`
+* **Detail:** [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md) — event discovery, tabs, O/U vs milestones.
 
 ### Dabble (archived)
 
-* Archived parser/engine under `backend/archive/dabble/`. Legacy scraper: `backend/scrapers/dfs/dabble_engine.py`. Proxyman capture: [docs/proxyman_dabble_setup.md](docs/proxyman_dabble_setup.md). Fair odds: [docs/betting_odds/dabble.md](docs/betting_odds/dabble.md).
+* **Code:** `backend/archive/dabble/` · **Detail:** [docs/betting_odds/dabble.md](docs/betting_odds/dabble.md) · mobile-only capture: [docs/proxyman_dabble_setup.md](docs/proxyman_dabble_setup.md)
+
+### MLB
+
+* **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — league-specific market coverage and pipeline notes.
 
 ## 4. Quantitative Modeling & Math
 

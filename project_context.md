@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-13 (live `./ev --league mlb`: betr=747 dk=400 fd skipped matched=83; `--league` case normalization for Betr GraphQL enum)
+**Last verified:** 2026-06-16 (agent design-handoff docs; EV pipeline unchanged since 2026-06-13 MLB run)
 
 ## 1. Project Overview
 
@@ -68,6 +68,10 @@ The system standardizes disparate naming conventions across books, calculates no
 
 ```text
 ev-sports-tracker/
+│   ├── rules/                  # path-scoped: backend/**, docs/plans/**
+│   └── skills/design-handoff/  # plan-file workflow → docs/plans/
+├── docs/
+│   ├── plans/                  # _template.md, _example.md, feature handoffs
 ├── ev                            # bash wrapper → backend pipeline_runner (same flags)
 └── backend/
     ├── config/
@@ -123,6 +127,7 @@ ev-sports-tracker/
 ```
 
 **EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run
+
 
 ## 6. Roadmap
 

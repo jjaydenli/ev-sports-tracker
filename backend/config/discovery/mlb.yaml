@@ -14,6 +14,7 @@ enabled_markets:
   - h+r+rbi
   - runs
   - singles
+  - doubles
   - walks
   - earned_runs
   - total_outs
@@ -48,6 +49,11 @@ discovered_ou:
     canonical: singles
     dk_prop_subcategory_id: "17409"
     dk_label: Singles O/U
+  doubles:
+    betr_key: DOUBLES
+    canonical: doubles
+    dk_prop_subcategory_id: "17410"
+    dk_label: Doubles O/U
   walks:
     betr_key: WALKS
     canonical: walks
@@ -127,8 +133,5 @@ discovered_dk_only:
   stolen_bases:
     dk_prop_subcategory_id: "17408"
     dk_label: Stolen Bases O/U
-  doubles:
-    dk_prop_subcategory_id: "17410"
-    dk_label: Doubles O/U
 
 pending: {}

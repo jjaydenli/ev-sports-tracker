@@ -70,6 +70,19 @@ def test_parse_betr_prop_mlb_singles():
     assert result["market"] == "singles"
 
 
+def test_parse_betr_prop_mlb_doubles():
+    result = parse_betr_prop(
+        _raw_betr_prop(
+            league="MLB",
+            key="DOUBLES",
+            label="Doubles",
+            value=0.5,
+        )
+    )
+    assert result is not None
+    assert result["market"] == "doubles"
+
+
 def test_parse_betr_prop_mlb_skips_deferred_hitter_strikeouts():
     assert (
         parse_betr_prop(
@@ -204,3 +217,23 @@ def test_parse_betr_props_filters_non_regular_from_batch():
 
     assert len(results) == 1
     assert results[0]["source_market_id"] == "regular-1"
+
+
+def test_parse_betr_prop_is_live_propagates():
+    result = parse_betr_prop(_raw_betr_prop(is_live=True, league="MLB", key="HITS", value=1.5))
+    assert result is not None
+    assert result["is_live"] is True
+
+
+def test_parse_betr_prop_is_live_absent_when_false():
+    result = parse_betr_prop(_raw_betr_prop(is_live=False))
+    assert result is not None
+    assert "is_live" not in result
+
+
+def test_parse_betr_prop_is_live_absent_when_missing():
+    raw = _raw_betr_prop()
+    raw.pop("is_live", None)
+    result = parse_betr_prop(raw)
+    assert result is not None
+    assert "is_live" not in result

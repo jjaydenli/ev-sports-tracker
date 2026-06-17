@@ -5,12 +5,14 @@ import httpx
 import pytest
 
 from config.dk_subcategories import (
-    DK_MILESTONE_STAT_CATEGORIES,
     DK_MLB_STAT_CATEGORIES,
-    DK_STAT_CATEGORIES,
+    DK_NBA_MILESTONE_STAT_CATEGORIES,
+    DK_NBA_STAT_CATEGORIES,
     build_markets_url,
 )
 from scrapers.sportsbooks.dk_api import (
+    LIVE_EVENT_STATUSES,
+    SCRAPABLE_EVENT_STATUSES,
     extract_event_ids,
     fetch_and_flatten_all_for_market,
     fetch_and_flatten_markets,
@@ -33,6 +35,9 @@ LEAGUE_FIXTURE_PATH = Path("tests/fixtures/dk_league_nba_events.json")
 MLB_HITS_FIXTURE_PATH = Path("tests/fixtures/dk_markets_mlb_hits.json")
 MLB_TOTAL_BASES_FIXTURE_PATH = Path("tests/fixtures/dk_markets_mlb_total_bases.json")
 MLB_LEAGUE_FIXTURE_PATH = Path("tests/fixtures/dk_league_mlb_events.json")
+MLB_LEAGUE_WITH_LIVE_FIXTURE_PATH = Path(
+    "tests/fixtures/dk_league_mlb_events_with_live.json"
+)
 EVENT_ID = "34183767"
 MLB_EVENT_ID = "34267452"
 
@@ -67,7 +72,7 @@ def test_flatten_markets_response_produces_one_row_per_player(points_payload):
         points_payload,
         event_id=EVENT_ID,
         market="points",
-        prop_subcategory_id=DK_STAT_CATEGORIES["points"],
+        prop_subcategory_id=DK_NBA_STAT_CATEGORIES["points"],
     )
 
     assert len(props) == 16
@@ -78,7 +83,7 @@ def test_flatten_markets_response_produces_one_row_per_player(points_payload):
     assert shai["under_odds"] == -115
     assert shai["is_main_line"] is True
     assert shai["market_id"] == "336952528"
-    assert shai["subcategory_id"] == DK_STAT_CATEGORIES["points"]
+    assert shai["subcategory_id"] == DK_NBA_STAT_CATEGORIES["points"]
     assert shai["line_kind"] == "ou"
 
 
@@ -87,7 +92,7 @@ def test_flatten_steals_ou_fixture(steals_ou_payload):
         steals_ou_payload,
         event_id=EVENT_ID,
         market="steals",
-        prop_subcategory_id=DK_STAT_CATEGORIES["steals"],
+        prop_subcategory_id=DK_NBA_STAT_CATEGORIES["steals"],
     )
     assert len(props) == 2
     main = next(p for p in props if p["line"] == 1.5)
@@ -124,7 +129,7 @@ def test_flatten_milestone_steals_fixture(steals_milestone_payload):
         steals_milestone_payload,
         event_id=EVENT_ID,
         market="steals",
-        prop_subcategory_id=DK_MILESTONE_STAT_CATEGORIES["steals"],
+        prop_subcategory_id=DK_NBA_MILESTONE_STAT_CATEGORIES["steals"],
     )
     assert len(props) == 3
     two_plus = next(p for p in props if p["milestone_threshold"] == 2)
@@ -139,12 +144,12 @@ def test_flatten_markets_response_uses_market_key_directly(points_payload):
         points_payload,
         event_id=EVENT_ID,
         market="pts+reb",
-        prop_subcategory_id=DK_STAT_CATEGORIES["pts+reb"],
+        prop_subcategory_id=DK_NBA_STAT_CATEGORIES["pts+reb"],
     )
 
     assert props
     assert props[0]["market"] == "pts+reb"
-    assert props[0]["subcategory_id"] == DK_STAT_CATEGORIES["pts+reb"]
+    assert props[0]["subcategory_id"] == DK_NBA_STAT_CATEGORIES["pts+reb"]
 
 
 @pytest.mark.asyncio
@@ -155,7 +160,7 @@ async def test_fetch_event_subcategory_markets_returns_none_on_http_error():
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as client:
         result = await fetch_event_subcategory_markets(
-            client, EVENT_ID, DK_STAT_CATEGORIES["points"]
+            client, EVENT_ID, DK_NBA_STAT_CATEGORIES["points"]
         )
 
     assert result is None
@@ -175,7 +180,7 @@ async def test_fetch_event_subcategory_markets_retries_transient_403(points_payl
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as client:
         result = await fetch_event_subcategory_markets(
-            client, EVENT_ID, DK_STAT_CATEGORIES["points"]
+            client, EVENT_ID, DK_NBA_STAT_CATEGORIES["points"]
         )
 
     assert result == points_payload
@@ -296,8 +301,8 @@ async def test_fetch_and_flatten_markets(points_payload):
 async def test_fetch_and_flatten_all_for_market_merges_ou_and_milestone(
     steals_ou_payload, steals_milestone_payload
 ):
-    ou_url = build_markets_url(EVENT_ID, DK_STAT_CATEGORIES["steals"])
-    ms_url = build_markets_url(EVENT_ID, DK_MILESTONE_STAT_CATEGORIES["steals"])
+    ou_url = build_markets_url(EVENT_ID, DK_NBA_STAT_CATEGORIES["steals"])
+    ms_url = build_markets_url(EVENT_ID, DK_NBA_MILESTONE_STAT_CATEGORIES["steals"])
 
     async def handler(request: httpx.Request) -> httpx.Response:
         if str(request.url) == ou_url:
@@ -313,3 +318,69 @@ async def test_fetch_and_flatten_all_for_market_merges_ou_and_milestone(
     assert len(props) == 5
     kinds = {p["line_kind"] for p in props}
     assert kinds == {"ou", "milestone"}
+
+
+def test_live_event_statuses_constant():
+    assert "IN_PROGRESS" in LIVE_EVENT_STATUSES
+    assert "STARTED" in LIVE_EVENT_STATUSES
+    assert "NOT_STARTED" not in LIVE_EVENT_STATUSES
+
+
+def test_extract_event_ids_pregame_only_by_default():
+    payload = {
+        "events": [
+            {"id": "100", "status": "NOT_STARTED"},
+            {"id": "200", "status": "IN_PROGRESS"},
+            {"id": "300", "status": "COMPLETED"},
+        ]
+    }
+    result = extract_event_ids(payload)
+    assert result == ["100"]
+
+
+def test_extract_event_ids_live_only():
+    payload = {
+        "events": [
+            {"id": "100", "status": "NOT_STARTED"},
+            {"id": "200", "status": "IN_PROGRESS"},
+        ]
+    }
+    result = extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES)
+    assert result == ["200"]
+
+
+def test_extract_event_ids_pregame_and_live():
+    payload = {
+        "events": [
+            {"id": "100", "status": "NOT_STARTED"},
+            {"id": "200", "status": "IN_PROGRESS"},
+            {"id": "300", "status": "COMPLETED"},
+        ]
+    }
+    combined = SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
+    result = extract_event_ids(payload, statuses=combined)
+    assert set(result) == {"100", "200"}
+    assert "300" not in result
+
+
+def test_extract_event_ids_mlb_live_fixture():
+    payload = json.loads(MLB_LEAGUE_WITH_LIVE_FIXTURE_PATH.read_text(encoding="utf-8"))
+    pregame = extract_event_ids(payload)
+    live = extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES)
+    combined = extract_event_ids(
+        payload, statuses=SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
+    )
+    assert pregame == ["34267452"]
+    assert live == ["34267999"]
+    assert set(combined) == {"34267452", "34267999"}
+
+
+def test_extract_event_ids_started_status():
+    payload = {
+        "events": [
+            {"id": "100", "status": "NOT_STARTED"},
+            {"id": "400", "status": "STARTED"},
+        ]
+    }
+    result = extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES)
+    assert result == ["400"]

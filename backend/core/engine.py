@@ -166,6 +166,7 @@ def _append_side_opportunity(
             "plus_ev_milestone_caveat": undisclosed_vig_caveat and plus_ev,
             "dfs_sportsbook": dfs_prop.get("sportsbook", DEFAULT_DFS_SPORTSBOOK),
             "sharp_sportsbook": DEFAULT_SHARP_SPORTSBOOK,
+            "is_live": dfs_prop.get("is_live", False),
         }
     )
 

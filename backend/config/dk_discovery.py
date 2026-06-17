@@ -25,6 +25,34 @@ DK_DISCOVERY_ID_RANGES: dict[str, tuple[tuple[int, int], ...]] = {
     ),
 }
 
+# Live MLB batter tabs use different subCategoryIds than pregame (e.g. total_bases 9506 vs 6607).
+DK_MLB_LIVE_DISCOVERY_ID_RANGES: tuple[tuple[int, int], ...] = (
+    (9000, 10100),
+    (17000, 17600),
+)
+
+# Batter O/U markets scraped for live MLB events (subset of pregame slate).
+DK_MLB_LIVE_BATTER_MARKETS: frozenset[str] = frozenset(
+    {
+        "hits",
+        "total_bases",
+        "h+r+rbi",
+        "runs",
+        "singles",
+        "doubles",
+        "walks",
+        "rbi",
+    }
+)
+
+
+def discovery_id_ranges(league: str, *, live: bool = False) -> tuple[tuple[int, int], ...]:
+    """Default subCategoryId scan ranges for a league (optionally include live MLB ranges)."""
+    base = DK_DISCOVERY_ID_RANGES.get(league.lower(), ())
+    if league.lower() == "mlb" and live:
+        return base + DK_MLB_LIVE_DISCOVERY_ID_RANGES
+    return base
+
 DISCOVERY_DIR = Path("data/processed/discovery")
 
 

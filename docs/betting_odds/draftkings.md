@@ -5,7 +5,7 @@
 DK reuses ``subCategoryId`` at two scopes (see module docstring in `dk_subcategories.py`):
 
 - **Slate** (`slate_subcategory_id` in `DK_LEAGUE_SLATES`): league page gateway — lists scheduled games.
-- **Prop** (values in `DK_STAT_CATEGORIES` / `DK_MLB_STAT_CATEGORIES`): per-event stat tab — player O/U lines.
+- **Prop** (values in `DK_NBA_STAT_CATEGORIES` / `DK_MLB_STAT_CATEGORIES`): per-event stat tab — player O/U lines.
 
 Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_subcategories.py`](../../backend/config/dk_subcategories.py).
 
@@ -23,7 +23,7 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | pts+ast | 9973 |
 | reb+ast | 9974 |
 
-**Milestone** (1+/2+/3+, over-only) — `DK_MILESTONE_STAT_CATEGORIES` (each ID verified against DK `market` / `marketType.name`, not assumed sequential):
+**Milestone** (1+/2+/3+, over-only) — `DK_NBA_MILESTONE_STAT_CATEGORIES` (each ID verified against DK `market` / `marketType.name`, not assumed sequential):
 
 | Canonical market | subCategoryId (NBA) |
 |------------------|----------------------------|
@@ -49,6 +49,7 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | h+r+rbi | 17406 |
 | runs | 17407 |
 | singles | 17409 |
+| doubles | 17410 |
 | walks | 17411 |
 | earned_runs | 17412 |
 | total_outs | 17413 |
@@ -58,14 +59,14 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | rbi | 8025 |
 
 
-Betr-only markets awaiting IDs are listed in `DK_PENDING_STAT_CATEGORIES` (skipped at scrape).
+Betr-only markets awaiting IDs are listed in `DK_NBA_PENDING_STAT_CATEGORIES` (skipped at scrape).
 
 ## O/U vs milestone tabs
 
 - **O/U** (`line_kind: ou`): paired Over/Under with `points` — preferred for line matching.
 - **Milestone** (`line_kind: milestone`): over-only `N+` labels; mapped to Betr half-point line `N - 0.5` (e.g. DK `2+` ↔ Betr `1.5`).
 
-The scraper fetches O/U for every market in `DK_STAT_CATEGORIES` and milestone tabs when `DK_MILESTONE_STAT_CATEGORIES` has an ID. Per event, all subcategory calls run in parallel (capped by `DK_MARKETS_MAX_CONCURRENT`, default `6`); transient 403/429 responses are retried with backoff.
+The scraper fetches O/U for every market in `DK_NBA_STAT_CATEGORIES` and milestone tabs when `DK_NBA_MILESTONE_STAT_CATEGORIES` has an ID. Per event, all subcategory calls run in parallel (capped by `DK_MARKETS_MAX_CONCURRENT`, default `6`); transient 403/429 responses are retried with backoff.
 
 ## Scrape performance and rate limits
 

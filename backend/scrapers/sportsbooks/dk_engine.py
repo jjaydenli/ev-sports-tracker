@@ -9,12 +9,15 @@ from loguru import logger
 
 from config.api_headers import DK_BASE_HEADERS
 from config.dk_subcategories import (
+    configured_live_stat_categories_for_league,
     configured_stat_categories_for_league,
     milestone_categories_for_league,
     stat_categories_for_league,
 )
 from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.dk_api import (
+    LIVE_EVENT_STATUSES,
+    SCRAPABLE_EVENT_STATUSES,
     extract_event_ids,
     fetch_event_all_markets,
     fetch_league_events,
@@ -77,18 +80,31 @@ class DraftKingsEngine(BaseScraper):
     async def authenticate(self) -> str | None:
         return None
 
-    async def _resolve_event_ids(self, client: httpx.AsyncClient) -> list[str]:
+    async def _resolve_event_ids(
+        self, client: httpx.AsyncClient
+    ) -> tuple[list[str], set[str]]:
+        """Return (all_event_ids, live_event_ids). For MLB, discovers pregame + live."""
         if self.explicit_event_ids:
-            return self.explicit_event_ids
+            return self.explicit_event_ids, set()
 
         payload = await fetch_league_events(client, self.league)
         if not payload:
-            return []
-        event_ids = extract_event_ids(payload)
+            return [], set()
+
+        if self.league.lower() == "mlb":
+            all_ids = extract_event_ids(
+                payload, statuses=SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
+            )
+            live_ids = set(extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES))
+        else:
+            all_ids = extract_event_ids(payload)
+            live_ids = set()
+
         logger.info(
-            f"discovered {len(event_ids)} {self.league.upper()} events from league slate"
+            f"discovered {len(all_ids)} {self.league.upper()} events from league slate "
+            f"({len(live_ids)} live)"
         )
-        return event_ids
+        return all_ids, live_ids
 
     async def scrape(self) -> list[dict[str, Any]]:
         scrape_categories = configured_stat_categories_for_league(self.league)
@@ -109,6 +125,7 @@ class DraftKingsEngine(BaseScraper):
             logger.error(f"no scrapeable DK markets for league {self.league!r}")
             return []
 
+        live_categories = configured_live_stat_categories_for_league(self.league)
         all_props: list[dict[str, Any]] = []
 
         async with httpx.AsyncClient(
@@ -117,7 +134,7 @@ class DraftKingsEngine(BaseScraper):
             timeout=15.0,
             limits=HTTPX_LIMITS,
         ) as client:
-            event_ids = await self._resolve_event_ids(client)
+            event_ids, live_event_ids = await self._resolve_event_ids(client)
             if not event_ids:
                 logger.warning("No DraftKings event IDs available to scrape.")
                 return []
@@ -126,31 +143,50 @@ class DraftKingsEngine(BaseScraper):
             if self.explicit_event_ids:
                 await warm_up_dk_session(client, self.league)
 
-            results = await asyncio.gather(
-                *[
-                    fetch_event_all_markets(
-                        client,
-                        event_id,
-                        markets_to_scrape,
-                        stat_categories=scrape_categories,
-                        milestone_categories=self.milestone_categories,
+            tasks = []
+            task_meta: list[tuple[str, bool]] = []  # (event_id, is_live)
+            for event_id in event_ids:
+                is_live = event_id in live_event_ids
+                if is_live:
+                    if not live_categories:
+                        continue
+                    tasks.append(
+                        fetch_event_all_markets(
+                            client,
+                            event_id,
+                            list(live_categories.keys()),
+                            stat_categories=live_categories,
+                            milestone_categories={},
+                        )
                     )
-                    for event_id in event_ids
-                ],
-                return_exceptions=True,
-            )
+                else:
+                    tasks.append(
+                        fetch_event_all_markets(
+                            client,
+                            event_id,
+                            markets_to_scrape,
+                            stat_categories=scrape_categories,
+                            milestone_categories=self.milestone_categories,
+                        )
+                    )
+                task_meta.append((event_id, is_live))
 
-        for event_id, result in zip(event_ids, results):
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        for (event_id, is_live), result in zip(task_meta, results):
             if isinstance(result, Exception):
                 logger.error(f"draftkings fetch failed for {event_id}: {result}")
                 continue
             for row in result:
                 row["league"] = self.league.upper()
+                if is_live:
+                    row["is_live"] = True
                 all_props.append(row)
 
+        live_count = sum(1 for _, live in task_meta if live)
         logger.info(
-            f"fetched {len(all_props)} props from {len(event_ids)} events "
-            f"x {len(markets_to_scrape)} markets"
+            f"fetched {len(all_props)} props from {len(task_meta)} events "
+            f"({live_count} live) x {len(markets_to_scrape)} markets"
         )
         return all_props
 

@@ -183,3 +183,23 @@ def test_find_ev_opportunities_skips_blocked_under_side():
     results = find_ev_opportunities(betr, dk, min_ev=0.0)
 
     assert all(row["side"] != "under" for row in results)
+
+
+def test_ev_row_is_live_false_by_default():
+    betr = [_betr_prop("Test Player", "points", 20.5)]
+    dk = [_dk_prop("Test Player", "points", 20.5, -140, 120)]
+
+    results = find_ev_opportunities(betr, dk)
+
+    assert results
+    assert all(row["is_live"] is False for row in results)
+
+
+def test_ev_row_is_live_true_when_dfs_prop_is_live():
+    betr_live = {**_betr_prop("Test Player", "hits", 1.5), "is_live": True}
+    dk = [_dk_prop("Test Player", "hits", 1.5, -110, -110)]
+
+    results = find_ev_opportunities([betr_live], dk)
+
+    assert results
+    assert all(row["is_live"] is True for row in results)

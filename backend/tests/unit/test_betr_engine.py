@@ -1,4 +1,14 @@
-from scrapers.dfs.betr.betr_engine import extract_raw_props
+import json
+from pathlib import Path
+
+from scrapers.dfs.betr.betr_engine import (
+    BETR_LIVE_EVENT_STATUSES,
+    extract_raw_props,
+    iter_live_events,
+    iter_scheduled_events,
+)
+
+BETR_MLB_LIVE_FIXTURE_PATH = Path("tests/fixtures/betr_mlb_live.json")
 
 
 def _miles_mcbride_projection(**overrides):
@@ -210,3 +220,123 @@ def test_extract_raw_props_handles_empty_payload():
     assert extract_raw_props({}) == []
     assert extract_raw_props({"data": {"getUpcomingEventsV2": None}}) == []
     assert extract_raw_props({"data": {"getUpcomingEventsV2": []}}) == []
+
+
+def _live_event(**overrides):
+    base = {
+        "id": "live-event-001",
+        "name": "NYM@LAD",
+        "status": "IN_PROGRESS",
+        "competitionType": "VERSUS",
+        "playerStructure": "TEAM",
+        "dataFeedSourceIds": [],
+        "venueDetails": None,
+        "attributes": [],
+        "teams": [
+            {
+                "name": "NYM",
+                "league": "MLB",
+                "sport": "BASEBALL",
+                "players": [
+                    {
+                        "id": "player-lindor",
+                        "firstName": "Francisco",
+                        "lastName": "Lindor",
+                        "projections": [
+                            _miles_mcbride_projection(
+                                marketId="live-market-001",
+                                marketStatus="OPENED",
+                                isLive=True,
+                                type="REGULAR",
+                                key="HITS",
+                                label="Hits",
+                                value=1.5,
+                                allowedOptions=[
+                                    {"marketOptionId": "o1", "outcome": "OVER"},
+                                    {"marketOptionId": "o2", "outcome": "UNDER"},
+                                ],
+                            )
+                        ],
+                    }
+                ],
+            }
+        ],
+    }
+    base.update(overrides)
+    return base
+
+
+def test_betr_live_event_statuses_constant():
+    assert "IN_PROGRESS" in BETR_LIVE_EVENT_STATUSES
+
+
+def test_iter_live_events_yields_in_progress():
+    payload = _league_payload(_scheduled_event(), _live_event())
+    live = list(iter_live_events(payload))
+    assert len(live) == 1
+    assert live[0]["status"] == "IN_PROGRESS"
+
+
+def test_iter_scheduled_events_excludes_in_progress():
+    payload = _league_payload(_scheduled_event(), _live_event())
+    scheduled = list(iter_scheduled_events(payload))
+    assert len(scheduled) == 1
+    assert scheduled[0]["status"] == "SCHEDULED"
+
+
+def test_extract_raw_props_includes_live_events():
+    """IN_PROGRESS events with isLive=True projections are included."""
+    payload = _league_payload(_scheduled_event(), _live_event())
+    result = extract_raw_props(payload)
+    assert len(result) == 2
+    live_props = [p for p in result if p["is_live"] is True]
+    pregame_props = [p for p in result if not p["is_live"]]
+    assert len(live_props) == 1
+    assert len(pregame_props) == 1
+    assert live_props[0]["market_id"] == "live-market-001"
+
+
+def test_extract_raw_props_live_event_status_set():
+    payload = _league_payload(_live_event())
+    result = extract_raw_props(payload)
+    assert len(result) == 1
+    assert result[0]["event_status"] == "IN_PROGRESS"
+    assert result[0]["is_live"] is True
+
+
+def test_extract_raw_props_betr_mlb_live_fixture():
+    payload = json.loads(BETR_MLB_LIVE_FIXTURE_PATH.read_text(encoding="utf-8"))
+    result = extract_raw_props(payload, league="MLB")
+    assert len(result) == 1
+    prop = result[0]
+    assert prop["is_live"] is True
+    assert prop["event_status"] == "IN_PROGRESS"
+    assert prop["key"] == "HITS"
+    assert prop["value"] == 1.5
+    assert prop["market_id"] == "live-market-hits-001"
+    assert prop["player"] == "Francisco Lindor"
+
+
+def test_extract_raw_props_live_projection_in_scheduled_event_excluded():
+    """isLive=True projection inside a SCHEDULED event is still excluded."""
+    payload = _league_payload(
+        _scheduled_event(
+            teams=[
+                {
+                    "name": "NY",
+                    "players": [
+                        {
+                            "id": "p1",
+                            "firstName": "Miles",
+                            "lastName": "McBride",
+                            "projections": [
+                                _miles_mcbride_projection(marketId="live-in-scheduled", isLive=True),
+                            ],
+                        }
+                    ],
+                }
+            ]
+        )
+    )
+    result = extract_raw_props(payload)
+    assert result == []

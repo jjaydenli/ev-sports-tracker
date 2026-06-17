@@ -64,3 +64,36 @@ def test_format_ev_opportunities_table_includes_header():
     assert "DK" in table
     assert "FD" in table
     assert "Src" in table
+    assert "Live" in table
+
+
+def test_format_ev_opportunity_row_live_marker():
+    row = {
+        "player": "Francisco Lindor",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+        "side_hit_pct": 55.0,
+        "dk_over_odds": -115,
+        "dk_under_odds": -110,
+        "is_live": True,
+    }
+    line = format_ev_opportunity_row(row)
+    assert " L " in line or line.endswith(" L") or "| L" in line
+
+
+def test_format_ev_opportunity_row_not_live_shows_dash():
+    row = {
+        "player": "Aaron Judge",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+        "side_hit_pct": 55.0,
+        "dk_over_odds": -115,
+        "dk_under_odds": -110,
+        "is_live": False,
+    }
+    line = format_ev_opportunity_row(row)
+    cells = [c.strip() for c in line.split("|")]
+    live_cell = cells[-1]
+    assert live_cell == "—"

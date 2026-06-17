@@ -20,6 +20,7 @@ MLB_ENABLED_MARKETS = frozenset(
         "h+r+rbi",
         "runs",
         "singles",
+        "doubles",
         "walks",
         "earned_runs",
         "total_outs",
@@ -124,6 +125,9 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
     event_status = raw_prop.get("event_status")
     if event_status:
         normalized["event_status"] = event_status
+
+    if raw_prop.get("is_live"):
+        normalized["is_live"] = True
 
     return normalized
 

@@ -7,8 +7,10 @@ agent verifies each ID individually via probe_dk_subcategories or a single fetch
 Examples::
 
     python -m scripts.probe_dk_discover --league mlb
+    python -m scripts.probe_dk_discover --league mlb --live <live_event_id>
     python -m scripts.probe_dk_discover --league mlb 34267452 --ranges 6580-6760
     python -m scripts.probe_dk_subcategories 34267452 --league mlb
+    python -m scripts.probe_dk_subcategories <live_event_id> --league mlb --live --discover
 """
 
 from __future__ import annotations
@@ -17,7 +19,7 @@ import argparse
 import asyncio
 import json
 import sys
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from pathlib import Path
 
 import httpx
@@ -29,6 +31,7 @@ if str(BACKEND_ROOT) not in sys.path:
 from config.api_headers import DK_BASE_HEADERS  # noqa: E402
 from config.dk_discovery import (  # noqa: E402
     DK_DISCOVERY_ID_RANGES,
+    discovery_id_ranges,
     discovery_output_path,
     parse_id_ranges,
 )
@@ -36,88 +39,19 @@ from config.dk_subcategories import (  # noqa: E402
     DK_LEAGUE_SLATES,
     build_league_events_url,
 )
-from scrapers.sportsbooks.dk_api import (  # noqa: E402
-    _dk_market_label,
-    extract_event_ids,
-    fetch_event_subcategory_markets,
-    infer_canonical_market_from_dk_payload,
+from scrapers.sportsbooks.dk_subcategory_discovery import (  # noqa: E402
+    discover_subcategories,
+    pick_live_event_id,
+    pick_pregame_event_id,
 )
 
 
-@dataclass(frozen=True)
-class DiscoveredSubcategory:
-    prop_subcategory_id: str
-    market_type: str
-    sample_market: str
-    inferred_canonical: str | None
-    markets: int
-    selections: int
-    has_ou: bool
-
-
-def _has_ou_selections(payload: dict) -> bool:
-    for selection in payload.get("selections") or []:
-        outcome = selection.get("outcomeType") or selection.get("label")
-        if outcome in ("Over", "Under") and selection.get("points") is not None:
-            return True
-    return False
-
-
-async def _probe_one(
-    client: httpx.AsyncClient,
-    sem: asyncio.Semaphore,
-    event_id: str,
-    prop_subcategory_id: str,
-) -> DiscoveredSubcategory | None:
-    async with sem:
-        payload = await fetch_event_subcategory_markets(
-            client, event_id, prop_subcategory_id
-        )
-    if not payload:
-        return None
-    markets = payload.get("markets") or []
-    selections = payload.get("selections") or []
-    if not markets and not selections:
-        return None
-    sample_market = markets[0].get("name") if markets else ""
-    market_type = (markets[0].get("marketType") or {}).get("name") if markets else ""
-    inferred = infer_canonical_market_from_dk_payload(payload)
-    if not inferred and markets:
-        inferred = _dk_market_label(markets[0]) or None
-    return DiscoveredSubcategory(
-        prop_subcategory_id=prop_subcategory_id,
-        market_type=str(market_type or ""),
-        sample_market=str(sample_market or ""),
-        inferred_canonical=inferred,
-        markets=len(markets),
-        selections=len(selections),
-        has_ou=_has_ou_selections(payload),
-    )
-
-
-async def discover_subcategories(
-    event_id: str,
-    *,
-    id_ranges: tuple[tuple[int, int], ...],
-    max_concurrent: int = 12,
-) -> list[DiscoveredSubcategory]:
-    ids_to_scan = [
-        str(sid)
-        for start, end in id_ranges
-        for sid in range(start, end + 1)
-    ]
-    sem = asyncio.Semaphore(max_concurrent)
-    async with httpx.AsyncClient(headers=DK_BASE_HEADERS, timeout=15.0) as client:
-        results = await asyncio.gather(
-            *[_probe_one(client, sem, event_id, sid) for sid in ids_to_scan]
-        )
-    found = [row for row in results if row is not None]
-    found.sort(key=lambda row: int(row.prop_subcategory_id))
-    return found
-
-
 async def resolve_event_id(
-    client: httpx.AsyncClient, league: str, explicit: str | None
+    client: httpx.AsyncClient,
+    league: str,
+    explicit: str | None,
+    *,
+    live: bool = False,
 ) -> str:
     if explicit:
         return explicit
@@ -129,10 +63,18 @@ async def resolve_event_id(
     url = build_league_events_url(slate["league_id"], slate["slate_subcategory_id"])
     response = await client.get(url)
     response.raise_for_status()
-    event_ids = extract_event_ids(response.json())
-    if not event_ids:
+    payload = response.json()
+    if live:
+        event_id = pick_live_event_id(payload)
+        if not event_id:
+            raise RuntimeError(
+                f"no IN_PROGRESS/STARTED events on DK slate for league={league!r}"
+            )
+        return event_id
+    event_id = pick_pregame_event_id(payload)
+    if not event_id:
         raise RuntimeError(f"no NOT_STARTED events on DK slate for league={league!r}")
-    return event_ids[0]
+    return event_id
 
 
 async def main() -> None:
@@ -146,13 +88,18 @@ async def main() -> None:
     parser.add_argument(
         "event_id",
         nargs="?",
-        help="DK event id (default: first NOT_STARTED event on league slate)",
+        help="DK event id (default: first NOT_STARTED or --live IN_PROGRESS event)",
+    )
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="Use first IN_PROGRESS/STARTED event (and include live MLB id ranges)",
     )
     parser.add_argument(
         "--ranges",
         nargs="+",
         metavar="START-END",
-        help="Inclusive ID ranges to scan (default: config dk_discovery.DK_DISCOVERY_ID_RANGES)",
+        help="Inclusive ID ranges to scan (default: config dk_discovery ranges)",
     )
     parser.add_argument(
         "--output",
@@ -166,12 +113,14 @@ async def main() -> None:
     id_ranges = (
         parse_id_ranges(args.ranges)
         if args.ranges
-        else DK_DISCOVERY_ID_RANGES[args.league]
+        else discovery_id_ranges(args.league, live=args.live)
     )
     output = args.output or discovery_output_path(args.league, backend_root=BACKEND_ROOT)
 
     async with httpx.AsyncClient(headers=DK_BASE_HEADERS, timeout=20.0) as client:
-        event_id = await resolve_event_id(client, args.league, args.event_id)
+        event_id = await resolve_event_id(
+            client, args.league, args.event_id, live=args.live
+        )
 
     rows = await discover_subcategories(
         event_id, id_ranges=id_ranges, max_concurrent=args.max_concurrent
@@ -179,6 +128,7 @@ async def main() -> None:
     payload = {
         "league": args.league,
         "event_id": event_id,
+        "live": args.live,
         "scanned_id_ranges": [list(r) for r in id_ranges],
         "count": len(rows),
         "subcategories": [asdict(row) for row in rows],
@@ -186,7 +136,11 @@ async def main() -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-    print(f"league={args.league}  event={event_id}  discovered={len(rows)}  -> {output}\n")
+    mode = "live" if args.live else "pregame"
+    print(
+        f"league={args.league}  event={event_id}  mode={mode}  "
+        f"discovered={len(rows)}  -> {output}\n"
+    )
     for row in rows:
         ou = "O/U" if row.has_ou else "—"
         canon = row.inferred_canonical or "?"

@@ -1,0 +1,58 @@
+{
+  "data": {
+    "getUpcomingEventsV2": [
+      {
+        "id": "live-event-001",
+        "name": "NYM@LAD",
+        "sport": "BASEBALL",
+        "league": "MLB",
+        "status": "IN_PROGRESS",
+        "date": "2026-06-16T20:00Z",
+        "competitionType": "VERSUS",
+        "playerStructure": "TEAM",
+        "dataFeedSourceIds": [],
+        "venueDetails": {"name": "Dodger Stadium", "city": "Los Angeles", "country": "USA"},
+        "attributes": [],
+        "teams": [
+          {
+            "id": "team-nym",
+            "name": "NYM",
+            "league": "MLB",
+            "sport": "BASEBALL",
+            "players": [
+              {
+                "id": "player-judge-001",
+                "firstName": "Francisco",
+                "lastName": "Lindor",
+                "position": "SS",
+                "jerseyNumber": 12,
+                "attributes": [],
+                "projections": [
+                  {
+                    "marketId": "live-market-hits-001",
+                    "marketStatus": "OPENED",
+                    "isLive": true,
+                    "type": "REGULAR",
+                    "label": "Hits",
+                    "name": "Hits",
+                    "key": "HITS",
+                    "value": 1.5,
+                    "nonRegularValue": 0.0,
+                    "nonRegularPercentage": 0,
+                    "order": 1,
+                    "currentValue": 0,
+                    "allowedOptions": [
+                      {"marketOptionId": "live-opt-over", "outcome": "OVER"},
+                      {"marketOptionId": "live-opt-under", "outcome": "UNDER"}
+                    ],
+                    "playerRecentStats": null
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "events": [
+    {
+      "id": "34267452",
+      "seoIdentifier": "nym-mets-%40-lad-dodgers",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "NYM Mets @ LAD Dodgers",
+      "startEventDate": "2026-06-16T20:00:00.0000000Z",
+      "participants": [],
+      "eventParticipantType": "Team",
+      "status": "NOT_STARTED",
+      "media": [],
+      "tags": [],
+      "metadata": {},
+      "sortOrder": 1,
+      "subscriptionKey": "34267452"
+    },
+    {
+      "id": "34267999",
+      "seoIdentifier": "bos-red-sox-%40-nyy-yankees",
+      "sportId": "7",
+      "leagueId": "84240",
+      "name": "BOS Red Sox @ NYY Yankees",
+      "startEventDate": "2026-06-16T19:00:00.0000000Z",
+      "participants": [],
+      "eventParticipantType": "Team",
+      "status": "IN_PROGRESS",
+      "media": [],
+      "tags": [],
+      "metadata": {},
+      "sortOrder": 0,
+      "subscriptionKey": "34267999"
+    }
+  ]
+}

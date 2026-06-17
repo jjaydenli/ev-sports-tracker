@@ -14,11 +14,12 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
     "DK",
     "FD",
     "Src",
+    "Live",
 )
 
-# Minimum column widths (excluding separator spaces). Tight layout (~103 chars
-# wide with 10 columns) — EV%/+EV kept; player/DK/FD/Src trimmed vs legacy 8-col.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 6, 4, 5, 5, 3, 10, 10, 9)
+# Minimum column widths (excluding separator spaces). Tight layout (~110 chars
+# wide with 11 columns) — EV%/+EV kept; player/DK/FD/Src trimmed vs legacy 8-col.
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 6, 4, 5, 5, 3, 10, 10, 9, 4)
 
 # Shorter labels for console table (raw values still in JSON output).
 _LINE_SOURCE_DISPLAY: dict[str, str] = {
@@ -58,7 +59,7 @@ def format_ev_table_header() -> str:
 
 
 def format_ev_opportunity_row(row: dict) -> str:
-    """One pipeline table row: player | side | stat | line | hit% | ev | dk | fd | src."""
+    """One pipeline table row: player | side | stat | line | hit% | ev | dk | fd | src | live."""
     line = row.get("line")
     line_text = str(int(line)) if line is not None and float(line) == int(float(line)) else str(line)
     hit_pct = row.get("side_hit_pct")
@@ -66,6 +67,7 @@ def format_ev_opportunity_row(row: dict) -> str:
     ev_pct = row.get("ev_pct")
     ev_text = f"{ev_pct:+.1f}" if ev_pct is not None else "—"
     plus_ev_text = "Y" if row.get("plus_ev") else "—"
+    live_text = "L" if row.get("is_live") else "—"
 
     cells = (
         row.get("player", ""),
@@ -78,6 +80,7 @@ def format_ev_opportunity_row(row: dict) -> str:
         format_ou_odds(row.get("dk_over_odds"), row.get("dk_under_odds")),
         format_ou_odds(row.get("fd_over_odds"), row.get("fd_under_odds")),
         _format_line_source(str(row.get("line_source", ""))),
+        live_text,
     )
     return " | ".join(
         _cell(str(value), width)

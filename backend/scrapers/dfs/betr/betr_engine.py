@@ -77,9 +77,17 @@ def _normalize_venue_details(venue: dict[str, Any] | None) -> dict[str, Any] | N
     }
 
 
+BETR_LIVE_EVENT_STATUSES = frozenset({"IN_PROGRESS"})
+
+
 def _is_open_prematch_projection(projection: dict[str, Any]) -> bool:
     """Keep only open, pre-match projections."""
     return projection.get("marketStatus") == "OPENED" and not projection.get("isLive")
+
+
+def _is_open_live_projection(projection: dict[str, Any]) -> bool:
+    """Keep only open, live projections."""
+    return projection.get("marketStatus") == "OPENED" and bool(projection.get("isLive"))
 
 
 def iter_scheduled_events(raw_json: dict[str, Any]) -> Iterator[dict[str, Any]]:
@@ -90,13 +98,22 @@ def iter_scheduled_events(raw_json: dict[str, Any]) -> Iterator[dict[str, Any]]:
             yield event
 
 
+def iter_live_events(raw_json: dict[str, Any]) -> Iterator[dict[str, Any]]:
+    """Yield in-progress events from a LeagueUpcomingEvents payload."""
+    events = raw_json.get("data", {}).get("getUpcomingEventsV2") or []
+    for event in events:
+        if event.get("status") in BETR_LIVE_EVENT_STATUSES:
+            yield event
+
+
 def iter_projections(
-    event: dict[str, Any], *, league: str | None = None
+    event: dict[str, Any], *, league: str | None = None, live: bool = False
 ) -> Iterator[dict[str, Any]]:
     """
     Walk teams -> players -> projections and yield raw prop context.
 
     Each yielded dict includes event/player context plus projection fields (snake_case).
+    Pass live=True to yield live (isLive) projections instead of pre-match ones.
     """
     event_id = event.get("id", "")
     game = event.get("name", "Unknown Game")
@@ -114,6 +131,8 @@ def iter_projections(
     if league:
         event_context["league"] = league
 
+    filter_fn = _is_open_live_projection if live else _is_open_prematch_projection
+
     for team in event.get("teams", []):
         team_name = team.get("name", "")
         team_league = team.get("league")
@@ -130,7 +149,7 @@ def iter_projections(
             }
 
             for projection in player.get("projections", []):
-                if not _is_open_prematch_projection(projection):
+                if not filter_fn(projection):
                     continue
 
                 market_id = projection.get("marketId")
@@ -171,12 +190,20 @@ def iter_projections(
 def extract_raw_props(
     raw_json: dict[str, Any], *, league: str | None = None
 ) -> list[dict[str, Any]]:
-    """Flatten scheduled events into deduplicated raw prop records keyed by market_id."""
+    """Flatten scheduled and live events into deduplicated raw prop records keyed by market_id."""
     seen_market_ids: set[str] = set()
     props: list[dict[str, Any]] = []
 
     for event in iter_scheduled_events(raw_json):
-        for prop in iter_projections(event, league=league):
+        for prop in iter_projections(event, league=league, live=False):
+            market_id = prop["market_id"]
+            if market_id in seen_market_ids:
+                continue
+            seen_market_ids.add(market_id)
+            props.append(prop)
+
+    for event in iter_live_events(raw_json):
+        for prop in iter_projections(event, league=league, live=True):
             market_id = prop["market_id"]
             if market_id in seen_market_ids:
                 continue

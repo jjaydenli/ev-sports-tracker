@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-16 (agent workflow trim + proxyman scope; platform detail in docs/betting_odds/)
+**Last verified:** 2026-06-17 (MLB live IDs + doubles; platform detail in docs/betting_odds/)
 
 ## 1. Project Overview
 
@@ -29,12 +29,14 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 * **Role:** Fixed-payout DFS props compared to sharp books.
 * **Code:** `backend/scrapers/dfs/betr/`, `backend/parsers/betr_parser.py`
 * **Detail:** [docs/betting_odds/betr.md](docs/betting_odds/betr.md) — GraphQL auth, wide fetch, `REGULAR` / `allowedOptions`, -120 breakeven.
+* **Live (MLB runs):** `extract_raw_props` merges `SCHEDULED` pre-match (`isLive == false`) and `IN_PROGRESS` live (`isLive == true`, `BETR_LIVE_EVENT_STATUSES`) projections; master board rows carry `is_live`; parser propagates to normalized props.
 
 ### DraftKings (sharp sportsbook)
 
 * **Role:** Sharp O/U ladders and milestone fallbacks; primary input to `line_adjustment.py`.
 * **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`
 * **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md) — slates, subcategories, eligible `line_source` values.
+* **Live (MLB):** League slate discovers pregame (`NOT_STARTED`) and live (`IN_PROGRESS`, `LIVE_EVENT_STATUSES`) events; live events scrape `DK_MLB_LIVE_STAT_CATEGORIES` (batter O/U incl. `doubles`; `walks` TBD). Unset live IDs skip that market on in-game events. DK rows tagged `is_live`; parser propagates.
 
 ### FanDuel (sharp sportsbook)
 
@@ -48,7 +50,7 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 
 ### MLB
 
-* **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — league-specific market coverage and pipeline notes.
+* **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — pregame 13-market O/U slate (`DK_MLB_STAT_CATEGORIES`, incl. `doubles`) plus live batter O/U (`DK_MLB_LIVE_STAT_CATEGORIES`; live IDs differ from pregame on many tabs). FanDuel skipped. EV output rows include `is_live` (ranked table **Live** column). No CLI flag — live discovery is standing behavior on `./ev --leagues mlb`.
 
 ## 4. Quantitative Modeling & Math
 
@@ -70,7 +72,7 @@ ev-sports-tracker/
     │   ├── api_headers.py
     │   ├── market_maps.py
     │   ├── settings.py
-    │   ├── dk_subcategories.py
+    │   ├── dk_subcategories.py   # DK_*_STAT_CATEGORIES; DK_MLB_LIVE_STAT_CATEGORIES (live)
     │   ├── dk_discovery.py     # wide-scan ID ranges; discovery output paths
     │   ├── discovery/          # per-league progress manifests (mlb.yaml)
     │   ├── fd_competitions.py
@@ -101,11 +103,11 @@ ev-sports-tracker/
     │   └── normalize.py
     ├── core/
     │   ├── models.py
-    │   ├── engine.py           # find_ev_opportunities; filter_min_ev
+    │   ├── engine.py           # find_ev_opportunities; filter_min_ev; is_live on EV rows
     │   ├── line_adjustment.py
     │   ├── flat_line.py
     │   ├── ev_pipeline.py
-    │   ├── ev_display.py       # ranked table: Hit%, EV%, +EV, DK, FD, Src
+    │   ├── ev_display.py       # ranked table: Hit%, EV%, +EV, DK, FD, Src, Live
     │   ├── ev_run_diff.py      # consecutive top-N diff vs prior ev_opportunities.json
     │   ├── pipeline_timing.py  # wall-clock stage timer for --timing
     │   └── pipeline_runner.py  # --league (case-insensitive), --min-ev, --plus-ev-only, --skip-betr/dk/fd, --timing
@@ -118,14 +120,15 @@ ev-sports-tracker/
         └── unit/
 ```
 
-**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run
+**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json` incl. `is_live`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run. MLB: Betr + DK also ingest in-progress/live events; DK live prop tabs require filled `DK_MLB_LIVE_STAT_CATEGORIES`.
 
 
 ## 6. Roadmap
 
 ### Open
 
-* **MLB props (full O/U slate):** 12 pregame markets Betr ↔ DK — see [mlb.md](docs/betting_odds/mlb.md) and `DK_MLB_STAT_CATEGORIES`. FD skipped for MLB. **Deferred v2:** `HITTER_STRIKEOUTS` (milestone-only on DK). Flat/push pitching K + milestone penalty: roadmap below.
+* **MLB live props (activation):** `DK_MLB_LIVE_STAT_CATEGORIES` filled for 7/8 batter tabs (`walks` still TBD); live IDs differ from pregame — see [mlb.md](docs/betting_odds/mlb.md).
+* **MLB props (pregame v2):** **Deferred:** `HITTER_STRIKEOUTS` (milestone-only on DK). Flat/push pitching K + milestone penalty — see [mlb.md](docs/betting_odds/mlb.md).
 * **MLB / DK milestone EV (v2):** Parser + engine for milestone-only tabs (over-side penalty vs devig). `HITTER_STRIKEOUTS` (`17849`); pitching K push pairing (`15221` + `17323`).
 * **Additional sharp books:** Add a third sharp book (scrape → normalize → consensus); weights are env-tunable via `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` in `load_sharp_book_weights()`.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
@@ -145,7 +148,7 @@ ev-sports-tracker/
 * Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — multi-league loop, `--dfs` / `--books` / `--leagues`, fresh-only runs with `run_id`, `core/pipeline_scrape.py`, `config/pipeline_sources.py`; repo-root `./ev` wrapper.
 * Betr `--league` case normalization: `_normalize_betr_league` + `BetrEngine` uppercase GraphQL enum; GraphQL `errors` logged on invalid league — fixes empty MLB slate when invoking `./ev --league mlb`.
 * Pipeline `--min-ev` / `--plus-ev-only`: filter ranked output to `ev > min_ev`; `plus_ev` flag on each row; default `min_ev=0` shows top-N including negative EV.
-* Ranked plays table: `ev_display.py` — compact 10-column layout (Hit%, EV%, +EV, DK/FD O/U, Src).
+* Ranked plays table: `ev_display.py` — compact 11-column layout (Hit%, EV%, +EV, DK/FD O/U, Src, Live).
 * FanDuel NBA event discovery: `fd_competitions.py`, `fd_api.fetch_league_event_ids`, `probe_fd_events`, `test_fd_event_discovery`.
 * FanDuel event-page props + normalization: `fd_markets.py`, `fd_engine`, `fd_parser`, `test_fd_event_page`, `test_normalize_fd`.
 * FanDuel core O/U default scrape: points / rebounds / assists via `FD_DEFAULT_SCRAPE_MARKETS` (`fd_engine` + `pipeline_runner`); multi-tab fixtures and tests.
@@ -157,3 +160,5 @@ ev-sports-tracker/
 * Betr Keycloak auth probe: `python -m scrapers.dfs.betr.betr_auth` (`--try-grant`); refresh grant is the documented default — [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 * Betr Keycloak `.env.example` defaults: public token URL (`account.betr.app/realms/betr/…`); `BETR_KEYCLOAK_CLIENT_ID=betr-rn` for fantasy.betr.app (refresh tokens client-bound; code default `betr-web` if unset).
 * Multi-book consensus weights: `load_sharp_book_weights()` in `line_adjustment.py` — `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` env vars (default 1.0 each).
+* **MLB live batter props (plumbing):** Betr `IN_PROGRESS` + `isLive` scrape; DK MLB pregame+live event discovery, `DK_MLB_LIVE_STAT_CATEGORIES` + `configured_live_stat_categories_for_league`; `is_live` through parsers → `ev_opportunities.json` + **Live** column in `ev_display`; graceful no-op when live subcategory map empty — [docs/plans/mlb-live-props-dk.md](docs/plans/mlb-live-props-dk.md).
+* **MLB pregame props (full O/U slate):** 13 markets Betr ↔ DK (`DK_MLB_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS`, incl. `doubles`); FD skipped for MLB.

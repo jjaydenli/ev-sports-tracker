@@ -14,9 +14,9 @@ from urllib.parse import quote
 
 from config.api_headers import DK_LEAGUE_EVENTS_URL, DK_MARKETS_URL
 
-# Canonical market -> DK prop subCategoryId (per-event O/U tabs).
-# Probe: python -m scripts.probe_dk_subcategories <event_id> [--league mlb]
-DK_CORE_STAT_CATEGORIES: dict[str, str] = {
+# Canonical market -> DK prop subCategoryId (per-event O/U tabs, NBA).
+# Probe: python -m scripts.probe_dk_subcategories <event_id> --league nba
+DK_NBA_CORE_STAT_CATEGORIES: dict[str, str] = {
     "points": "12488",
     "rebounds": "12492",
     "assists": "12495",
@@ -27,21 +27,21 @@ DK_CORE_STAT_CATEGORIES: dict[str, str] = {
 }
 
 # Confirmed O/U prop subcategories beyond core (NBA).
-DK_OU_EXTENDED_STAT_CATEGORIES: dict[str, str] = {
+DK_NBA_OU_EXTENDED_STAT_CATEGORIES: dict[str, str] = {
     "threes": "12497",
     "steals": "2713508",
     "blocks": "2713780",
     "stl+blk": "2713781",
 }
 
-# Backward-compatible alias for extended O/U stats.
-DK_EXTENDED_STAT_CATEGORIES: dict[str, str] = DK_OU_EXTENDED_STAT_CATEGORIES
+# Backward-compatible alias for extended O/U stats (NBA).
+DK_NBA_EXTENDED_STAT_CATEGORIES: dict[str, str] = DK_NBA_OU_EXTENDED_STAT_CATEGORIES
 
-# Over-only milestone prop tabs (1+, 2+, 3+). Verify with:
+# Over-only milestone prop tabs (1+, 2+, 3+, NBA). Verify with:
 #   python -m scripts.probe_dk_subcategories <event_id> --discover-milestones
 # Only include IDs confirmed against DK market names (not sequential guesses).
 # stl+blk: O/U only on DK — no milestone tab observed.
-DK_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
+DK_NBA_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
     "points": "2716477",
     "rebounds": "2716479",
     "assists": "2716478",
@@ -54,8 +54,8 @@ DK_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
     "steals": "2716485",
 }
 
-# Betr markets awaiting DK prop subCategoryId discovery (None = skip scrape).
-DK_PENDING_STAT_CATEGORIES: dict[str, str | None] = {
+# Betr markets awaiting DK prop subCategoryId discovery (None = skip scrape, NBA).
+DK_NBA_PENDING_STAT_CATEGORIES: dict[str, str | None] = {
     "turnovers": None,
     "fouls": None,
     "fg_attempted": None,
@@ -68,9 +68,9 @@ DK_PENDING_STAT_CATEGORIES: dict[str, str | None] = {
     "triple-double": None,
 }
 
-DK_STAT_CATEGORIES: dict[str, str] = {
-    **DK_CORE_STAT_CATEGORIES,
-    **DK_OU_EXTENDED_STAT_CATEGORIES,
+DK_NBA_STAT_CATEGORIES: dict[str, str] = {
+    **DK_NBA_CORE_STAT_CATEGORIES,
+    **DK_NBA_OU_EXTENDED_STAT_CATEGORIES,
 }
 
 # MLB player-prop O/U (pregame). Verify:
@@ -81,6 +81,7 @@ DK_MLB_STAT_CATEGORIES: dict[str, str] = {
     "h+r+rbi": "17406",
     "runs": "17407",
     "singles": "17409",
+    "doubles": "17410",
     "walks": "17411",
     "earned_runs": "17412",
     "total_outs": "17413",
@@ -88,6 +89,21 @@ DK_MLB_STAT_CATEGORIES: dict[str, str] = {
     "pitching_walks": "15219",
     "hits_allowed": "9886",
     "rbi": "8025",
+}
+
+# MLB batter O/U props for live events (subCategoryIds differ from pregame on many tabs).
+# Leave None to skip that market for live scrape.
+# Probe pregame: python -m scripts.probe_dk_subcategories <event_id> --league mlb
+# Probe live (in-game): ... --league mlb --live --discover  (pregame IDs are wrong for live)
+DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
+    "hits": "9502",
+    "total_bases": "9506",
+    "h+r+rbi": "12152",
+    "runs": "17475",
+    "singles": "17471",
+    "doubles": "17472",
+    "walks": None,
+    "rbi": "9505",
 }
 
 # Milestone refs for v2 / flat-push (not scraped in v1 full slate)
@@ -111,7 +127,14 @@ def stat_categories_for_league(league: str) -> dict[str, str]:
     key = league.lower()
     if key == "mlb":
         return DK_MLB_STAT_CATEGORIES
-    return DK_STAT_CATEGORIES
+    return DK_NBA_STAT_CATEGORIES
+
+
+def live_stat_categories_for_league(league: str) -> dict[str, str | None]:
+    """Return live-event market -> prop subCategoryId map (None = no live ID yet)."""
+    if league.lower() == "mlb":
+        return DK_MLB_LIVE_STAT_CATEGORIES
+    return {}
 
 
 def milestone_categories_for_league(league: str) -> dict[str, str]:
@@ -119,7 +142,7 @@ def milestone_categories_for_league(league: str) -> dict[str, str]:
     key = league.lower()
     if key == "mlb":
         return DK_MLB_MILESTONE_STAT_CATEGORIES
-    return DK_MILESTONE_STAT_CATEGORIES
+    return DK_NBA_MILESTONE_STAT_CATEGORIES
 
 
 def configured_stat_categories_for_league(league: str) -> dict[str, str]:
@@ -127,6 +150,15 @@ def configured_stat_categories_for_league(league: str) -> dict[str, str]:
     return {
         market: sid
         for market, sid in stat_categories_for_league(league).items()
+        if sid and sid != "TBD"
+    }
+
+
+def configured_live_stat_categories_for_league(league: str) -> dict[str, str]:
+    """Live prop subcategories with a resolved ID (excludes None/TBD)."""
+    return {
+        market: sid
+        for market, sid in live_stat_categories_for_league(league).items()
         if sid and sid != "TBD"
     }
 

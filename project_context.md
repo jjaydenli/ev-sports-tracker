@@ -29,6 +29,7 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 * **Role:** Fixed-payout DFS props compared to sharp books.
 * **Code:** `backend/scrapers/dfs/betr/`, `backend/parsers/betr_parser.py`
 * **Detail:** [docs/betting_odds/betr.md](docs/betting_odds/betr.md) — GraphQL auth, wide fetch, `REGULAR` / `allowedOptions`, -120 breakeven.
+* **Probe:** `python -m scrapers.dfs.betr.betr_api [LEAGUE]` — standalone `LeagueUpcomingEvents` fetch (default `NBA`; uppercase enum e.g. `WNBA`, `MLB`); saves `data/processed/betr_league_upcoming_events_raw.json`.
 * **Live (MLB runs):** `extract_raw_props` merges `SCHEDULED` pre-match (`isLive == false`) and `IN_PROGRESS` live (`isLive == true`, `BETR_LIVE_EVENT_STATUSES`) projections; master board rows carry `is_live`; parser propagates to normalized props.
 
 ### DraftKings (sharp sportsbook)
@@ -55,7 +56,7 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 
 ### WNBA
 
-* **Detail:** Pregame only — Betr wide fetch (`League!` = `WNBA`) vs DK sharp (`DK_LEAGUE_SLATES["wnba"]`, NBA-parity O/U + milestone fallback IDs). FanDuel auto-skipped (no `FD_LEAGUE_SLATES` entry). CLI: `./ev --wnba` or `--leagues wnba`.
+* **Detail:** Pregame only — Betr wide fetch (`League!` = `WNBA`) vs DK sharp (`DK_LEAGUE_SLATES["wnba"]`, NBA-parity O/U + milestone fallback IDs via `DK_WNBA_*`). FanDuel auto-skipped (no `FD_LEAGUE_SLATES` entry). CLI: `./ev --wnba` or `--leagues wnba`. Betr probe: `python -m scrapers.dfs.betr.betr_api WNBA`.
 
 ## 4. Quantitative Modeling & Math
 
@@ -94,7 +95,7 @@ ev-sports-tracker/
     ├── scrapers/
     │   ├── base_scraper.py
     │   ├── dfs/
-    │   │   ├── betr/           # betr_api, betr_auth, betr_engine, betr_orchestrator
+    │   │   ├── betr/           # betr_api (league CLI probe), betr_auth, betr_engine, betr_orchestrator
     │   │   └── dabble_engine.py
     │   └── sportsbooks/
     │       ├── dk_engine.py
@@ -149,7 +150,7 @@ ev-sports-tracker/
 * **DK scrape hardening (Akamai 403):** per-event `fetch_event_all_markets`; `DK_MARKETS_MAX_CONCURRENT` semaphore (default 6); 403/429 retry/backoff; browser-like headers; league warm-up skipped on auto-discover — [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
 * `normalize.py` active platforms: Betr + DraftKings + FanDuel; Dabble archived.
 * `ev_pipeline.py` loads `{betr,dk,fd}_normalized.json` → `compare_betr_vs_draftkings` → `ev_opportunities.json`; ranked plays table via `ev_display.py`.
-* Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_ev_display`, `test_line_adjustment_multi_book`, `test_pipeline_runner`, `test_normalize`, `test_math_utils`; fixtures incl. `fd_league_nba_events.json`, `fd_event_*_player_{points,rebounds,assists}.json`.
+* Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_ev_display`, `test_line_adjustment_multi_book`, `test_pipeline_runner`, `test_normalize`, `test_math_utils`; fixtures incl. `betr_wnba_pregame.json`, `fd_league_nba_events.json`, `fd_event_*_player_{points,rebounds,assists}.json`.
 * Betr breakeven aligned at **-120** across `math_utils`, parser side markers, and EV engine.
 * Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — multi-league loop, `--dfs` / `--books` / `--leagues`, fresh-only runs with `run_id`, `core/pipeline_scrape.py`, `config/pipeline_sources.py`; repo-root `./ev` wrapper.
 * Betr `--league` case normalization: `_normalize_betr_league` + `BetrEngine` uppercase GraphQL enum; GraphQL `errors` logged on invalid league — fixes empty MLB slate when invoking `./ev --league mlb`.
@@ -170,3 +171,4 @@ ev-sports-tracker/
 * **DK live subCategoryId probe tooling:** `dk_subcategory_discovery.py`; `probe_dk_subcategories --league mlb --live --discover`; `probe_dk_discover --live` — live MLB tabs use different IDs than pregame ([mlb.md](docs/betting_odds/mlb.md)).
 * **DK config rename (NBA):** `DK_NBA_*_STAT_CATEGORIES` / `DK_NBA_MILESTONE_STAT_CATEGORIES` / `DK_NBA_PENDING_STAT_CATEGORIES` (was generic `DK_STAT_CATEGORIES` names).
 * **MLB pregame props (full O/U slate):** 13 markets Betr ↔ DK (`DK_MLB_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS`, incl. `doubles`); FD skipped for MLB.
+* **WNBA slate (Betr ↔ DK):** `PIPELINE_LEAGUES` + `BETR_TO_DK_LEAGUE["WNBA"]`; `DK_LEAGUE_SLATES["wnba"]` (`94682`/`4511`); explicit `DK_WNBA_*` stat aliases; per-league `--nba`/`--mlb`/`--wnba` shorthands (`merge_leagues_from_args`); `ev_display` **Lg** column; pregame only (FD auto-skipped); `betr_api` `__main__` forwards `[LEAGUE]` argv — [docs/plans/wnba-betr-dk-slate.md](docs/plans/wnba-betr-dk-slate.md).

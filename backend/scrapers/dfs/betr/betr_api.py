@@ -212,5 +212,7 @@ async def main(league: str = "NBA") -> None:
 
 if __name__ == "__main__":
     import asyncio
+    import sys
 
-    asyncio.run(main())
+    league = sys.argv[1].upper() if len(sys.argv) > 1 else "NBA"
+    asyncio.run(main(league))

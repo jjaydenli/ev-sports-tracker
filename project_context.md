@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-17 (MLB live IDs + doubles; platform detail in docs/betting_odds/)
+**Last verified:** 2026-06-17 (WNBA slate + Betr probe CLI; MLB live IDs + doubles; platform detail in docs/betting_odds/)
 
 ## 1. Project Overview
 
@@ -83,6 +83,7 @@ ev-sports-tracker/
     │   ├── discovery/          # per-league progress manifests (mlb.yaml)
     │   ├── fd_competitions.py
     │   ├── fd_markets.py       # tab ↔ canonical; FD_DEFAULT_SCRAPE_MARKETS; parse_player_ou_market_type
+    │   ├── pipeline_sources.py # PIPELINE_LEAGUES, BETR_TO_DK_LEAGUE, DK/FD league slates
     │   ├── .env.example        # Betr Keycloak URL + betr-rn; FD_*; DK_MARKETS_MAX_CONCURRENT
     │   └── .env                # local secrets (gitignored)
     ├── scripts/
@@ -116,11 +117,15 @@ ev-sports-tracker/
     │   ├── ev_pipeline.py
     │   ├── ev_display.py       # ranked table: Lg, Hit%, EV%, DK, FD, Src, Live
     │   ├── ev_run_diff.py      # consecutive top-N diff vs prior ev_opportunities.json
+    │   ├── pipeline_scrape.py  # per-league dfs/books scrape orchestration
+    │   ├── pipeline_artifacts.py
+    │   ├── scrape_result.py
     │   ├── pipeline_timing.py  # wall-clock stage timer for --timing
     │   └── pipeline_runner.py  # --leagues, per-league --nba/--mlb/--wnba, --min-ev, --plus-ev-only, --timing
     ├── archive/dabble/
     ├── data/
-    │   ├── processed/          # gitignored outputs
+    │   ├── raw/                # gitignored scrape inputs (.gitkeep only in repo)
+    │   ├── processed/          # gitignored outputs (.gitkeep only in repo)
     │   └── archive/dabble/
     └── tests/
         ├── fixtures/

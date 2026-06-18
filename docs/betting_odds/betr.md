@@ -139,6 +139,32 @@ If password/refresh grants return 401 after capture, re-check `client_id` (mobil
 
 **Daily command:** `cd backend && python -m core.pipeline_runner` (or repo-root `./ev`)
 
+## GraphQL request headers (live slate)
+
+`LeagueUpcomingEvents` uses the same operation and `variables.league` as the Betr app, but the API can return a **pregame-only** slate unless client headers match `picks.betr.app` DevTools.
+
+`config/api_headers.py` sends app-parity defaults:
+
+| Header | Default | Purpose |
+|--------|---------|---------|
+| `jurisdiction` | `CA` | State license; override with `BETR_JURISDICTION` |
+| `channel` | `MOBILE_WEB` | Client channel |
+| `fantasy-api-version` | `15.0` | API version gate |
+| `fantasy-application-version` | `3.38.6` | App version |
+| `promotions-api-version` | `5.0` | Promotions API version |
+| `Referer` | `https://picks.betr.app/` | Origin parity |
+| `User-Agent` | Mobile Chrome (Pixel) | Optional override: `BETR_USER_AGENT` |
+
+Without these (especially `jurisdiction`), `getUpcomingEventsV2` may omit `IN_PROGRESS` events and all `isLive=true` projections even though the GraphQL query is identical.
+
+Probe during a live slate:
+
+```bash
+cd backend && python -m scrapers.dfs.betr.betr_api MLB
+```
+
+Expect `statuses` to include `IN_PROGRESS` and `live_projections>0` when games are in progress.
+
 ## API
 
 | Operation | Purpose |

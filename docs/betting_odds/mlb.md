@@ -46,7 +46,7 @@ Live scrape uses `DK_MLB_LIVE_STAT_CATEGORIES` in `backend/config/dk_subcategori
 | `runs` | `RUNS` | 17475 | 17407 |
 | `singles` | `SINGLES` | 17471 | 17409 |
 | `doubles` | `DOUBLES` | 17472 | 17410 |
-| `walks` | `WALKS` | — (TBD) | 17411 |
+| `walks` | `WALKS` | 9536 | 17411 |
 | `rbi` | `RUNS_BATTED_IN` | 9505 | 8025 |
 
 EV rows from live props carry `is_live: true`; the ranked table shows **L** in the Live column.
@@ -66,7 +66,8 @@ cd backend
 
 - League enum: `MLB`.
 - Pregame: `status == SCHEDULED`, `isLive == false`, `marketStatus == OPENED`.
-- Live: `status == IN_PROGRESS` (`BETR_LIVE_EVENT_STATUSES`), `isLive == true`, `marketStatus == OPENED`. Line field: `value` (fixture-confirmed; `currentValue` is stat count, not the O/U line).
+- Live: `status == IN_PROGRESS` (`BETR_LIVE_EVENT_STATUSES`), `isLive == true`, `marketStatus == OPENED`. Line field: `value` (fixture-confirmed; `currentValue` is stat count, not the O/U line). Frozen in-game markets arrive as `marketStatus == SUSPENDED` and are dropped (can't be placed) — only `OPENED` live props reach the board.
+- Live source: the **same** `getUpcomingEventsV2` operation returns `IN_PROGRESS` events, but only when the request carries app-parity headers (`jurisdiction`, `channel`, `fantasy-api-version`); without them the feed is pregame-only. See `docs/betting_odds/betr.md` §GraphQL request headers.
 - Parser gate: `MLB_ENABLED_MARKETS` in `backend/parsers/betr_parser.py`.
 
 ## DraftKings

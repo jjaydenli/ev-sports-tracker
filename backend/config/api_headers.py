@@ -63,6 +63,26 @@ FD_BASE_HEADERS = {
 
 BETR_GRAPHQL_URL = "https://api.fantasy.betr.app/graphql"
 
+# App-parity headers from picks.betr.app DevTools (LeagueUpcomingEvents). The API can
+# return a pregame-only slate without jurisdiction/channel/fantasy-api-version.
+BETR_USER_AGENT = os.getenv(
+    "BETR_USER_AGENT",
+    (
+        "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36"
+    ),
+)
 BETR_BASE_HEADERS = {
+    "Accept": (
+        "application/graphql-response+json, application/graphql+json, "
+        "application/json, text/event-stream, multipart/mixed"
+    ),
     "Content-Type": "application/json",
+    "User-Agent": BETR_USER_AGENT,
+    "Referer": "https://picks.betr.app/",
+    "channel": os.getenv("BETR_CHANNEL", "MOBILE_WEB"),
+    "fantasy-api-version": os.getenv("BETR_FANTASY_API_VERSION", "15.0"),
+    "fantasy-application-version": os.getenv("BETR_FANTASY_APPLICATION_VERSION", "3.38.6"),
+    "jurisdiction": os.getenv("BETR_JURISDICTION", "CA"),
+    "promotions-api-version": os.getenv("BETR_PROMOTIONS_API_VERSION", "5.0"),
 }

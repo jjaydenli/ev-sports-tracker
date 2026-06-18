@@ -207,12 +207,13 @@ def test_live_stat_categories_for_league_nba_returns_empty():
     assert live_stat_categories_for_league("nba") == {}
 
 
-def test_configured_live_stat_categories_mlb_partial_fill():
+def test_configured_live_stat_categories_mlb_all_batter_ids_set():
     result = configured_live_stat_categories_for_league("mlb")
     assert result["hits"] == "9502"
     assert result["total_bases"] == "9506"
     assert result["doubles"] == "17472"
-    assert "walks" not in result
+    assert result["walks"] == "9536"
+    assert len(result) == len(DK_MLB_LIVE_STAT_CATEGORIES)
 
 
 def test_configured_live_stat_categories_empty_when_all_tbd(monkeypatch):

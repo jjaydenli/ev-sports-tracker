@@ -181,27 +181,39 @@ async def main(league: str = "NBA") -> None:
         return
 
     events = raw_json.get("data", {}).get("getUpcomingEventsV2") or []
-    scheduled = [event for event in events if event.get("status") == "SCHEDULED"]
 
+    from collections import Counter
+
+    status_counts: Counter[str] = Counter(event.get("status") for event in events)
     projection_count = 0
+    live_projection_count = 0
     market_ids: set[str] = set()
-    for event in scheduled:
+    for event in events:
         for team in event.get("teams") or []:
             for player in team.get("players") or []:
                 for projection in player.get("projections") or []:
                     projection_count += 1
+                    if projection.get("isLive"):
+                        live_projection_count += 1
                     market_id = projection.get("marketId")
                     if market_id:
                         market_ids.add(market_id)
 
     logger.info(
-        f"events={len(events)} scheduled={len(scheduled)} "
-        f"projections={projection_count} unique_market_ids={len(market_ids)}"
+        f"events={len(events)} statuses={dict(status_counts)} "
+        f"projections={projection_count} live_projections={live_projection_count} "
+        f"unique_market_ids={len(market_ids)}"
     )
+    if live_projection_count == 0:
+        logger.warning(
+            "no isLive projections in getUpcomingEventsV2 — this feed returns "
+            "only not-yet-started games; in-progress games are not included here"
+        )
 
-    for event in scheduled[:3]:
+    for event in events[:5]:
         logger.info(
-            f"  {event.get('name')} ({event.get('status')}) id={event.get('id')}"
+            f"  {event.get('name')} ({event.get('status')}) "
+            f"date={event.get('date')} id={event.get('id')}"
         )
 
     output_path = Path("data/processed/betr_league_upcoming_events_raw.json")

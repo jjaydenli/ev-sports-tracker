@@ -2,50 +2,222 @@
   "data": {
     "getUpcomingEventsV2": [
       {
-        "id": "live-event-001",
-        "name": "NYM@LAD",
+        "id": "6a278ffda517545d1139d173",
+        "name": "BAL@SEA",
         "sport": "BASEBALL",
         "league": "MLB",
         "status": "IN_PROGRESS",
-        "date": "2026-06-16T20:00Z",
+        "date": "2026-06-18T20:10Z",
         "competitionType": "VERSUS",
         "playerStructure": "TEAM",
-        "dataFeedSourceIds": [],
-        "venueDetails": {"name": "Dodger Stadium", "city": "Los Angeles", "country": "USA"},
+        "dataFeedSourceIds": [
+          {
+            "id": "1032606092706020097",
+            "source": "PAM"
+          },
+          {
+            "id": "63303635",
+            "source": "BET_RADAR"
+          },
+          {
+            "id": "10078402",
+            "source": "SPORTS_DATA"
+          }
+        ],
+        "venueDetails": {
+          "name": "T-Mobile Park",
+          "city": "Seattle",
+          "country": "USA"
+        },
         "attributes": [],
         "teams": [
           {
-            "id": "team-nym",
-            "name": "NYM",
+            "id": "648a072e6cd5e52740a3e52d",
+            "name": "BAL",
             "league": "MLB",
             "sport": "BASEBALL",
             "players": [
               {
-                "id": "player-judge-001",
-                "firstName": "Francisco",
-                "lastName": "Lindor",
+                "id": "648a07486cd5e52740a3f1aa",
+                "firstName": "Gunnar",
+                "lastName": "Henderson",
                 "position": "SS",
-                "jerseyNumber": 12,
+                "jerseyNumber": 2,
                 "attributes": [],
                 "projections": [
                   {
-                    "marketId": "live-market-hits-001",
+                    "marketId": "1032606162846802894",
                     "marketStatus": "OPENED",
                     "isLive": true,
                     "type": "REGULAR",
                     "label": "Hits",
                     "name": "Hits",
                     "key": "HITS",
-                    "value": 1.5,
+                    "value": 0.5,
                     "nonRegularValue": 0.0,
                     "nonRegularPercentage": 0,
-                    "order": 1,
-                    "currentValue": 0,
+                    "order": 13,
+                    "currentValue": 0.0,
                     "allowedOptions": [
-                      {"marketOptionId": "live-opt-over", "outcome": "OVER"},
-                      {"marketOptionId": "live-opt-under", "outcome": "UNDER"}
+                      {
+                        "marketOptionId": "1032606172984753628",
+                        "outcome": "MORE"
+                      },
+                      {
+                        "marketOptionId": "1032606172984753629",
+                        "outcome": "LESS"
+                      }
                     ],
-                    "playerRecentStats": null
+                    "playerRecentStats": {
+                      "averageValue": 0.0,
+                      "stats": []
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "648a072e6cd5e52740a3e527",
+            "name": "SEA",
+            "league": "MLB",
+            "sport": "BASEBALL",
+            "players": [
+              {
+                "id": "648a07406cd5e52740a3ede7",
+                "firstName": "Dominic",
+                "lastName": "Canzone",
+                "position": "DH",
+                "jerseyNumber": 8,
+                "attributes": [],
+                "projections": [
+                  {
+                    "marketId": "1032606162846795265",
+                    "marketStatus": "SUSPENDED",
+                    "isLive": true,
+                    "type": "EDGE_1",
+                    "label": "Hits",
+                    "name": "Hits",
+                    "key": "HITS",
+                    "value": 0.5,
+                    "nonRegularValue": 0.5,
+                    "nonRegularPercentage": 0,
+                    "order": 13,
+                    "currentValue": 0.0,
+                    "allowedOptions": [
+                      {
+                        "marketOptionId": "1032606172984735991",
+                        "outcome": "MORE"
+                      }
+                    ],
+                    "playerRecentStats": {
+                      "averageValue": 0.0,
+                      "stats": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "6a278ffda517545d1139d174",
+        "name": "NYM@PHI",
+        "sport": "BASEBALL",
+        "league": "MLB",
+        "status": "SCHEDULED",
+        "date": "2026-06-18T22:40Z",
+        "competitionType": "VERSUS",
+        "playerStructure": "TEAM",
+        "dataFeedSourceIds": [
+          {
+            "id": "1032606092706022749",
+            "source": "PAM"
+          },
+          {
+            "id": "63302879",
+            "source": "BET_RADAR"
+          },
+          {
+            "id": "10078403",
+            "source": "SPORTS_DATA"
+          }
+        ],
+        "venueDetails": {
+          "name": "Citizens Bank Park",
+          "city": "Philadelphia",
+          "country": "USA"
+        },
+        "attributes": [],
+        "teams": [
+          {
+            "id": "648a072e6cd5e52740a3e52c",
+            "name": "NYM",
+            "league": "MLB",
+            "sport": "BASEBALL",
+            "players": [
+              {
+                "id": "648a07366cd5e52740a3e8b0",
+                "firstName": "MJ",
+                "lastName": "Melendez",
+                "position": "DH",
+                "jerseyNumber": 1,
+                "attributes": [],
+                "projections": [
+                  {
+                    "marketId": "1032606172846904791",
+                    "marketStatus": "OPENED",
+                    "isLive": false,
+                    "type": "REGULAR",
+                    "label": "Hits",
+                    "name": "Hits",
+                    "key": "HITS",
+                    "value": 0.5,
+                    "nonRegularValue": 0.0,
+                    "nonRegularPercentage": 0,
+                    "order": 13,
+                    "currentValue": null,
+                    "allowedOptions": [
+                      {
+                        "marketOptionId": "1032606172984755322",
+                        "outcome": "MORE"
+                      },
+                      {
+                        "marketOptionId": "1032606172984755323",
+                        "outcome": "LESS"
+                      }
+                    ],
+                    "playerRecentStats": {
+                      "averageValue": 0.4,
+                      "stats": [
+                        {
+                          "value": 1.0,
+                          "matchupDescription": "vs ATL",
+                          "date": "2026-06-12T23:15Z"
+                        },
+                        {
+                          "value": 1.0,
+                          "matchupDescription": "vs ATL",
+                          "date": "2026-06-13T20:10Z"
+                        },
+                        {
+                          "value": 0.0,
+                          "matchupDescription": "vs ATL",
+                          "date": "2026-06-14T17:40Z"
+                        },
+                        {
+                          "value": 0.0,
+                          "matchupDescription": "@ CIN",
+                          "date": "2026-06-15T23:10Z"
+                        },
+                        {
+                          "value": 0.0,
+                          "matchupDescription": "@ CIN",
+                          "date": "2026-06-16T23:10Z"
+                        }
+                      ]
+                    }
                   }
                 ]
               }

@@ -106,7 +106,7 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "runs": "17475",
     "singles": "17471",
     "doubles": "17472",
-    "walks": None,
+    "walks": "9536",
     "rbi": "9505",
 }
 

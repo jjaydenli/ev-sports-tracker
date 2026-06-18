@@ -250,10 +250,19 @@ class BetrEngine(BaseScraper):
 
         props = extract_raw_props(raw_json, league=self.league)
         scheduled_count = sum(1 for _ in iter_scheduled_events(raw_json))
+        live_count = sum(1 for _ in iter_live_events(raw_json))
+        live_props = sum(1 for prop in props if prop.get("is_live"))
         logger.info(
             f"fetched {len(props)} raw props from {scheduled_count} scheduled "
-            f"{self.league} events"
+            f"and {live_count} live {self.league} events "
+            f"({live_props} live props)"
         )
+        if live_count == 0:
+            logger.warning(
+                f"no live ({'/'.join(sorted(BETR_LIVE_EVENT_STATUSES))}) events in "
+                f"{self.league} getUpcomingEventsV2 — in-progress games are not in "
+                "this feed; live props require a separate live-events query"
+            )
         return props
 
 

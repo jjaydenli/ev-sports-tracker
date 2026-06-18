@@ -306,16 +306,34 @@ def test_extract_raw_props_live_event_status_set():
 
 
 def test_extract_raw_props_betr_mlb_live_fixture():
+    """Real capture (BAL@SEA live + NYM@PHI scheduled): live OPENED props flow,
+    frozen (SUSPENDED) live props are dropped, and scheduled props still appear."""
     payload = json.loads(BETR_MLB_LIVE_FIXTURE_PATH.read_text(encoding="utf-8"))
     result = extract_raw_props(payload, league="MLB")
-    assert len(result) == 1
-    prop = result[0]
-    assert prop["is_live"] is True
-    assert prop["event_status"] == "IN_PROGRESS"
-    assert prop["key"] == "HITS"
-    assert prop["value"] == 1.5
-    assert prop["market_id"] == "live-market-hits-001"
-    assert prop["player"] == "Francisco Lindor"
+
+    live_props = [p for p in result if p["is_live"]]
+    pregame_props = [p for p in result if not p["is_live"]]
+
+    # One live OPENED prop survives; the SUSPENDED (frozen) live prop is excluded.
+    assert len(live_props) == 1
+    live = live_props[0]
+    assert live["player"] == "Gunnar Henderson"
+    assert live["event_status"] == "IN_PROGRESS"
+    assert live["market_status"] == "OPENED"
+    assert live["key"] == "HITS"
+    # The displayed line is `value`, not the in-game `currentValue`.
+    assert live["value"] == 0.5
+    assert live["current_value"] == 0.0
+    assert live["market_id"] == "1032606162846802894"
+
+    # Dominic Canzone's SUSPENDED live HITS market must never reach output.
+    assert all(p["market_id"] != "1032606162846795265" for p in result)
+    assert all(p["market_status"] == "OPENED" for p in result)
+
+    # The scheduled event in the same payload still contributes a pregame prop.
+    assert len(pregame_props) == 1
+    assert pregame_props[0]["player"] == "MJ Melendez"
+    assert pregame_props[0]["event_status"] == "SCHEDULED"
 
 
 def test_extract_raw_props_live_projection_in_scheduled_event_excluded():

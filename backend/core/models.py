@@ -20,6 +20,7 @@ class NormalizedProp(TypedDict, total=False):
 
 
 class EvOpportunity(TypedDict):
+    league: str
     player: str
     market: str
     line: float

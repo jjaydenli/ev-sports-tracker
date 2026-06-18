@@ -35,7 +35,18 @@ def _dk_markets_max_concurrent() -> int:
     return max(1, min(value, 16))
 
 
-_DK_MARKETS_HTTP_SEM = asyncio.Semaphore(_dk_markets_max_concurrent())
+_DK_MARKETS_HTTP_SEM: asyncio.Semaphore | None = None
+_DK_MARKETS_HTTP_SEM_LOOP: asyncio.AbstractEventLoop | None = None
+
+
+def _dk_markets_http_sem() -> asyncio.Semaphore:
+    """Return a concurrency limiter bound to the current event loop."""
+    global _DK_MARKETS_HTTP_SEM, _DK_MARKETS_HTTP_SEM_LOOP
+    loop = asyncio.get_running_loop()
+    if _DK_MARKETS_HTTP_SEM is None or _DK_MARKETS_HTTP_SEM_LOOP is not loop:
+        _DK_MARKETS_HTTP_SEM = asyncio.Semaphore(_dk_markets_max_concurrent())
+        _DK_MARKETS_HTTP_SEM_LOOP = loop
+    return _DK_MARKETS_HTTP_SEM
 
 
 def _prop_subcategory_market_label(prop_subcategory_id: str) -> str | None:
@@ -354,7 +365,7 @@ async def fetch_event_subcategory_markets(
 
     for attempt in range(1, DK_MARKETS_MAX_ATTEMPTS + 1):
         try:
-            async with _DK_MARKETS_HTTP_SEM:
+            async with _dk_markets_http_sem():
                 response = await client.get(
                     url, headers=DK_BASE_HEADERS, timeout=10.0
                 )

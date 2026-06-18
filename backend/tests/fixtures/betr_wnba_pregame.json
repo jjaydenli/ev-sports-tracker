@@ -1,0 +1,104 @@
+{
+  "data": {
+    "getUpcomingEventsV2": [
+      {
+        "id": "wnba-event-001",
+        "name": "NY@CONN",
+        "sport": "BASKETBALL",
+        "league": "WNBA",
+        "status": "SCHEDULED",
+        "date": "2026-06-20T19:00Z",
+        "competitionType": "VERSUS",
+        "playerStructure": "TEAM",
+        "dataFeedSourceIds": [
+          {
+            "id": "wnba-feed-001",
+            "source": "BET_GENIUS"
+          }
+        ],
+        "venueDetails": {
+          "name": "Mohegan Sun Arena",
+          "city": "Uncasville",
+          "country": "USA"
+        },
+        "attributes": [],
+        "teams": [
+          {
+            "id": "wnba-team-ny",
+            "name": "NY",
+            "league": "WNBA",
+            "sport": "BASKETBALL",
+            "players": [
+              {
+                "id": "wnba-player-001",
+                "firstName": "Sabrina",
+                "lastName": "Ionescu",
+                "position": "G",
+                "jerseyNumber": 20,
+                "attributes": [],
+                "projections": [
+                  {
+                    "marketId": "wnba-market-points",
+                    "marketStatus": "OPENED",
+                    "isLive": false,
+                    "type": "REGULAR",
+                    "label": "Points",
+                    "name": "Points",
+                    "key": "POINTS",
+                    "value": 18.5,
+                    "nonRegularValue": 0.0,
+                    "nonRegularPercentage": 0,
+                    "order": 1,
+                    "currentValue": null,
+                    "allowedOptions": [
+                      {
+                        "marketOptionId": "wnba-opt-over",
+                        "outcome": "OVER"
+                      },
+                      {
+                        "marketOptionId": "wnba-opt-under",
+                        "outcome": "UNDER"
+                      }
+                    ],
+                    "playerRecentStats": {
+                      "averageValue": 19.2,
+                      "stats": []
+                    }
+                  },
+                  {
+                    "marketId": "wnba-market-rebounds",
+                    "marketStatus": "OPENED",
+                    "isLive": false,
+                    "type": "REGULAR",
+                    "label": "Rebounds",
+                    "name": "Rebounds",
+                    "key": "REBOUNDS",
+                    "value": 5.5,
+                    "nonRegularValue": 0.0,
+                    "nonRegularPercentage": 0,
+                    "order": 2,
+                    "currentValue": null,
+                    "allowedOptions": [
+                      {
+                        "marketOptionId": "wnba-opt-reb-over",
+                        "outcome": "OVER"
+                      },
+                      {
+                        "marketOptionId": "wnba-opt-reb-under",
+                        "outcome": "UNDER"
+                      }
+                    ],
+                    "playerRecentStats": {
+                      "averageValue": 6.1,
+                      "stats": []
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

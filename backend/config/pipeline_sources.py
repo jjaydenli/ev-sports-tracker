@@ -6,6 +6,7 @@ from __future__ import annotations
 BETR_TO_DK_LEAGUE: dict[str, str] = {
     "NBA": "nba",
     "MLB": "mlb",
+    "WNBA": "wnba",
 }
 
 PIPELINE_LEAGUES: tuple[str, ...] = tuple(BETR_TO_DK_LEAGUE.keys())
@@ -34,7 +35,7 @@ def dk_league_key(betr_league: str) -> str:
 
 
 def normalize_league(league: str) -> str:
-    """Normalize league token to uppercase enum (NBA, MLB)."""
+    """Normalize league token to uppercase enum (NBA, MLB, WNBA)."""
     return league.upper()
 
 

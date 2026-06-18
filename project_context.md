@@ -36,7 +36,7 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 * **Role:** Sharp O/U ladders and milestone fallbacks; primary input to `line_adjustment.py`.
 * **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`, `scrapers/sportsbooks/dk_subcategory_discovery.py`
 * **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md) — slates, subcategories, eligible `line_source` values.
-* **Config:** `DK_NBA_*_STAT_CATEGORIES` (NBA O/U + milestones); `DK_MLB_STAT_CATEGORIES` / `DK_MLB_LIVE_STAT_CATEGORIES` (MLB pregame + live batter tabs via `stat_categories_for_league` / `live_stat_categories_for_league`).
+* **Config:** `DK_NBA_*_STAT_CATEGORIES` (NBA O/U + milestones); `DK_WNBA_*` aliases same prop IDs with slate `94682` / `4511`; `DK_MLB_STAT_CATEGORIES` / `DK_MLB_LIVE_STAT_CATEGORIES` (MLB pregame + live batter tabs via `stat_categories_for_league` / `live_stat_categories_for_league`).
 * **Live (MLB):** League slate discovers pregame (`NOT_STARTED`) and live (`IN_PROGRESS`, `STARTED` in `LIVE_EVENT_STATUSES`) events; live events scrape `configured_live_stat_categories_for_league` (`DK_MLB_LIVE_STAT_CATEGORIES` — batter O/U incl. `doubles`; `walks` TBD). Live subCategoryIds often differ from pregame (probe: `probe_dk_subcategories <live_event_id> --league mlb --live --discover`). Unset live IDs skip that market on in-game events. DK rows tagged `is_live`; parser propagates.
 
 ### FanDuel (sharp sportsbook)
@@ -53,11 +53,15 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 
 * **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — pregame 13-market O/U slate (`DK_MLB_STAT_CATEGORIES`, incl. `doubles`) plus live batter O/U (`DK_MLB_LIVE_STAT_CATEGORIES`, 7/8 IDs set — `walks` TBD; live IDs differ from pregame on many tabs). FanDuel skipped. EV output rows include `is_live` (ranked table **Live** column). No CLI flag — live discovery is standing behavior on `./ev --leagues mlb`.
 
+### WNBA
+
+* **Detail:** Pregame only — Betr wide fetch (`League!` = `WNBA`) vs DK sharp (`DK_LEAGUE_SLATES["wnba"]`, NBA-parity O/U + milestone fallback IDs). FanDuel auto-skipped (no `FD_LEAGUE_SLATES` entry). CLI: `./ev --wnba` or `--leagues wnba`.
+
 ## 4. Quantitative Modeling & Math
 
 * **Market mapping:** Platform names normalized via `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 * **De-vigging:** DK American odds → implied probabilities; **multiplicative** vig removal in `utils/math_utils.py`.
-* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve sharp quote per Betr line via `line_adjustment.py` (DK ladder, optional FD exact, optional `multi_book_consensus`), multiplicative de-vig on eligible O/U, one row per allowed Betr side, ranked by EV. Each row gets `plus_ev` when `ev > min_ev`. Optional `filter_min_ev` drops sub-threshold rows before `top_n` (pipeline: auto when `--min-ev > 0`, or `--plus-ev-only` with any `--min-ev`). `run_ev_scan` logs a ranked plays table (`core/ev_display.py`: Hit%, EV%, +EV, DK/FD O/U, `line_source` — compact widths) plus run-over-run diff (`core/ev_run_diff.py`: new / removed / improved / fell vs prior top-N). JSON output capped at `top_n` (default 15). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
+* **EV calculation:** `find_ev_opportunities` / `compare_betr_vs_draftkings` in `core/engine.py` — resolve sharp quote per Betr line via `line_adjustment.py` (DK ladder, optional FD exact, optional `multi_book_consensus`), multiplicative de-vig on eligible O/U, one row per allowed Betr side, ranked by EV. Each row gets `plus_ev` when `ev > min_ev`. Optional `filter_min_ev` drops sub-threshold rows before `top_n` (pipeline: auto when `--min-ev > 0`, or `--plus-ev-only` with any `--min-ev`). `run_ev_scan` logs a ranked plays table (`core/ev_display.py`: Lg, Hit%, EV%, DK/FD O/U, `line_source` — compact widths) plus run-over-run diff (`core/ev_run_diff.py`: new / removed / improved / fell vs prior top-N). JSON output capped at `top_n` (default 15). Default DFS breakeven: `BETR_STANDARD_BREAKEVEN_ODDS` (-120); flat integer Betr lines optional (`--include-flat-lines`).
 
 ## 5. Architecture & File Structure
 
@@ -73,7 +77,7 @@ ev-sports-tracker/
     │   ├── api_headers.py
     │   ├── market_maps.py
     │   ├── settings.py
-    │   ├── dk_subcategories.py   # DK_NBA_* / DK_MLB_* STAT_CATEGORIES; DK_MLB_LIVE_STAT_CATEGORIES
+    │   ├── dk_subcategories.py   # DK_NBA_* / DK_WNBA_* / DK_MLB_* STAT_CATEGORIES; DK_MLB_LIVE_STAT_CATEGORIES
     │   ├── dk_discovery.py       # ID scan ranges; DK_MLB_LIVE_DISCOVERY_ID_RANGES; discovery output paths
     │   ├── discovery/          # per-league progress manifests (mlb.yaml)
     │   ├── fd_competitions.py
@@ -109,10 +113,10 @@ ev-sports-tracker/
     │   ├── line_adjustment.py
     │   ├── flat_line.py
     │   ├── ev_pipeline.py
-    │   ├── ev_display.py       # ranked table: Hit%, EV%, +EV, DK, FD, Src, Live
+    │   ├── ev_display.py       # ranked table: Lg, Hit%, EV%, DK, FD, Src, Live
     │   ├── ev_run_diff.py      # consecutive top-N diff vs prior ev_opportunities.json
     │   ├── pipeline_timing.py  # wall-clock stage timer for --timing
-    │   └── pipeline_runner.py  # --league (case-insensitive), --min-ev, --plus-ev-only, --skip-betr/dk/fd, --timing
+    │   └── pipeline_runner.py  # --leagues, per-league --nba/--mlb/--wnba, --min-ev, --plus-ev-only, --timing
     ├── archive/dabble/
     ├── data/
     │   ├── processed/          # gitignored outputs
@@ -122,7 +126,7 @@ ev-sports-tracker/
         └── unit/
 ```
 
-**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json` incl. `is_live`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run. MLB: Betr + DK also ingest in-progress/live events; DK live events use `DK_MLB_LIVE_STAT_CATEGORIES` (per-market `None` skips that tab).
+**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB, WNBA) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json` incl. `is_live`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run. MLB: Betr + DK also ingest in-progress/live events; DK live events use `DK_MLB_LIVE_STAT_CATEGORIES` (per-market `None` skips that tab). WNBA: pregame only; FD skipped.
 
 
 ## 6. Roadmap
@@ -150,7 +154,7 @@ ev-sports-tracker/
 * Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — multi-league loop, `--dfs` / `--books` / `--leagues`, fresh-only runs with `run_id`, `core/pipeline_scrape.py`, `config/pipeline_sources.py`; repo-root `./ev` wrapper.
 * Betr `--league` case normalization: `_normalize_betr_league` + `BetrEngine` uppercase GraphQL enum; GraphQL `errors` logged on invalid league — fixes empty MLB slate when invoking `./ev --league mlb`.
 * Pipeline `--min-ev` / `--plus-ev-only`: filter ranked output to `ev > min_ev`; `plus_ev` flag on each row; default `min_ev=0` shows top-N including negative EV.
-* Ranked plays table: `ev_display.py` — compact 11-column layout (Hit%, EV%, +EV, DK/FD O/U, Src, Live).
+* Ranked plays table: `ev_display.py` — 11-column layout (Lg, widened Stat, Hit%, EV%, DK/FD O/U, Src, Live).
 * FanDuel NBA event discovery: `fd_competitions.py`, `fd_api.fetch_league_event_ids`, `probe_fd_events`, `test_fd_event_discovery`.
 * FanDuel event-page props + normalization: `fd_markets.py`, `fd_engine`, `fd_parser`, `test_fd_event_page`, `test_normalize_fd`.
 * FanDuel core O/U default scrape: points / rebounds / assists via `FD_DEFAULT_SCRAPE_MARKETS` (`fd_engine` + `pipeline_runner`); multi-tab fixtures and tests.

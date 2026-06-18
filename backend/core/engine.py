@@ -137,6 +137,7 @@ def _append_side_opportunity(
     opportunities.append(
         {
             "player": dfs_prop["player"],
+            "league": dfs_prop.get("league", ""),
             "market": dfs_prop["market"],
             "line": float(dfs_prop["line"]),
             "line_kind": dfs_prop.get("line_kind", line_kind(float(dfs_prop["line"]))),

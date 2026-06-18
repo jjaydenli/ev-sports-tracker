@@ -1,6 +1,7 @@
 import pytest
 
 from config.pipeline_sources import (
+    PIPELINE_LEAGUES,
     dk_league_key,
     normalize_league,
     parse_csv_sources,
@@ -11,6 +12,12 @@ from config.pipeline_sources import (
 def test_dk_league_key_maps_mlb():
     assert dk_league_key("MLB") == "mlb"
     assert dk_league_key("NBA") == "nba"
+    assert dk_league_key("WNBA") == "wnba"
+
+
+def test_parse_leagues_subset():
+    assert parse_leagues("nba,mlb") == ("NBA", "MLB")
+    assert parse_leagues("wnba") == ("WNBA",)
 
 
 def test_normalize_league_uppercases():
@@ -26,5 +33,5 @@ def test_parse_csv_sources_rejects_unknown():
         parse_csv_sources("caesar", valid=("dk", "fd"), label="books")
 
 
-def test_parse_leagues_subset():
-    assert parse_leagues("nba,mlb") == ("NBA", "MLB")
+def test_pipeline_leagues_includes_wnba():
+    assert "WNBA" in PIPELINE_LEAGUES

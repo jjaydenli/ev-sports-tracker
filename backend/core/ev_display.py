@@ -5,21 +5,20 @@ from __future__ import annotations
 # Column order for pipeline_runner / run_ev_scan console table.
 EV_TABLE_HEADERS: tuple[str, ...] = (
     "Player",
+    "Lg",
     "Side",
     "Stat",
     "Line",
     "Hit%",
     "EV%",
-    "+EV",
     "DK",
     "FD",
     "Src",
     "Live",
 )
 
-# Minimum column widths (excluding separator spaces). Tight layout (~110 chars
-# wide with 11 columns) — EV%/+EV kept; player/DK/FD/Src trimmed vs legacy 8-col.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 6, 4, 5, 5, 3, 10, 10, 9, 4)
+# Minimum column widths (excluding separator spaces). Stat widened for longer markets.
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 4, 10, 4, 5, 5, 10, 10, 9, 4)
 
 # Shorter labels for console table (raw values still in JSON output).
 _LINE_SOURCE_DISPLAY: dict[str, str] = {
@@ -58,25 +57,30 @@ def format_ev_table_header() -> str:
     )
 
 
+def _format_league(value: str | None) -> str:
+    if not value:
+        return "—"
+    return str(value).upper()
+
+
 def format_ev_opportunity_row(row: dict) -> str:
-    """One pipeline table row: player | side | stat | line | hit% | ev | dk | fd | src | live."""
+    """One pipeline table row: player | lg | side | stat | line | hit% | ev | dk | fd | src | live."""
     line = row.get("line")
     line_text = str(int(line)) if line is not None and float(line) == int(float(line)) else str(line)
     hit_pct = row.get("side_hit_pct")
     hit_text = f"{hit_pct:.1f}%" if hit_pct is not None else "—"
     ev_pct = row.get("ev_pct")
     ev_text = f"{ev_pct:+.1f}" if ev_pct is not None else "—"
-    plus_ev_text = "Y" if row.get("plus_ev") else "—"
     live_text = "L" if row.get("is_live") else "—"
 
     cells = (
         row.get("player", ""),
+        _format_league(row.get("league")),
         str(row.get("side", "")).upper(),
         row.get("market", ""),
         line_text,
         hit_text,
         ev_text,
-        plus_ev_text,
         format_ou_odds(row.get("dk_over_odds"), row.get("dk_under_odds")),
         format_ou_odds(row.get("fd_over_odds"), row.get("fd_under_odds")),
         _format_line_source(str(row.get("line_source", ""))),

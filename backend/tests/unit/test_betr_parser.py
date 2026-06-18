@@ -1,6 +1,5 @@
 from parsers.betr_parser import parse_betr_prop, parse_betr_props
 
-
 def _both_sides_options():
     return [
         {"market_option_id": "opt-over", "outcome": "OVER"},
@@ -237,3 +236,18 @@ def test_parse_betr_prop_is_live_absent_when_missing():
     result = parse_betr_prop(raw)
     assert result is not None
     assert "is_live" not in result
+
+
+def test_parse_betr_prop_wnba_points():
+    result = parse_betr_prop(
+        _raw_betr_prop(
+            league="WNBA",
+            key="POINTS",
+            label="Points",
+            value=18.5,
+        )
+    )
+    assert result is not None
+    assert result["market"] == "points"
+    assert result["league"] == "WNBA"
+    assert result["line"] == 18.5

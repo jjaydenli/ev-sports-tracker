@@ -1,8 +1,10 @@
 import json
 from unittest.mock import AsyncMock, patch
 
+from config.pipeline_sources import PIPELINE_LEAGUES
 from core.ev_pipeline import BETR_NORMALIZED, DK_NORMALIZED
 from core.pipeline_artifacts import load_wrapped_board, save_wrapped_board
+from core.pipeline_runner import build_parser, merge_leagues_from_args, normalize_league_flag_argv
 from core.scrape_result import ScrapeResult
 
 
@@ -89,6 +91,36 @@ def _skipped(source: str, league: str) -> ScrapeResult:
     )
 
 
+def _basketball_league(league: str) -> bool:
+    return league in {"NBA", "WNBA"}
+
+
+def test_build_parser_has_shorthand_flag_per_pipeline_league():
+    parser = build_parser()
+    for league in PIPELINE_LEAGUES:
+        assert f"--{league.lower()}" in parser.format_usage()
+
+
+def test_merge_leagues_from_args_wnba_only():
+    args = build_parser().parse_args(["--wnba"])
+    assert merge_leagues_from_args(args) == ("WNBA",)
+
+
+def test_merge_leagues_from_args_union_with_leagues():
+    args = build_parser().parse_args(["--leagues", "mlb", "--wnba"])
+    assert merge_leagues_from_args(args) == ("MLB", "WNBA")
+
+
+def test_merge_leagues_from_args_none_when_no_league_flags():
+    args = build_parser().parse_args([])
+    assert merge_leagues_from_args(args) is None
+
+
+def test_normalize_league_flag_argv_case_insensitive():
+    assert normalize_league_flag_argv(["--WNBA"]) == ["--wnba"]
+    assert normalize_league_flag_argv(["--NBA", "--MLB"]) == ["--nba", "--mlb"]
+
+
 @patch("core.pipeline_runner._preflight_betr_auth")
 def test_run_refresh_skip_scrape_writes_ev(mock_preflight, tmp_path):
     _write_wrapped_normalized(tmp_path, betr_count=2, dk_count=2)
@@ -114,7 +146,7 @@ def test_run_refresh_full_scrape_all_leagues(mock_preflight, mock_scrape, tmp_pa
     async def fake_scrape(source: str, league: str) -> ScrapeResult:
         if source == "fd" and league == "MLB":
             return _skipped("fd", league)
-        if league == "NBA" and source in {"betr", "dk", "fd"}:
+        if _basketball_league(league) and source in {"betr", "dk", "fd"}:
             return _ok_result(source, league, 2)
         return _no_events(source, league)
 
@@ -125,11 +157,11 @@ def test_run_refresh_full_scrape_all_leagues(mock_preflight, mock_scrape, tmp_pa
     code = run_refresh(data_dir=tmp_path)
 
     assert code == 0
-    assert mock_scrape.await_count == 6
+    assert mock_scrape.await_count == 9
     _, betr = load_wrapped_board(tmp_path / BETR_NORMALIZED)
-    assert len(betr) == 2
+    assert len(betr) == 4
     coverage = json.loads((tmp_path / "scrape_coverage.json").read_text(encoding="utf-8"))
-    assert coverage["leagues"] == ["NBA", "MLB"]
+    assert coverage["leagues"] == ["NBA", "MLB", "WNBA"]
     assert coverage["sources"]["fd:MLB"]["status"] == "skipped"
 
 

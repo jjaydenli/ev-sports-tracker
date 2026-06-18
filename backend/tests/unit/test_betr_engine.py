@@ -9,6 +9,7 @@ from scrapers.dfs.betr.betr_engine import (
 )
 
 BETR_MLB_LIVE_FIXTURE_PATH = Path("tests/fixtures/betr_mlb_live.json")
+BETR_WNBA_PREGAME_FIXTURE_PATH = Path("tests/fixtures/betr_wnba_pregame.json")
 
 
 def _miles_mcbride_projection(**overrides):
@@ -340,3 +341,13 @@ def test_extract_raw_props_live_projection_in_scheduled_event_excluded():
     )
     result = extract_raw_props(payload)
     assert result == []
+
+
+def test_extract_raw_props_betr_wnba_pregame_fixture():
+    payload = json.loads(BETR_WNBA_PREGAME_FIXTURE_PATH.read_text(encoding="utf-8"))
+    result = extract_raw_props(payload, league="WNBA")
+    assert len(result) == 2
+    assert all(prop["league"] == "WNBA" for prop in result)
+    markets = {prop["key"] for prop in result}
+    assert markets == {"POINTS", "REBOUNDS"}
+    assert result[0]["player"] == "Sabrina Ionescu"

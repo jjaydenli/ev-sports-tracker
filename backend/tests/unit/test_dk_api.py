@@ -1,3 +1,4 @@
+import asyncio
 import json
 from pathlib import Path
 
@@ -384,3 +385,22 @@ def test_extract_event_ids_started_status():
     }
     result = extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES)
     assert result == ["400"]
+
+
+def test_fetch_event_subcategory_markets_survives_separate_asyncio_runs(points_payload):
+    """pipeline_runner calls asyncio.run once per league; sem must rebind."""
+
+    async def fetch_once() -> dict | None:
+        async def handler(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, json=points_payload, request=request)
+
+        transport = httpx.MockTransport(handler)
+        async with httpx.AsyncClient(transport=transport) as client:
+            return await fetch_event_subcategory_markets(
+                client, EVENT_ID, DK_NBA_STAT_CATEGORIES["points"]
+            )
+
+    first = asyncio.run(fetch_once())
+    second = asyncio.run(fetch_once())
+    assert first == points_payload
+    assert second == points_payload

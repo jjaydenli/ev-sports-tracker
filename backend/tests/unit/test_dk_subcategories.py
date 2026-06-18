@@ -8,6 +8,8 @@ from config.dk_subcategories import (
     DK_NBA_OU_EXTENDED_STAT_CATEGORIES,
     DK_NBA_PENDING_STAT_CATEGORIES,
     DK_NBA_STAT_CATEGORIES,
+    DK_WNBA_MILESTONE_STAT_CATEGORIES,
+    DK_WNBA_STAT_CATEGORIES,
     build_league_events_query,
     build_league_events_url,
     build_markets_query,
@@ -15,6 +17,7 @@ from config.dk_subcategories import (
     configured_live_stat_categories_for_league,
     configured_stat_categories_for_league,
     live_stat_categories_for_league,
+    milestone_categories_for_league,
     stat_categories_for_league,
 )
 
@@ -114,6 +117,25 @@ def test_dk_league_slates_contains_nba():
 def test_dk_league_slates_contains_mlb():
     assert DK_LEAGUE_SLATES["mlb"]["league_id"] == "84240"
     assert DK_LEAGUE_SLATES["mlb"]["slate_subcategory_id"] == "4519"
+
+
+def test_dk_league_slates_contains_wnba():
+    assert DK_LEAGUE_SLATES["wnba"]["league_id"] == "94682"
+    assert DK_LEAGUE_SLATES["wnba"]["slate_subcategory_id"] == "4511"
+
+
+def test_stat_categories_for_league_wnba_matches_nba():
+    assert stat_categories_for_league("wnba") == DK_NBA_STAT_CATEGORIES
+    assert stat_categories_for_league("wnba") is DK_WNBA_STAT_CATEGORIES
+
+
+def test_milestone_categories_for_league_wnba_matches_nba():
+    assert milestone_categories_for_league("wnba") == DK_NBA_MILESTONE_STAT_CATEGORIES
+    assert milestone_categories_for_league("wnba") is DK_WNBA_MILESTONE_STAT_CATEGORIES
+
+
+def test_live_stat_categories_for_league_wnba_returns_empty():
+    assert live_stat_categories_for_league("wnba") == {}
 
 
 def test_stat_categories_for_league_mlb():

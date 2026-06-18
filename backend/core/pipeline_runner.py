@@ -159,6 +159,27 @@ def _any_source_failed(
     return False
 
 
+def normalize_league_flag_argv(argv: list[str] | None) -> list[str] | None:
+    """Lowercase per-league shorthand flags so --WNBA matches --wnba."""
+    if argv is None:
+        return None
+    league_flags = {f"--{lg.lower()}" for lg in PIPELINE_LEAGUES}
+    return [
+        token.lower() if token.lower() in league_flags else token
+        for token in argv
+    ]
+
+
+def merge_leagues_from_args(args: argparse.Namespace) -> tuple[str, ...] | None:
+    """Union --leagues with any --<league> shorthand flags; empty means all leagues."""
+    shorthand = [
+        lg for lg in PIPELINE_LEAGUES if getattr(args, lg.lower(), False)
+    ]
+    from_csv = parse_leagues(args.leagues) or ()
+    merged = tuple(dict.fromkeys((*from_csv, *shorthand)))
+    return merged if merged else None
+
+
 def _apply_deprecated_flags(args: argparse.Namespace) -> argparse.Namespace:
     """Map legacy skip/only flags onto --dfs/--books/--leagues/--scrape-only."""
     if getattr(args, "betr_only", False):
@@ -486,12 +507,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip-dk", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--skip-fd", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--league", type=str, default=None, help=argparse.SUPPRESS)
+    for league in PIPELINE_LEAGUES:
+        parser.add_argument(
+            f"--{league.lower()}",
+            action="store_true",
+            help=f"Include {league} in this run (shorthand for --leagues {league.lower()})",
+        )
     return parser
 
 
 def main(argv: list[str] | None = None) -> None:
     """CLI entrypoint."""
     os.chdir(_backend_root())
+    argv = normalize_league_flag_argv(argv)
     args = build_parser().parse_args(argv)
     args = _apply_deprecated_flags(args)
 
@@ -502,7 +530,7 @@ def main(argv: list[str] | None = None) -> None:
     try:
         dfs = parse_csv_sources(args.dfs, valid=DFS_SOURCES, label="dfs")
         books = parse_csv_sources(args.books, valid=BOOK_SOURCES, label="books")
-        leagues = parse_leagues(args.leagues)
+        leagues = merge_leagues_from_args(args)
     except ValueError as exc:
         logger.error(str(exc))
         raise SystemExit(1) from exc

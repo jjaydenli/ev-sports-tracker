@@ -67,6 +67,17 @@ def test_find_ev_opportunities_returns_empty_when_no_match():
     assert find_ev_opportunities(betr, dk) == []
 
 
+def test_find_ev_opportunities_includes_league_from_dfs_prop():
+    betr = _betr_prop("Aaron Judge", "hits", 1.5)
+    betr["league"] = "MLB"
+    dk = [_dk_prop("Aaron Judge", "hits", 1.5, -115, -110)]
+
+    results = find_ev_opportunities([betr], dk, min_ev=0.0)
+
+    assert results
+    assert all(row["league"] == "MLB" for row in results)
+
+
 def test_find_ev_opportunities_finds_positive_ev_over():
     betr = [_betr_prop("Test Player", "points", 20.5)]
     dk = [_dk_prop("Test Player", "points", 20.5, -140, 120)]

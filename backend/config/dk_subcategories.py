@@ -73,6 +73,10 @@ DK_NBA_STAT_CATEGORIES: dict[str, str] = {
     **DK_NBA_OU_EXTENDED_STAT_CATEGORIES,
 }
 
+# WNBA per-event prop tabs match NBA subCategoryIds (pregame only).
+DK_WNBA_STAT_CATEGORIES: dict[str, str] = DK_NBA_STAT_CATEGORIES
+DK_WNBA_MILESTONE_STAT_CATEGORIES: dict[str, str] = DK_NBA_MILESTONE_STAT_CATEGORIES
+
 # MLB player-prop O/U (pregame). Verify:
 #   python -m scripts.probe_dk_subcategories <event_id> --league mlb
 DK_MLB_STAT_CATEGORIES: dict[str, str] = {
@@ -119,6 +123,10 @@ DK_LEAGUE_SLATES: dict[str, dict[str, str]] = {
         "league_id": "84240",
         "slate_subcategory_id": "4519",
     },
+    "wnba": {
+        "league_id": "94682",
+        "slate_subcategory_id": "4511",
+    },
 }
 
 
@@ -127,13 +135,18 @@ def stat_categories_for_league(league: str) -> dict[str, str]:
     key = league.lower()
     if key == "mlb":
         return DK_MLB_STAT_CATEGORIES
+    if key == "wnba":
+        return DK_WNBA_STAT_CATEGORIES
     return DK_NBA_STAT_CATEGORIES
 
 
 def live_stat_categories_for_league(league: str) -> dict[str, str | None]:
     """Return live-event market -> prop subCategoryId map (None = no live ID yet)."""
-    if league.lower() == "mlb":
+    key = league.lower()
+    if key == "mlb":
         return DK_MLB_LIVE_STAT_CATEGORIES
+    if key == "wnba":
+        return {}
     return {}
 
 
@@ -142,6 +155,8 @@ def milestone_categories_for_league(league: str) -> dict[str, str]:
     key = league.lower()
     if key == "mlb":
         return DK_MLB_MILESTONE_STAT_CATEGORIES
+    if key == "wnba":
+        return DK_WNBA_MILESTONE_STAT_CATEGORIES
     return DK_NBA_MILESTONE_STAT_CATEGORIES
 
 

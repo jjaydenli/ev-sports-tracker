@@ -34,9 +34,10 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 ### DraftKings (sharp sportsbook)
 
 * **Role:** Sharp O/U ladders and milestone fallbacks; primary input to `line_adjustment.py`.
-* **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`
+* **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`, `scrapers/sportsbooks/dk_subcategory_discovery.py`
 * **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md) — slates, subcategories, eligible `line_source` values.
-* **Live (MLB):** League slate discovers pregame (`NOT_STARTED`) and live (`IN_PROGRESS`, `LIVE_EVENT_STATUSES`) events; live events scrape `DK_MLB_LIVE_STAT_CATEGORIES` (batter O/U incl. `doubles`; `walks` TBD). Unset live IDs skip that market on in-game events. DK rows tagged `is_live`; parser propagates.
+* **Config:** `DK_NBA_*_STAT_CATEGORIES` (NBA O/U + milestones); `DK_MLB_STAT_CATEGORIES` / `DK_MLB_LIVE_STAT_CATEGORIES` (MLB pregame + live batter tabs via `stat_categories_for_league` / `live_stat_categories_for_league`).
+* **Live (MLB):** League slate discovers pregame (`NOT_STARTED`) and live (`IN_PROGRESS`, `STARTED` in `LIVE_EVENT_STATUSES`) events; live events scrape `configured_live_stat_categories_for_league` (`DK_MLB_LIVE_STAT_CATEGORIES` — batter O/U incl. `doubles`; `walks` TBD). Live subCategoryIds often differ from pregame (probe: `probe_dk_subcategories <live_event_id> --league mlb --live --discover`). Unset live IDs skip that market on in-game events. DK rows tagged `is_live`; parser propagates.
 
 ### FanDuel (sharp sportsbook)
 
@@ -50,7 +51,7 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 
 ### MLB
 
-* **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — pregame 13-market O/U slate (`DK_MLB_STAT_CATEGORIES`, incl. `doubles`) plus live batter O/U (`DK_MLB_LIVE_STAT_CATEGORIES`; live IDs differ from pregame on many tabs). FanDuel skipped. EV output rows include `is_live` (ranked table **Live** column). No CLI flag — live discovery is standing behavior on `./ev --leagues mlb`.
+* **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — pregame 13-market O/U slate (`DK_MLB_STAT_CATEGORIES`, incl. `doubles`) plus live batter O/U (`DK_MLB_LIVE_STAT_CATEGORIES`, 7/8 IDs set — `walks` TBD; live IDs differ from pregame on many tabs). FanDuel skipped. EV output rows include `is_live` (ranked table **Live** column). No CLI flag — live discovery is standing behavior on `./ev --leagues mlb`.
 
 ## 4. Quantitative Modeling & Math
 
@@ -72,8 +73,8 @@ ev-sports-tracker/
     │   ├── api_headers.py
     │   ├── market_maps.py
     │   ├── settings.py
-    │   ├── dk_subcategories.py   # DK_*_STAT_CATEGORIES; DK_MLB_LIVE_STAT_CATEGORIES (live)
-    │   ├── dk_discovery.py     # wide-scan ID ranges; discovery output paths
+    │   ├── dk_subcategories.py   # DK_NBA_* / DK_MLB_* STAT_CATEGORIES; DK_MLB_LIVE_STAT_CATEGORIES
+    │   ├── dk_discovery.py       # ID scan ranges; DK_MLB_LIVE_DISCOVERY_ID_RANGES; discovery output paths
     │   ├── discovery/          # per-league progress manifests (mlb.yaml)
     │   ├── fd_competitions.py
     │   ├── fd_markets.py       # tab ↔ canonical; FD_DEFAULT_SCRAPE_MARKETS; parse_player_ou_market_type
@@ -94,6 +95,7 @@ ev-sports-tracker/
     │   └── sportsbooks/
     │       ├── dk_engine.py
     │       ├── dk_api.py
+    │       ├── dk_subcategory_discovery.py  # ad-hoc live/pregame subCategoryId scan helpers
     │       ├── fd_api.py       # league discovery; flatten; group_fd_line_rows
     │       └── fd_engine.py
     ├── parsers/
@@ -120,14 +122,14 @@ ev-sports-tracker/
         └── unit/
 ```
 
-**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json` incl. `is_live`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run. MLB: Betr + DK also ingest in-progress/live events; DK live prop tabs require filled `DK_MLB_LIVE_STAT_CATEGORIES`.
+**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`persist_match_diagnostics` with `by_league` → `match_report.json`; `run_ev_scan` with `run_id` check → `ev_opportunities.json` incl. `is_live`; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run. MLB: Betr + DK also ingest in-progress/live events; DK live events use `DK_MLB_LIVE_STAT_CATEGORIES` (per-market `None` skips that tab).
 
 
 ## 6. Roadmap
 
 ### Open
 
-* **MLB live props (activation):** `DK_MLB_LIVE_STAT_CATEGORIES` filled for 7/8 batter tabs (`walks` still TBD); live IDs differ from pregame — see [mlb.md](docs/betting_odds/mlb.md).
+* **MLB live walks:** fill `DK_MLB_LIVE_STAT_CATEGORIES["walks"]` on next live slate (live ID may differ from pregame `17411`).
 * **MLB props (pregame v2):** **Deferred:** `HITTER_STRIKEOUTS` (milestone-only on DK). Flat/push pitching K + milestone penalty — see [mlb.md](docs/betting_odds/mlb.md).
 * **MLB / DK milestone EV (v2):** Parser + engine for milestone-only tabs (over-side penalty vs devig). `HITTER_STRIKEOUTS` (`17849`); pitching K push pairing (`15221` + `17323`).
 * **Additional sharp books:** Add a third sharp book (scrape → normalize → consensus); weights are env-tunable via `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` in `load_sharp_book_weights()`.
@@ -160,5 +162,7 @@ ev-sports-tracker/
 * Betr Keycloak auth probe: `python -m scrapers.dfs.betr.betr_auth` (`--try-grant`); refresh grant is the documented default — [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 * Betr Keycloak `.env.example` defaults: public token URL (`account.betr.app/realms/betr/…`); `BETR_KEYCLOAK_CLIENT_ID=betr-rn` for fantasy.betr.app (refresh tokens client-bound; code default `betr-web` if unset).
 * Multi-book consensus weights: `load_sharp_book_weights()` in `line_adjustment.py` — `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` env vars (default 1.0 each).
-* **MLB live batter props (plumbing):** Betr `IN_PROGRESS` + `isLive` scrape; DK MLB pregame+live event discovery, `DK_MLB_LIVE_STAT_CATEGORIES` + `configured_live_stat_categories_for_league`; `is_live` through parsers → `ev_opportunities.json` + **Live** column in `ev_display`; graceful no-op when live subcategory map empty — [docs/plans/mlb-live-props-dk.md](docs/plans/mlb-live-props-dk.md).
+* **MLB live batter props:** Betr `IN_PROGRESS` + `isLive` scrape; DK pregame+live event discovery; `DK_MLB_LIVE_STAT_CATEGORIES` + `configured_live_stat_categories_for_league` (7/8 IDs probed); `is_live` through parsers → `ev_opportunities.json` + **Live** column in `ev_display` — [docs/plans/archive/mlb-live-props-dk.md](docs/plans/archive/mlb-live-props-dk.md).
+* **DK live subCategoryId probe tooling:** `dk_subcategory_discovery.py`; `probe_dk_subcategories --league mlb --live --discover`; `probe_dk_discover --live` — live MLB tabs use different IDs than pregame ([mlb.md](docs/betting_odds/mlb.md)).
+* **DK config rename (NBA):** `DK_NBA_*_STAT_CATEGORIES` / `DK_NBA_MILESTONE_STAT_CATEGORIES` / `DK_NBA_PENDING_STAT_CATEGORIES` (was generic `DK_STAT_CATEGORIES` names).
 * **MLB pregame props (full O/U slate):** 13 markets Betr ↔ DK (`DK_MLB_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS`, incl. `doubles`); FD skipped for MLB.

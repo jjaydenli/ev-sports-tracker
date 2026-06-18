@@ -1,0 +1,3475 @@
+{
+  "layout": {
+    "defaultTab": 129,
+    "tabsDisplayOrder": [
+      129,
+      32,
+      313,
+      384,
+      386,
+      253,
+      248,
+      35,
+      123,
+      61
+    ],
+    "tabs": {
+      "32": {
+        "id": 32,
+        "title": "Popular",
+        "cards": [
+          {
+            "id": 32
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "35": {
+        "id": 35,
+        "title": "First 5 Innings",
+        "cards": [
+          {
+            "id": 35
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "61": {
+        "id": 61,
+        "title": "Innings",
+        "cards": [
+          {
+            "id": 61
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "123": {
+        "id": 123,
+        "title": "Hits & Runs",
+        "cards": [
+          {
+            "id": 123
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "129": {
+        "id": 129,
+        "title": "Same Game Parlay\u2122",
+        "cards": [
+          {
+            "id": 129
+          }
+        ],
+        "isSameGameMulti": true,
+        "description": null
+      },
+      "248": {
+        "id": 248,
+        "title": "Pitcher Props",
+        "cards": [
+          {
+            "id": 248
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "253": {
+        "id": 253,
+        "title": "Batter Props",
+        "cards": [
+          {
+            "id": 253
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "313": {
+        "id": 313,
+        "title": "Quick Bets",
+        "cards": [
+          {
+            "id": 313
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "384": {
+        "id": 384,
+        "title": "Lasers",
+        "cards": [
+          {
+            "id": 384
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      },
+      "386": {
+        "id": 386,
+        "title": "Moonshots",
+        "cards": [
+          {
+            "id": 386
+          }
+        ],
+        "isSameGameMulti": false,
+        "description": null
+      }
+    },
+    "cards": {
+      "32": {
+        "id": 32,
+        "type": "EVENT_CARD",
+        "title": "Popular",
+        "marketTypes": [
+          "BIG_3",
+          "TO_HIT_A_HOME_RUN",
+          "PLAYER_TO_RECORD_A_HIT",
+          "PITCHING_SPECIALS_SB_B",
+          "TO_HIT_2+_HOME_RUNS",
+          "PLAYER_TO_HIT_A_HOME_RUN_IN_FIRST_PLATE_APPEARANCE",
+          "PLAYER_TO_RECORD_2+_HITS",
+          "TO_RECORD_2+_TOTAL_BASES",
+          "TO_RECORD_3+_TOTAL_BASES",
+          "***OVER/UNDER_0.5_RUNS_1ST_INNINGS",
+          "PLAYER_PROPS",
+          "PITCHER_C_STRIKEOUTS",
+          "PITCHER_D_STRIKEOUTS",
+          "EITHER_TEAM_TO_THROW_A_NO-HITTER",
+          "TO_RECORD_A_STOLEN_BASE",
+          "TO_HIT_A_SINGLE",
+          "TO_HIT_A_DOUBLE",
+          "TO_HIT_A_TRIPLE",
+          "TO_RECORD_AN_RBI",
+          "TO_RECORD_2+_RBIS",
+          "1ST_INNING_HITS",
+          "TO_RECORD_A_RUN",
+          "TO_RECORD_2+_RUNS",
+          "ALTERNATE_RUN_LINES",
+          "ALTERNATE_TOTAL_RUNS",
+          "HOME_TOTAL_RUNS",
+          "AWAY_TOTAL_RUNS",
+          "CORRECT_SCORE",
+          "1ST_HALF_MATCH_BETTING",
+          "1ST_HALF_MONEY_LINE",
+          "1ST_HALF_RUN_LINE",
+          "1ST_HALF_TOTAL_RUNS",
+          "1ST_INNING_RESULT"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "35": {
+        "id": 35,
+        "type": "EVENT_CARD",
+        "title": "First 5 Innings",
+        "marketTypes": [
+          "1ST_HALF_MONEY_LINE",
+          "1ST_HALF_MATCH_BETTING",
+          "1ST_HALF_RUN_LINE",
+          "1ST_HALF_TOTAL_RUNS",
+          "1ST_HALF_RUN_LINE_/_TOTAL_RUNS_DOUBLE",
+          "1ST_HALF_ALTERNATE_RUN_LINES",
+          "1ST_HALF_ALTERNATE_TOTAL_RUNS",
+          "1ST_HALF_WINNING_MARGIN_(5-WAY)",
+          "1ST_HALF_WINNING_MARGIN_(EXACT)"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "61": {
+        "id": 61,
+        "type": "EVENT_CARD",
+        "title": "Innings",
+        "marketTypes": [
+          "SPECIALS_-_TOP_1ST",
+          "SPECIALS_-_BOT_1ST",
+          "1ST_INNING_RESULT",
+          "1ST_INNING_RUN_LINE",
+          "1ST_INNING_TOTAL_RUNS",
+          "1ST_INNING_CORRECT_SCORE",
+          "1ST_INNING_RUNS_ODD/EVEN",
+          "1ST_INNING_HITS",
+          "***OVER/UNDER_0.5_RUNS_1ST_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_1ST_INNINGS",
+          "SPECIALS_-_TOP_2ND",
+          "SPECIALS_-_BOT_2ND",
+          "2ND_INNING_RESULT",
+          "2ND_INNING_RUN_LINE",
+          "2ND_INNING_TOTAL_RUNS",
+          "2ND_INNING_HITS",
+          "2ND_INNING_CORRECT_SCORE",
+          "2ND_INNING_RUNS_ODD/EVEN",
+          "***OVER/UNDER_0.5_RUNS_2ND_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_2ND_INNINGS",
+          "LEAD_AFTER_2ND_INNING",
+          "SPECIALS_-_TOP_3RD",
+          "SPECIALS_-_BOT_3RD",
+          "3RD_INNING_RESULT",
+          "3RD_INNING_RUN_LINE",
+          "3RD_INNING_TOTAL_RUNS",
+          "3RD_INNING_HITS",
+          "3RD_INNING_CORRECT_SCORE",
+          "3RD_INNING_RUNS_ODD/EVEN",
+          "***OVER/UNDER_0.5_RUNS_3RD_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_3RD_INNINGS",
+          "LEAD_AFTER_3RD_INNING",
+          "3_INNINGS_LINE",
+          "3_INNINGS_TOTAL_RUNS",
+          "SPECIALS_-_TOP_4TH",
+          "SPECIALS_-_BOT_4TH",
+          "4TH_INNING_RESULT",
+          "4TH_INNING_RUN_LINE",
+          "4TH_INNING_TOTAL_RUNS",
+          "4TH_INNING_HITS",
+          "4TH_INNING_CORRECT_SCORE",
+          "4TH_INNING_RUNS_ODD/EVEN",
+          "***OVER/UNDER_0.5_RUNS_4TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_4TH_INNINGS",
+          "LEAD_AFTER_4TH_INNING",
+          "SPECIALS_-_TOP_5TH",
+          "SPECIALS_-_BOT_5TH",
+          "5TH_INNING_RESULT",
+          "5TH_INNING_RUN_LINE",
+          "5TH_INNING_HITS",
+          "5TH_INNING_CORRECT_SCORE",
+          "5TH_INNING_RUNS_ODD/EVEN",
+          "***OVER/UNDER_0.5_RUNS_5TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_5TH_INNINGS",
+          "5TH_INNING_TOTAL_RUNS",
+          "SPECIALS_-_TOP_6TH",
+          "SPECIALS_-_BOT_6TH",
+          "6TH_INNING_RESULT",
+          "6TH_INNING_RUN_LINE",
+          "6TH_INNING_TOTAL_RUNS",
+          "6TH_INNING_HITS",
+          "6TH_INNING_CORRECT_SCORE",
+          "6TH_INNING_RUNS_ODD/EVEN",
+          "***OVER/UNDER_0.5_RUNS_6TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_6TH_INNINGS",
+          "LEAD_AFTER_6TH_INNING",
+          "SPECIALS_-_TOP_7TH",
+          "SPECIALS_-_BOT_7TH",
+          "7TH_INNING_RESULT",
+          "7TH_INNING_RUN_LINE",
+          "7TH_INNING_TOTAL_RUNS",
+          "7TH_INNING_HITS",
+          "7TH_INNING_CORRECT_SCORE",
+          "7TH_INNING_RUNS_ODD/EVEN",
+          "***OVER/UNDER_0.5_RUNS_7TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_7TH_INNINGS",
+          "LEAD_AFTER_7TH_INNING",
+          "7_INNINGS_LINE",
+          "7_INNINGS_TOTAL_RUNS",
+          "SPECIALS_-_TOP_8TH",
+          "SPECIALS_-_BOT_8TH",
+          "8TH_INNING_RESULT",
+          "8TH_INNING_RUN_LINE",
+          "8TH_INNING_TOTAL_RUNS",
+          "8TH_INNING_HITS",
+          "8TH_INNING_CORRECT_SCORE",
+          "8TH_INNING_RUNS_ODD/EVEN",
+          "***OVER/UNDER_0.5_RUNS_8TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_8TH_INNINGS",
+          "9TH_INNING_RESULT",
+          "9TH_INNING_RUN_LINE",
+          "9TH_INNING_CORRECT_SCORE",
+          "***OVER/UNDER_1.5_RUNS_9TH_INNINGS"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "123": {
+        "id": 123,
+        "type": "EVENT_CARD",
+        "title": "Hits & Runs",
+        "marketTypes": [
+          "FIRST_HOME_RUN_TYPE",
+          "AWAY_TOTAL_RUNS",
+          "HOME_TOTAL_RUNS",
+          "TOTAL_RUNS_(BANDS)",
+          "TOTAL_RUNS_ODD/EVEN",
+          "AWAY_TOTAL_RUNS_ODD/EVEN",
+          "HOME_TOTAL_RUNS_ODD/EVEN",
+          "TEAM_TO_SCORE_FIRST_WINS_GAME",
+          "TEAM_TO_SCORE_LAST_WINS_GAMES",
+          "1ST_INNING_HITS",
+          "2ND_INNING_HITS",
+          "3RD_INNING_HITS",
+          "4TH_INNING_HITS",
+          "5TH_INNING_HITS",
+          "6TH_INNING_HITS",
+          "7TH_INNING_HITS",
+          "8TH_INNING_HITS",
+          "RACE_TO_3_RUNS",
+          "RACE_TO_4_RUNS",
+          "RACE_TO_5_RUNS",
+          "RACE_TO_6_RUNS",
+          "RACE_TO_7_RUNS",
+          "WINNING_MARGIN_(4-WAY)",
+          "WINNING_MARGIN_(BANDS)",
+          "WINNING_MARGIN_(EXACT)",
+          "RUN_LINE_/_TOTAL_RUNS_DOUBLE",
+          "MONEY_LINE_/_TOTAL_RUNS_DOUBLE"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "129": {
+        "id": 129,
+        "type": "EVENT_CARD",
+        "title": "Same Game Parlay\u2122",
+        "marketTypes": [
+          "BIG_3",
+          "TO_HIT_A_HOME_RUN",
+          "TO_HIT_2+_HOME_RUNS",
+          "PLAYER_TO_RECORD_A_HIT",
+          "PLAYER_TO_RECORD_2+_HITS",
+          "PLAYER_TO_RECORD_1+_HITS+RUNS+RBIS",
+          "PLAYER_TO_RECORD_2+_HITS+RUNS+RBIS",
+          "PLAYER_PROPS",
+          "PITCHER_C_STRIKEOUTS",
+          "PITCHER_D_STRIKEOUTS",
+          "TO_RECORD_AN_RBI",
+          "TO_RECORD_2+_RBIS",
+          "TO_RECORD_2+_TOTAL_BASES",
+          "TO_RECORD_3+_TOTAL_BASES",
+          "TO_RECORD_4+_TOTAL_BASES",
+          "TO_RECORD_5+_TOTAL_BASES",
+          "TO_RECORD_A_RUN",
+          "TO_RECORD_2+_RUNS",
+          "TO_RECORD_A_STOLEN_BASE",
+          "TO_RECORD_2+_STOLEN_BASES",
+          "TO_HIT_A_SINGLE",
+          "TO_HIT_A_DOUBLE",
+          "TO_HIT_A_TRIPLE",
+          "ALTERNATE_RUN_LINES",
+          "ALTERNATE_TOTAL_RUNS",
+          "1ST_HALF_MATCH_BETTING",
+          "1ST_HALF_WINNING_MARGIN_(5-WAY)",
+          "1ST_HALF_WINNING_MARGIN_(EXACT)",
+          "1ST_HALF_ALTERNATE_RUN_LINES",
+          "1ST_HALF_ALTERNATE_TOTAL_RUNS",
+          "CORRECT_SCORE",
+          "1ST_INNING_RESULT",
+          "2ND_INNING_RESULT",
+          "3RD_INNING_RESULT",
+          "4TH_INNING_RESULT",
+          "5TH_INNING_RESULT",
+          "6TH_INNING_RESULT",
+          "7TH_INNING_RESULT",
+          "8TH_INNING_RESULT",
+          "1ST_INNING_CORRECT_SCORE",
+          "2ND_INNING_CORRECT_SCORE",
+          "3RD_INNING_CORRECT_SCORE",
+          "4TH_INNING_CORRECT_SCORE",
+          "5TH_INNING_CORRECT_SCORE",
+          "6TH_INNING_CORRECT_SCORE",
+          "7TH_INNING_CORRECT_SCORE",
+          "8TH_INNING_CORRECT_SCORE",
+          "1ST_INNING_RUNS_ODD/EVEN",
+          "2ND_INNING_RUNS_ODD/EVEN",
+          "3RD_INNING_RUNS_ODD/EVEN",
+          "4TH_INNING_RUNS_ODD/EVEN",
+          "5TH_INNING_RUNS_ODD/EVEN",
+          "6TH_INNING_RUNS_ODD/EVEN",
+          "7TH_INNING_RUNS_ODD/EVEN",
+          "8TH_INNING_RUNS_ODD/EVEN",
+          "1ST_INNING_HITS",
+          "2ND_INNING_HITS",
+          "3RD_INNING_HITS",
+          "4TH_INNING_HITS",
+          "5TH_INNING_HITS",
+          "6TH_INNING_HITS",
+          "7TH_INNING_HITS",
+          "8TH_INNING_HITS",
+          "1ST_HALF_MONEY_LINE",
+          "1ST_HALF_RUN_LINE",
+          "1ST_HALF_TOTAL_RUNS",
+          "RACE_TO_3_RUNS",
+          "RACE_TO_4_RUNS",
+          "RACE_TO_5_RUNS",
+          "RACE_TO_6_RUNS",
+          "RACE_TO_7_RUNS",
+          "HOME_TOTAL_RUNS",
+          "AWAY_TOTAL_RUNS",
+          "LEAD_AFTER_2ND_INNING",
+          "LEAD_AFTER_3RD_INNING",
+          "LEAD_AFTER_4TH_INNING",
+          "LEAD_AFTER_6TH_INNING",
+          "LEAD_AFTER_7TH_INNING",
+          "***OVER/UNDER_0.5_RUNS_1ST_INNINGS",
+          "***OVER/UNDER_0.5_RUNS_2ND_INNINGS",
+          "***OVER/UNDER_0.5_RUNS_3RD_INNINGS",
+          "***OVER/UNDER_0.5_RUNS_4TH_INNINGS",
+          "***OVER/UNDER_0.5_RUNS_5TH_INNINGS",
+          "***OVER/UNDER_0.5_RUNS_6TH_INNINGS",
+          "***OVER/UNDER_0.5_RUNS_7TH_INNINGS",
+          "***OVER/UNDER_0.5_RUNS_8TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_1ST_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_2ND_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_3RD_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_5TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_4TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_6TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_7TH_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_8TH_INNINGS"
+        ],
+        "isSameGameMulti": true,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "248": {
+        "id": 248,
+        "type": "EVENT_CARD",
+        "title": "Pitcher Props",
+        "marketTypes": [
+          "PLAYER_PROPS",
+          "PITCHER_C_STRIKEOUTS",
+          "PITCHER_D_STRIKEOUTS",
+          "PITCHING_SPECIALS_SB_B",
+          "EITHER_TEAM_TO_THROW_A_NO-HITTER"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": true,
+        "display": [
+          {
+            "marketLayoutTemplate": "PlayerOverUnder",
+            "competitionId": 11196870,
+            "rows": [
+              {
+                "eventId": 35730475,
+                "marketIds": [
+                  "734.173280113",
+                  "734.173280160"
+                ]
+              }
+            ]
+          },
+          {
+            "marketLayoutTemplate": "MultiColumnMarketName",
+            "competitionId": 11196870,
+            "rows": [
+              {
+                "eventId": 35730475,
+                "marketIds": [
+                  "734.173280092"
+                ]
+              }
+            ]
+          },
+          {
+            "marketLayoutTemplate": "SingleSelection",
+            "competitionId": 11196870,
+            "rows": [
+              {
+                "eventId": 35730475,
+                "marketIds": [
+                  "734.173280116"
+                ]
+              }
+            ]
+          },
+          {
+            "marketLayoutTemplate": "SingleSelection",
+            "competitionId": 11196870,
+            "rows": [
+              {
+                "eventId": 35730475,
+                "marketIds": [
+                  "734.173313458"
+                ]
+              }
+            ]
+          },
+          {
+            "marketLayoutTemplate": "SingleSelection",
+            "competitionId": 11196870,
+            "rows": [
+              {
+                "eventId": 35730475,
+                "marketIds": [
+                  "734.173280134"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "253": {
+        "id": 253,
+        "type": "EVENT_CARD",
+        "title": "Batter Props",
+        "marketTypes": [
+          "TO_HIT_A_HOME_RUN",
+          "PLAYER_TO_HIT_A_HOME_RUN_IN_FIRST_PLATE_APPEARANCE",
+          "TO_HIT_2+_HOME_RUNS",
+          "HOME_RUN_/_MATCH_WINNER_DOUBLE",
+          "PLAYER_TO_RECORD_A_HIT",
+          "PLAYER_TO_RECORD_2+_HITS",
+          "TO_RECORD_A_STOLEN_BASE",
+          "TO_RECORD_2+_STOLEN_BASES",
+          "TO_RECORD_A_RUN",
+          "TO_RECORD_2+_RUNS",
+          "TO_RECORD_AN_RBI",
+          "TO_RECORD_2+_RBIS",
+          "PLAYER_TO_RECORD_1+_HITS+RUNS+RBIS",
+          "PLAYER_TO_RECORD_2+_HITS+RUNS+RBIS",
+          "TO_RECORD_2+_TOTAL_BASES",
+          "TO_RECORD_3+_TOTAL_BASES",
+          "TO_RECORD_4+_TOTAL_BASES",
+          "TO_RECORD_5+_TOTAL_BASES",
+          "TO_HIT_A_SINGLE",
+          "TO_HIT_A_DOUBLE",
+          "TO_HIT_A_TRIPLE",
+          "PLAYER_TO_HIT_A_LASER_(110+_MPH)"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "313": {
+        "id": 313,
+        "type": "EVENT_CARD",
+        "title": "Quick Bets",
+        "marketTypes": [
+          "PLAYER_TO_HIT_A_HOME_RUN_IN_FIRST_PLATE_APPEARANCE",
+          "FIRST_HOME_RUN_TYPE",
+          "SPECIALS_-_TOP_1ST",
+          "SPECIALS_-_BOT_1ST",
+          "1ST_INNING_HITS",
+          "1ST_INNING_RESULT",
+          "1ST_INNING_TOTAL_RUNS",
+          "***OVER/UNDER_0.5_RUNS_1ST_INNINGS",
+          "***OVER/UNDER_1.5_RUNS_1ST_INNINGS",
+          "1ST_INNING_CORRECT_SCORE",
+          "RACE_TO_3_RUNS",
+          "SPECIALS_-_TOP_2ND",
+          "SPECIALS_-_BOT_2ND",
+          "2ND_INNING_HITS",
+          "FIRST_SCORING_PLAY"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "384": {
+        "id": 384,
+        "type": "EVENT_CARD",
+        "title": "Lasers",
+        "marketTypes": [
+          "PLAYER_TO_HIT_A_LASER_(110+_MPH)",
+          "TO_HIT_A_LASER_(105+_MPH)"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      },
+      "386": {
+        "id": 386,
+        "type": "EVENT_CARD",
+        "title": "Moonshots",
+        "marketTypes": [
+          "PLAYER_TO_HIT_A_HOME_RUN_420+_FEET"
+        ],
+        "isSameGameMulti": false,
+        "attachmentsDependent": true,
+        "attachmentsFullyLoaded": false
+      }
+    },
+    "marketBlurbs": {
+      "competitions": {
+        "11196870": {
+          "MONEY_LINE_AWAY_LISTED": [
+            "Listed pitcher bets will be void if selected pitcher does not start"
+          ],
+          "MONEY_LINE_HOME_LISTED": [
+            "Listed pitcher bets will be void if selected pitcher does not start"
+          ],
+          "1ST_HALF_MONEY_LINE": [
+            "Refers to the results from the first 5 innings only"
+          ],
+          "1ST_INNINGS_-_RUN_LINE": [
+            "Refers to the results from the specified inning only"
+          ],
+          "1ST_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only"
+          ],
+          "1ST_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "2ND_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "3RD_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "4TH_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "5TH_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "6TH_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "7TH_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "8TH_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "9TH_INNING_RUN_LINE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "2ND_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "3RD_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "4TH_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "5TH_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "6TH_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "7TH_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "8TH_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "9TH_INNING_RESULT": [
+            "Refers to the results from the specified inning only."
+          ],
+          "FIRST_HOME_RUN": [
+            "If no Home Runs are hit, 'No Home Run' will be deemed the winning selection"
+          ],
+          "TO_RECORD_2+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed player. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "TO_RECORD_1+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed player. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "TO_RECORD_3+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed player. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "TO_RECORD_4+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed player. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "TO_RECORD_5+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed player. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "1ST_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "2ND_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "3RD_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "4TH_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "5TH_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "6TH_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "7TH_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "8TH_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "9TH_INNING_CORRECT_SCORE": [
+            "Refers to the results from the specified inning only."
+          ],
+          "POPULAR_MULTIS": [
+            "Listed players must record a plate appearance for bets to stand. Other selections available upon request.",
+            "Listed pitchers must start for bets to stand."
+          ],
+          "MLB_SAME_PROP_PARLAY": [
+            "Combine multiple selections into a parlay"
+          ],
+          "PLAYER_TO_HIT_THE_FIRST_HOME_RUN_OF_GAME": [
+            "Listed players must record a plate appearance for bets to stand. If a non-listed player is ruled the winner, bets on listed qualified players are action.",
+            "If no Home Runs are hit, No Home Run will be deemed the winner."
+          ],
+          "***OVER/UNDER_0.5_RUNS_1ST_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_2ND_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_3RD_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_4TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_5TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_6TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_7TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_8TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_0.5_RUNS_9TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_1ST_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_2ND_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_3RD_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_4TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_5TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_6TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_7TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_8TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "***OVER/UNDER_1.5_RUNS_9TH_INNINGS": [
+            "Refers to the result from the specified inning only."
+          ],
+          "MLB_SAME_PROP_PARLAY_2": [
+            "Combine multiple selections into a parlay"
+          ],
+          "MLB_SAME_PROP_PARLAY_3": [
+            "Combine multiple selections into a parlay"
+          ],
+          "MLB_SAME_PROP_PARLAY_4": [
+            "Combine multiple selections into a parlay"
+          ],
+          "FIRST_PITCH_RESULT": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "RESULT_OF_FIRST_PITCH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "METHOD_OF_FIRST_HIT": [
+            "Listed players must record a plate appearance for bets to stand. If a non-listed player is ruled the winner, bets on listed qualified players are action.",
+            "If no Hits are recorded, No Hit will be deemed the winner."
+          ],
+          "PLAYER_TO_RECORD_FIRST_HIT_OF_THE_GAME": [
+            "Listed players must record a plate appearance for bets to stand. If a non-listed player is ruled the winner, bets on listed qualified players are action.",
+            "If no Hits are recorded, No Hit will be deemed the winner."
+          ],
+          "STARTING_PITCHER_COMBINED_STRIKEOUT_TOTAL": [
+            "SP Combined Strikeout Total refers to the sum of strikeouts recorded between the two starting pitchers in a specific game. Both pitchers must start for bets to stand."
+          ],
+          "RESULT_OF_FIRST_PITCH_HOME": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "MOST_SERIES_RBIS": [
+            "Dead Heat Rules apply in the event of a tie."
+          ],
+          "LONGEST_HR_DISTANCE": [
+            "Home Run distances will be sourced from MLB Statcast."
+          ],
+          "SPEED_OF_X_PITCH": [
+            "All bets will be settled based on the first pitch thrown by the listed starting pitcher. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "BEST_RECORD": [
+            "Winning selection will be decided based on winning percentage at the conclusion of the season. In case of tie, Dead Heat rules apply."
+          ],
+          "PLATE_APPEARANCE_EXACT_PITCH_COUNT_-_PLAYER_A": [
+            "Automatic balls/strikes that result from violations will count as pitches. Markets will be void should an intentional walk be issued."
+          ],
+          "PLATE_APPEARANCE_EXACT_PITCH_COUNT_-_PLAYER_B": [
+            "Automatic balls/strikes that result from violations will count as pitches. Markets will be void should an intentional walk be issued."
+          ],
+          "PLATE_APPEARANCE_EXACT_PITCH_COUNT_-_PLAYER_C": [
+            "Should a pitcher/hitter violation result in an automatic ball/strike, that will count toward the total number of pitches in the plate appearance."
+          ],
+          "PLATE_APPEARANCE_EXACT_PITCH_COUNT_-_PLAYER_D": [
+            "Should a pitcher/hitter violation result in an automatic ball/strike, that will count toward the total number of pitches in the plate appearance."
+          ],
+          "PLATE_APPEARANCE_EXACT_PITCH_COUNT_-_PLAYER_E": [
+            "Should a pitcher/hitter violation result in an automatic ball/strike, that will count toward the total number of pitches in the plate appearance."
+          ],
+          "PLATE_APPEARANCE_EXACT_PITCH_COUNT_-_PLAYER_F": [
+            "Should a pitcher/hitter violation result in an automatic ball/strike, that will count toward the total number of pitches in the plate appearance."
+          ],
+          "FIRST_PITCH_RESULT_-_BOTTOM_2ND": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_TOP_2ND": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_TOP_3RD": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_BOTTOM_3RD": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_TOP_4TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_BOTTOM_4TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_TOP_5TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_BOTTOM_5TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "PLAYER_TO_HIT_THE_MOST_HRS_IN_THE_SERIES": [
+            "Must Record a PA for Action. Dead Heat Rules Apply."
+          ],
+          "MOST_SERIES_HOME_RUNS": [
+            "Market refers to the player who will hit the most home runs in the listed series. Dead Heat Rules will apply to ties. Must record a PA for action."
+          ],
+          "PLAYER_TO_RECORD_MOST_HITS_IN_THE_SERIES": [
+            "Must Record a PA for Action. Dead Heat Rules Apply."
+          ],
+          "EACH_STARTING_PITCHER_1+_STRIKEOUTS_IN_THE_FIRST_INNING": [
+            "All bets are action regardless of starting pitcher"
+          ],
+          "FIRST_PITCH_RESULT_B": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "TO_RECORD_A_HIT_(MANUAL)": [
+            "Player must record 1 Plate Appearance for action."
+          ],
+          "PLAYER_A_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_B_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_C_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_D_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_E_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_F_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_G_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_H_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_I_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_J_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_K_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_L_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_M_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_N_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_O_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_P_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_Q_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_R_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_S_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_T_PLATE_APP": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_A": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_B": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_C": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_D": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_E": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_F": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_G": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_H": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_I": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_J": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_K": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_L": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_M": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_N": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_O": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_P": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_Q": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_R": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_S": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "X_PLATE_APP_-_PLAYER_T": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "PLAYER_TO_HIT_A_HOME_RUN": [
+            "Tap a player name or icon for stats and more betting options.",
+            "If the player listed records a plate appearance, all wagers will stand"
+          ],
+          "TO_HIT_A_HOME_RUN": [
+            "Listed player must be included in the starting lineup for bets to stand."
+          ],
+          "FIRST_PITCH_RESULT_-_TOP_6TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_BOTTOM_6TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_TOP_7TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_BOTTOM_7TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_TOP_8TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "FIRST_PITCH_RESULT_-_BOTTOM_8TH": [
+            "Batted balls that result in the at-bat ending (ex. hits/outs) are not regarded as strikes. Should a pitcher/hitter violation result in an automatic ball/strike, the market will be settled accordingly."
+          ],
+          "PITCHER_A_OUTS_RECORDED": [
+            "Listed Pitcher must start for bets to stand."
+          ],
+          "PITCHER_B_OUTS_RECORDED": [
+            "Listed Pitcher must start for bets to stand."
+          ],
+          "SERIES_EXACT_ORDER": [
+            "Refers to the winner of each game in the series in order."
+          ],
+          "SPEED_OF_X_PITCH_B": [
+            "All bets will be settled based on the first pitch thrown by the listed starting pitcher. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "TEAM_TO_EARN_6_SEED": [
+            "Market is settled based on which team finishes the season and advances to the playoffs as that league's respective 6 seed, tiebreakers included."
+          ],
+          "LEAGUE_WINNER": [
+            "Market refers to the winner of the respective League Championship Series during the MLB Postseason."
+          ],
+          "WORLD_SERIES_MVP": [
+            "All bets are action. Other players are available upon request."
+          ],
+          "EXACT_RESULT": [
+            "Market is settled based on the Exact Result of the respective series."
+          ],
+          "NAME_THE_FINALISTS": [
+            "Market is settled based on the two teams that appear in the respective series."
+          ],
+          "POSTSEASON_STAT_LEADERS": [
+            "Hitters must record a PA and pitcher must appear in a game for action. Other players are available upon request.\nMarket refers to the leader across all MLB Postseason games and rounds."
+          ],
+          "MOST_SERIES_HITS": [
+            "Market refers to the player who will record the most hits in the listed series. Dead Heat Rules will apply to ties. Must record a PA for action."
+          ],
+          "MOST_SERIES_STRIKEOUTS": [
+            "Market refers to the pitcher who will record the most strikeouts in the listed series. Dead Heat Rules will apply to ties. Pitcher must appear in a game for action."
+          ],
+          "PLATE_APPEARANCE_PITCH_COUNT_-_PLAYER_A": [
+            "Automatic balls/strikes that result from violations will count as pitches. Markets will be void should an intentional walk be issued."
+          ],
+          "PLATE_APPEARANCE_PITCH_COUNT_-_PLAYER_B": [
+            "Automatic balls/strikes that result from violations will count as pitches. Markets will be void should an intentional walk be issued."
+          ],
+          "MOST_SERIES_TOTAL_BASES": [
+            "Market refers to the player who will record the most total bases in the listed series. Dead Heat Rules will apply to ties. Must record a PA for action."
+          ],
+          "SERIES_SPECIALS_-_GRAND_SLAM": [
+            "Market refers to whether a Grand Slam will be hit at any time during the listed series."
+          ],
+          "SERIES_SPECIALS_-_COMPLETE_GAME": [
+            "Market refers to whether a Complete Game will be thrown by any single pitcher at any time during the listed series."
+          ],
+          "PITCHES_PER_PLATE_APPEARANCE": [
+            "Automatic balls/strikes from violations will count as pitches. Markets will be void if an intentional walk is issued before any pitches are thrown."
+          ],
+          "PITCHES_PER_PLATE_APPEARANCE_-_ALT": [
+            "Automatic balls/strikes from violations will count as pitches. Markets will be void if an intentional walk is issued before any pitches are thrown."
+          ],
+          "PITCHES_PER_PLATE_APPEARANCE_B": [
+            "Automatic balls/strikes from violations will count as pitches. Markets will be void if an intentional walk is issued before any pitches are thrown."
+          ],
+          "PITCHES_PER_PLATE_APPEARANCE_-_ALT_B": [
+            "Automatic balls/strikes from violations will count as pitches. Markets will be void if an intentional walk is issued before any pitches are thrown."
+          ],
+          "TO_RECORD_A_SAVE": [
+            "Save markets will be action regardless of whether the listed pitcher(s) appear in the game. Market is settled based on official box score from MLB.com."
+          ],
+          "TO_RECORD_A_SAVE_B": [
+            "Market is settled based on official box score from MLB.com"
+          ],
+          "TOTAL_RUNS_SCORE_IN_A_SERIES": [
+            "Market refers to the total amount of combined runs scored by both teams during the listed series."
+          ],
+          "TOTAL_COMBINED_HRS_HIT_IN_SERIES": [
+            "Market refers to the total amount of home runs hit by either team during the listed series."
+          ],
+          "TOTAL_COMBINED_SERIES_HRS": [
+            "Market refers to the total amount of home runs hit by either team during the listed series."
+          ],
+          "PLAYER_TO_HIT_LONGEST_HOME_RUN": [
+            "Market is settled based on which player hits the longest home run in the listed series. Home Run distances will be sourced from MLB Statcast."
+          ],
+          "FEWEST_REGULAR_SEASON_WINS": [
+            "Winning selection will be decided based on winning percentage at the conclusion of the season. In case of tie, Dead Heat rules apply."
+          ],
+          "TEAM_TO_EARN_1_SEED": [
+            "Market is based on which team earns the league 1 seed at the completion of the regular season. Official MLB tiebreakers apply; only one winner is possible in each market."
+          ],
+          "TEAM_TO_EARN_FIRST_ROUND_BYE": [
+            "The two winning selections in each league will be those teams that receive a bye into the Divisional Round"
+          ],
+          "TO_REACH_LCS": [
+            "Market is based on which teams reach the respective League Championship Series.",
+            "Customers may combine one selection each across the two To Reach LCS markets for a 2-leg parlay."
+          ],
+          "WORST_RECORD": [
+            "Winning selection will be decided based on winning percentage at the conclusion of the season. In case of tie, Dead Heat rules apply."
+          ],
+          "PLAYER_TO_HIT_FIRST_HOME_RUN_OF_THE_SEASON_-_TEAM": [
+            "All bets are action. Other selections available on request."
+          ],
+          "SPECIALS_-_BOT_1ST": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_1ST": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_2ND": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_3RD": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_4TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_5TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_6TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_7TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_TOP_8TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_BOT_2ND": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_BOT_3RD": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_BOT_4TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_BOT_5TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_BOT_6TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_BOT_7TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "SPECIALS_-_BOT_8TH": [
+            "\"3 Up, 3 Down\" occurs when only 3 batters come to the plate and record official plate appearances during the listed half-inning."
+          ],
+          "X_PLATE_APP_-_PLAYER_V": [
+            "A pitch must be thrown in the plate app. for action."
+          ],
+          "FIRST_TIME_WINNER": [
+            "This market refers to whether a franchise will win the World Series for the first time ever.",
+            "Franchises without a World Series championship are the Colorado Rockies, San Diego Padres, Milwaukee Brewers, Seattle Mariners, and Tampa Bay Rays."
+          ],
+          "WINNING_STATE": [
+            "This market refers to the state in which the World Series champion is located. All 30 teams are included in one of the selections below."
+          ],
+          "STARTING_PITCHER_DAILY_STRIKEOUT_LEADER": [
+            "Most strikeouts on the listed day among the pitchers listed. Any listed pitcher that does not start will be voided. Dead Heat Rules will apply to ties."
+          ],
+          "HIGHEST_SCORING_TEAM": [
+            "The listed number of games must be played to the 8.5 Innings Rule for bets to be action. If there is a tie for the highest scoring team, Dead Heat rules apply."
+          ],
+          "HIGHEST_SCORING_GAME": [
+            "The listed number of games must be played to the 8.5 Innings Rule for bets to be action. If there is a tie for the highest scoring game, Dead Heat rules apply."
+          ],
+          "LOWEST_SCORING_GAME": [
+            "The listed number of games must be played to the 8.5 Innings Rule for bets to be action. If there is a tie for the lowest scoring game, Dead Heat rules apply."
+          ],
+          "LOWEST_SCORING_TEAM": [
+            "The listed number of games must be played to the 8.5 Innings Rule for bets to be action. If there is a tie for the lowest scoring team, Dead Heat rules apply."
+          ],
+          "STARTING_PITCHER_COMBINED_ALT_STRIKEOUTS": [
+            "Both Listed Pitchers must start for bets to stand. Market is settled based on total number of strikeouts starting pitchers accrue within the game."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_1ST": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_2ND": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_3RD": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_1ST": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_2ND": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_3RD": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_4TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_4TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_5TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_5TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_6TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_6TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_7TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_7TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_8TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_8TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_TOP_9TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "METHOD_OF_FIRST_OUT_-_BOTTOM_9TH": [
+            "Any Other Recorded Out\u201d includes all additional ways to record an out not listed as an option. An Infield Fly will be deemed Flyout/Lineout/Pop Out/Sac Fly."
+          ],
+          "TEAM_WITH_HIGHEST_SCORING_INNING": [
+            "For settlement purposes includes extra innings"
+          ],
+          "PLAYER_TO_RECORD_FIRST_RBI": [
+            "Listed players must record a plate appearance for bets to stand. If a non-listed player is ruled the winner, bets on listed qualified players are action.",
+            "If no RBI is recorded, No RBI will be deemed the winner."
+          ],
+          "METHOD_OF_FIRST_RBI": [
+            "Listed players must record a plate appearance for bets to stand. If a non-listed player is ruled the winner, bets on listed qualified players are action.",
+            "If no RBI is recorded, No RBI will be deemed the winner."
+          ],
+          "PLAYER_TO_RECORD_FIRST_RUN": [
+            "Listed players must record a plate appearance for bets to stand. If a non-listed player is ruled the winner, bets on listed qualified players are action."
+          ],
+          "PLAYERS_TO_COMBINE_FOR_A_HOME_RUN": [
+            "Both listed players must be included in the starting lineup and record a plate appearance for bets to stand, unless the market is unequivocally determined."
+          ],
+          "PLAYERS_TO_COMBINE_FOR_2+_HOME_RUNS": [
+            "Both listed players must be included in the starting lineup and record a plate appearance for bets to stand, unless the market is unequivocally determined."
+          ],
+          "SPECIALS_-_TOP_9TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_TOP_10TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_TOP_11TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_TOP_12TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_TOP_13TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_TOP_14TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_TOP_15TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_BOT_9TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_BOT_10TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_BOT_11TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_BOT_12TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_BOT_13TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_BOT_14TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "SPECIALS_-_BOT_15TH": [
+            "In the event that 3+ batters do not record official plate appearances in the specified half-inning, bets on \"3 Up 3 Down\" and \"3+ Strikeouts\" will be void."
+          ],
+          "PLAYERS_TO_COMBINE_FOR_2+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed players. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "PLAYERS_TO_COMBINE_FOR_3+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed players. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "PLAYERS_TO_COMBINE_FOR_4+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed players. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "PLAYERS_TO_COMBINE_FOR_5+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed players. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "PLAYERS_TO_COMBINE_FOR_6+_TOTAL_BASES": [
+            "Total Bases are recorded through hits by the listed players. They do not include walks, HBPs, stolen bases, reach on errors, or fielder's choices."
+          ],
+          "PLAYER_TO_RECORD_A_HIT": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_A_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_A_TOTAL_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_B_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_B_TOTAL_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_C_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_C_TOTAL_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_D_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_D_TOTAL_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_E_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_E_TOTAL_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_F_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PITCHER_F_TOTAL_STRIKEOUTS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PLAYER_TO_RECORD_2+_HITS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PLAYER_TO_RECORD_3+_HITS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "PLAYER_TO_RECORD_4+_HITS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "TO_RECORD_AN_RBI": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "TO_RECORD_2+_RBIS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "TO_RECORD_3+_RBIS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "TO_RECORD_4+_RBIS": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "TO_RECORD_A_RUN": [
+            "Tap a player name or icon for stats and more betting options."
+          ],
+          "TEAM_NEXT_LOSS": [
+            "Games are listed in sequential order of series (e.g. at Nationals Game 1, at Nationals Game 2).",
+            "If a series does not occur in that order, then the selection will be void (e.g. a 3-game series is shortened to 2 games, selections on the game not played will be voided)."
+          ],
+          "ALL_STAR_GAME_MVP": [
+            "Other selections available upon request. For bets to have action, players must record at least one plate appearance and pitchers must face at least one hitter within the All-Star game."
+          ],
+          "WILL_THE_MLB_ALL-STAR_GAME_BE_DECIDED_BY_A_TIEBREAK_HOME_RUN_DERBY?": [
+            "A Tie Break Home Run Derby occurs if the game is tied after 9 innings."
+          ],
+          "HIGHEST_EXIT_VELOCITY": [
+            "If unlisted selection wins, then all bets void."
+          ],
+          "ALL_STAR_SWING_OFF_SPECIALS": [
+            "All selections in this market only pertain to a potential Tiebreaker Swing-Off in the 2025 MLB All-Star Game. Any player listed who does not participate in the Swing-Off will be Void."
+          ],
+          "MLB_PLAYER_SEASON_SPECIALS": [
+            "All in betting rules apply."
+          ],
+          "GAME_SPECIALS_-_POPULAR": [
+            "For selections that list individual hitters, all must be listed in the starting lineup and record 1+ plate appearance for action, unless the market is unequivocally determined."
+          ],
+          "PLAYER_TO_HIT_A_HOME_RUN_IN_FIRST_PLATE_APPEARANCE": [
+            "Parlay up to 4 selections in the same game."
+          ],
+          "VELOCITY_OF_FIRST_PITCH_PREMATCH": [
+            "All bets will be settled based on the first pitch thrown by the listed starting pitcher. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "ANY_PLAYER_TO_HIT_A_HOME_RUN_X+_FEET": [
+            "If no home run is hit, all bets remain action."
+          ],
+          "STRIKEZONE_PARLAY_A": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_D": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_B": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_C": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_E": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_Z": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_F": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_G": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_H": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_Y": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_X": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_W": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_V": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_U": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_I": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_T": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_S": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_R": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_Q": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_M": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_N": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_J": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_L": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_O": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_P": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "STRIKEZONE_PARLAY_K": [
+            "Predict the pitch.\nEach outcome is based on three factors:",
+            "Zone (In/Out) \u2014 any part of the ball in the strike zone per MLB.com = \u201cIn.\u201d",
+            "Swing (Yes/No) \u2014 based on official MLB.com pitch result tags.",
+            "In-Play (Yes/No) \u2014 \u201cYes\u201d if the ball\u2019s put in play",
+            "Settled using official MLB.com Statcast data. No-pitch events void."
+          ],
+          "PLAYER_A_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_B_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_C_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_D_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_E_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_F_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_G_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_H_VELOCITY_OF_PITCH": [
+            "Market voids if listed pitcher does not throw a pitch in the specified inning. Velocity sourced from baseballsavant.mlb.com."
+          ],
+          "PLAYER_TO_HIT_A_LASER": [
+            "Laser = HR with 110+ MPH Exit Velocity"
+          ],
+          "X_PLAYER_PA_EXIT_VELOCITY": [
+            "Exit Velocity Unders will be winners for Plate Appearances that do not result in a batted ball (Strikeout, Walk, HBP, etc.)"
+          ],
+          "PLATE_APPEARANCE": [
+            "Zero pitch intentional walk will be a void"
+          ],
+          "PLAYER_TO_HIT_A_LASER_(110+_MPH)": [
+            "Laser = HR with Specified MPH Exit Velocity"
+          ],
+          "PLAYER_TO_HIT_A_HOME_RUN_420+_FEET": [
+            "Player to hit a Home Run 420+FT"
+          ]
+        }
+      },
+      "markets": {}
+    },
+    "promotions": {},
+    "page": {
+      "eventTypeId": 7511,
+      "competitionId": "11196870",
+      "eventId": 35730475
+    }
+  },
+  "attachments": {
+    "eventTypes": {
+      "7511": {
+        "eventTypeId": 7511,
+        "name": "Baseball"
+      }
+    },
+    "events": {
+      "35730475": {
+        "competitionId": 11196870,
+        "inPlay": false,
+        "eventId": 35730475,
+        "key": "EVENT:35730475",
+        "name": "Cleveland Guardians (P Messick) @ Milwaukee Brewers (S Drohan)",
+        "eventTypeId": 7511,
+        "countryCode": "GB",
+        "timezone": "GMT",
+        "openDate": "2026-06-18T18:11:00.000Z",
+        "videoAvailable": false,
+        "primaryMarketId": "734.173249344"
+      }
+    },
+    "competitions": {
+      "11196870": {
+        "key": "COMP:11196870",
+        "name": "MLB",
+        "competitionId": 11196870,
+        "eventId": 28131314,
+        "eventTypeId": 7511,
+        "region": "USA"
+      }
+    },
+    "markets": {
+      "734.173280092": {
+        "marketId": "734.173280092",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Parker Messick - Alt Strikeouts",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "PITCHER_C_STRIKEOUTS",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 6,
+        "numberOfActiveRunners": 6,
+        "numberOfWinners": 1,
+        "sortPriority": 95,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 87454176,
+            "handicap": 0,
+            "runnerName": "Parker Messick 3+ Strikeouts",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -3500,
+                "americanOddsInt": -3500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.028571428571429
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 350
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -3000,
+                  "americanOddsInt": -3000
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.033333333333333
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 300
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454174,
+            "handicap": 0,
+            "runnerName": "Parker Messick 4+ Strikeouts",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -700,
+                "americanOddsInt": -700
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.142857142857143
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 70
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -750,
+                  "americanOddsInt": -750
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.133333333333333
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 75
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454179,
+            "handicap": 0,
+            "runnerName": "Parker Messick 5+ Strikeouts",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -270,
+                "americanOddsInt": -270
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.37037037037037
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 27
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -250,
+                  "americanOddsInt": -250
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.4
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 25
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454177,
+            "handicap": 0,
+            "runnerName": "Parker Messick 6+ Strikeouts",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -112,
+                  "americanOddsInt": -112
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.892857142857143
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 112
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454178,
+            "handicap": 0,
+            "runnerName": "Parker Messick 7+ Strikeouts",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 194,
+                "americanOddsInt": 194
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.94
+                },
+                "fractionalOdds": {
+                  "numerator": 194,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 188,
+                  "americanOddsInt": 188
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.88
+                  },
+                  "fractionalOdds": {
+                    "numerator": 188,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454175,
+            "handicap": 0,
+            "runnerName": "Parker Messick 8+ Strikeouts",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 390,
+                "americanOddsInt": 390
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.9
+                },
+                "fractionalOdds": {
+                  "numerator": 39,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 370,
+                  "americanOddsInt": 370
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 4.7
+                  },
+                  "fractionalOdds": {
+                    "numerator": 37,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586413394"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173249344": {
+        "marketId": "734.173249344",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Run Line",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 20,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 41541473,
+            "handicap": 1.5,
+            "runnerName": "Cleveland Guardians",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "nameAbbr": "CLE Guardians",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -182,
+                "americanOddsInt": -182
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.549450549450549
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 182
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -184,
+                  "americanOddsInt": -184
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.543478260869565
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 184
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 29172,
+            "handicap": -1.5,
+            "runnerName": "Milwaukee Brewers",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "nameAbbr": "MIL Brewers",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 150,
+                "americanOddsInt": 150
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.5
+                },
+                "fractionalOdds": {
+                  "numerator": 150,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 152,
+                  "americanOddsInt": 152
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.52
+                  },
+                  "fractionalOdds": {
+                    "numerator": 152,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586360645"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173249341": {
+        "marketId": "734.173249341",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Total Runs",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 30,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 7017905,
+            "handicap": 7.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -104,
+                "americanOddsInt": -104
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.961538461538462
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 104
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -106,
+                  "americanOddsInt": -106
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.943396226415094
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 106
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 7017906,
+            "handicap": 7.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -118,
+                "americanOddsInt": -118
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.847457627118644
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 118
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -114,
+                  "americanOddsInt": -114
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.87719298245614
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 114
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586360644"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173313458": {
+        "marketId": "734.173313458",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Parker Messick Pitching Specials",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "PITCHING_SPECIALS_SB_B",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 12,
+        "numberOfActiveRunners": 12,
+        "numberOfWinners": 1,
+        "sortPriority": 10,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 98467213,
+            "handicap": 0,
+            "runnerName": "Parker Messick to Record 3+ Strikeouts in the 1st Inning",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1800,
+                "americanOddsInt": 1800
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 19
+                },
+                "fractionalOdds": {
+                  "numerator": 18,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 1700,
+                  "americanOddsInt": 1700
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 18
+                  },
+                  "fractionalOdds": {
+                    "numerator": 17,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 98467212,
+            "handicap": 0,
+            "runnerName": "Parker Messick to go 3 Up 3 Down in the 1st Inning",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 140,
+                "americanOddsInt": 140
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.4
+                },
+                "fractionalOdds": {
+                  "numerator": 140,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 135,
+                  "americanOddsInt": 135
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.35
+                  },
+                  "fractionalOdds": {
+                    "numerator": 135,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 98467214,
+            "handicap": 0,
+            "runnerName": "Parker Messick to go 6 Up 6 Down to Start the Game",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 550,
+                "americanOddsInt": 550
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 6.5
+                },
+                "fractionalOdds": {
+                  "numerator": 55,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 500,
+                  "americanOddsInt": 500
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 6
+                  },
+                  "fractionalOdds": {
+                    "numerator": 50,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 98853544,
+            "handicap": 0,
+            "runnerName": "Parker Messick to go 9 Up 9 Down to Start the Game",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1300,
+                "americanOddsInt": 1300
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 14
+                },
+                "fractionalOdds": {
+                  "numerator": 13,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 1200,
+                  "americanOddsInt": 1200
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 13
+                  },
+                  "fractionalOdds": {
+                    "numerator": 12,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97907690,
+            "handicap": 0,
+            "runnerName": "Parker Messick to Throw a No-Hitter Through 3 Innings (Min. 9 Outs)",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 750,
+                "americanOddsInt": 750
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 8.5
+                },
+                "fractionalOdds": {
+                  "numerator": 75,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 700,
+                  "americanOddsInt": 700
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 8
+                  },
+                  "fractionalOdds": {
+                    "numerator": 70,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97907688,
+            "handicap": 0,
+            "runnerName": "Parker Messick to Throw a No-Hitter Through 5 Innings (Min. 15 Outs)",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 3000,
+                "americanOddsInt": 3000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 31
+                },
+                "fractionalOdds": {
+                  "numerator": 30,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 2700,
+                  "americanOddsInt": 2700
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 28
+                  },
+                  "fractionalOdds": {
+                    "numerator": 27,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97907687,
+            "handicap": 0,
+            "runnerName": "Parker Messick to Throw a No-Hitter Through 7 Innings (Min. 21 Outs)",
+            "sortPriority": 7,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 10000,
+                "americanOddsInt": 10000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 101
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 12500,
+                  "americanOddsInt": 12500
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 126
+                  },
+                  "fractionalOdds": {
+                    "numerator": 125,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454182,
+            "handicap": 0,
+            "runnerName": "Parker Messick 9+ Strikeouts",
+            "sortPriority": 8,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 900,
+                "americanOddsInt": 900
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 10
+                },
+                "fractionalOdds": {
+                  "numerator": 90,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 850,
+                  "americanOddsInt": 850
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 9.5
+                  },
+                  "fractionalOdds": {
+                    "numerator": 85,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454180,
+            "handicap": 0,
+            "runnerName": "Parker Messick 10+ Strikeouts",
+            "sortPriority": 9,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 2000,
+                "americanOddsInt": 2000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 21
+                },
+                "fractionalOdds": {
+                  "numerator": 20,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 1900,
+                  "americanOddsInt": 1900
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 20
+                  },
+                  "fractionalOdds": {
+                    "numerator": 19,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454181,
+            "handicap": 0,
+            "runnerName": "Parker Messick 11+ Strikeouts",
+            "sortPriority": 10,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 4500,
+                "americanOddsInt": 4500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 46
+                },
+                "fractionalOdds": {
+                  "numerator": 45,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 4000,
+                  "americanOddsInt": 4000
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 41
+                  },
+                  "fractionalOdds": {
+                    "numerator": 40,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454173,
+            "handicap": 0,
+            "runnerName": "Parker Messick 12+ Strikeouts",
+            "sortPriority": 11,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 12500,
+                "americanOddsInt": 12500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 126
+                },
+                "fractionalOdds": {
+                  "numerator": 125,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 10000,
+                  "americanOddsInt": 10000
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 101
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 98118145,
+            "handicap": 0,
+            "runnerName": "Parker Messick 13+ Strikeouts",
+            "sortPriority": 12,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 35000,
+                "americanOddsInt": 35000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 351
+                },
+                "fractionalOdds": {
+                  "numerator": 350,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 40000,
+                  "americanOddsInt": 40000
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 401
+                  },
+                  "fractionalOdds": {
+                    "numerator": 400,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": false,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586467751"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173280116": {
+        "marketId": "734.173280116",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Shane Drohan - Alt Strikeouts",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "PITCHER_D_STRIKEOUTS",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 6,
+        "numberOfActiveRunners": 6,
+        "numberOfWinners": 1,
+        "sortPriority": 96,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 97211727,
+            "handicap": 0,
+            "runnerName": "Shane Drohan 3+ Strikeouts",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -1600,
+                "americanOddsInt": -1600
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.0625
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 160
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -1800,
+                  "americanOddsInt": -1800
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.055555555555556
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 180
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97211722,
+            "handicap": 0,
+            "runnerName": "Shane Drohan 4+ Strikeouts",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -490,
+                "americanOddsInt": -490
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.204081632653061
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 49
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -470,
+                  "americanOddsInt": -470
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.212765957446809
+                  },
+                  "fractionalOdds": {
+                    "numerator": 10,
+                    "denominator": 47
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97211724,
+            "handicap": 0,
+            "runnerName": "Shane Drohan 5+ Strikeouts",
+            "sortPriority": 3,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -210,
+                "americanOddsInt": -210
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.476190476190476
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 210
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -205,
+                  "americanOddsInt": -205
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.48780487804878
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 205
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97211726,
+            "handicap": 0,
+            "runnerName": "Shane Drohan 6+ Strikeouts",
+            "sortPriority": 4,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 114,
+                "americanOddsInt": 114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.14
+                },
+                "fractionalOdds": {
+                  "numerator": 114,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 118,
+                  "americanOddsInt": 118
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.18
+                  },
+                  "fractionalOdds": {
+                    "numerator": 118,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97211732,
+            "handicap": 0,
+            "runnerName": "Shane Drohan 7+ Strikeouts",
+            "sortPriority": 5,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 235,
+                "americanOddsInt": 235
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 3.35
+                },
+                "fractionalOdds": {
+                  "numerator": 235,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 240,
+                  "americanOddsInt": 240
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 3.4
+                  },
+                  "fractionalOdds": {
+                    "numerator": 240,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97211731,
+            "handicap": 0,
+            "runnerName": "Shane Drohan 8+ Strikeouts",
+            "sortPriority": 6,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 490,
+                "americanOddsInt": 490
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.9
+                },
+                "fractionalOdds": {
+                  "numerator": 49,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 520,
+                  "americanOddsInt": 520
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 6.2
+                  },
+                  "fractionalOdds": {
+                    "numerator": 52,
+                    "denominator": 10
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586413395"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173280113": {
+        "marketId": "734.173280113",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Parker Messick - Strikeouts",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "PITCHER_C_TOTAL_STRIKEOUTS",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 97,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 87454165,
+            "handicap": 5.5,
+            "runnerName": "Parker Messick Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -112,
+                  "americanOddsInt": -112
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.892857142857143
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 112
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 87454162,
+            "handicap": 5.5,
+            "runnerName": "Parker Messick Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/1053ee4c-5fb5-425b-aafb-f3b2d9573a47/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -118,
+                  "americanOddsInt": -118
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.847457627118644
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 118
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": false,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586413399"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173280134": {
+        "marketId": "734.173280134",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Either Team To Throw A No-Hitter",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "EITHER_TEAM_TO_THROW_A_NO-HITTER",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 1,
+        "numberOfActiveRunners": 1,
+        "numberOfWinners": 1,
+        "sortPriority": 11122,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 7017909,
+            "handicap": 0,
+            "runnerName": "Yes",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 12500,
+                "americanOddsInt": 12500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 126
+                },
+                "fractionalOdds": {
+                  "numerator": 125,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 15000,
+                  "americanOddsInt": 15000
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 151
+                  },
+                  "fractionalOdds": {
+                    "numerator": 150,
+                    "denominator": 1
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586413496"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173280160": {
+        "marketId": "734.173280160",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Shane Drohan - Strikeouts",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "PITCHER_E_TOTAL_STRIKEOUTS",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 98,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 97211728,
+            "handicap": 5.5,
+            "runnerName": "Shane Drohan Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 116,
+                "americanOddsInt": 116
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.16
+                },
+                "fractionalOdds": {
+                  "numerator": 116,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 118,
+                  "americanOddsInt": 118
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.18
+                  },
+                  "fractionalOdds": {
+                    "numerator": 118,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 97211725,
+            "handicap": 5.5,
+            "runnerName": "Shane Drohan Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/mlb/2025/50c59c48-d125-441a-b5f9-ed8f5fb90159/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "isPlayerSelection": true,
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -142,
+                "americanOddsInt": -142
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.704225352112676
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 142
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -144,
+                  "americanOddsInt": -144
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.694444444444444
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 144
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": false,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586413400"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.173178411": {
+        "marketId": "734.173178411",
+        "eventTypeId": 7511,
+        "competitionId": 11196870,
+        "eventId": 35730475,
+        "marketName": "Moneyline",
+        "marketTime": "2026-06-18T18:11:00.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 10,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "runners": [
+          {
+            "selectionId": 41541473,
+            "handicap": 0,
+            "runnerName": "Cleveland Guardians",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/mlb/cleveland_guardians.png",
+            "nameAbbr": "CLE Guardians",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 124,
+                "americanOddsInt": 124
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.24
+                },
+                "fractionalOdds": {
+                  "numerator": 124,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": 120,
+                  "americanOddsInt": 120
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 2.2
+                  },
+                  "fractionalOdds": {
+                    "numerator": 120,
+                    "denominator": 100
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "selectionId": 29172,
+            "handicap": 0,
+            "runnerName": "Milwaukee Brewers",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/mlb/milwaukee_brewers.png",
+            "nameAbbr": "MIL Brewers",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -146,
+                "americanOddsInt": -146
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.684931506849315
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 146
+                }
+              }
+            },
+            "previousWinRunnerOdds": [
+              {
+                "americanDisplayOdds": {
+                  "americanOdds": -142,
+                  "americanOddsInt": -142
+                },
+                "trueOdds": {
+                  "decimalOdds": {
+                    "decimalOdds": 1.704225352112676
+                  },
+                  "fractionalOdds": {
+                    "numerator": 100,
+                    "denominator": 142
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 35730475,
+            "eventTypeId": 7511,
+            "externalMarketId": "42.586247232"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      }
+    }
+  }
+}

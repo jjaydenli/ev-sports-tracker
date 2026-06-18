@@ -7,6 +7,7 @@ import pytest
 from config.fd_markets import (
     FD_DEFAULT_SCRAPE_MARKETS,
     FD_EXTENDED_OU_MARKETS,
+    default_scrape_markets_for_league,
 )
 from parsers.fd_parser import parse_fd_prop, parse_fd_props
 from scrapers.sportsbooks.fd_api import count_fd_line_rows, flatten_event_page_response
@@ -21,7 +22,9 @@ EVENT_PAGE_FIXTURES = {
     "rebounds": Path("tests/fixtures/fd_event_35639109_player_rebounds.json"),
     "assists": Path("tests/fixtures/fd_event_35639109_player_assists.json"),
 }
+MLB_PITCHER_FIXTURE = Path("tests/fixtures/fd_event_35730475_pitcher_props.json")
 EVENT_ID = "35639109"
+MLB_EVENT_ID = "35730475"
 TAB_BY_MARKET = {
     "points": "player-points",
     "rebounds": "player-rebounds",
@@ -108,18 +111,57 @@ def test_parse_fd_props_skips_incomplete_rows():
 
 def test_default_markets_include_core_and_extended_stats():
     engine = FanDuelEngine()
-    assert set(engine.markets) == set(FD_DEFAULT_SCRAPE_MARKETS)
+    assert set(engine.markets) == set(default_scrape_markets_for_league("nba"))
     assert set(FD_EXTENDED_OU_MARKETS).issubset(set(engine.markets))
 
 
+def test_mlb_default_markets_include_strikeouts():
+    engine = FanDuelEngine(league="mlb")
+    assert "strikeouts" in engine.markets
+
+
 def test_scrape_targets_maps_extended_markets_to_sgp_tab():
-    targets = scrape_targets_for_markets(["threes", "pra"])
+    targets = scrape_targets_for_markets(["threes", "pra"], league="nba")
     assert targets == [("same-game-parlay-", {"threes", "pra"})]
+
+
+@pytest.fixture
+def mlb_pitcher_payload() -> dict:
+    return json.loads(MLB_PITCHER_FIXTURE.read_text(encoding="utf-8"))
+
+
+@pytest.mark.asyncio
+async def test_scrape_mlb_strikeouts_from_fixture(mlb_pitcher_payload, monkeypatch):
+    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba"):
+        if league != "mlb" or tab != "pitcher-props":
+            return []
+        return flatten_event_page_response(
+            mlb_pitcher_payload,
+            event_id=event_id,
+            tab=tab,
+            markets=markets,
+            league=league,
+        )
+
+    monkeypatch.setattr(
+        "scrapers.sportsbooks.fd_engine.fetch_and_flatten_event_page",
+        mock_fetch,
+    )
+
+    engine = FanDuelEngine(
+        event_ids=[MLB_EVENT_ID], markets=["strikeouts"], league="mlb"
+    )
+    props = await engine.scrape()
+
+    assert len(props) == 2
+    assert {prop["market"] for prop in props} == {"strikeouts"}
+    assert props[0]["league"] == "MLB"
+    assert count_fd_line_rows(props) == 2
 
 
 @pytest.mark.asyncio
 async def test_scrape_flattens_points_from_fixture(event_page_payloads, monkeypatch):
-    async def mock_fetch(client, event_id, *, tab, markets=None):
+    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba"):
         for market, fixture_tab in TAB_BY_MARKET.items():
             if tab != fixture_tab:
                 continue
@@ -129,6 +171,7 @@ async def test_scrape_flattens_points_from_fixture(event_page_payloads, monkeypa
                 event_page_payloads[market],
                 event_id=event_id,
                 tab=tab,
+                league=league,
             )
         return []
 
@@ -147,7 +190,7 @@ async def test_scrape_flattens_points_from_fixture(event_page_payloads, monkeypa
 
 @pytest.mark.asyncio
 async def test_scrape_flattens_all_core_markets(event_page_payloads, monkeypatch):
-    async def mock_fetch(client, event_id, *, tab, markets=None):
+    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba"):
         for market, fixture_tab in TAB_BY_MARKET.items():
             if tab != fixture_tab:
                 continue
@@ -157,6 +200,7 @@ async def test_scrape_flattens_all_core_markets(event_page_payloads, monkeypatch
                 event_page_payloads[market],
                 event_id=event_id,
                 tab=tab,
+                league=league,
             )
         return []
 

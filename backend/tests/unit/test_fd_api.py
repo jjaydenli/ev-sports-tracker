@@ -39,6 +39,10 @@ def test_parse_player_ou_market_type():
         "pra",
         True,
     )
+    assert parse_player_ou_market_type("PITCHER_C_TOTAL_STRIKEOUTS", league="mlb") == (
+        "strikeouts",
+        False,
+    )
     assert parse_player_ou_market_type("TO_SCORE_25+_POINTS") is None
     assert parse_player_ou_market_type("MONEY_LINE") is None
 
@@ -236,3 +240,26 @@ async def test_fetch_and_flatten_event_page(event_page_payload):
 
     assert len(props) == 1
     assert count_fd_line_rows(props) == 18
+
+
+def test_flatten_mlb_pitcher_strikeouts_fixture():
+    payload = json.loads(
+        Path("tests/fixtures/fd_event_35730475_pitcher_props.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    props = flatten_event_page_response(
+        payload,
+        event_id="35730475",
+        tab="pitcher-props",
+        markets={"strikeouts"},
+        league="mlb",
+    )
+
+    assert len(props) == 2
+    players = {prop["player"] for prop in props}
+    assert players == {"Parker Messick", "Shane Drohan"}
+    assert all(prop["market"] == "strikeouts" for prop in props)
+    messick = next(p for p in props if p["player"] == "Parker Messick")
+    main = next(line for line in messick["lines"] if line["is_main_line"])
+    assert main["line"] == 5.5

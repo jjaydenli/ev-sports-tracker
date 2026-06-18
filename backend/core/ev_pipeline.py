@@ -59,35 +59,53 @@ def split_normalized_by_sportsbook(
     return betr_props, dk_props, fd_props
 
 
+_NORMALIZED_BY_SOURCE: dict[str, str] = {
+    "betr": BETR_NORMALIZED,
+    "dk": DK_NORMALIZED,
+    "fd": FD_NORMALIZED,
+}
+
+
 def load_comparison_inputs(
     data_dir: Path,
     *,
     expected_run_id: str | None = None,
+    active_sources: tuple[str, ...] | None = None,
 ) -> tuple[list[dict], list[dict], list[dict]]:
-    """Load normalized Betr, DraftKings, and FanDuel props from disk."""
-    betr_path = data_dir / BETR_NORMALIZED
-    dk_path = data_dir / DK_NORMALIZED
-    fd_path = data_dir / FD_NORMALIZED
+    """Load normalized Betr, DraftKings, and FanDuel props from disk.
 
-    if expected_run_id:
-        betr_run_id, betr_props = load_wrapped_board(betr_path)
-        dk_run_id, dk_props = load_wrapped_board(dk_path)
-        _, fd_props = load_wrapped_board(fd_path)
-        if betr_run_id != expected_run_id:
-            raise ValueError(
-                f"betr normalized run_id mismatch: {betr_run_id!r} != {expected_run_id!r}"
-            )
-        if dk_run_id != expected_run_id:
-            raise ValueError(
-                f"dk normalized run_id mismatch: {dk_run_id!r} != {expected_run_id!r}"
-            )
-    else:
-        betr_props = load_json_list(betr_path)
-        dk_props = load_json_list(dk_path)
-        fd_props = load_json_list(fd_path)
+    When ``active_sources`` is set (partial scrape runs), only those sources are
+    loaded and run_id-checked; inactive sources return empty lists so stale
+    on-disk boards from a prior run are not mixed in.
+    """
+    data_dir = Path(data_dir)
+
+    def _source_active(source: str) -> bool:
+        return active_sources is None or source in active_sources
+
+    def _load_source(source: str) -> list[dict]:
+        if not _source_active(source):
+            return []
+        path = data_dir / _NORMALIZED_BY_SOURCE[source]
+        if expected_run_id:
+            run_id, props = load_wrapped_board(path)
+            if run_id != expected_run_id:
+                raise ValueError(
+                    f"{source} normalized run_id mismatch: "
+                    f"{run_id!r} != {expected_run_id!r}"
+                )
+            return props
+        return load_json_list(path)
+
+    betr_props = _load_source("betr")
+    dk_props = _load_source("dk")
+    fd_props = _load_source("fd")
 
     unified_path = data_dir / UNIFIED_OUTPUT_FILENAME
-    if unified_path.exists() and (not betr_props or not dk_props):
+    need_betr = not betr_props and _source_active("betr")
+    need_dk = not dk_props and _source_active("dk")
+    need_fd = not fd_props and _source_active("fd")
+    if unified_path.exists() and (need_betr or need_dk or need_fd):
         unified = load_json_list(unified_path)
         betr_from_unified, dk_from_unified, fd_from_unified = (
             split_normalized_by_sportsbook(unified)
@@ -222,22 +240,27 @@ def run_ev_scan(
     include_flat_lines: bool = False,
     filter_min_ev: bool = False,
     expected_run_id: str | None = None,
+    active_sources: tuple[str, ...] | None = None,
     previous_run_id: str | None = None,
 ) -> list[dict]:
-    """Run the Betr vs DraftKings EV scan and optionally persist results."""
+    """Run the Betr vs sharp-book EV scan and optionally persist results."""
     data_path = Path(data_dir)
 
     if normalize_first:
         normalize_all(data_path)
 
     betr_props, dk_props, fd_props = load_comparison_inputs(
-        data_path, expected_run_id=expected_run_id
+        data_path,
+        expected_run_id=expected_run_id,
+        active_sources=active_sources,
     )
     if not betr_props:
         logger.error(f"no betr props found in {data_path}")
         return []
-    if not dk_props:
-        logger.error(f"no draftkings props found in {data_path}")
+    if not dk_props and not fd_props:
+        logger.error(
+            f"no sharp book props found in {data_path} (need draftkings and/or fanduel)"
+        )
         return []
 
     logger.info(

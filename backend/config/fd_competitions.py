@@ -1,4 +1,4 @@
-"""FanDuel NBA league slate IDs and content-managed-page URL builders."""
+"""FanDuel league slate IDs and content-managed-page URL builders."""
 
 from __future__ import annotations
 
@@ -13,27 +13,46 @@ from config.api_headers import (
     FD_SPORTSBOOK_API_HOST,
 )
 
-# League custom page on sportsbook.fanduel.com/navigation/nba
+# League custom page on sportsbook.fanduel.com/navigation/{league}
 FD_LEAGUE_SLATES: dict[str, dict[str, str]] = {
     "nba": {
         "custom_page_id": "nba",
         "competition_id": "10547864",
         "event_type_id": "7522",
     },
+    "mlb": {
+        "custom_page_id": "mlb",
+        "competition_id": "11196870",
+        "event_type_id": "7511",
+    },
 }
 
-# Team @ Team matchups (excludes futures, draft, awards on the NBA custom page).
+# Team @ Team matchups (excludes futures, draft, awards on league custom pages).
 MATCHUP_EVENT_NAME_RE = re.compile(r"\s@\s")
 
-# event-page ?tab= slug → layout.tabs[].title (verified on NBA event pages).
-FD_EVENT_TAB_LABELS: dict[str, str] = {
-    "player-points": "Player Points",
-    "player-rebounds": "Player Rebounds",
-    "player-assists": "Player Assists",
-    "same-game-parlay-": "Same Game Parlay\u2122",
+# event-page ?tab= slug → layout.tabs[].title (verified on event pages).
+FD_EVENT_TAB_LABELS_BY_LEAGUE: dict[str, dict[str, str]] = {
+    "nba": {
+        "player-points": "Player Points",
+        "player-rebounds": "Player Rebounds",
+        "player-assists": "Player Assists",
+        "same-game-parlay-": "Same Game Parlay\u2122",
+    },
+    "mlb": {
+        "pitcher-props": "Pitcher Props",
+        "batter-props": "Batter Props",
+        "same-game-parlay-": "Same Game Parlay\u2122",
+    },
 }
 
+# Back-compat alias (NBA tabs).
+FD_EVENT_TAB_LABELS: dict[str, str] = FD_EVENT_TAB_LABELS_BY_LEAGUE["nba"]
+
 EVENT_ID_FROM_URL = re.compile(r"-(\d{6,})(?:\?|$|/)")
+
+
+def event_tab_labels_for_league(league: str = "nba") -> dict[str, str]:
+    return FD_EVENT_TAB_LABELS_BY_LEAGUE[league.lower()]
 
 
 def build_content_managed_page_url(
@@ -98,7 +117,7 @@ def extract_event_ids(
     Extract unique event IDs from a content-managed-page response.
 
     League slate events live under attachments.events (dict keyed by eventId).
-    By default keeps NBA competition matchups (name contains ' @ ').
+    By default keeps competition matchups (name contains ' @ ').
     """
     attachments = payload.get("attachments") or {}
     events = attachments.get("events") or {}
@@ -168,17 +187,18 @@ def extract_event_page_context(
     payload: dict[str, Any],
     *,
     tab: str,
+    league: str = "nba",
 ) -> dict[str, Any]:
     """
     Extract event id and tab context from an event-page response.
 
-    Tab slug (query param) is mapped via FD_EVENT_TAB_LABELS to layout.tabs titles.
+    Tab slug (query param) is mapped via league tab labels to layout.tabs titles.
     """
     layout = payload.get("layout") or {}
     page = layout.get("page") or {}
     event_id = str(page.get("eventId") or "")
 
-    tab_title = FD_EVENT_TAB_LABELS.get(tab)
+    tab_title = event_tab_labels_for_league(league).get(tab)
     tabs = layout.get("tabs") or {}
     tab_entry: dict[str, Any] | None = None
     for entry in tabs.values():

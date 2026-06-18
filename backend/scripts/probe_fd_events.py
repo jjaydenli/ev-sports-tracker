@@ -16,10 +16,10 @@ if str(BACKEND_ROOT) not in sys.path:
 
 from config.api_headers import FD_BASE_HEADERS, FD_SPORTSBOOK_API_HOST  # noqa: E402
 from config.fd_competitions import (  # noqa: E402
-    FD_EVENT_TAB_LABELS,
     FD_LEAGUE_SLATES,
     build_event_page_url,
     count_event_page_markets,
+    event_tab_labels_for_league,
     extract_event_summaries,
     parse_event_id_from_url,
 )
@@ -115,7 +115,6 @@ def main() -> None:
     parser.add_argument("--raw", action="store_true", help="Print full JSON payload")
     parser.add_argument(
         "--tab",
-        choices=sorted(FD_EVENT_TAB_LABELS),
         help="Fetch event-page for --event-id and print market count",
     )
     args = parser.parse_args()

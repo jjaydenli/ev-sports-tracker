@@ -9,12 +9,12 @@ from loguru import logger
 from config.api_headers import FD_BASE_HEADERS
 from config.fd_competitions import FD_LEAGUE_SLATES, parse_event_id_from_url
 from config.fd_markets import (
-    FD_CANONICAL_TO_TAB,
-    FD_DEFAULT_SCRAPE_MARKETS,
-    FD_EXTENDED_OU_MARKETS,
     FD_SGP_TAB,
+    default_scrape_markets_for_league,
+    extended_ou_markets_for_league,
     is_core_ou_market,
     is_extended_ou_market,
+    known_markets_for_league,
     tab_for_canonical_market,
 )
 from scrapers.base_scraper import BaseScraper
@@ -53,28 +53,31 @@ def parse_event_ids(
 
 def scrape_targets_for_markets(
     markets: list[str],
+    *,
+    league: str = DEFAULT_LEAGUE,
 ) -> list[tuple[str, set[str] | None]]:
     """
     Map requested canonical markets to event-page tab fetches.
 
-    Core stats use dedicated tabs; extended stats share one SGP tab request.
+    NBA core stats use dedicated tabs; extended stats share one SGP tab request.
+    MLB groups pitcher/batter O/U markets by category tab.
     """
-    targets: list[tuple[str, set[str] | None]] = []
-    seen_tabs: set[str] = set()
+    tab_markets: dict[str, set[str]] = {}
     extended: set[str] = set()
 
     for market in markets:
-        if is_core_ou_market(market):
-            tab = tab_for_canonical_market(market)
-            if tab and tab not in seen_tabs:
-                seen_tabs.add(tab)
-                targets.append((tab, {market}))
-        elif is_extended_ou_market(market):
+        if is_core_ou_market(market, league=league):
+            tab = tab_for_canonical_market(market, league=league)
+            if tab:
+                tab_markets.setdefault(tab, set()).add(market)
+        elif is_extended_ou_market(market, league=league):
             extended.add(market)
 
+    targets: list[tuple[str, set[str] | None]] = [
+        (tab, markets_set) for tab, markets_set in tab_markets.items()
+    ]
     if extended:
         targets.append((FD_SGP_TAB, extended))
-
     return targets
 
 
@@ -93,7 +96,7 @@ class FanDuelEngine(BaseScraper):
             event_ids=event_ids, game_urls=game_urls
         )
         self.league = league
-        self.markets = markets or list(FD_DEFAULT_SCRAPE_MARKETS)
+        self.markets = markets or list(default_scrape_markets_for_league(league))
         self.concurrency = concurrency
 
     async def authenticate(self) -> str | None:
@@ -110,13 +113,11 @@ class FanDuelEngine(BaseScraper):
         return event_ids
 
     async def scrape(self) -> list[dict[str, Any]]:
-        targets = scrape_targets_for_markets(self.markets)
+        targets = scrape_targets_for_markets(self.markets, league=self.league)
         if not targets:
             return []
 
-        unknown_markets = set(self.markets) - set(FD_CANONICAL_TO_TAB) - set(
-            FD_EXTENDED_OU_MARKETS
-        )
+        unknown_markets = set(self.markets) - known_markets_for_league(self.league)
         if unknown_markets:
             logger.error(f"Unknown FanDuel markets: {sorted(unknown_markets)}")
             return []
@@ -139,7 +140,11 @@ class FanDuelEngine(BaseScraper):
             ) -> list[dict[str, Any]]:
                 async with semaphore:
                     return await fetch_and_flatten_event_page(
-                        client, event_id, tab=tab, markets=markets
+                        client,
+                        event_id,
+                        tab=tab,
+                        markets=markets,
+                        league=self.league,
                     )
 
             tasks = [

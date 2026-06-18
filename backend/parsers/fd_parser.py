@@ -65,6 +65,9 @@ def parse_fd_props(raw_props: list[dict]) -> list[dict]:
             "event_id": raw_prop.get("event_id"),
             "tab": raw_prop.get("tab"),
         }
+        league = raw_prop.get("league")
+        if league:
+            base["league"] = str(league).upper()
         for line_row in _line_entries(raw_prop):
             merged = {**base, **line_row}
             prop = parse_fd_prop(merged)

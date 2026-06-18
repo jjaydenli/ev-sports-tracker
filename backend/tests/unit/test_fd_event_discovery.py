@@ -5,6 +5,7 @@ import httpx
 import pytest
 
 from config.fd_competitions import (
+    FD_LEAGUE_SLATES,
     build_content_managed_page_url,
     build_event_page_url,
     extract_event_ids,
@@ -13,7 +14,9 @@ from config.fd_competitions import (
 from scrapers.sportsbooks.fd_api import fetch_league_event_ids
 
 LEAGUE_FIXTURE_PATH = Path("tests/fixtures/fd_league_nba_events.json")
+MLB_LEAGUE_FIXTURE_PATH = Path("tests/fixtures/fd_league_mlb_events.json")
 NBA_COMPETITION_ID = "10547864"
+MLB_COMPETITION_ID = "11196870"
 
 
 @pytest.fixture
@@ -35,6 +38,26 @@ def test_build_event_page_url_includes_event_and_tab():
     assert "event-page" in url
     assert "eventId=35639109" in url
     assert "tab=player-points" in url
+
+
+def test_build_content_managed_page_url_includes_mlb_page():
+    url = build_content_managed_page_url("mlb")
+
+    assert "customPageId=mlb" in url
+
+
+def test_extract_event_ids_mlb_league_fixture():
+    payload = json.loads(MLB_LEAGUE_FIXTURE_PATH.read_text(encoding="utf-8"))
+    event_ids = extract_event_ids(
+        payload, competition_id=MLB_COMPETITION_ID, require_matchup=True
+    )
+
+    assert "35730475" in event_ids
+    assert len(event_ids) >= 5
+
+
+def test_fd_league_slates_contains_mlb():
+    assert FD_LEAGUE_SLATES["mlb"]["competition_id"] == MLB_COMPETITION_ID
 
 
 def test_parse_event_id_from_url():

@@ -18,6 +18,7 @@ from config.fd_competitions import (
 from config.fd_markets import (
     FD_SGP_TAB,
     canonical_market_for_tab,
+    is_multi_market_tab,
     is_player_ou_market_for_tab,
     parse_player_ou_market_type,
 )
@@ -216,10 +217,11 @@ def flatten_player_ou_market(
     event_id: str,
     tab: str,
     canonical_market: str,
+    league: str = "nba",
 ) -> list[dict[str, Any]]:
     """Flatten one FanDuel main or alt player O/U market into master-board rows."""
     market_type = str(fd_market.get("marketType") or "")
-    parsed = parse_player_ou_market_type(market_type)
+    parsed = parse_player_ou_market_type(market_type, league=league)
     if not parsed:
         return []
 
@@ -362,11 +364,12 @@ def flatten_event_page_response(
     event_id: str,
     tab: str,
     markets: set[str] | None = None,
+    league: str = "nba",
 ) -> list[dict[str, Any]]:
     """
     Flatten FanDuel event-page attachments.markets into grouped O/U master-board props.
 
-    Uses main (PLAYER_*_TOTAL_*) and alt (PLAYER_*_ALT_TOTAL_*) ladders only.
+    Uses main (PLAYER_*_TOTAL_* / PITCHER_*_TOTAL_*) and alt ladders only.
     Skips milestones (TO_SCORE_*), game lines, and quarter props.
     """
     if event_page_in_play(payload, event_id):
@@ -377,11 +380,11 @@ def flatten_event_page_response(
     fd_markets = attachments.get("markets") or {}
     line_rows: list[dict[str, Any]] = []
 
-    if tab == FD_SGP_TAB:
+    if tab == FD_SGP_TAB or is_multi_market_tab(tab, league=league):
         allowed = markets
         for fd_market in fd_markets.values():
             market_type = str(fd_market.get("marketType") or "")
-            parsed = parse_player_ou_market_type(market_type)
+            parsed = parse_player_ou_market_type(market_type, league=league)
             if not parsed:
                 continue
             canonical_market, _ = parsed
@@ -393,10 +396,11 @@ def flatten_event_page_response(
                     event_id=event_id,
                     tab=tab,
                     canonical_market=canonical_market,
+                    league=league,
                 )
             )
     else:
-        canonical_market = canonical_market_for_tab(tab)
+        canonical_market = canonical_market_for_tab(tab, league=league)
         if not canonical_market:
             logger.error(f"unknown fanduel tab for flatten: {tab}")
             return []
@@ -405,7 +409,7 @@ def flatten_event_page_response(
 
         for fd_market in fd_markets.values():
             market_type = str(fd_market.get("marketType") or "")
-            if not is_player_ou_market_for_tab(market_type, tab):
+            if not is_player_ou_market_for_tab(market_type, tab, league=league):
                 continue
             line_rows.extend(
                 flatten_player_ou_market(
@@ -413,6 +417,7 @@ def flatten_event_page_response(
                     event_id=event_id,
                     tab=tab,
                     canonical_market=canonical_market,
+                    league=league,
                 )
             )
 
@@ -425,11 +430,16 @@ async def fetch_and_flatten_event_page(
     *,
     tab: str,
     markets: set[str] | None = None,
+    league: str = "nba",
 ) -> list[dict[str, Any]]:
     """Fetch one event-page tab and return grouped O/U master-board props."""
     payload = await fetch_event_page(client, event_id, tab=tab)
     if not payload:
         return []
     return flatten_event_page_response(
-        payload, event_id=event_id, tab=tab, markets=markets
+        payload,
+        event_id=event_id,
+        tab=tab,
+        markets=markets,
+        league=league,
     )

@@ -388,11 +388,23 @@ def run_refresh(
 
         with timer.stage("load comparison inputs"):
             expected_run_id = None if skip_scrape else run_id
-            betr_props, dk_props, fd_props = load_comparison_inputs(
-                data_path, expected_run_id=expected_run_id
+            active_sources = (
+                None
+                if skip_scrape
+                else (*dfs_sources, *book_sources)
             )
-        if not betr_props or not dk_props:
-            logger.error("missing betr or draftkings normalized props for EV scan")
+            betr_props, dk_props, fd_props = load_comparison_inputs(
+                data_path,
+                expected_run_id=expected_run_id,
+                active_sources=active_sources,
+            )
+        if not betr_props:
+            logger.error("missing betr normalized props for EV scan")
+            return 1
+        if not dk_props and not fd_props:
+            logger.error(
+                "missing sharp book normalized props for EV scan (need dk and/or fd)"
+            )
             return 1
 
         with timer.stage("match diagnostics"):
@@ -412,6 +424,7 @@ def run_refresh(
                 include_flat_lines=include_flat_lines,
                 filter_min_ev=filter_min_ev,
                 expected_run_id=expected_run_id,
+                active_sources=active_sources,
             )
         plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 

@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-19 (plan handoff archive enforced pre-PR via `check_plan_archived.sh` in CI + `open_pr.sh`; post-merge archive workflow removed)
+**Last verified:** 2026-06-19 (FanDuel MLB milestone scrape/parse on `feat/fd-milestone-props`; plan archive enforced pre-PR via `check_plan_archived.sh` in CI + `open_pr.sh`)
 
 ## 1. Project Overview
 
@@ -35,7 +35,7 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 ### DraftKings (sharp sportsbook)
 
 * **Role:** Sharp O/U ladders and milestone (`N+`) fallbacks; primary input to `line_adjustment.py`.
-* **Milestones:** DK is the only sharp book that emits `line_kind == "milestone"` today (FanDuel skips `TO_SCORE_*` / similar). Exact milestone overs at the Betr line (`dk_milestone_exact`) can reach the +EV board when hold-aware de-vig clears `MILESTONE_MIN_FAIR_OVER` (default −160 fair over); interpolated/extrapolated milestones stay off the board. De-vig: contiguous `N+` ladder normalization, else hold-shrink from sibling O/U hold (`estimate_ou_hold`) or `MILESTONE_ASSUMED_HOLD`. Admitted rows flagged `not_true_devig` / `milestone_devig_method` in JSON; CLI **Src** shows `ms🔶`. Logic is book-agnostic (milestone ladder = union of sharp-book milestone props; `sharp_books` = source book).
+* **Milestones:** DK emits `line_kind == "milestone"` for NBA/WNBA/MLB `N+` boards; FanDuel emits MLB milestones only (`TO_RECORD_*` / `PLAYER_TO_RECORD_*` on pitcher/batter tabs — see FanDuel below). Exact milestone overs at the Betr line (`dk_milestone_exact` / `fd_milestone_exact`) can reach the +EV board when hold-aware de-vig clears `MILESTONE_MIN_FAIR_OVER` (default −160 fair over); interpolated/extrapolated milestones stay off the board. De-vig: contiguous `N+` ladder normalization, else hold-shrink from sibling O/U hold (`estimate_ou_hold`) or `MILESTONE_ASSUMED_HOLD`. Admitted rows flagged `not_true_devig` / `milestone_devig_method` in JSON; CLI **Src** shows `ms🔶`. Logic is book-agnostic (milestone ladder = union of sharp-book milestone props; `sharp_books` = source book).
 * **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`, `scrapers/sportsbooks/dk_subcategory_discovery.py`
 * **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md) — slates, subcategories, eligible `line_source` values.
 * **Config:** `DK_NBA_*_STAT_CATEGORIES` (NBA O/U + milestones); `DK_WNBA_*` aliases same prop IDs with slate `94682` / `4511`; `DK_MLB_STAT_CATEGORIES` / `DK_MLB_LIVE_STAT_CATEGORIES` (MLB pregame + live batter tabs via `stat_categories_for_league` / `live_stat_categories_for_league`).
@@ -43,8 +43,9 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 
 ### FanDuel (sharp sportsbook)
 
-* **Role:** Second sharp book; multi-book consensus when DK+FD align at the Betr line. **NBA** (per-stat tabs + SGP extended O/U). **MLB** pregame O/U (`FD_LEAGUE_SLATES["mlb"]`; `pitcher-props` / `batter-props` tabs — `PITCHER_*` / `BATTER_*` `TOTAL_*` marketTypes; 13-market scrape via per-league `fd_markets` / `fd_competitions` dispatch). Pregame only — no live FD MLB scrape. Milestones deliberately skipped at scrape (`fd_api`); when FD adds milestone props, they flow through the same book-agnostic milestone path in `line_adjustment.py`.
-* **Parser:** `fd_parser.py` expands grouped `lines` ladders to line-level `fd_normalized.json` rows; copies `league` from the grouped master-board parent (set in `fd_engine`) so `build_prop_key` can match Betr/DK by league.
+* **Role:** Second sharp book; multi-book consensus when DK+FD align at the Betr line. **NBA** (per-stat tabs + SGP extended O/U). **MLB** pregame O/U (`FD_LEAGUE_SLATES["mlb"]`; `pitcher-props` / `batter-props` tabs — `PITCHER_*` / `BATTER_*` `TOTAL_*` marketTypes; 13-market scrape via per-league `fd_markets` / `fd_competitions` dispatch). Pregame only — no live FD MLB scrape.
+* **MLB milestones:** `fd_api.flatten_player_milestone_market` ingests one-sided `TO_RECORD_*` / `PLAYER_TO_RECORD_*` boards on the same MLB tabs (`parse_player_milestone_market_type` in `fd_markets.py`; `FD_MILESTONE_MARKETS_BY_LEAGUE["mlb"]` — hits, total bases, runs, RBI, H+R+RBI). Rows mirror DK shape: `line_kind == "milestone"`, `milestone_threshold=N`, `line=N-0.5`, over-only `over_odds`, `under_odds=None`. `group_fd_line_rows` / `merge_prop_rows` key by `line_kind` so O/U and milestone ladders for the same player|market stay separate. True FD O/U still wins over FD milestone in `resolve_sharp_quote`. NBA `TO_SCORE_*` / made-threes / double-double boards remain skipped (deferred).
+* **Parser:** `fd_parser.py` expands grouped `lines` ladders to line-level `fd_normalized.json` rows; copies `league` from the grouped master-board parent (set in `fd_engine`) so `build_prop_key` can match Betr/DK by league; propagates `milestone_threshold` on milestone lines.
 * **Code:** `fd_api.py`, `fd_engine.py`, `fd_parser.py`, `config/fd_markets.py`, `config/fd_competitions.py`, `scripts/probe_fd_events.py`
 * **Detail:** [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md) — event discovery, tabs, O/U vs milestones.
 
@@ -54,7 +55,7 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 
 ### MLB
 
-* **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — pregame 13-market O/U slate (`DK_MLB_STAT_CATEGORIES`, incl. `doubles`) plus live batter O/U (`DK_MLB_LIVE_STAT_CATEGORIES` — all 8 batter live IDs set, e.g. `walks` `9536` live vs `17411` pregame; live IDs differ from pregame on many tabs). FanDuel MLB: same 13-market pregame O/U list (pitcher + batter tabs); `./ev --mlb --books fd` or full `--mlb` Betr ↔ (DK + FD) consensus. EV output rows include `is_live` (ranked table **Live** column). No CLI flag — DK and Betr live discovery are standing behavior on `./ev --leagues mlb` (Betr: app-parity GraphQL headers; DK: `DK_MLB_LIVE_STAT_CATEGORIES`).
+* **Detail:** [docs/betting_odds/mlb.md](docs/betting_odds/mlb.md) — pregame 13-market O/U slate (`DK_MLB_STAT_CATEGORIES`, incl. `doubles`) plus live batter O/U (`DK_MLB_LIVE_STAT_CATEGORIES` — all 8 batter live IDs set, e.g. `walks` `9536` live vs `17411` pregame; live IDs differ from pregame on many tabs). FanDuel MLB: same 13-market pregame O/U list (pitcher + batter tabs) plus milestone `N+` boards on those tabs (hits, total bases, runs, RBI, H+R+RBI); `./ev --mlb --books fd` or full `--mlb` Betr ↔ (DK + FD) consensus and milestone gap-fill. EV output rows include `is_live` (ranked table **Live** column). No CLI flag — DK and Betr live discovery are standing behavior on `./ev --leagues mlb` (Betr: app-parity GraphQL headers; DK: `DK_MLB_LIVE_STAT_CATEGORIES`).
 
 ### WNBA
 
@@ -71,7 +72,8 @@ Platform detail lives in [docs/betting_odds/](docs/betting_odds/). Summary below
 ```text
 ev-sports-tracker/
 │   ├── rules/                  # path-scoped: backend/**, docs/plans/**
-│   └── skills/design-handoff/  # plan-file workflow → docs/plans/
+│   └── skills/
+│       ├── design-handoff/     # plan-file workflow → docs/plans/
 ├── docs/
 │   ├── plans/                  # active handoffs (_template.md, _example.md); archive/ for shipped specs
 ├── scripts/
@@ -89,7 +91,7 @@ ev-sports-tracker/
     │   ├── dk_discovery.py       # ID scan ranges; DK_MLB_LIVE_DISCOVERY_ID_RANGES; discovery output paths
     │   ├── discovery/          # per-league progress manifests (mlb.yaml)
     │   ├── fd_competitions.py  # FD_LEAGUE_SLATES; per-league event tab labels
-    │   ├── fd_markets.py       # per-league tab/market dispatch (*_for_league); NBA + MLB O/U parse
+    │   ├── fd_markets.py       # per-league tab/market dispatch; NBA + MLB O/U + MLB milestone marketType parse
     │   ├── pipeline_sources.py # PIPELINE_LEAGUES, BETR_TO_DK_LEAGUE, DK/FD league slates
     │   ├── .env.example        # Betr Keycloak + optional BETR_JURISDICTION / header overrides; FD_*; DK_MARKETS_MAX_CONCURRENT
     │   └── .env                # local secrets (gitignored)
@@ -109,12 +111,12 @@ ev-sports-tracker/
     │       ├── dk_engine.py
     │       ├── dk_api.py
     │       ├── dk_subcategory_discovery.py  # ad-hoc live/pregame subCategoryId scan helpers
-    │       ├── fd_api.py       # league discovery; flatten; group_fd_line_rows
+    │       ├── fd_api.py       # league discovery; flatten O/U + MLB milestones; group_fd_line_rows (line_kind key)
     │       └── fd_engine.py
     ├── parsers/
     │   ├── betr_parser.py
     │   ├── dk_parser.py
-    │   ├── fd_parser.py        # grouped lines → line rows; league from parent prop
+    │   ├── fd_parser.py        # grouped lines → line rows; league + milestone_threshold from parent
     │   └── normalize.py
     ├── core/
     │   ├── models.py
@@ -139,7 +141,7 @@ ev-sports-tracker/
         └── unit/
 ```
 
-**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB, WNBA) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`load_comparison_inputs` / `run_ev_scan` honor `active_sources` on partial scrapes so stale off-run boards are not mixed in; `persist_match_diagnostics` with `by_league` → `match_report.json`; `run_id` check → `ev_opportunities.json` incl. `is_live` and milestone caveat fields; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run. Sharp resolution per Betr line: true O/U (DK/FD) preferred; `multi_book_consensus` when both exact; milestone (`N+`) gap-filler only when O/U missing or extrapolated — exact milestone overs admitted when hold-aware de-vig clears `MILESTONE_MIN_FAIR_OVER`. Partial book runs (e.g. `--books fd`) need DK **or** FD sharp props, not both. MLB: DK ingests pregame + in-progress events via `DK_MLB_LIVE_STAT_CATEGORIES` (8 batter tabs; per-market `None` would skip that tab — all set as of walks `9536`); Betr ingests scheduled + `IN_PROGRESS` from the same `getUpcomingEventsV2` call when `BETR_BASE_HEADERS` include app-parity client headers (`api_headers.py`). WNBA: pregame only; FD skipped.
+**EV data flow:** `./ev` or `python -m core.pipeline_runner` → league loop (NBA, MLB, WNBA) × sources (dfs: betr; books: dk, fd) → in-memory merge → `normalize.py` (master + wrapped normalized + `unified_master_board.json`) → `ev_pipeline.py` (`load_comparison_inputs` / `run_ev_scan` honor `active_sources` on partial scrapes so stale off-run boards are not mixed in; `persist_match_diagnostics` with `by_league` → `match_report.json`; `run_id` check → `ev_opportunities.json` incl. `is_live` and milestone caveat fields; rotate + `ev_run_diff.json`) · `scrape_coverage.json` per run. Sharp resolution per Betr line: true O/U (DK/FD) preferred; `multi_book_consensus` when both exact; milestone (`N+`) gap-filler only when O/U missing or extrapolated — exact milestone overs from DK or FD admitted when hold-aware de-vig clears `MILESTONE_MIN_FAIR_OVER` (`sharp_books` = source book). Partial book runs (e.g. `--books fd`) need DK **or** FD sharp props, not both. MLB: DK ingests pregame + in-progress events via `DK_MLB_LIVE_STAT_CATEGORIES` (8 batter tabs; per-market `None` would skip that tab — all set as of walks `9536`); FD ingests pregame O/U + MLB milestone boards on pitcher/batter tabs; Betr ingests scheduled + `IN_PROGRESS` from the same `getUpcomingEventsV2` call when `BETR_BASE_HEADERS` include app-parity client headers (`api_headers.py`). WNBA: pregame only; FD skipped.
 
 
 ## 6. Roadmap
@@ -153,7 +155,8 @@ ev-sports-tracker/
 * **TheScore Bet (ESPN):** New sharp sportsbook — scrape → parse → normalize → multi-book consensus; mirror DK/FD layout in `scrapers/sportsbooks/`; platform doc in `docs/betting_odds/thescorebet.md`.
 * **Granular promos / non-REGULAR Betr types:** Parse `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; store raw multipliers and alternate breakevens (wide-fetch fields already on master board).
 * **Race-to-place parlay checker:** Build same parlay on DK/FD, compare to Betr promo multipliers (2-leg 3x→4x through 8-leg 100x→150x), hardcoded +EV threshold for take/pass.
-* **`feat/fd-milestone-props`:** Ingest `TO_SCORE_*` / `TO_RECORD_*` / `N+_MADE_THREES` / double-double boards — master board + EV policy aligned with DK milestones (catalog in [fanduel.md](docs/betting_odds/fanduel.md)).
+* **FanDuel two-sided MLB milestones:** If live captures show Yes/No runners on milestone boards, ingest as true O/U at line `N-0.5` (multiplicative de-vig + consensus) — v1 is one-sided over-only ([docs/plans/archive/fd-milestone-props.md](docs/plans/archive/fd-milestone-props.md) open question).
+* **FanDuel NBA/WNBA milestones:** `TO_SCORE_*` / made-threes / double-double boards after FD WNBA slate + NBA milestone families ship (deferred from [docs/plans/archive/fd-milestone-props.md](docs/plans/archive/fd-milestone-props.md)).
 
 ### Completed / archived
 
@@ -163,7 +166,7 @@ ev-sports-tracker/
 * **DK scrape hardening (Akamai 403):** per-event `fetch_event_all_markets`; `DK_MARKETS_MAX_CONCURRENT` semaphore (default 6); 403/429 retry/backoff; browser-like headers; league warm-up skipped on auto-discover — [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md).
 * `normalize.py` active platforms: Betr + DraftKings + FanDuel; Dabble archived.
 * `ev_pipeline.py` loads `{betr,dk,fd}_normalized.json` (optional `active_sources` filter on partial scrapes) → `compare_betr_vs_draftkings` → `ev_opportunities.json`; ranked plays table via `ev_display.py`.
-* Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_ev_display`, `test_line_adjustment`, `test_line_adjustment_multi_book`, `test_milestone_ev_board`, `test_pipeline_runner`, `test_normalize`, `test_math_utils`; fixtures incl. `betr_wnba_pregame.json`, `dk_milestone_ladder.json`, `fd_league_nba_events.json`, `fd_league_mlb_events.json`, `fd_event_*_player_{points,rebounds,assists}.json`, `fd_event_*_pitcher_props.json`.
+* Offline pytest suite: `tests/unit/test_{betr,dk,fd}_*`, `test_ev_engine`, `test_ev_pipeline`, `test_ev_display`, `test_line_adjustment`, `test_line_adjustment_multi_book`, `test_milestone_ev_board`, `test_pipeline_runner`, `test_normalize`, `test_math_utils`; fixtures incl. `betr_wnba_pregame.json`, `dk_milestone_ladder.json`, `fd_league_nba_events.json`, `fd_league_mlb_events.json`, `fd_event_*_player_{points,rebounds,assists}.json`, `fd_event_*_pitcher_props.json`, `fd_event_35733870_milestones.json`.
 * Betr breakeven aligned at **-120** across `math_utils`, parser side markers, and EV engine.
 * Daily refresh orchestrator: `core/pipeline_runner.py` (`run_refresh`) — multi-league loop, `--dfs` / `--books` / `--leagues`, fresh-only runs with `run_id`, `core/pipeline_scrape.py`, `config/pipeline_sources.py`; repo-root `./ev` wrapper.
 * Betr `--league` case normalization: `_normalize_betr_league` + `BetrEngine` uppercase GraphQL enum; GraphQL `errors` logged on invalid league — fixes empty MLB slate when invoking `./ev --league mlb`.
@@ -188,4 +191,5 @@ ev-sports-tracker/
 * **DK config rename (NBA):** `DK_NBA_*_STAT_CATEGORIES` / `DK_NBA_MILESTONE_STAT_CATEGORIES` / `DK_NBA_PENDING_STAT_CATEGORIES` (was generic `DK_STAT_CATEGORIES` names).
 * **MLB pregame props (DK ship):** 13 markets Betr ↔ DK (`DK_MLB_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS`, incl. `doubles`); FanDuel MLB wired later (see FanDuel MLB bullet above).
 * **WNBA slate (Betr ↔ DK):** `PIPELINE_LEAGUES` + `BETR_TO_DK_LEAGUE["WNBA"]`; `DK_LEAGUE_SLATES["wnba"]` (`94682`/`4511`); explicit `DK_WNBA_*` stat aliases; per-league `--nba`/`--mlb`/`--wnba` shorthands (`merge_leagues_from_args`); `ev_display` **Lg** column; pregame only (FD auto-skipped); `betr_api` `__main__` forwards `[LEAGUE]` argv — [docs/plans/archive/wnba-betr-dk-slate.md](docs/plans/archive/wnba-betr-dk-slate.md).
-* **Milestone +EV board admission:** Hold-aware milestone de-vig (`devig_milestone_fair_over`, `estimate_ou_hold`) and dynamic fair-over gate (`MILESTONE_MIN_FAIR_OVER`, `MILESTONE_ASSUMED_HOLD` in `settings.py`); only `dk_milestone_exact` on the board; JSON flags (`not_true_devig`, `milestone_devig_method`, `milestone_admitted`); CLI **Src** `ms🔶`; book-agnostic milestone ladder + `sharp_books` provenance — [docs/plans/archive/milestone-ev-board.md](docs/plans/archive/milestone-ev-board.md).
+* **Milestone +EV board admission:** Hold-aware milestone de-vig (`devig_milestone_fair_over`, `estimate_ou_hold`) and dynamic fair-over gate (`MILESTONE_MIN_FAIR_OVER`, `MILESTONE_ASSUMED_HOLD` in `settings.py`); only exact-threshold milestones on the board; JSON flags (`not_true_devig`, `milestone_devig_method`, `milestone_admitted`); CLI **Src** `ms🔶`; book-agnostic milestone ladder + `sharp_books` provenance — [docs/plans/archive/milestone-ev-board.md](docs/plans/archive/milestone-ev-board.md).
+* **FanDuel MLB milestone ingestion:** `parse_player_milestone_market_type` + `flatten_player_milestone_market` in `fd_markets.py` / `fd_api.py`; `FD_MILESTONE_MARKETS_BY_LEAGUE` (MLB hits, total bases, runs, RBI, H+R+RBI); `fd_parser` milestone fields; `group_fd_line_rows` keys by `line_kind`; fixture `fd_event_35733870_milestones.json`; tests in `test_fd_markets`, `test_fd_api`, `test_normalize_fd`, `test_milestone_ev_board` — EV layer unchanged (book-agnostic admission) — [docs/plans/archive/fd-milestone-props.md](docs/plans/archive/fd-milestone-props.md).

@@ -21,10 +21,13 @@ def parse_fd_prop(raw_prop: dict) -> dict | None:
     player = raw_prop.get("player")
     raw_market = raw_prop.get("market", "")
     line = raw_prop.get("line")
+    line_kind = raw_prop.get("line_kind", "ou")
 
     if not player or raw_market is None or line is None:
         return None
-    if raw_prop.get("over_odds") is None or raw_prop.get("under_odds") is None:
+    if raw_prop.get("over_odds") is None:
+        return None
+    if line_kind != "milestone" and raw_prop.get("under_odds") is None:
         return None
 
     normalized = {
@@ -35,7 +38,8 @@ def parse_fd_prop(raw_prop: dict) -> dict | None:
         "prop_type": raw_prop.get("prop_type", "standard"),
         "over_odds": raw_prop.get("over_odds"),
         "under_odds": raw_prop.get("under_odds"),
-        "line_kind": raw_prop.get("line_kind", "ou"),
+        "line_kind": line_kind,
+        "milestone_threshold": raw_prop.get("milestone_threshold"),
         "is_main_line": bool(raw_prop.get("is_main_line", False)),
         "event_id": raw_prop.get("event_id"),
         "tab": raw_prop.get("tab"),

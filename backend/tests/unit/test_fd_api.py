@@ -263,3 +263,87 @@ def test_flatten_mlb_pitcher_strikeouts_fixture():
     messick = next(p for p in props if p["player"] == "Parker Messick")
     main = next(line for line in messick["lines"] if line["is_main_line"])
     assert main["line"] == 5.5
+
+
+MILESTONE_FIXTURE_PATH = Path("tests/fixtures/fd_event_35733870_milestones.json")
+MILESTONE_EVENT_ID = "35733870"
+VLAAD = "Vladimir Guerrero Jr."
+
+
+def test_flatten_mlb_milestone_fixture():
+    payload = json.loads(MILESTONE_FIXTURE_PATH.read_text(encoding="utf-8"))
+
+    batter_props = flatten_event_page_response(
+        payload,
+        event_id=MILESTONE_EVENT_ID,
+        tab="batter-props",
+        markets={"total_bases", "hits"},
+        league="mlb",
+    )
+    pitcher_props = flatten_event_page_response(
+        payload,
+        event_id=MILESTONE_EVENT_ID,
+        tab="pitcher-props",
+        markets={"strikeouts"},
+        league="mlb",
+    )
+
+    milestone_props = [p for p in batter_props if p["line_kind"] == "milestone"]
+    ou_props = [p for p in pitcher_props if p["line_kind"] == "ou"]
+
+    assert ou_props
+    assert milestone_props
+
+    vlad_tb = next(
+        p for p in milestone_props if p["player"] == VLAAD and p["market"] == "total_bases"
+    )
+    lines = sorted(vlad_tb["lines"], key=lambda row: row["line"])
+    assert [row["milestone_threshold"] for row in lines] == [2, 3, 4]
+    assert [row["line"] for row in lines] == [1.5, 2.5, 3.5]
+    assert all(row["under_odds"] is None for row in lines)
+    assert all(row["over_odds"] is not None for row in lines)
+
+    vlad_hits = next(
+        p for p in milestone_props if p["player"] == VLAAD and p["market"] == "hits"
+    )
+    hit_line = vlad_hits["lines"][0]
+    assert hit_line["milestone_threshold"] == 1
+    assert hit_line["line"] == 0.5
+
+
+def test_milestone_and_ou_group_separately():
+    payload = json.loads(MILESTONE_FIXTURE_PATH.read_text(encoding="utf-8"))
+    # Inject a synthetic O/U hits row at the same line as the 1+ hit milestone.
+    line_rows = [
+        {
+            "sportsbook": "FanDuel",
+            "event_id": MILESTONE_EVENT_ID,
+            "tab": "batter-props",
+            "player": VLAAD,
+            "market": "hits",
+            "line": 0.5,
+            "line_kind": "ou",
+            "over_odds": -120,
+            "under_odds": -110,
+            "is_main_line": True,
+            "market_type": "BATTER_A_TOTAL_HITS",
+        },
+        {
+            "sportsbook": "FanDuel",
+            "event_id": MILESTONE_EVENT_ID,
+            "tab": "batter-props",
+            "player": VLAAD,
+            "market": "hits",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "milestone_threshold": 1,
+            "over_odds": -270,
+            "under_odds": None,
+            "is_main_line": True,
+            "market_type": "PLAYER_TO_RECORD_A_HIT",
+        },
+    ]
+    grouped = group_fd_line_rows(line_rows)
+    assert len(grouped) == 2
+    kinds = {prop["line_kind"] for prop in grouped}
+    assert kinds == {"ou", "milestone"}

@@ -10,8 +10,11 @@ from core.flat_line import (
 from core.line_adjustment import (
     ResolvedSharpQuote,
     build_milestone_ladder,
+    build_milestone_ladders,
     build_player_market_ladder,
     is_ev_eligible_quote,
+    merge_milestone_ladders,
+    resolve_admitted_milestone_quote,
     resolve_multi_book_sharp_quote,
     resolve_sharp_quote,
 )
@@ -37,10 +40,17 @@ def _book_odds_from_resolved(
     dk_under = resolved.dk_under_odds
     fd_over = resolved.fd_over_odds
     fd_under = resolved.fd_under_odds
-    if dk_over is None and books == ("DraftKings",):
+    if resolved.dk_line_kind == "milestone":
+        if "DraftKings" not in books:
+            dk_over = None
+            dk_under = None
+        if "FanDuel" not in books:
+            fd_over = None
+            fd_under = None
+    elif dk_over is None and books == ("DraftKings",):
         dk_over = resolved.over_odds
         dk_under = resolved.under_odds
-    if fd_over is None and books == ("FanDuel",):
+    elif fd_over is None and books == ("FanDuel",):
         fd_over = resolved.over_odds
         fd_under = resolved.under_odds
     return dk_over, dk_under, fd_over, fd_under
@@ -214,10 +224,14 @@ def find_ev_opportunities(
             for prop in fanduel_props
             if prop.get("line_kind") == "milestone"
         )
-    milestone_ladder = build_milestone_ladder(
+    milestone_ladders = build_milestone_ladders(
         sharp_milestone_props, normalize_player_name=normalize_player_name
     )
+    milestone_ladder = merge_milestone_ladders(milestone_ladders)
     use_multi_book = bool(fanduel_props)
+    ou_ladders: dict[str, dict[str, dict[float, dict]]] = {"DraftKings": ou_ladder}
+    if fanduel_props:
+        ou_ladders["FanDuel"] = fd_ou_ladder
     opportunities: list[dict] = []
 
     for dfs_prop in dfs_props:
@@ -243,36 +257,67 @@ def find_ev_opportunities(
                 ou_ladder,
                 normalize_player_name=normalize_player_name,
                 milestone_ladder=milestone_ladder,
+                ou_ladders=ou_ladders,
             )
-        if resolved is None or not is_ev_eligible_quote(resolved):
-            continue
+        if resolved is not None and is_ev_eligible_quote(resolved):
+            fair_over, fair_under = _fair_probs_from_resolved(resolved)
 
-        fair_over, fair_under = _fair_probs_from_resolved(resolved)
+            if dfs_prop.get("over_odds") is not None:
+                _append_side_opportunity(
+                    opportunities,
+                    dfs_prop=dfs_prop,
+                    resolved=resolved,
+                    side="over",
+                    fair_prob=fair_over,
+                    breakeven_prob=breakeven_prob,
+                    fair_over=fair_over,
+                    fair_under=fair_under,
+                    min_ev=min_ev,
+                )
+            if dfs_prop.get("under_odds") is not None:
+                _append_side_opportunity(
+                    opportunities,
+                    dfs_prop=dfs_prop,
+                    resolved=resolved,
+                    side="under",
+                    fair_prob=fair_under,
+                    breakeven_prob=breakeven_prob,
+                    fair_over=fair_over,
+                    fair_under=fair_under,
+                    min_ev=min_ev,
+                )
 
-        if dfs_prop.get("over_odds") is not None:
-            _append_side_opportunity(
-                opportunities,
-                dfs_prop=dfs_prop,
-                resolved=resolved,
-                side="over",
-                fair_prob=fair_over,
-                breakeven_prob=breakeven_prob,
-                fair_over=fair_over,
-                fair_under=fair_under,
-                min_ev=min_ev,
+        # Admitted milestones from non-primary books (e.g. FD ms🔶 when DK O/U wins).
+        for book in ("FanDuel",):
+            book_milestone_ladder = milestone_ladders.get(book)
+            if not book_milestone_ladder:
+                continue
+            if (
+                resolved is not None
+                and resolved.dk_line_kind == "milestone"
+                and book in (resolved.sharp_books or ())
+            ):
+                continue
+            milestone_resolved = resolve_admitted_milestone_quote(
+                dfs_prop,
+                book_milestone_ladder,
+                normalize_player_name=normalize_player_name,
+                ou_ladders=ou_ladders,
+                hold_source_book_only=True,
             )
-        if dfs_prop.get("under_odds") is not None:
-            _append_side_opportunity(
-                opportunities,
-                dfs_prop=dfs_prop,
-                resolved=resolved,
-                side="under",
-                fair_prob=fair_under,
-                breakeven_prob=breakeven_prob,
-                fair_over=fair_over,
-                fair_under=fair_under,
-                min_ev=min_ev,
-            )
+            if milestone_resolved is not None and dfs_prop.get("over_odds") is not None:
+                ms_fair_over, ms_fair_under = _fair_probs_from_resolved(milestone_resolved)
+                _append_side_opportunity(
+                    opportunities,
+                    dfs_prop=dfs_prop,
+                    resolved=milestone_resolved,
+                    side="over",
+                    fair_prob=ms_fair_over,
+                    breakeven_prob=breakeven_prob,
+                    fair_over=ms_fair_over,
+                    fair_under=ms_fair_under,
+                    min_ev=min_ev,
+                )
 
     opportunities.sort(key=lambda row: row["ev"], reverse=True)
     if filter_min_ev:
@@ -335,8 +380,10 @@ def _build_match_ladders(
             for prop in fanduel_props
             if prop.get("line_kind") == "milestone"
         )
-    milestone_ladder = build_milestone_ladder(
-        sharp_milestone_props, normalize_player_name=normalize_player_name
+    milestone_ladder = merge_milestone_ladders(
+        build_milestone_ladders(
+            sharp_milestone_props, normalize_player_name=normalize_player_name
+        )
     )
     return ou_ladder, milestone_ladder, fd_ou_ladder
 

@@ -1,9 +1,13 @@
 from config.fd_markets import (
     FD_DEFAULT_SCRAPE_MARKETS,
     FD_MLB_DEFAULT_SCRAPE_MARKETS,
+    FD_MLB_MILESTONE_MARKETS,
     canonical_to_tab_for_league,
     default_scrape_markets_for_league,
     is_core_ou_market,
+    milestone_markets_for_league,
+    milestone_threshold_to_line,
+    parse_player_milestone_market_type,
     parse_player_ou_market_type,
     tab_for_canonical_market,
 )
@@ -34,6 +38,49 @@ def test_mlb_parse_pitcher_strikeouts_market_type():
     ) == ("strikeouts", False)
     assert parse_player_ou_market_type("PITCHER_C_STRIKEOUTS", league="mlb") is None
     assert parse_player_ou_market_type("TO_RECORD_2+_HITS", league="mlb") is None
+
+
+def test_mlb_parse_player_milestone_market_type():
+    assert parse_player_milestone_market_type(
+        "TO_RECORD_2+_TOTAL_BASES", league="mlb"
+    ) == ("total_bases", 2)
+    assert parse_player_milestone_market_type(
+        "TO_RECORD_3+_TOTAL_BASES", league="mlb"
+    ) == ("total_bases", 3)
+    assert parse_player_milestone_market_type(
+        "PLAYER_TO_RECORD_A_HIT", league="mlb"
+    ) == ("hits", 1)
+    assert parse_player_milestone_market_type(
+        "PLAYER_TO_RECORD_2+_HITS", league="mlb"
+    ) == ("hits", 2)
+    assert parse_player_milestone_market_type(
+        "TO_RECORD_A_RUN", league="mlb"
+    ) == ("runs", 1)
+    assert parse_player_milestone_market_type(
+        "TO_RECORD_AN_RBI", league="mlb"
+    ) == ("rbi", 1)
+    assert parse_player_milestone_market_type(
+        "PLAYER_TO_RECORD_1+_HITS+RUNS+RBIS", league="mlb"
+    ) == ("h+r+rbi", 1)
+    assert parse_player_milestone_market_type(
+        "TO_RECORD_A_STOLEN_BASE", league="mlb"
+    ) is None
+    assert parse_player_milestone_market_type(
+        "PITCHER_C_TOTAL_STRIKEOUTS", league="mlb"
+    ) is None
+    assert parse_player_milestone_market_type(
+        "TO_SCORE_25+_POINTS", league="nba"
+    ) is None
+
+
+def test_milestone_threshold_to_line():
+    assert milestone_threshold_to_line(1) == 0.5
+    assert milestone_threshold_to_line(3) == 2.5
+
+
+def test_mlb_milestone_markets_registry():
+    assert "total_bases" in FD_MLB_MILESTONE_MARKETS
+    assert milestone_markets_for_league("nba") == ()
 
 
 def test_mlb_tab_for_strikeouts():

@@ -92,3 +92,35 @@ def test_parse_fd_props_propagates_league_from_grouped_ladder():
     assert len(rows) == 1
     assert rows[0]["league"] == "MLB"
     assert rows[0]["line_kind"] == "ou"
+
+
+def test_parse_fd_props_milestone_fields_survive_normalization():
+    grouped = [
+        {
+            "sportsbook": "FanDuel",
+            "player": "Vladimir Guerrero Jr.",
+            "market": "total_bases",
+            "line_kind": "milestone",
+            "league": "MLB",
+            "lines": [
+                {
+                    "line": 1.5,
+                    "milestone_threshold": 2,
+                    "over_odds": 120,
+                    "under_odds": None,
+                    "is_main_line": False,
+                    "market_type": "TO_RECORD_2+_TOTAL_BASES",
+                }
+            ],
+        }
+    ]
+    rows = parse_fd_props(grouped)
+    assert len(rows) == 1
+    assert rows[0]["line_kind"] == "milestone"
+    assert rows[0]["milestone_threshold"] == 2
+    assert rows[0]["under_odds"] is None
+
+    normalized = normalize_platform("fanduel", grouped)
+    assert normalized[0]["line_kind"] == "milestone"
+    assert normalized[0]["milestone_threshold"] == 2
+    assert normalized[0]["under_odds"] is None

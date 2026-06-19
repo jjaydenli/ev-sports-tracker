@@ -118,9 +118,21 @@ FD_EXTENDED_OU_MARKETS_BY_LEAGUE: dict[str, tuple[str, ...]] = {
     "mlb": (),
 }
 
+FD_MLB_MILESTONE_MARKETS: tuple[str, ...] = (
+    "hits",
+    "total_bases",
+    "runs",
+    "rbi",
+    "h+r+rbi",
+)
+
 FD_DEFAULT_SCRAPE_MARKETS_BY_LEAGUE: dict[str, tuple[str, ...]] = {
     "nba": FD_DEFAULT_SCRAPE_MARKETS,
     "mlb": FD_MLB_DEFAULT_SCRAPE_MARKETS,
+}
+
+FD_MILESTONE_MARKETS_BY_LEAGUE: dict[str, tuple[str, ...]] = {
+    "mlb": FD_MLB_MILESTONE_MARKETS,
 }
 
 _STAT_SUFFIX_TO_CANONICAL_BY_LEAGUE: dict[str, tuple[tuple[str, str], ...]] = {
@@ -143,6 +155,21 @@ FD_BATTER_OU_MARKET_RE = re.compile(
     r"^BATTER_[A-Z]_TOTAL_(?P<stat>.+)$"
 )
 
+# TO_RECORD_2+_TOTAL_BASES / TO_RECORD_A_RUN / TO_RECORD_AN_RBI (MLB milestones)
+FD_TO_RECORD_MILESTONE_RE = re.compile(
+    r"^TO_RECORD_(?P<threshold>\d+)\+_(?P<stat>.+)$"
+)
+FD_TO_RECORD_SINGULAR_MILESTONE_RE = re.compile(
+    r"^TO_RECORD_(?:A|AN)_(?P<stat>.+)$"
+)
+FD_PLAYER_TO_RECORD_HIT_RE = re.compile(r"^PLAYER_TO_RECORD_A_HIT$")
+FD_PLAYER_TO_RECORD_HITS_RE = re.compile(
+    r"^PLAYER_TO_RECORD_(?P<threshold>\d+)\+_HITS$"
+)
+FD_PLAYER_TO_RECORD_HRR_RE = re.compile(
+    r"^PLAYER_TO_RECORD_(?P<threshold>\d+)\+_HITS\+RUNS\+RBIS$"
+)
+
 
 def _league_key(league: str) -> str:
     return league.lower()
@@ -162,6 +189,15 @@ def extended_ou_markets_for_league(league: str = "nba") -> tuple[str, ...]:
 
 def default_scrape_markets_for_league(league: str = "nba") -> tuple[str, ...]:
     return FD_DEFAULT_SCRAPE_MARKETS_BY_LEAGUE[_league_key(league)]
+
+
+def milestone_markets_for_league(league: str = "nba") -> tuple[str, ...]:
+    return FD_MILESTONE_MARKETS_BY_LEAGUE.get(_league_key(league), ())
+
+
+def milestone_threshold_to_line(threshold: int) -> float:
+    """Map FD N+ milestone to Betr half-point line (N+ -> line N - 0.5)."""
+    return float(threshold) - 0.5
 
 
 def canonical_to_tab_for_league(league: str = "nba") -> dict[str, str]:
@@ -198,6 +234,53 @@ def _canonical_for_stat_suffix(stat_suffix: str, *, league: str = "nba") -> str 
     return None
 
 
+def parse_player_milestone_market_type(
+    market_type: str,
+    *,
+    league: str = "nba",
+) -> tuple[str, int] | None:
+    """
+    Return (canonical_market, threshold) for a FanDuel MLB milestone marketType.
+
+    Returns None for O/U boards, unmapped stats, and non-MLB leagues.
+    """
+    if _league_key(league) != "mlb":
+        return None
+
+    text = market_type or ""
+
+    match = FD_PLAYER_TO_RECORD_HIT_RE.match(text)
+    if match:
+        return "hits", 1
+
+    match = FD_PLAYER_TO_RECORD_HITS_RE.match(text)
+    if match:
+        return "hits", int(match.group("threshold"))
+
+    match = FD_PLAYER_TO_RECORD_HRR_RE.match(text)
+    if match:
+        return "h+r+rbi", int(match.group("threshold"))
+
+    match = FD_TO_RECORD_MILESTONE_RE.match(text)
+    if match:
+        stat = _canonical_for_stat_suffix(match.group("stat"), league=league)
+        if not stat:
+            return None
+        return stat, int(match.group("threshold"))
+
+    match = FD_TO_RECORD_SINGULAR_MILESTONE_RE.match(text)
+    if match:
+        stat_suffix = match.group("stat")
+        if stat_suffix == "RUN":
+            stat_suffix = "RUNS"
+        stat = _canonical_for_stat_suffix(stat_suffix, league=league)
+        if not stat:
+            return None
+        return stat, 1
+
+    return None
+
+
 def parse_player_ou_market_type(
     market_type: str,
     *,
@@ -230,6 +313,22 @@ def parse_player_ou_market_type(
         return stat, False
 
     return None
+
+
+def is_player_milestone_market_for_tab(
+    market_type: str,
+    tab: str,
+    *,
+    league: str = "nba",
+) -> bool:
+    """True when marketType is a milestone ladder row for this tab's stat family."""
+    parsed = parse_player_milestone_market_type(market_type, league=league)
+    if not parsed:
+        return False
+    market, _ = parsed
+    if is_multi_market_tab(tab, league=league):
+        return market in tab_markets_for_league(league).get(tab, ()) or market in milestone_markets_for_league(league)
+    return market == canonical_market_for_tab(tab, league=league)
 
 
 def is_player_ou_market_for_tab(

@@ -20,12 +20,15 @@ from config.fd_markets import (
     canonical_market_for_tab,
     is_multi_market_tab,
     is_player_ou_market_for_tab,
+    milestone_threshold_to_line,
+    parse_player_milestone_market_type,
     parse_player_ou_market_type,
 )
 from utils.formatting import normalize_odds_string
 
 FD_SPORTSBOOK = "FanDuel"
 LINE_KIND_OU = "ou"
+LINE_KIND_MILESTONE = "milestone"
 
 RUNNER_SIDE_LINE_RE = re.compile(
     r"^(?P<player>.+?)\s+(?P<side>Over|Under)(?:\s+(?P<line>\d+(?:\.\d+)?))?$",
@@ -283,11 +286,70 @@ def flatten_player_ou_market(
     return props
 
 
+def flatten_player_milestone_market(
+    fd_market: dict[str, Any],
+    *,
+    event_id: str,
+    tab: str,
+    league: str = "nba",
+) -> list[dict[str, Any]]:
+    """Flatten one FanDuel MLB milestone (N+) market into master-board rows."""
+    market_type = str(fd_market.get("marketType") or "")
+    parsed = parse_player_milestone_market_type(market_type, league=league)
+    if not parsed:
+        return []
+
+    canonical_market, threshold = parsed
+    market_id = str(fd_market.get("marketId") or "")
+    runners = fd_market.get("runners") or []
+    line = milestone_threshold_to_line(threshold)
+    props: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, float, str]] = set()
+
+    for runner in runners:
+        if not runner.get("isPlayerSelection"):
+            continue
+        player = str(runner.get("runnerName") or "").strip()
+        over_odds = parse_fd_american_odds(runner)
+        if not player or over_odds is None:
+            continue
+
+        dedupe_key = (player, canonical_market, line, LINE_KIND_MILESTONE)
+        if dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+
+        props.append(
+            {
+                "sportsbook": FD_SPORTSBOOK,
+                "event_id": event_id,
+                "tab": tab,
+                "market_id": market_id,
+                "market_type": market_type,
+                "player": player,
+                "market": canonical_market,
+                "line": line,
+                "line_kind": LINE_KIND_MILESTONE,
+                "milestone_threshold": threshold,
+                "over_odds": over_odds,
+                "under_odds": None,
+                "is_main_line": threshold == 1,
+            }
+        )
+
+    return props
+
+
 def merge_prop_rows(props: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Dedupe rows by player/market/line; prefer is_main_line when main and alt overlap."""
-    merged: dict[tuple[str, str, float], dict[str, Any]] = {}
+    """Dedupe rows by player/market/line/line_kind; prefer is_main_line when overlapping."""
+    merged: dict[tuple[str, str, float, str], dict[str, Any]] = {}
     for prop in props:
-        key = (prop["player"], prop["market"], float(prop["line"]))
+        key = (
+            prop["player"],
+            prop["market"],
+            float(prop["line"]),
+            prop.get("line_kind", LINE_KIND_OU),
+        )
         existing = merged.get(key)
         if existing is None or (
             prop.get("is_main_line") and not existing.get("is_main_line")
@@ -303,10 +365,11 @@ def group_fd_line_rows(line_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     Each prop carries a ``lines`` ladder (main + alts). Downstream normalization
     expands these back to line-level rows for ``build_player_market_ladder``.
     """
-    grouped: dict[tuple[str, str, str], dict[str, Any]] = {}
+    grouped: dict[tuple[str, str, str, str], dict[str, Any]] = {}
 
     for row in line_rows:
-        key = (str(row["event_id"]), row["player"], row["market"])
+        line_kind = row.get("line_kind", LINE_KIND_OU)
+        key = (str(row["event_id"]), row["player"], row["market"], line_kind)
         prop = grouped.get(key)
         if prop is None:
             prop = {
@@ -315,21 +378,22 @@ def group_fd_line_rows(line_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
                 "tab": row.get("tab"),
                 "player": row["player"],
                 "market": row["market"],
-                "line_kind": row.get("line_kind", LINE_KIND_OU),
+                "line_kind": line_kind,
                 "lines": [],
             }
             grouped[key] = prop
 
-        prop["lines"].append(
-            {
-                "line": float(row["line"]),
-                "over_odds": row["over_odds"],
-                "under_odds": row["under_odds"],
-                "is_main_line": bool(row.get("is_main_line", False)),
-                "market_id": row.get("market_id"),
-                "market_type": row.get("market_type"),
-            }
-        )
+        line_entry: dict[str, Any] = {
+            "line": float(row["line"]),
+            "over_odds": row["over_odds"],
+            "under_odds": row["under_odds"],
+            "is_main_line": bool(row.get("is_main_line", False)),
+            "market_id": row.get("market_id"),
+            "market_type": row.get("market_type"),
+        }
+        if row.get("milestone_threshold") is not None:
+            line_entry["milestone_threshold"] = row["milestone_threshold"]
+        prop["lines"].append(line_entry)
 
     for prop in grouped.values():
         prop["lines"].sort(
@@ -367,10 +431,10 @@ def flatten_event_page_response(
     league: str = "nba",
 ) -> list[dict[str, Any]]:
     """
-    Flatten FanDuel event-page attachments.markets into grouped O/U master-board props.
+    Flatten FanDuel event-page attachments.markets into grouped master-board props.
 
-    Uses main (PLAYER_*_TOTAL_* / PITCHER_*_TOTAL_*) and alt ladders only.
-    Skips milestones (TO_SCORE_*), game lines, and quarter props.
+    Uses main (PLAYER_*_TOTAL_* / PITCHER_*_TOTAL_*) and alt O/U ladders, plus MLB
+    milestone (TO_RECORD_* / PLAYER_TO_RECORD_*) one-sided N+ boards.
     """
     if event_page_in_play(payload, event_id):
         logger.info(f"skip in-play fanduel event {event_id}")
@@ -385,20 +449,34 @@ def flatten_event_page_response(
         for fd_market in fd_markets.values():
             market_type = str(fd_market.get("marketType") or "")
             parsed = parse_player_ou_market_type(market_type, league=league)
-            if not parsed:
-                continue
-            canonical_market, _ = parsed
-            if allowed is not None and canonical_market not in allowed:
-                continue
-            line_rows.extend(
-                flatten_player_ou_market(
-                    fd_market,
-                    event_id=event_id,
-                    tab=tab,
-                    canonical_market=canonical_market,
-                    league=league,
+            if parsed:
+                canonical_market, _ = parsed
+                if allowed is not None and canonical_market not in allowed:
+                    continue
+                line_rows.extend(
+                    flatten_player_ou_market(
+                        fd_market,
+                        event_id=event_id,
+                        tab=tab,
+                        canonical_market=canonical_market,
+                        league=league,
+                    )
                 )
-            )
+                continue
+
+            parsed_ms = parse_player_milestone_market_type(market_type, league=league)
+            if parsed_ms:
+                canonical_market, _ = parsed_ms
+                if allowed is not None and canonical_market not in allowed:
+                    continue
+                line_rows.extend(
+                    flatten_player_milestone_market(
+                        fd_market,
+                        event_id=event_id,
+                        tab=tab,
+                        league=league,
+                    )
+                )
     else:
         canonical_market = canonical_market_for_tab(tab, league=league)
         if not canonical_market:

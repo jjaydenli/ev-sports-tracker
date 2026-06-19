@@ -8,15 +8,22 @@ from core.engine import find_ev_opportunities, normalize_player_name
 from core.ev_display import format_ev_opportunity_row
 from core.line_adjustment import (
     build_milestone_ladder,
+    build_milestone_ladders,
     build_player_market_ladder,
     devig_milestone_fair_over,
     estimate_ou_hold,
     is_ev_eligible_quote,
+    merge_milestone_ladders,
     resolve_sharp_quote,
 )
+from parsers.fd_parser import parse_fd_props
+from scrapers.sportsbooks.fd_api import flatten_event_page_response
 from utils.math_utils import american_to_implied, implied_to_american
 
 _FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "dk_milestone_ladder.json"
+_FD_MILESTONE_FIXTURE = (
+    Path(__file__).resolve().parents[1] / "fixtures" / "fd_event_35733870_milestones.json"
+)
 
 
 @pytest.fixture
@@ -338,3 +345,245 @@ def test_cli_renders_milestone_src_badge():
     }
     line = format_ev_opportunity_row(row)
     assert "ms🔶" in line
+
+
+def test_fd_milestone_admitted_on_ev_board():
+    payload = json.loads(_FD_MILESTONE_FIXTURE.read_text(encoding="utf-8"))
+    grouped = flatten_event_page_response(
+        payload,
+        event_id="35733870",
+        tab="batter-props",
+        markets={"total_bases"},
+        league="mlb",
+    )
+    fd_props = parse_fd_props(grouped)
+    for prop in fd_props:
+        prop["league"] = "MLB"
+        if prop["line"] == 1.5 and prop["milestone_threshold"] == 2:
+            prop["over_odds"] = -350
+
+    betr = [
+        {
+            "sportsbook": "Betr",
+            "player": "Vladimir Guerrero Jr.",
+            "market": "total_bases",
+            "line": 1.5,
+            "over_odds": -120,
+            "under_odds": -120,
+        }
+    ]
+    results = find_ev_opportunities(betr, [], fanduel_props=fd_props, min_ev=0.0)
+    over_rows = [row for row in results if row["side"] == "over"]
+    assert over_rows
+    row = over_rows[0]
+    assert row["milestone_admitted"] is True
+    assert row["not_true_devig"] is True
+    assert row["sharp_books"] == ["FanDuel"]
+    assert row["fd_over_odds"] is not None
+    assert row["dk_over_odds"] is None
+    assert "ms🔶" in format_ev_opportunity_row(row)
+
+
+def test_fd_ou_preferred_over_fd_milestone():
+    ou_ladder = build_player_market_ladder(
+        [
+            {
+                "player": "Vladimir Guerrero Jr.",
+                "market": "hits",
+                "line": 0.5,
+                "over_odds": -120,
+                "under_odds": -110,
+                "is_main_line": True,
+                "sportsbook": "FanDuel",
+            }
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    milestone_ladder = build_milestone_ladder(
+        [
+            {
+                "player": "Vladimir Guerrero Jr.",
+                "market": "hits",
+                "line": 0.5,
+                "line_kind": "milestone",
+                "milestone_threshold": 1,
+                "over_odds": -270,
+                "sportsbook": "FanDuel",
+            }
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    betr = {
+        "player": "Vladimir Guerrero Jr.",
+        "market": "hits",
+        "line": 0.5,
+        "over_odds": -120,
+        "under_odds": -120,
+    }
+    quote, _ = resolve_sharp_quote(
+        betr,
+        ou_ladder,
+        normalize_player_name=normalize_player_name,
+        milestone_ladder=milestone_ladder,
+    )
+    assert quote is not None
+    assert quote.adjustment_method == "exact"
+    assert quote.dk_line_kind == "ou"
+
+
+def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
+    """Full runs should still show admitted FD milestones flagged ms🔶."""
+    betr = [
+        {
+            "sportsbook": "Betr",
+            "player": "Junior Perez",
+            "market": "h+r+rbi",
+            "line": 0.5,
+            "league": "MLB",
+            "over_odds": -120,
+            "under_odds": -120,
+        }
+    ]
+    dk = [
+        {
+            "sportsbook": "DraftKings",
+            "player": "Junior Perez",
+            "market": "h+r+rbi",
+            "line": 0.5,
+            "over_odds": -130,
+            "under_odds": -110,
+            "is_main_line": True,
+        }
+    ]
+    fd = [
+        {
+            "sportsbook": "FanDuel",
+            "player": "Junior Perez",
+            "market": "h+r+rbi",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "milestone_threshold": 1,
+            "over_odds": -220,
+        }
+    ]
+    results = find_ev_opportunities(betr, dk, fanduel_props=fd, min_ev=0.0)
+    over_rows = [row for row in results if row["side"] == "over"]
+    assert len(over_rows) == 2
+    sources = {row["line_source"] for row in over_rows}
+    assert "exact" in sources
+    assert "dk_milestone_exact" in sources
+    milestone_row = next(
+        row for row in over_rows if row["line_source"] == "dk_milestone_exact"
+    )
+    assert milestone_row["milestone_admitted"] is True
+    assert milestone_row["not_true_devig"] is True
+    assert milestone_row["sharp_books"] == ["FanDuel"]
+    assert milestone_row["fd_over_odds"] == -220
+    assert milestone_row["dk_over_odds"] is None
+    assert "ms🔶" in format_ev_opportunity_row(milestone_row)
+
+
+def test_dk_milestone_wins_when_fd_collides_at_same_line():
+    """DK milestone must not be replaced by FD at the same threshold."""
+    ou_ladder = build_player_market_ladder([], normalize_player_name=normalize_player_name)
+    props = [
+        {
+            "player": "Junior Perez",
+            "market": "h+r+rbi",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "milestone_threshold": 1,
+            "over_odds": -114,
+            "sportsbook": "DraftKings",
+        },
+        {
+            "player": "Junior Perez",
+            "market": "h+r+rbi",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "milestone_threshold": 1,
+            "over_odds": -165,
+            "sportsbook": "FanDuel",
+        },
+    ]
+    milestone_ladder = merge_milestone_ladders(
+        build_milestone_ladders(props, normalize_player_name=normalize_player_name)
+    )
+    betr = {
+        "player": "Junior Perez",
+        "market": "h+r+rbi",
+        "line": 0.5,
+        "over_odds": -120,
+        "under_odds": -120,
+    }
+    quote, _ = resolve_sharp_quote(
+        betr,
+        ou_ladder,
+        normalize_player_name=normalize_player_name,
+        milestone_ladder=milestone_ladder,
+    )
+    assert quote is not None
+    assert quote.sharp_books == ("DraftKings",)
+    assert quote.dk_over_odds == -114
+    assert quote.fd_over_odds is None
+
+
+def test_junior_perez_dk_milestone_used_when_ou_only_at_15():
+    """Betr 0.5 gap-fill resolves DK 1+ milestone (-114), not FD (-165)."""
+    ou_ladder = build_player_market_ladder(
+        [
+            {
+                "sportsbook": "DraftKings",
+                "player": "Junior Perez",
+                "market": "h+r+rbi",
+                "line": 1.5,
+                "over_odds": -114,
+                "under_odds": -117,
+                "is_main_line": True,
+            }
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    milestone_ladder = merge_milestone_ladders(
+        build_milestone_ladders(
+            [
+                {
+                    "sportsbook": "DraftKings",
+                    "player": "Junior Perez",
+                    "market": "h+r+rbi",
+                    "line": 0.5,
+                    "line_kind": "milestone",
+                    "milestone_threshold": 1,
+                    "over_odds": -114,
+                },
+                {
+                    "sportsbook": "FanDuel",
+                    "player": "Junior Perez",
+                    "market": "h+r+rbi",
+                    "line": 0.5,
+                    "line_kind": "milestone",
+                    "milestone_threshold": 1,
+                    "over_odds": -165,
+                },
+            ],
+            normalize_player_name=normalize_player_name,
+        )
+    )
+    betr = {
+        "player": "Junior Perez",
+        "market": "h+r+rbi",
+        "line": 0.5,
+        "over_odds": -120,
+        "under_odds": -120,
+    }
+    quote, _ = resolve_sharp_quote(
+        betr,
+        ou_ladder,
+        normalize_player_name=normalize_player_name,
+        milestone_ladder=milestone_ladder,
+    )
+    assert quote is not None
+    assert quote.adjustment_method == "dk_milestone_exact"
+    assert quote.sharp_books == ("DraftKings",)
+    assert quote.dk_over_odds == -114
+    assert quote.fd_over_odds is None

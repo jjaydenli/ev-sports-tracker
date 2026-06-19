@@ -9,13 +9,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Require archived plan on shipping PRs
+        if: github.event_name == 'pull_request'
+        run: ./scripts/check_plan_archived.sh ${{ github.event.pull_request.base.sha }}
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: pip install -r requirements.txt
-      - run: pytest -q
+      - name: Install dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+      - name: Run tests
+        working-directory: backend
+        run: pytest -q

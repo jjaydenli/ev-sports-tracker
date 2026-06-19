@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-18 (milestone `N+` admission onto +EV board — hold-aware de-vig + dynamic fair-over gate in `line_adjustment.py`; `ms🔶` Src badge)
+**Last verified:** 2026-06-19 (plan handoff archive enforced pre-PR via `check_plan_archived.sh` in CI + `open_pr.sh`; post-merge archive workflow removed)
 
 ## 1. Project Overview
 
@@ -73,7 +73,12 @@ ev-sports-tracker/
 │   ├── rules/                  # path-scoped: backend/**, docs/plans/**
 │   └── skills/design-handoff/  # plan-file workflow → docs/plans/
 ├── docs/
-│   ├── plans/                  # _template.md, _example.md, feature handoffs
+│   ├── plans/                  # active handoffs (_template.md, _example.md); archive/ for shipped specs
+├── scripts/
+│   ├── archive_plan.sh         # move shipped handoff → docs/plans/archive/ (+ link rewrites)
+│   ├── check_plan_archived.sh  # pre-PR / CI guard — fails shipping PRs with active handoffs
+│   └── open_pr.sh              # PR title/body + push; calls check before create/push
+├── .github/workflows/ci.yml    # PR: check_plan_archived.sh then backend pytest -q
 ├── ev                            # bash wrapper → backend pipeline_runner (same flags)
 └── backend/
     ├── config/
@@ -176,6 +181,7 @@ ev-sports-tracker/
 * Betr Keycloak auth probe: `python -m scrapers.dfs.betr.betr_auth` (`--try-grant`); refresh grant is the documented default — [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 * Betr Keycloak `.env.example` defaults: public token URL (`account.betr.app/realms/betr/…`); `BETR_KEYCLOAK_CLIENT_ID=betr-rn` for fantasy.betr.app (refresh tokens client-bound; code default `betr-web` if unset).
 * Multi-book consensus weights: `load_sharp_book_weights()` in `line_adjustment.py` — `SHARP_BOOK_WEIGHTS_DK` / `SHARP_BOOK_WEIGHTS_FD` env vars (default 1.0 each).
+* **Plan archive enforcement (pre-PR):** `scripts/archive_plan.sh` moves shipped handoffs to `docs/plans/archive/`; `scripts/check_plan_archived.sh` + `open_pr.sh` + CI block shipping PRs with active handoffs (replaces post-merge `archive-plan` workflow).
 * **MLB live batter props (DK):** DK pregame+live event discovery; `DK_MLB_LIVE_STAT_CATEGORIES` + `configured_live_stat_categories_for_league` (8/8 live batter IDs incl. `walks` `9536`); `is_live` through DK parser → `ev_opportunities.json` + **Live** column in `ev_display` — [docs/plans/archive/mlb-live-props-dk.md](docs/plans/archive/mlb-live-props-dk.md).
 * **Betr live MLB props (headers + engine):** App-parity GraphQL headers in `BETR_BASE_HEADERS` (`jurisdiction`, `channel`, `fantasy-api-version`, etc.) — same `LeagueUpcomingEvents` / `getUpcomingEventsV2` returns `IN_PROGRESS` + `isLive=true` (not a separate operation). `iter_live_events` / `extract_raw_props` merge scheduled + live; `betr_api` status/isLive probe; `is_live` through parser → EV — [docs/betting_odds/betr.md](docs/betting_odds/betr.md) (headers), [docs/plans/betr-live-events-feed.md](docs/plans/betr-live-events-feed.md) (resolved; fixture refresh optional).
 * **DK live subCategoryId probe tooling:** `dk_subcategory_discovery.py`; `probe_dk_subcategories --league mlb --live --discover`; `probe_dk_discover --live` — live MLB tabs use different IDs than pregame ([mlb.md](docs/betting_odds/mlb.md)).

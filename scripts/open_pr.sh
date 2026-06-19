@@ -14,6 +14,7 @@ cd "$REPO_ROOT"
 BASE_BRANCH="main"
 MODE="auto"
 DO_PUSH=0
+SKIP_PLAN_CHECK=0
 
 usage() {
   cat <<'EOF'
@@ -24,12 +25,16 @@ Usage: ./scripts/open_pr.sh [options] [base-branch]
   Compare URLs without body= merge commit text with pull_request_template.md
   and leave Summary/Commits blank — the script always includes body=.
 
+  Shipping PRs must archive active plan handoffs first (enforced here and in CI):
+    ./scripts/archive_plan.sh docs/plans/<feature>.md
+
 Options:
-  --browser   Same as default (prefilled create-PR page)
-  --create    Auto-create/update PR via gh and open the finished PR page
-  --manual    Print compare URL only; do not push or open browser
-  --push      Push branch only (with --manual, skip opening PR)
-  -h, --help  Show this help
+  --browser          Same as default (prefilled create-PR page)
+  --create           Auto-create/update PR via gh and open the finished PR page
+  --manual           Print compare URL only; do not push or open browser
+  --push             Push branch only (with --manual, skip opening PR)
+  --skip-plan-check  Bypass plan archive guard (design-only PRs pass CI anyway)
+  -h, --help         Show this help
 
 Examples:
   ./scripts/open_pr.sh
@@ -45,6 +50,7 @@ while [[ $# -gt 0 ]]; do
     --create) MODE="create"; shift ;;
     --manual) MODE="manual"; shift ;;
     --push) DO_PUSH=1; shift ;;
+    --skip-plan-check) SKIP_PLAN_CHECK=1; shift ;;
     -h | --help)
       usage
       exit 0
@@ -280,6 +286,10 @@ browser_open_create_page() {
 
 TITLE="$(pick_pr_title)"
 BODY="$(build_pr_body)"
+
+if [[ "$SKIP_PLAN_CHECK" == 0 ]]; then
+  ./scripts/check_plan_archived.sh "$LOG_BASE"
+fi
 
 resolve_mode
 

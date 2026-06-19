@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import unicodedata
+
 # Column order for pipeline_runner / run_ev_scan console table.
 EV_TABLE_HEADERS: tuple[str, ...] = (
     "Player",
@@ -24,6 +26,7 @@ EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 4, 10, 4, 5, 5, 10, 10, 9, 4)
 _LINE_SOURCE_DISPLAY: dict[str, str] = {
     "multi_book_consensus": "mb_cons",
     "dk_milestone_exact": "ms🔶",
+    "ou_ms_combo": "ou+ms🔶",
 }
 
 
@@ -34,21 +37,45 @@ def format_american_odds(value: int | None) -> str:
     return f"+{value}" if value > 0 else str(value)
 
 
-def format_ou_odds(over: int | None, under: int | None) -> str:
-    """Format paired O/U American odds (+110/-140)."""
+def format_ou_odds(
+    over: int | None,
+    under: int | None,
+    *,
+    milestone_one_sided: bool = False,
+) -> str:
+    """Format paired O/U American odds (+110/-140); milestone one-sided uses 🔶."""
     if over is None and under is None:
         return "—"
-    return f"{format_american_odds(over)}/{format_american_odds(under)}"
+    under_text = "🔶" if milestone_one_sided and under is None else format_american_odds(under)
+    return f"{format_american_odds(over)}/{under_text}"
 
 
 def _format_line_source(value: str) -> str:
     return _LINE_SOURCE_DISPLAY.get(value, value)
 
 
+def _display_width(text: str) -> int:
+    """Terminal column count (wide chars such as emoji count as 2)."""
+    width = 0
+    for ch in text:
+        if unicodedata.east_asian_width(ch) in ("F", "W"):
+            width += 2
+        else:
+            width += 1
+    return width
+
+
 def _cell(text: str, width: int) -> str:
-    if len(text) > width:
-        return text[: width - 1] + "…"
-    return text.ljust(width)
+    if _display_width(text) > width:
+        trimmed = ""
+        budget = width - 1
+        for ch in text:
+            ch_width = 2 if unicodedata.east_asian_width(ch) in ("F", "W") else 1
+            if _display_width(trimmed) + ch_width > budget:
+                break
+            trimmed += ch
+        return trimmed + "…"
+    return text + (" " * (width - _display_width(text)))
 
 
 def format_ev_table_header() -> str:
@@ -82,8 +109,16 @@ def format_ev_opportunity_row(row: dict) -> str:
         line_text,
         hit_text,
         ev_text,
-        format_ou_odds(row.get("dk_over_odds"), row.get("dk_under_odds")),
-        format_ou_odds(row.get("fd_over_odds"), row.get("fd_under_odds")),
+        format_ou_odds(
+            row.get("dk_over_odds"),
+            row.get("dk_under_odds"),
+            milestone_one_sided=bool(row.get("dk_milestone_one_sided")),
+        ),
+        format_ou_odds(
+            row.get("fd_over_odds"),
+            row.get("fd_under_odds"),
+            milestone_one_sided=bool(row.get("fd_milestone_one_sided")),
+        ),
         _format_line_source(str(row.get("line_source", ""))),
         live_text,
     )

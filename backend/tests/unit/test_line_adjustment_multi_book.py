@@ -3,6 +3,7 @@ import pytest
 from core.engine import find_ev_opportunities, normalize_player_name
 from core.line_adjustment import (
     _consensus_sharp_quote,
+    build_milestone_ladders,
     build_player_market_ladder,
     load_sharp_book_weights,
     resolve_multi_book_sharp_quote,
@@ -141,7 +142,8 @@ def test_fd_exact_preferred_over_dk_interpolation():
     )
 
     assert quote is not None
-    assert quote.adjustment_method == "fd_alt"
+    assert quote.adjustment_method == "dk_interpolated"
+    assert quote.dk_over_odds is not None
     assert quote.fd_over_odds == -115
 
 
@@ -157,3 +159,45 @@ def test_fd_only_exact_unlocks_ev_when_dk_missing():
     assert results[0]["fd_over_odds"] == -140
     assert results[0]["dk_over_odds"] is None
     assert results[0]["sharp_books"] == ["FanDuel"]
+
+
+def test_dk_ou_plus_fd_milestone_assembles_one_combo_quote():
+    betr = _betr("Junior Perez", "h+r+rbi", 0.5)
+    dk_ladder = build_player_market_ladder(
+        [_dk("Junior Perez", "h+r+rbi", 0.5, -114, -117)],
+        normalize_player_name=normalize_player_name,
+    )
+    fd_ladder = build_player_market_ladder([], normalize_player_name=normalize_player_name)
+    fd_ms = build_milestone_ladders(
+        [
+            {
+                "player": "Junior Perez",
+                "market": "h+r+rbi",
+                "line": 0.5,
+                "line_kind": "milestone",
+                "milestone_threshold": 1,
+                "over_odds": -165,
+                "sportsbook": "FanDuel",
+            }
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+
+    quote, reason = resolve_multi_book_sharp_quote(
+        betr,
+        dk_ladder,
+        fd_ladder,
+        normalize_player_name=normalize_player_name,
+        fd_milestone_ladder=fd_ms.get("FanDuel"),
+    )
+
+    assert reason is None
+    assert quote is not None
+    assert quote.adjustment_method == "ou_ms_combo"
+    assert quote.dk_over_odds == -114
+    assert quote.dk_under_odds == -117
+    assert quote.fd_over_odds == -165
+    assert quote.fd_under_odds is None
+    assert quote.fd_milestone_one_sided is True
+    assert quote.over_odds == -114
+    assert quote.under_odds == -117

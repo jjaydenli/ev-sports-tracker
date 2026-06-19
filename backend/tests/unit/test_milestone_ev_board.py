@@ -432,7 +432,7 @@ def test_fd_ou_preferred_over_fd_milestone():
 
 
 def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
-    """Full runs should still show admitted FD milestones flagged ms🔶."""
+    """DK O/U + FD milestone at same line → one combo row, EV from DK O/U."""
     betr = [
         {
             "sportsbook": "Betr",
@@ -468,19 +468,19 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
     ]
     results = find_ev_opportunities(betr, dk, fanduel_props=fd, min_ev=0.0)
     over_rows = [row for row in results if row["side"] == "over"]
-    assert len(over_rows) == 2
-    sources = {row["line_source"] for row in over_rows}
-    assert "exact" in sources
-    assert "dk_milestone_exact" in sources
-    milestone_row = next(
-        row for row in over_rows if row["line_source"] == "dk_milestone_exact"
-    )
-    assert milestone_row["milestone_admitted"] is True
-    assert milestone_row["not_true_devig"] is True
-    assert milestone_row["sharp_books"] == ["FanDuel"]
-    assert milestone_row["fd_over_odds"] == -220
-    assert milestone_row["dk_over_odds"] is None
-    assert "ms🔶" in format_ev_opportunity_row(milestone_row)
+    assert len(over_rows) == 1
+    row = over_rows[0]
+    assert row["line_source"] == "ou_ms_combo"
+    assert row["dk_over_odds"] == -130
+    assert row["dk_under_odds"] == -110
+    assert row["fd_over_odds"] == -220
+    assert row["fd_under_odds"] is None
+    assert row["fd_milestone_one_sided"] is True
+    assert row["not_true_devig"] is False
+    assert row["sharp_books"] == ["DraftKings", "FanDuel"]
+    line = format_ev_opportunity_row(row)
+    assert "ou+ms🔶" in line
+    assert "-220/🔶" in line
 
 
 def test_dk_milestone_wins_when_fd_collides_at_same_line():

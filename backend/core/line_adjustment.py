@@ -74,6 +74,7 @@ class ResolvedSharpQuote:
     corroborated: bool
     dk_main_line: float | None
     dk_line_kind: DkLineKind = "ou"
+    fd_line_kind: DkLineKind = "ou"
     dk_over_odds: int | None = None
     dk_under_odds: int | None = None
     fd_over_odds: int | None = None
@@ -81,10 +82,17 @@ class ResolvedSharpQuote:
     sharp_books: tuple[str, ...] = ()
     milestone_admitted: bool = False
     milestone_devig_method: str | None = None
+    dk_milestone_one_sided: bool = False
+    fd_milestone_one_sided: bool = False
+    dk_line_source: str | None = None
+    fd_line_source: str | None = None
+    sharp_by_book: tuple[tuple[str, str], ...] = ()
 
 
 def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
     """True when the sharp quote is eligible for +EV ranking."""
+    if quote.adjustment_method == "ou_ms_combo":
+        return True
     if quote.dk_line_kind == "milestone":
         return (
             quote.adjustment_method == "dk_milestone_exact"
@@ -697,6 +705,234 @@ def _resolve_fd_exact_quote(
     )
 
 
+def _is_eligible_ou_quote(quote: ResolvedSharpQuote) -> bool:
+    """True when the book quote is eligible O/U for EV (not milestone)."""
+    return (
+        quote.dk_line_kind == "ou"
+        and quote.adjustment_method in EV_ELIGIBLE_ADJUSTMENT_METHODS
+    )
+
+
+def _is_exact_ou_at_target(quote: ResolvedSharpQuote) -> bool:
+    return (
+        quote.dk_line_kind == "ou"
+        and quote.adjustment_method in EXACT_AT_TARGET_METHODS
+    )
+
+
+def _book_quote_display_odds(
+    quote: ResolvedSharpQuote | None,
+    book: str,
+) -> tuple[int | None, int | None, DkLineKind, bool, str | None]:
+    """Per-book column odds, line kind, milestone-one-sided flag, and method."""
+    if quote is None:
+        return None, None, "ou", False, None
+    method = quote.adjustment_method
+    if quote.dk_line_kind == "milestone":
+        if book == "FanDuel":
+            over = quote.fd_over_odds
+            under = quote.fd_under_odds
+        else:
+            over = quote.dk_over_odds
+            under = quote.dk_under_odds
+        return over, under, "milestone", over is not None and under is None, method
+    if book == "FanDuel":
+        over = quote.fd_over_odds if quote.fd_over_odds is not None else quote.over_odds
+        under = (
+            quote.fd_under_odds if quote.fd_under_odds is not None else quote.under_odds
+        )
+    else:
+        over = quote.dk_over_odds if quote.dk_over_odds is not None else quote.over_odds
+        under = (
+            quote.dk_under_odds if quote.dk_under_odds is not None else quote.under_odds
+        )
+    return over, under, "ou", False, method
+
+
+def _milestone_exact_for_display(quote: ResolvedSharpQuote | None) -> bool:
+    """True when the book has an exact milestone at the Betr line (display-only ok)."""
+    return (
+        quote is not None
+        and quote.dk_line_kind == "milestone"
+        and quote.adjustment_method == "dk_milestone_exact"
+    )
+
+
+def _assemble_multi_book_quote(
+    *,
+    betr_line: float,
+    dk_book_quote: ResolvedSharpQuote | None,
+    fd_book_quote: ResolvedSharpQuote | None,
+) -> ResolvedSharpQuote | None:
+    """Compose per-book columns and pick EV source per locked policy."""
+    dk_over, dk_under, dk_kind, dk_ms_one, dk_method = _book_quote_display_odds(
+        dk_book_quote, "DraftKings"
+    )
+    fd_over, fd_under, fd_kind, fd_ms_one, fd_method = _book_quote_display_odds(
+        fd_book_quote, "FanDuel"
+    )
+
+    dk_exact = dk_book_quote is not None and _is_exact_ou_at_target(dk_book_quote)
+    fd_exact = fd_book_quote is not None and _is_exact_ou_at_target(fd_book_quote)
+    dk_eligible_ou = dk_book_quote is not None and _is_eligible_ou_quote(dk_book_quote)
+    fd_eligible_ou = fd_book_quote is not None and _is_eligible_ou_quote(fd_book_quote)
+
+    ev_quote: ResolvedSharpQuote | None = None
+    line_source: str | None = None
+
+    if dk_exact and fd_exact and dk_book_quote is not None and fd_book_quote is not None:
+        consensus = _consensus_sharp_quote(
+            betr_line=betr_line,
+            dk_quote=dk_book_quote,
+            fd_quote=fd_book_quote,
+        )
+        return ResolvedSharpQuote(
+            over_odds=consensus.over_odds,
+            under_odds=consensus.under_odds,
+            dk_line=betr_line,
+            betr_line=betr_line,
+            adjustment_method="multi_book_consensus",
+            corroborated=True,
+            dk_main_line=dk_book_quote.dk_main_line,
+            dk_line_kind="ou",
+            fd_line_kind="ou",
+            dk_over_odds=dk_over,
+            dk_under_odds=dk_under,
+            fd_over_odds=fd_over,
+            fd_under_odds=fd_under,
+            sharp_books=("DraftKings", "FanDuel"),
+            dk_line_source=dk_method,
+            fd_line_source=fd_method,
+            sharp_by_book=(
+                ("DraftKings", dk_method or "exact"),
+                ("FanDuel", fd_method or "fd_exact"),
+            ),
+        )
+
+    if dk_eligible_ou and dk_book_quote is not None:
+        ev_quote = dk_book_quote
+        line_source = dk_book_quote.adjustment_method
+    elif fd_eligible_ou and fd_book_quote is not None:
+        ev_quote = fd_book_quote
+        line_source = fd_book_quote.adjustment_method
+    elif (
+        dk_book_quote is not None
+        and is_ev_eligible_quote(dk_book_quote)
+        and dk_book_quote.dk_line_kind == "milestone"
+    ):
+        ev_quote = dk_book_quote
+        line_source = "dk_milestone_exact"
+    elif (
+        fd_book_quote is not None
+        and is_ev_eligible_quote(fd_book_quote)
+        and fd_book_quote.dk_line_kind == "milestone"
+    ):
+        ev_quote = fd_book_quote
+        line_source = "dk_milestone_exact"
+    else:
+        return None
+
+    dk_has_ms_display = _milestone_exact_for_display(dk_book_quote)
+    fd_has_ms_display = _milestone_exact_for_display(fd_book_quote)
+    ev_from_ou = ev_quote is not None and ev_quote.dk_line_kind == "ou"
+    other_ms_only = (
+        (ev_from_ou and dk_eligible_ou and fd_has_ms_display and not fd_eligible_ou)
+        or (ev_from_ou and fd_eligible_ou and dk_has_ms_display and not dk_eligible_ou)
+    )
+    if other_ms_only:
+        line_source = "ou_ms_combo"
+
+    sharp_books: list[str] = []
+    sharp_by_book: list[tuple[str, str]] = []
+    if dk_book_quote is not None and (dk_over is not None or dk_under is not None):
+        sharp_books.append("DraftKings")
+        if dk_method:
+            sharp_by_book.append(("DraftKings", dk_method))
+    if fd_book_quote is not None and (fd_over is not None or fd_under is not None):
+        sharp_books.append("FanDuel")
+        if fd_method:
+            sharp_by_book.append(("FanDuel", fd_method))
+
+    assert ev_quote is not None and line_source is not None
+    return ResolvedSharpQuote(
+        over_odds=ev_quote.over_odds,
+        under_odds=ev_quote.under_odds,
+        dk_line=ev_quote.dk_line,
+        betr_line=betr_line,
+        adjustment_method=line_source,
+        corroborated=ev_quote.corroborated,
+        dk_main_line=ev_quote.dk_main_line,
+        dk_line_kind=dk_kind,
+        fd_line_kind=fd_kind,
+        dk_over_odds=dk_over,
+        dk_under_odds=dk_under,
+        fd_over_odds=fd_over,
+        fd_under_odds=fd_under,
+        sharp_books=tuple(sharp_books),
+        milestone_admitted=ev_quote.milestone_admitted,
+        milestone_devig_method=ev_quote.milestone_devig_method,
+        dk_milestone_one_sided=dk_ms_one,
+        fd_milestone_one_sided=fd_ms_one,
+        dk_line_source=dk_method,
+        fd_line_source=fd_method,
+        sharp_by_book=tuple(sharp_by_book),
+    )
+
+
+def resolve_book_sharp_quote(
+    book: str,
+    betr_prop: dict,
+    ou_ladder: dict[str, dict[float, dict[str, Any]]],
+    milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None,
+    *,
+    normalize_player_name,
+    ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]] | None = None,
+) -> tuple[ResolvedSharpQuote | None, str | None]:
+    """Resolve one sharp book: O/U first, milestone when O/U missing or extrapolated only."""
+    if book == "FanDuel":
+        ou_quote, reason = _resolve_fd_exact_quote(
+            betr_prop,
+            ou_ladder,
+            normalize_player_name=normalize_player_name,
+        )
+        use_milestone = milestone_ladder and ou_quote is None
+        if use_milestone:
+            milestone_quote, milestone_reason = _resolve_milestone_ladder(
+                betr_prop,
+                milestone_ladder,
+                normalize_player_name=normalize_player_name,
+                ou_ladders=ou_ladders,
+                hold_source_book_only=True,
+            )
+            if milestone_quote is not None:
+                return milestone_quote, None
+            return None, milestone_reason or reason
+        return ou_quote, reason
+
+    ou_quote, ou_reason = _resolve_ou_ladder(
+        betr_prop, ou_ladder, normalize_player_name=normalize_player_name
+    )
+    use_milestone = milestone_ladder and (
+        ou_quote is None or ou_quote.adjustment_method == "dk_extrapolated"
+    )
+    if use_milestone:
+        milestone_ou_ladders = ou_ladders or {book: ou_ladder}
+        milestone_quote, milestone_reason = _resolve_milestone_ladder(
+            betr_prop,
+            milestone_ladder,
+            normalize_player_name=normalize_player_name,
+            ou_ladders=milestone_ou_ladders,
+            hold_source_book_only=True,
+        )
+        if milestone_quote is not None:
+            return milestone_quote, None
+        if ou_quote is None:
+            return None, milestone_reason or ou_reason
+    if ou_quote is not None:
+        return ou_quote, None
+    return None, ou_reason or "no_dk_market"
+
+
 def _consensus_sharp_quote(
     *,
     betr_line: float,
@@ -741,71 +977,44 @@ def resolve_multi_book_sharp_quote(
     *,
     normalize_player_name,
     milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
+    dk_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
+    fd_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """
-    Resolve DK + FanDuel sharp prices for a Betr prop.
+    Resolve DK + FanDuel sharp prices independently per book, assemble one quote.
 
-    FanDuel contributes exact main/alt lines only. When both books have exact
-    O/U at the Betr line, fair probs are de-vigged per book and combined with
-    configurable weight (see load_sharp_book_weights — extend when adding books).
+    Each book prefers O/U (exact/alt/interpolated for DK; exact/alt for FD), else
+    milestone when O/U is missing or DK-extrapolated only. EV from consensus when
+    both exact O/U, else best eligible O/U (DK preferred), else admitted milestone.
+    Cross-book milestone is display-only when the other book supplies EV O/U.
     """
-    dk_quote, dk_reason = resolve_sharp_quote(
+    dk_ms = dk_milestone_ladder if dk_milestone_ladder is not None else milestone_ladder
+    fd_ms = fd_milestone_ladder if fd_milestone_ladder is not None else {}
+    ou_ladders = {"DraftKings": dk_ou_ladder, "FanDuel": fd_ou_ladder}
+
+    dk_quote, dk_reason = resolve_book_sharp_quote(
+        "DraftKings",
         betr_prop,
         dk_ou_ladder,
+        dk_ms,
         normalize_player_name=normalize_player_name,
-        milestone_ladder=milestone_ladder,
-        ou_ladders={"DraftKings": dk_ou_ladder, "FanDuel": fd_ou_ladder},
+        ou_ladders=ou_ladders,
     )
-    fd_quote, fd_reason = _resolve_fd_exact_quote(
+    fd_quote, fd_reason = resolve_book_sharp_quote(
+        "FanDuel",
         betr_prop,
         fd_ou_ladder,
+        fd_ms or None,
         normalize_player_name=normalize_player_name,
+        ou_ladders=ou_ladders,
     )
 
-    dk_exact = (
-        dk_quote is not None
-        and dk_quote.adjustment_method in EXACT_AT_TARGET_METHODS
-        and dk_quote.dk_line_kind == "ou"
+    target_line = float(betr_prop["line"])
+    assembled = _assemble_multi_book_quote(
+        betr_line=target_line,
+        dk_book_quote=dk_quote,
+        fd_book_quote=fd_quote,
     )
-    fd_exact = fd_quote is not None
-
-    if dk_exact and fd_exact and dk_quote is not None and fd_quote is not None:
-        target_line = float(betr_prop["line"])
-        return (
-            _consensus_sharp_quote(
-                betr_line=target_line,
-                dk_quote=dk_quote,
-                fd_quote=fd_quote,
-            ),
-            None,
-        )
-
-    if fd_exact and fd_quote is not None:
-        if dk_quote is None or dk_quote.adjustment_method == "dk_interpolated":
-            return fd_quote, None
-        if not is_ev_eligible_quote(dk_quote):
-            return fd_quote, None
-
-    if dk_quote is not None:
-        if dk_quote.adjustment_method in {"exact", "dk_alt", "dk_interpolated"}:
-            enriched = ResolvedSharpQuote(
-                over_odds=dk_quote.over_odds,
-                under_odds=dk_quote.under_odds,
-                dk_line=dk_quote.dk_line,
-                betr_line=dk_quote.betr_line,
-                adjustment_method=dk_quote.adjustment_method,
-                corroborated=dk_quote.corroborated,
-                dk_main_line=dk_quote.dk_main_line,
-                dk_line_kind=dk_quote.dk_line_kind,
-                dk_over_odds=dk_quote.over_odds,
-                dk_under_odds=dk_quote.under_odds,
-                sharp_books=("DraftKings",),
-            )
-            return enriched, None
-        if is_ev_eligible_quote(dk_quote):
-            return dk_quote, None
-        return None, "no_exact_sharp_line"
-
-    if fd_quote is not None:
-        return fd_quote, None
+    if assembled is not None:
+        return assembled, None
     return None, fd_reason or dk_reason or "no_sharp_market"

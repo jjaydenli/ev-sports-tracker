@@ -14,7 +14,6 @@ from core.line_adjustment import (
     build_player_market_ladder,
     is_ev_eligible_quote,
     merge_milestone_ladders,
-    resolve_admitted_milestone_quote,
     resolve_multi_book_sharp_quote,
     resolve_sharp_quote,
 )
@@ -140,9 +139,13 @@ def _append_side_opportunity(
 ) -> None:
     ev = calculate_ev(fair_prob, breakeven_prob)
     no_vig_side, no_vig_prob = _favored_no_vig(fair_over, fair_under)
-    undisclosed_vig_caveat = resolved.dk_line_kind == "milestone"
+    ev_from_milestone = resolved.adjustment_method == "dk_milestone_exact"
+    undisclosed_vig_caveat = ev_from_milestone
     plus_ev = ev > min_ev
     dk_over, dk_under, fd_over, fd_under = _book_odds_from_resolved(resolved)
+    sharp_by_book = (
+        dict(resolved.sharp_by_book) if resolved.sharp_by_book else None
+    )
 
     opportunities.append(
         {
@@ -172,12 +175,18 @@ def _append_side_opportunity(
             "line_source": resolved.adjustment_method,
             "corroborated": resolved.corroborated,
             "dk_line_kind": resolved.dk_line_kind,
+            "fd_line_kind": resolved.fd_line_kind,
+            "dk_milestone_one_sided": resolved.dk_milestone_one_sided,
+            "fd_milestone_one_sided": resolved.fd_milestone_one_sided,
+            "dk_line_source": resolved.dk_line_source,
+            "fd_line_source": resolved.fd_line_source,
+            "sharp_by_book": sharp_by_book,
             "dk_quote_one_sided": undisclosed_vig_caveat,
             "undisclosed_vig_caveat": undisclosed_vig_caveat,
             "plus_ev_milestone_caveat": undisclosed_vig_caveat and plus_ev,
             "milestone_devig_method": resolved.milestone_devig_method,
             "milestone_admitted": resolved.milestone_admitted,
-            "not_true_devig": resolved.dk_line_kind == "milestone",
+            "not_true_devig": ev_from_milestone,
             "dfs_sportsbook": dfs_prop.get("sportsbook", DEFAULT_DFS_SPORTSBOOK),
             "sharp_sportsbook": DEFAULT_SHARP_SPORTSBOOK,
             "is_live": dfs_prop.get("is_live", False),
@@ -250,6 +259,8 @@ def find_ev_opportunities(
                 fd_ou_ladder,
                 normalize_player_name=normalize_player_name,
                 milestone_ladder=milestone_ladder,
+                dk_milestone_ladder=milestone_ladders.get("DraftKings"),
+                fd_milestone_ladder=milestone_ladders.get("FanDuel"),
             )
         else:
             resolved, _reason = resolve_sharp_quote(
@@ -284,38 +295,6 @@ def find_ev_opportunities(
                     breakeven_prob=breakeven_prob,
                     fair_over=fair_over,
                     fair_under=fair_under,
-                    min_ev=min_ev,
-                )
-
-        # Admitted milestones from non-primary books (e.g. FD ms🔶 when DK O/U wins).
-        for book in ("FanDuel",):
-            book_milestone_ladder = milestone_ladders.get(book)
-            if not book_milestone_ladder:
-                continue
-            if (
-                resolved is not None
-                and resolved.dk_line_kind == "milestone"
-                and book in (resolved.sharp_books or ())
-            ):
-                continue
-            milestone_resolved = resolve_admitted_milestone_quote(
-                dfs_prop,
-                book_milestone_ladder,
-                normalize_player_name=normalize_player_name,
-                ou_ladders=ou_ladders,
-                hold_source_book_only=True,
-            )
-            if milestone_resolved is not None and dfs_prop.get("over_odds") is not None:
-                ms_fair_over, ms_fair_under = _fair_probs_from_resolved(milestone_resolved)
-                _append_side_opportunity(
-                    opportunities,
-                    dfs_prop=dfs_prop,
-                    resolved=milestone_resolved,
-                    side="over",
-                    fair_prob=ms_fair_over,
-                    breakeven_prob=breakeven_prob,
-                    fair_over=ms_fair_over,
-                    fair_under=ms_fair_under,
                     min_ev=min_ev,
                 )
 

@@ -1,4 +1,6 @@
 from core.ev_display import (
+    EV_TABLE_WIDTHS,
+    _display_width,
     format_ev_opportunity_row,
     format_ev_opportunities_table,
     format_ou_odds,
@@ -9,6 +11,35 @@ def test_format_ou_odds():
     assert format_ou_odds(110, -140) == "+110/-140"
     assert format_ou_odds(-110, -110) == "-110/-110"
     assert format_ou_odds(None, None) == "—"
+    assert format_ou_odds(-165, None, milestone_one_sided=True) == "-165/🔶"
+
+
+def _assert_row_column_widths(line: str) -> None:
+    cells = line.split(" | ")
+    assert len(cells) == len(EV_TABLE_WIDTHS)
+    for cell, width in zip(cells, EV_TABLE_WIDTHS, strict=True):
+        assert _display_width(cell) == width
+
+
+def test_format_ev_opportunity_row_ou_ms_combo_src():
+    row = {
+        "player": "Junior Perez",
+        "league": "MLB",
+        "side": "over",
+        "market": "h+r+rbi",
+        "line": 0.5,
+        "side_hit_pct": 55.0,
+        "dk_over_odds": -114,
+        "dk_under_odds": -117,
+        "fd_over_odds": -165,
+        "fd_under_odds": None,
+        "fd_milestone_one_sided": True,
+        "line_source": "ou_ms_combo",
+    }
+    line = format_ev_opportunity_row(row)
+    assert "ou+ms🔶" in line
+    assert "-165/🔶" in line
+    _assert_row_column_widths(line)
 
 
 def test_format_ev_opportunity_row_columns():
@@ -38,6 +69,7 @@ def test_format_ev_opportunity_row_columns():
     assert "-130/+110" in line
     assert "-125/+105" in line
     assert "mb_cons" in line
+    _assert_row_column_widths(line)
 
 
 def test_format_ev_opportunity_row_fd_only_shows_dk_dash():
@@ -59,6 +91,12 @@ def test_format_ev_opportunity_row_fd_only_shows_dk_dash():
     assert "—" in line
     assert "+100/-132" in line
     assert "fd_alt" in line
+
+
+def test_format_ev_table_header_column_widths():
+    from core.ev_display import format_ev_table_header
+
+    _assert_row_column_widths(format_ev_table_header())
 
 
 def test_format_ev_opportunities_table_includes_header():

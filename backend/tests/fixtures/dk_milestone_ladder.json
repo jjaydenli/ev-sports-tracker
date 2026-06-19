@@ -1,0 +1,44 @@
+{
+  "player": "Francisco Lindor",
+  "market": "hits",
+  "ou_rows": [
+    {
+      "line": 0.5,
+      "over_odds": -130,
+      "under_odds": 100,
+      "is_main_line": true
+    },
+    {
+      "line": 1.5,
+      "over_odds": 120,
+      "under_odds": -155,
+      "is_main_line": false
+    }
+  ],
+  "milestone_ladder": [
+    {
+      "line": 0.5,
+      "milestone_threshold": 1,
+      "over_odds": -400,
+      "is_main_line": true
+    },
+    {
+      "line": 1.5,
+      "milestone_threshold": 2,
+      "over_odds": -300,
+      "is_main_line": false
+    },
+    {
+      "line": 2.5,
+      "milestone_threshold": 3,
+      "over_odds": -350,
+      "is_main_line": false
+    }
+  ],
+  "lone_milestone": {
+    "line": 0.5,
+    "milestone_threshold": 1,
+    "over_odds": -180,
+    "is_main_line": true
+  }
+}

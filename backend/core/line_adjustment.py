@@ -79,14 +79,18 @@ class ResolvedSharpQuote:
     fd_over_odds: int | None = None
     fd_under_odds: int | None = None
     sharp_books: tuple[str, ...] = ()
+    milestone_admitted: bool = False
+    milestone_devig_method: str | None = None
 
 
 def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
-    """True when the sharp quote uses corroborated O/U at the Betr line (no extrapolation)."""
-    return (
-        quote.dk_line_kind == "ou"
-        and quote.adjustment_method in EV_ELIGIBLE_ADJUSTMENT_METHODS
-    )
+    """True when the sharp quote is eligible for +EV ranking."""
+    if quote.dk_line_kind == "milestone":
+        return (
+            quote.adjustment_method == "dk_milestone_exact"
+            and quote.milestone_admitted
+        )
+    return quote.adjustment_method in EV_ELIGIBLE_ADJUSTMENT_METHODS
 
 
 def _logit(probability: float) -> float:
@@ -138,13 +142,13 @@ def build_player_market_ladder(
 
 
 def build_milestone_ladder(
-    dk_props: list[dict],
+    sharp_props: list[dict],
     *,
     normalize_player_name,
 ) -> dict[str, dict[float, dict[str, Any]]]:
-    """Index DK milestone (N+) rows by player|market -> converted line -> over odds."""
+    """Index milestone (N+) rows by player|market -> converted line -> over odds."""
     ladder: dict[str, dict[float, dict[str, Any]]] = {}
-    for prop in dk_props:
+    for prop in sharp_props:
         if prop.get("line_kind") != "milestone":
             continue
         over_odds = prop.get("over_odds")
@@ -157,8 +161,111 @@ def build_milestone_ladder(
             "over_odds": int(over_odds),
             "milestone_threshold": prop.get("milestone_threshold"),
             "is_main_line": bool(prop.get("is_main_line", True)),
+            "sportsbook": prop.get("sportsbook", "DraftKings"),
         }
     return ladder
+
+
+def estimate_ou_hold(
+    ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]],
+    pm_key: str,
+    *,
+    preferred_book: str | None = None,
+) -> float | None:
+    """Average two-sided hold for a player|market across O/U rows; None when no O/U exists."""
+    book_order = list(ou_ladders.keys())
+    if preferred_book and preferred_book in ou_ladders:
+        book_order = [preferred_book] + [
+            book for book in book_order if book != preferred_book
+        ]
+
+    holds: list[float] = []
+    for book in book_order:
+        lines = ou_ladders.get(book, {}).get(pm_key)
+        if not lines:
+            continue
+        for row in lines.values():
+            over_odds = row.get("over_odds")
+            under_odds = row.get("under_odds")
+            if over_odds is None or under_odds is None:
+                continue
+            over_implied = american_to_implied(int(over_odds))
+            under_implied = american_to_implied(int(under_odds))
+            holds.append(over_implied + under_implied - 1.0)
+        if holds:
+            return sum(holds) / len(holds)
+    return None
+
+
+def _contiguous_milestone_segment(
+    sorted_lines: list[float],
+    target_line: float,
+    *,
+    step: float = 1.0,
+) -> list[float] | None:
+    """Return the contiguous ladder segment containing target_line, or None."""
+    if target_line not in sorted_lines:
+        return None
+    idx = sorted_lines.index(target_line)
+    start = idx
+    while start > 0 and abs(sorted_lines[start] - sorted_lines[start - 1] - step) < 1e-9:
+        start -= 1
+    end = idx
+    while (
+        end < len(sorted_lines) - 1
+        and abs(sorted_lines[end + 1] - sorted_lines[end] - step) < 1e-9
+    ):
+        end += 1
+    segment = sorted_lines[start : end + 1]
+    if len(segment) >= 2:
+        return segment
+    return None
+
+
+def _survival_at_line(
+    segment: list[float],
+    lines: dict[float, dict[str, Any]],
+    target_line: float,
+) -> float:
+    """Fair P(X >= threshold) from renormalized PMF masses on a milestone ladder."""
+    survivals = [american_to_implied(lines[line]["over_odds"]) for line in segment]
+    masses = [1.0 - survivals[0]]
+    masses.extend(s - survivals[i + 1] for i, s in enumerate(survivals[:-1]))
+    masses.append(survivals[-1])
+    masses = [max(0.0, mass) for mass in masses]
+    total = sum(masses)
+    if total <= 0:
+        return american_to_implied(lines[target_line]["over_odds"])
+    masses = [mass / total for mass in masses]
+    target_idx = segment.index(target_line)
+    if target_idx + 1 >= len(masses):
+        return masses[-1]
+    return sum(masses[target_idx + 1 :])
+
+
+def devig_milestone_fair_over(
+    lines: dict[float, dict[str, Any]],
+    target_line: float,
+    *,
+    market: str,
+    ou_hold: float | None,
+) -> tuple[float, str]:
+    """
+    De-vig a milestone over-only price via ladder normalization or hold shrink.
+
+    Returns (fair_over_probability, method_name).
+    """
+    from config.settings import MILESTONE_ASSUMED_HOLD
+
+    _ = market  # reserved for market-specific ladder steps if needed later
+    sorted_lines = sorted(lines.keys())
+    segment = _contiguous_milestone_segment(sorted_lines, target_line)
+    if segment is not None:
+        return _survival_at_line(segment, lines, target_line), "ladder_normalized"
+
+    raw = american_to_implied(lines[target_line]["over_odds"])
+    hold = ou_hold if ou_hold is not None else MILESTONE_ASSUMED_HOLD
+    return raw * (1.0 - hold / 2.0), "hold_shrink"
 
 
 def _fair_probs_from_odds(over_odds: int, under_odds: int) -> tuple[float, float]:
@@ -313,8 +420,11 @@ def _resolve_milestone_ladder(
     ladder: dict[str, dict[float, dict[str, Any]]],
     *,
     normalize_player_name,
+    ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]] | None = None,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
-    """Resolve using DK milestone (N+) over-only lines."""
+    """Resolve using milestone (N+) over-only lines."""
+    from config.settings import MILESTONE_MIN_FAIR_OVER
+
     player = normalize_player_name(betr_prop["player"])
     market = betr_prop["market"]
     target_line = float(betr_prop["line"])
@@ -330,9 +440,23 @@ def _resolve_milestone_ladder(
 
     if target_line in lines:
         row = lines[target_line]
+        source_book = row.get("sportsbook", "DraftKings")
+        preferred_hold = (
+            estimate_ou_hold(ou_ladders or {}, pm_key, preferred_book=source_book)
+            if ou_ladders
+            else None
+        )
+        fair_over, devig_method = devig_milestone_fair_over(
+            lines,
+            target_line,
+            market=market,
+            ou_hold=preferred_hold,
+        )
+        devigged_over, _ = _odds_from_fair_probs(fair_over, 1.0 - fair_over)
+        admitted = fair_over >= MILESTONE_MIN_FAIR_OVER
         return (
             ResolvedSharpQuote(
-                over_odds=row["over_odds"],
+                over_odds=devigged_over,
                 under_odds=None,
                 dk_line=target_line,
                 betr_line=target_line,
@@ -340,6 +464,10 @@ def _resolve_milestone_ladder(
                 corroborated=False,
                 dk_main_line=dk_main_line,
                 dk_line_kind="milestone",
+                dk_over_odds=row["over_odds"],
+                sharp_books=(source_book,),
+                milestone_admitted=admitted,
+                milestone_devig_method=devig_method,
             ),
             None,
         )
@@ -400,6 +528,7 @@ def resolve_sharp_quote(
     *,
     normalize_player_name,
     milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
+    ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]] | None = None,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """
     Resolve DK prices for a Betr prop.
@@ -416,10 +545,12 @@ def resolve_sharp_quote(
         or ou_quote.adjustment_method == "dk_extrapolated"
     )
     if use_milestone:
+        milestone_ou_ladders = ou_ladders or {"DraftKings": ou_ladder}
         milestone_quote, milestone_reason = _resolve_milestone_ladder(
             betr_prop,
             milestone_ladder,
             normalize_player_name=normalize_player_name,
+            ou_ladders=milestone_ou_ladders,
         )
         if milestone_quote is not None:
             return milestone_quote, None
@@ -529,6 +660,7 @@ def resolve_multi_book_sharp_quote(
         dk_ou_ladder,
         normalize_player_name=normalize_player_name,
         milestone_ladder=milestone_ladder,
+        ou_ladders={"DraftKings": dk_ou_ladder, "FanDuel": fd_ou_ladder},
     )
     fd_quote, fd_reason = _resolve_fd_exact_quote(
         betr_prop,

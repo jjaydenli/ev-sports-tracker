@@ -23,6 +23,7 @@ EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 4, 10, 4, 5, 5, 10, 10, 9, 4)
 # Shorter labels for console table (raw values still in JSON output).
 _LINE_SOURCE_DISPLAY: dict[str, str] = {
     "multi_book_consensus": "mb_cons",
+    "dk_milestone_exact": "ms🔶",
 }
 
 

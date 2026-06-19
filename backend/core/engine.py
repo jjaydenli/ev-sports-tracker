@@ -165,6 +165,9 @@ def _append_side_opportunity(
             "dk_quote_one_sided": undisclosed_vig_caveat,
             "undisclosed_vig_caveat": undisclosed_vig_caveat,
             "plus_ev_milestone_caveat": undisclosed_vig_caveat and plus_ev,
+            "milestone_devig_method": resolved.milestone_devig_method,
+            "milestone_admitted": resolved.milestone_admitted,
+            "not_true_devig": resolved.dk_line_kind == "milestone",
             "dfs_sportsbook": dfs_prop.get("sportsbook", DEFAULT_DFS_SPORTSBOOK),
             "sharp_sportsbook": DEFAULT_SHARP_SPORTSBOOK,
             "is_live": dfs_prop.get("is_live", False),
@@ -200,8 +203,19 @@ def find_ev_opportunities(
         if fanduel_props
         else {}
     )
+    sharp_milestone_props = [
+        prop
+        for prop in sportsbook_props
+        if prop.get("line_kind") == "milestone"
+    ]
+    if fanduel_props:
+        sharp_milestone_props.extend(
+            prop
+            for prop in fanduel_props
+            if prop.get("line_kind") == "milestone"
+        )
     milestone_ladder = build_milestone_ladder(
-        sportsbook_props, normalize_player_name=normalize_player_name
+        sharp_milestone_props, normalize_player_name=normalize_player_name
     )
     use_multi_book = bool(fanduel_props)
     opportunities: list[dict] = []
@@ -310,8 +324,19 @@ def _build_match_ladders(
         if fanduel_props
         else None
     )
+    sharp_milestone_props = [
+        prop
+        for prop in draftkings_props
+        if prop.get("line_kind") == "milestone"
+    ]
+    if fanduel_props:
+        sharp_milestone_props.extend(
+            prop
+            for prop in fanduel_props
+            if prop.get("line_kind") == "milestone"
+        )
     milestone_ladder = build_milestone_ladder(
-        draftkings_props, normalize_player_name=normalize_player_name
+        sharp_milestone_props, normalize_player_name=normalize_player_name
     )
     return ou_ladder, milestone_ladder, fd_ou_ladder
 

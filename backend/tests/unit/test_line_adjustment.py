@@ -121,7 +121,9 @@ def test_resolve_milestone_exact_at_betr_line():
     assert quote.adjustment_method == "dk_milestone_exact"
     assert quote.dk_line_kind == "milestone"
     assert quote.under_odds is None
-    assert quote.over_odds == 110
+    assert quote.dk_over_odds == 110
+    assert quote.over_odds != 110
+    assert quote.milestone_admitted is False
 
 
 def test_ou_preferred_over_milestone_when_exact_ou_exists():
@@ -308,7 +310,7 @@ def test_extrapolate_lower_line_increases_fair_over():
     assert lower_under < fair_under
 
 
-def test_find_ev_opportunities_skips_milestone_quote():
+def test_find_ev_opportunities_skips_non_admitted_milestone_quote():
     betr = [
         {
             "sportsbook": "Betr",
@@ -327,7 +329,7 @@ def test_find_ev_opportunities_skips_milestone_quote():
             "line": 1.5,
             "line_kind": "milestone",
             "milestone_threshold": 2,
-            "over_odds": -250,
+            "over_odds": 110,
         }
     ]
 

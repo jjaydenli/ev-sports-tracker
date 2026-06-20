@@ -5,6 +5,7 @@ from scrapers.dfs.betr.betr_engine import (
     BETR_LIVE_EVENT_STATUSES,
     extract_raw_props,
     iter_live_events,
+    iter_projections,
     iter_scheduled_events,
 )
 
@@ -53,6 +54,7 @@ def _scheduled_event(**overrides):
         "id": "6a0a88ac8e1ce70219715f9e",
         "name": "NY@CLE",
         "status": "SCHEDULED",
+        "date": "2026-06-19T23:00:00.000Z",
         "competitionType": "VERSUS",
         "playerStructure": "TEAM",
         "dataFeedSourceIds": [{"id": "13916387", "source": "BET_GENIUS"}],
@@ -113,6 +115,13 @@ def test_extract_raw_props_returns_raw_fields():
     assert prop["team_league"] == "NBA"
     assert prop["market_status"] == "OPENED"
     assert prop["is_live"] is False
+
+
+def test_iter_projections_yields_event_start_from_event_date():
+    event = _scheduled_event()
+    props = list(iter_projections(event))
+    assert len(props) == 1
+    assert props[0]["event_start"] == "2026-06-19T23:00:00.000Z"
 
 
 def test_extract_raw_props_includes_league_and_event_status():

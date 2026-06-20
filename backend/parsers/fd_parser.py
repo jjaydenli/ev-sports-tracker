@@ -49,6 +49,9 @@ def parse_fd_prop(raw_prop: dict) -> dict | None:
     league = raw_prop.get("league")
     if league:
         normalized["league"] = str(league).upper()
+    event_start = raw_prop.get("event_start")
+    if event_start:
+        normalized["event_start"] = str(event_start)
     return normalized
 
 
@@ -72,6 +75,9 @@ def parse_fd_props(raw_props: list[dict]) -> list[dict]:
         league = raw_prop.get("league")
         if league:
             base["league"] = str(league).upper()
+        event_start = raw_prop.get("event_start")
+        if event_start:
+            base["event_start"] = str(event_start)
         for line_row in _line_entries(raw_prop):
             merged = {**base, **line_row}
             prop = parse_fd_prop(merged)

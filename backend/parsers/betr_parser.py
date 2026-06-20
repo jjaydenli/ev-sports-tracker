@@ -129,6 +129,10 @@ def parse_betr_prop(raw_prop: dict) -> dict | None:
     if raw_prop.get("is_live"):
         normalized["is_live"] = True
 
+    event_start = raw_prop.get("event_start")
+    if event_start:
+        normalized["event_start"] = str(event_start)
+
     return normalized
 
 

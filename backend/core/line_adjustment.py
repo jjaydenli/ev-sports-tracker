@@ -124,6 +124,32 @@ def _shift_per_point(market: str) -> float:
     )
 
 
+def normalize_game_key(game: str) -> str:
+    """Canonical matchup key (e.g. CIN@NYY) for cross-book ladder lookup."""
+    return game.strip().upper()
+
+
+def build_player_market_key(
+    prop: dict,
+    *,
+    normalize_player_name,
+) -> str:
+    """
+    Player + market ladder key, optionally scoped by game and live snapshot.
+
+    Live Betr rows carry ``is_live``; sharp books tag live DK rows the same way.
+    Pregame rows omit the live suffix so back-to-back matchups (same teams, different
+    dates) do not collide with in-progress DFS props.
+    """
+    key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
+    game = prop.get("game")
+    if game:
+        key = f"{key}|{normalize_game_key(game)}"
+    if prop.get("is_live"):
+        key = f"{key}|live"
+    return key
+
+
 def build_player_market_ladder(
     dk_props: list[dict],
     *,
@@ -138,8 +164,7 @@ def build_player_market_ladder(
         under_odds = prop.get("under_odds")
         if over_odds is None or under_odds is None:
             continue
-        player = normalize_player_name(prop["player"])
-        pm_key = f"{player}|{prop['market']}"
+        pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
         ladder.setdefault(pm_key, {})[line] = {
             "over_odds": int(over_odds),
@@ -162,8 +187,7 @@ def build_milestone_ladder(
         over_odds = prop.get("over_odds")
         if over_odds is None:
             continue
-        player = normalize_player_name(prop["player"])
-        pm_key = f"{player}|{prop['market']}"
+        pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
         source_book = prop.get("sportsbook", "DraftKings")
         ladder.setdefault(pm_key, {})[line] = {
@@ -189,8 +213,7 @@ def build_milestone_ladders(
         if over_odds is None:
             continue
         source_book = prop.get("sportsbook", "DraftKings")
-        player = normalize_player_name(prop["player"])
-        pm_key = f"{player}|{prop['market']}"
+        pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
         ladders.setdefault(source_book, {}).setdefault(pm_key, {})[line] = {
             "over_odds": int(over_odds),
@@ -398,10 +421,11 @@ def _resolve_ou_ladder(
     normalize_player_name,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """Resolve using true O/U DK lines only."""
-    player = normalize_player_name(betr_prop["player"])
     market = betr_prop["market"]
     target_line = float(betr_prop["line"])
-    pm_key = f"{player}|{market}"
+    pm_key = build_player_market_key(
+        betr_prop, normalize_player_name=normalize_player_name
+    )
     lines = ladder.get(pm_key)
     if not lines:
         return None, "no_dk_market"
@@ -500,10 +524,11 @@ def _resolve_milestone_ladder(
     """Resolve using milestone (N+) over-only lines."""
     from config.settings import MILESTONE_MIN_FAIR_OVER
 
-    player = normalize_player_name(betr_prop["player"])
     market = betr_prop["market"]
     target_line = float(betr_prop["line"])
-    pm_key = f"{player}|{market}"
+    pm_key = build_player_market_key(
+        betr_prop, normalize_player_name=normalize_player_name
+    )
     lines = ladder.get(pm_key)
     if not lines:
         return None, "no_dk_market"
@@ -671,10 +696,10 @@ def _resolve_fd_exact_quote(
     normalize_player_name,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """Resolve FanDuel O/U only when an exact alt or main line exists at the Betr line."""
-    player = normalize_player_name(betr_prop["player"])
-    market = betr_prop["market"]
     target_line = float(betr_prop["line"])
-    pm_key = f"{player}|{market}"
+    pm_key = build_player_market_key(
+        betr_prop, normalize_player_name=normalize_player_name
+    )
     lines = fd_ladder.get(pm_key)
     if not lines:
         return None, "no_fd_market"

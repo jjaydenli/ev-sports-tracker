@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from loguru import logger
+
 from core.flat_line import (
     adjusted_breakeven_probability,
     is_flat_line,
@@ -11,6 +13,7 @@ from core.line_adjustment import (
     ResolvedSharpQuote,
     build_milestone_ladder,
     build_milestone_ladders,
+    build_player_market_key as build_scoped_player_market_key,
     build_player_market_ladder,
     is_ev_eligible_quote,
     merge_milestone_ladders,
@@ -73,8 +76,56 @@ def build_prop_key(prop: dict) -> str:
 
 
 def build_player_market_key(prop: dict) -> str:
-    """Player + market key (line-agnostic)."""
-    return f"{normalize_player_name(prop['player'])}|{prop['market']}"
+    """Player + market key (line-agnostic), with optional game/live scope."""
+    return build_scoped_player_market_key(
+        prop, normalize_player_name=normalize_player_name
+    )
+
+
+def _hour_floor(iso: str) -> str:
+    """Hour-precision prefix of an ISO UTC timestamp (e.g. 2026-06-19T17)."""
+    return iso[:13] if iso else ""
+
+
+def _build_event_start_idx(props: list[dict]) -> dict[str, str]:
+    """Map player|market|line lookup key -> event_start; last occurrence wins (matches ladder)."""
+    idx: dict[str, str] = {}
+    for prop in props:
+        pm_key = build_player_market_key(prop)
+        lookup_key = f"{pm_key}|{float(prop['line'])}"
+        idx[lookup_key] = prop.get("event_start", "")
+    return idx
+
+
+def _event_start_hour_mismatch(
+    dfs_prop: dict,
+    resolved: ResolvedSharpQuote,
+    *,
+    dk_start_idx: dict[str, str],
+    fd_start_idx: dict[str, str],
+) -> bool:
+    """True when Betr and a contributing sharp book disagree on game-start hour."""
+    betr_start = dfs_prop.get("event_start", "")
+    if not betr_start:
+        return False
+
+    pm_key = build_player_market_key(dfs_prop)
+    lookup_key = f"{pm_key}|{resolved.dk_line}"
+    betr_hour = _hour_floor(betr_start)
+
+    books = tuple(resolved.sharp_books) if resolved.sharp_books else ("DraftKings",)
+    for book in books:
+        if book == "DraftKings":
+            sharp_start = dk_start_idx.get(lookup_key, "")
+        elif book == "FanDuel":
+            sharp_start = fd_start_idx.get(lookup_key, "")
+        else:
+            continue
+        if not sharp_start:
+            continue
+        if _hour_floor(sharp_start) != betr_hour:
+            return True
+    return False
 
 
 def index_props_by_key(props: list[dict]) -> dict[str, dict]:
@@ -190,6 +241,8 @@ def _append_side_opportunity(
             "dfs_sportsbook": dfs_prop.get("sportsbook", DEFAULT_DFS_SPORTSBOOK),
             "sharp_sportsbook": DEFAULT_SHARP_SPORTSBOOK,
             "is_live": dfs_prop.get("is_live", False),
+            "game": dfs_prop.get("game"),
+            "team": dfs_prop.get("team"),
         }
     )
 
@@ -241,6 +294,10 @@ def find_ev_opportunities(
     ou_ladders: dict[str, dict[str, dict[float, dict]]] = {"DraftKings": ou_ladder}
     if fanduel_props:
         ou_ladders["FanDuel"] = fd_ou_ladder
+    dk_start_idx = _build_event_start_idx(sportsbook_props)
+    fd_start_idx = (
+        _build_event_start_idx(fanduel_props) if fanduel_props else {}
+    )
     opportunities: list[dict] = []
 
     for dfs_prop in dfs_props:
@@ -271,6 +328,21 @@ def find_ev_opportunities(
                 ou_ladders=ou_ladders,
             )
         if resolved is not None and is_ev_eligible_quote(resolved):
+            if _event_start_hour_mismatch(
+                dfs_prop,
+                resolved,
+                dk_start_idx=dk_start_idx,
+                fd_start_idx=fd_start_idx,
+            ):
+                logger.debug(
+                    "skip EV: event_start hour mismatch betr={betr} sharp_line={line} "
+                    "player={player} market={market}",
+                    betr=dfs_prop.get("event_start"),
+                    line=resolved.dk_line,
+                    player=dfs_prop.get("player"),
+                    market=dfs_prop.get("market"),
+                )
+                continue
             fair_over, fair_under = _fair_probs_from_resolved(resolved)
 
             if dfs_prop.get("over_odds") is not None:

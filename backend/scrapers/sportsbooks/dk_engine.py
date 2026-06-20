@@ -18,6 +18,8 @@ from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.dk_api import (
     LIVE_EVENT_STATUSES,
     SCRAPABLE_EVENT_STATUSES,
+    build_event_game_map,
+    build_event_start_map,
     extract_event_ids,
     fetch_event_all_markets,
     fetch_league_events,
@@ -82,15 +84,17 @@ class DraftKingsEngine(BaseScraper):
 
     async def _resolve_event_ids(
         self, client: httpx.AsyncClient
-    ) -> tuple[list[str], set[str]]:
-        """Return (all_event_ids, live_event_ids). For MLB, discovers pregame + live."""
+    ) -> tuple[list[str], set[str], dict[str, str], dict[str, str]]:
+        """Return (all_event_ids, live_event_ids, event_id -> game map, event_id -> start)."""
         if self.explicit_event_ids:
-            return self.explicit_event_ids, set()
+            return self.explicit_event_ids, set(), {}, {}
 
         payload = await fetch_league_events(client, self.league)
         if not payload:
-            return [], set()
+            return [], set(), {}, {}
 
+        game_map = build_event_game_map(payload)
+        start_map = build_event_start_map(payload)
         if self.league.lower() == "mlb":
             all_ids = extract_event_ids(
                 payload, statuses=SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
@@ -104,7 +108,7 @@ class DraftKingsEngine(BaseScraper):
             f"discovered {len(all_ids)} {self.league.upper()} events from league slate "
             f"({len(live_ids)} live)"
         )
-        return all_ids, live_ids
+        return all_ids, live_ids, game_map, start_map
 
     async def scrape(self) -> list[dict[str, Any]]:
         scrape_categories = configured_stat_categories_for_league(self.league)
@@ -134,7 +138,9 @@ class DraftKingsEngine(BaseScraper):
             timeout=15.0,
             limits=HTTPX_LIMITS,
         ) as client:
-            event_ids, live_event_ids = await self._resolve_event_ids(client)
+            event_ids, live_event_ids, event_game_map, event_start_map = (
+                await self._resolve_event_ids(client)
+            )
             if not event_ids:
                 logger.warning("No DraftKings event IDs available to scrape.")
                 return []
@@ -179,6 +185,13 @@ class DraftKingsEngine(BaseScraper):
                 continue
             for row in result:
                 row["league"] = self.league.upper()
+                row["event_id"] = event_id
+                game = event_game_map.get(event_id)
+                if game:
+                    row["game"] = game
+                event_start = event_start_map.get(event_id, "")
+                if event_start:
+                    row["event_start"] = event_start
                 if is_live:
                     row["is_live"] = True
                 all_props.append(row)

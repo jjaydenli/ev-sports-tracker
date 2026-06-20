@@ -463,6 +463,51 @@ def extract_event_ids(
     return event_ids
 
 
+def game_key_from_dk_event(event: dict[str, Any]) -> str | None:
+    """Build Betr-style matchup key (AWAY@HOME) from a DK slate event row."""
+    away = home = None
+    for participant in event.get("participants") or []:
+        if participant.get("type") != "Team":
+            continue
+        abbrev = (participant.get("metadata") or {}).get("shortName")
+        if not abbrev:
+            continue
+        role = participant.get("venueRole")
+        if role == "Away":
+            away = str(abbrev).upper()
+        elif role == "Home":
+            home = str(abbrev).upper()
+    if away and home:
+        return f"{away}@{home}"
+    return None
+
+
+def build_event_game_map(payload: dict[str, Any]) -> dict[str, str]:
+    """Map DK event_id -> AWAY@HOME for cross-book game scoping."""
+    mapping: dict[str, str] = {}
+    for event in payload.get("events") or []:
+        event_id = event.get("id")
+        if not event_id:
+            continue
+        game = game_key_from_dk_event(event)
+        if game:
+            mapping[str(event_id)] = game
+    return mapping
+
+
+def build_event_start_map(payload: dict[str, Any]) -> dict[str, str]:
+    """Map DK event_id -> UTC game start (startEventDate ISO timestamp)."""
+    mapping: dict[str, str] = {}
+    for event in payload.get("events") or []:
+        event_id = event.get("id")
+        if not event_id:
+            continue
+        start = event.get("startEventDate", "")
+        if start:
+            mapping[str(event_id)] = str(start)
+    return mapping
+
+
 async def fetch_league_events(
     client: httpx.AsyncClient,
     league: str = "nba",

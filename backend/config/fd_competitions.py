@@ -145,6 +145,31 @@ def extract_event_ids(
     return event_ids
 
 
+def build_event_start_map(
+    payload: dict[str, Any],
+    *,
+    competition_id: str | None = None,
+    require_matchup: bool = True,
+) -> dict[str, str]:
+    """Map FanDuel event_id -> UTC game start (openDate ISO timestamp)."""
+    allowed_ids = set(
+        extract_event_ids(
+            payload,
+            competition_id=competition_id,
+            require_matchup=require_matchup,
+        )
+    )
+    attachments = payload.get("attachments") or {}
+    events = attachments.get("events") or {}
+    mapping: dict[str, str] = {}
+    for event_id in allowed_ids:
+        event = events.get(event_id) or events.get(int(event_id)) or {}
+        open_date = event.get("openDate", "")
+        if open_date:
+            mapping[str(event_id)] = str(open_date)
+    return mapping
+
+
 def extract_event_summaries(
     payload: dict[str, Any],
     *,

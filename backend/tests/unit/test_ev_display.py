@@ -1,6 +1,7 @@
 from core.ev_display import (
     EV_TABLE_WIDTHS,
     _display_width,
+    _format_game,
     format_ev_opportunity_row,
     format_ev_opportunities_table,
     format_ou_odds,
@@ -25,6 +26,8 @@ def test_format_ev_opportunity_row_ou_ms_combo_src():
     row = {
         "player": "Junior Perez",
         "league": "MLB",
+        "game": "CIN@NYY",
+        "team": "CIN",
         "side": "over",
         "market": "h+r+rbi",
         "line": 0.5,
@@ -39,13 +42,24 @@ def test_format_ev_opportunity_row_ou_ms_combo_src():
     line = format_ev_opportunity_row(row)
     assert "ou+ms🔶" in line
     assert "-165/🔶" in line
+    assert "[CIN]@NYY" in line
     _assert_row_column_widths(line)
+
+
+def test_format_game_brackets_player_team():
+    assert _format_game("CIN@NYY", "CIN") == "[CIN]@NYY"
+    assert _format_game("CIN@NYY", "NYY") == "CIN@[NYY]"
+    assert _format_game("NY@CLE", "NY") == "[NY]@CLE"
+    assert _format_game(None, "CIN") == "—"
+    assert _format_game("CIN@NYY", None) == "CIN@NYY"
 
 
 def test_format_ev_opportunity_row_columns():
     row = {
         "player": "Shai Gilgeous-Alexander",
         "league": "nba",
+        "game": "OKC@DAL",
+        "team": "OKC",
         "side": "over",
         "market": "points",
         "line": 29.5,
@@ -103,6 +117,7 @@ def test_format_ev_opportunities_table_includes_header():
     table = format_ev_opportunities_table([])
     assert "Player" in table
     assert "Lg" in table
+    assert "Game" in table
     assert "Hit%" in table
     assert "EV%" in table
     assert "+EV" not in table
@@ -156,3 +171,4 @@ def test_format_ev_opportunity_row_missing_league_shows_dash():
     line = format_ev_opportunity_row(row)
     cells = [c.strip() for c in line.split("|")]
     assert cells[1] == "—"
+    assert cells[2] == "—"

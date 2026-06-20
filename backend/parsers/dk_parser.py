@@ -31,6 +31,15 @@ def parse_dk_prop(raw_prop: dict) -> dict | None:
     league = raw_prop.get("league")
     if league:
         normalized["league"] = str(league).upper()
+    event_id = raw_prop.get("event_id")
+    if event_id:
+        normalized["event_id"] = str(event_id)
+    game = raw_prop.get("game")
+    if game:
+        normalized["game"] = str(game).strip().upper()
+    event_start = raw_prop.get("event_start")
+    if event_start:
+        normalized["event_start"] = str(event_start)
     if raw_prop.get("is_live"):
         normalized["is_live"] = True
     return normalized

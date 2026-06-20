@@ -7,7 +7,12 @@ import httpx
 from loguru import logger
 
 from config.api_headers import FD_BASE_HEADERS
-from config.fd_competitions import FD_LEAGUE_SLATES, parse_event_id_from_url
+from config.fd_competitions import (
+    FD_LEAGUE_SLATES,
+    build_event_start_map,
+    extract_event_ids,
+    parse_event_id_from_url,
+)
 from config.fd_markets import (
     FD_SGP_TAB,
     default_scrape_markets_for_league,
@@ -21,7 +26,7 @@ from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.fd_api import (
     count_fd_line_rows,
     fetch_and_flatten_event_page,
-    fetch_league_event_ids,
+    fetch_league_events,
 )
 
 DEFAULT_CONCURRENCY = 8
@@ -98,18 +103,40 @@ class FanDuelEngine(BaseScraper):
         self.league = league
         self.markets = markets or list(default_scrape_markets_for_league(league))
         self.concurrency = concurrency
+        self._event_start_map: dict[str, str] = {}
 
     async def authenticate(self) -> str | None:
         return None
 
-    async def _resolve_event_ids(self, client: httpx.AsyncClient) -> list[str]:
+    async def _fetch_league_slate(
+        self, client: httpx.AsyncClient
+    ) -> tuple[list[str], dict[str, str]]:
         if self.explicit_event_ids:
-            return self.explicit_event_ids
+            return self.explicit_event_ids, {}
 
-        event_ids = await fetch_league_event_ids(client, self.league)
+        payload = await fetch_league_events(client, self.league)
+        if not payload:
+            return [], {}
+
+        slate = FD_LEAGUE_SLATES[self.league]
+        event_ids = extract_event_ids(
+            payload,
+            competition_id=slate["competition_id"],
+            require_matchup=True,
+        )
+        start_map = build_event_start_map(
+            payload,
+            competition_id=slate["competition_id"],
+            require_matchup=True,
+        )
         logger.info(
             f"discovered {len(event_ids)} {self.league.upper()} events from fanduel slate"
         )
+        return event_ids, start_map
+
+    async def _resolve_event_ids(self, client: httpx.AsyncClient) -> list[str]:
+        event_ids, start_map = await self._fetch_league_slate(client)
+        self._event_start_map = start_map
         return event_ids
 
     async def scrape(self) -> list[dict[str, Any]]:
@@ -160,6 +187,10 @@ class FanDuelEngine(BaseScraper):
                 continue
             for row in result:
                 row["league"] = self.league.upper()
+                event_id = str(row.get("event_id", ""))
+                event_start = self._event_start_map.get(event_id, "")
+                if event_start:
+                    row["event_start"] = event_start
                 all_props.append(row)
 
         line_count = count_fd_line_rows(all_props)

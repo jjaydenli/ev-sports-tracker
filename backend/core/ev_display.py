@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+import re
 import unicodedata
 
 # Column order for pipeline_runner / run_ev_scan console table.
 EV_TABLE_HEADERS: tuple[str, ...] = (
     "Player",
     "Lg",
+    "Game",
     "Side",
     "Stat",
     "Line",
@@ -20,7 +22,9 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
 )
 
 # Minimum column widths (excluding separator spaces). Stat widened for longer markets.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 4, 10, 4, 5, 5, 10, 10, 9, 4)
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 10, 4, 5, 5, 10, 10, 9, 4)
+
+_ANSI_ESCAPE = re.compile(r"\033\[[0-9;]*m")
 
 # Shorter labels for console table (raw values still in JSON output).
 _LINE_SOURCE_DISPLAY: dict[str, str] = {
@@ -54,10 +58,14 @@ def _format_line_source(value: str) -> str:
     return _LINE_SOURCE_DISPLAY.get(value, value)
 
 
+def _strip_ansi(text: str) -> str:
+    return _ANSI_ESCAPE.sub("", text)
+
+
 def _display_width(text: str) -> int:
     """Terminal column count (wide chars such as emoji count as 2)."""
     width = 0
-    for ch in text:
+    for ch in _strip_ansi(text):
         if unicodedata.east_asian_width(ch) in ("F", "W"):
             width += 2
         else:
@@ -91,8 +99,26 @@ def _format_league(value: str | None) -> str:
     return str(value).upper()
 
 
+def _format_game(game: str | None, team: str | None) -> str:
+    """Matchup (AWAY@HOME) with the player's team in brackets."""
+    if not game:
+        return "—"
+    game_text = str(game).strip()
+    if not team or "@" not in game_text:
+        return game_text
+    away, home = game_text.split("@", 1)
+    team_key = str(team).strip().upper()
+    away_key = away.strip().upper()
+    home_key = home.strip().upper()
+    if team_key == away_key:
+        return f"[{away}]@{home}"
+    if team_key == home_key:
+        return f"{away}@[{home}]"
+    return game_text
+
+
 def format_ev_opportunity_row(row: dict) -> str:
-    """One pipeline table row: player | lg | side | stat | line | hit% | ev | dk | fd | src | live."""
+    """One pipeline table row: player | lg | game | side | stat | line | hit% | ev | dk | fd | src | live."""
     line = row.get("line")
     line_text = str(int(line)) if line is not None and float(line) == int(float(line)) else str(line)
     hit_pct = row.get("side_hit_pct")
@@ -104,6 +130,7 @@ def format_ev_opportunity_row(row: dict) -> str:
     cells = (
         row.get("player", ""),
         _format_league(row.get("league")),
+        _format_game(row.get("game"), row.get("team")),
         str(row.get("side", "")).upper(),
         row.get("market", ""),
         line_text,

@@ -207,10 +207,126 @@ def test_ev_row_is_live_false_by_default():
 
 
 def test_ev_row_is_live_true_when_dfs_prop_is_live():
-    betr_live = {**_betr_prop("Test Player", "hits", 1.5), "is_live": True}
-    dk = [_dk_prop("Test Player", "hits", 1.5, -110, -110)]
+    betr_live = {
+        **_betr_prop("Test Player", "hits", 1.5),
+        "game": "CIN@NYY",
+        "is_live": True,
+    }
+    dk = [
+        {
+            **_dk_prop("Test Player", "hits", 1.5, -110, -110),
+            "game": "CIN@NYY",
+            "is_live": True,
+        }
+    ]
 
     results = find_ev_opportunities([betr_live], dk)
 
     assert results
     assert all(row["is_live"] is True for row in results)
+
+
+def test_live_betr_ignores_pregame_sharp_same_matchup():
+    """Live DFS rows must not pick up tomorrow's pregame sharp lines for the same teams."""
+    betr_live = {
+        **_betr_prop("Nathaniel Lowe", "hits", 0.5),
+        "league": "MLB",
+        "game": "CIN@NYY",
+        "is_live": True,
+    }
+    dk_pregame = {
+        **_dk_prop("Nathaniel Lowe", "hits", 0.5, -176, 132),
+        "league": "MLB",
+        "game": "CIN@NYY",
+    }
+    fd_pregame_milestone = {
+        "sportsbook": "FanDuel",
+        "player": "Nathaniel Lowe",
+        "market": "hits",
+        "line": 0.5,
+        "line_kind": "milestone",
+        "over_odds": -160,
+        "game": "CIN@NYY",
+        "league": "MLB",
+    }
+
+    results = find_ev_opportunities(
+        [betr_live],
+        [dk_pregame],
+        fanduel_props=[fd_pregame_milestone],
+        min_ev=0.0,
+    )
+
+    assert results == []
+
+
+def test_pregame_betr_matches_pregame_sharp_with_game_scope():
+    betr = {
+        **_betr_prop("Nathaniel Lowe", "hits", 0.5),
+        "league": "MLB",
+        "game": "CIN@NYY",
+    }
+    dk = {
+        **_dk_prop("Nathaniel Lowe", "hits", 0.5, -176, 132),
+        "league": "MLB",
+        "game": "CIN@NYY",
+    }
+
+    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
+
+    assert results
+    assert results[0]["dk_over_odds"] == -176
+
+
+def test_find_ev_opportunities_filters_mismatched_event_start_hour():
+    betr = _betr_prop("Test Player", "points", 20.5)
+    betr["event_start"] = "2026-06-19T23:00:00.000Z"
+    dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
+    dk["event_start"] = "2026-06-20T23:00:00.000Z"
+
+    assert find_ev_opportunities([betr], [dk], min_ev=0.0) == []
+
+
+def test_find_ev_opportunities_passes_matching_event_start_hour():
+    betr = _betr_prop("Test Player", "points", 20.5)
+    betr["event_start"] = "2026-06-19T23:05:00.000Z"
+    dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
+    dk["event_start"] = "2026-06-19T23:10:00.000Z"
+
+    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
+    assert results
+
+
+def test_find_ev_opportunities_passes_doubleheader_game_one_same_hour():
+    """Same-day doubleheader game 1: start times within the same hour pass."""
+    betr = _betr_prop("Test Player", "hits", 1.5)
+    betr["event_start"] = "2026-06-19T17:05:00.000Z"
+    dk = _dk_prop("Test Player", "hits", 1.5, -110, -110)
+    dk["event_start"] = "2026-06-19T17:40:00.000Z"
+
+    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
+    assert results
+
+
+def test_find_ev_opportunities_missing_event_start_not_suppressed():
+    betr = _betr_prop("Test Player", "points", 20.5)
+    dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
+    dk["event_start"] = "2026-06-20T23:00:00.000Z"
+
+    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
+    assert results
+
+
+def test_find_ev_opportunities_filters_series_duplicate_game_different_start():
+    """DK ladder overwrites same pm_key|line (last wins); start index must match."""
+    betr = _betr_prop("Freddie Freeman", "total_bases", 1.5)
+    betr["game"] = "BAL@LAD"
+    betr["event_start"] = "2026-06-20T02:10:00.000Z"
+    dk_today = _dk_prop("Freddie Freeman", "total_bases", 1.5, -106, -125)
+    dk_today["game"] = "BAL@LAD"
+    dk_today["event_start"] = "2026-06-20T02:10:00.000Z"
+    dk_tomorrow = _dk_prop("Freddie Freeman", "total_bases", 1.5, 134, -179)
+    dk_tomorrow["game"] = "BAL@LAD"
+    dk_tomorrow["event_start"] = "2026-06-21T02:10:00.000Z"
+
+    assert find_ev_opportunities([betr], [dk_today, dk_tomorrow], min_ev=0.0) == []

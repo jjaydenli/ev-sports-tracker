@@ -117,6 +117,7 @@ def iter_projections(
     """
     event_id = event.get("id", "")
     game = event.get("name", "Unknown Game")
+    event_start = event.get("date", "")
     event_status = event.get("status")
     event_context = {
         "competition_type": event.get("competitionType"),
@@ -160,6 +161,7 @@ def iter_projections(
                     "market_id": market_id,
                     "event_id": event_id,
                     "game": game,
+                    "event_start": event_start,
                     "team": team_name,
                     "team_league": team_league,
                     "team_sport": team_sport,

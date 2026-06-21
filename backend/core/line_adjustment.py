@@ -6,6 +6,8 @@ import math
 from dataclasses import dataclass
 from typing import Any, Literal
 
+from loguru import logger
+
 from utils.math_utils import american_to_implied, multiplicative_devig
 
 # Logit shift applied per 1.0 point of line gap (target - anchor) by market.
@@ -87,6 +89,7 @@ class ResolvedSharpQuote:
     dk_line_source: str | None = None
     fd_line_source: str | None = None
     sharp_by_book: tuple[tuple[str, str], ...] = ()
+    sharp_event_start: str | None = None
 
 
 def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
@@ -129,6 +132,42 @@ def normalize_game_key(game: str) -> str:
     return game.strip().upper()
 
 
+def _hour_floor(iso: str) -> str:
+    """Hour-precision prefix of an ISO UTC timestamp (e.g. 2026-06-19T17)."""
+    return iso[:13] if iso else ""
+
+
+def build_match_context_key(
+    prop: dict,
+    *,
+    normalize_player_name,
+) -> str:
+    """
+    Canonical match-context key: player|market|league|[game]|[event_hour]|[live].
+
+    Line-agnostic; ``event_hour`` is UTC hour-floor (``iso[:13]``) when
+    ``event_start`` is present. Live rows without ``event_start`` omit the hour.
+    """
+    key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
+    league = prop.get("league")
+    if league:
+        key = f"{key}|{str(league).upper()}"
+    game = prop.get("game")
+    if game:
+        key = f"{key}|{normalize_game_key(game)}"
+    event_start = prop.get("event_start", "")
+    if event_start:
+        key = f"{key}|{_hour_floor(event_start)}"
+    if prop.get("is_live"):
+        key = f"{key}|live"
+    return key
+
+
+def _event_start_from_row(row: dict[str, Any]) -> str | None:
+    start = row.get("event_start") or ""
+    return start if start else None
+
+
 def build_player_market_key(
     prop: dict,
     *,
@@ -166,10 +205,20 @@ def build_player_market_ladder(
             continue
         pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
-        ladder.setdefault(pm_key, {})[line] = {
+        bucket = ladder.setdefault(pm_key, {})
+        if line in bucket:
+            logger.warning(
+                "sharp O/U ladder collision pm_key={pm_key} line={line} "
+                "event_start={event_start}",
+                pm_key=pm_key,
+                line=line,
+                event_start=prop.get("event_start", ""),
+            )
+        bucket[line] = {
             "over_odds": int(over_odds),
             "under_odds": int(under_odds),
             "is_main_line": bool(prop.get("is_main_line", True)),
+            "event_start": prop.get("event_start", ""),
         }
     return ladder
 
@@ -190,11 +239,21 @@ def build_milestone_ladder(
         pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
         source_book = prop.get("sportsbook", "DraftKings")
-        ladder.setdefault(pm_key, {})[line] = {
+        bucket = ladder.setdefault(pm_key, {})
+        if line in bucket:
+            logger.warning(
+                "sharp milestone ladder collision pm_key={pm_key} line={line} "
+                "event_start={event_start}",
+                pm_key=pm_key,
+                line=line,
+                event_start=prop.get("event_start", ""),
+            )
+        bucket[line] = {
             "over_odds": int(over_odds),
             "milestone_threshold": prop.get("milestone_threshold"),
             "is_main_line": bool(prop.get("is_main_line", True)),
             "sportsbook": source_book,
+            "event_start": prop.get("event_start", ""),
         }
     return ladder
 
@@ -215,11 +274,22 @@ def build_milestone_ladders(
         source_book = prop.get("sportsbook", "DraftKings")
         pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
-        ladders.setdefault(source_book, {}).setdefault(pm_key, {})[line] = {
+        bucket = ladders.setdefault(source_book, {}).setdefault(pm_key, {})
+        if line in bucket:
+            logger.warning(
+                "sharp per-book milestone collision book={book} pm_key={pm_key} "
+                "line={line} event_start={event_start}",
+                book=source_book,
+                pm_key=pm_key,
+                line=line,
+                event_start=prop.get("event_start", ""),
+            )
+        bucket[line] = {
             "over_odds": int(over_odds),
             "milestone_threshold": prop.get("milestone_threshold"),
             "is_main_line": bool(prop.get("is_main_line", True)),
             "sportsbook": source_book,
+            "event_start": prop.get("event_start", ""),
         }
     return ladders
 
@@ -448,6 +518,7 @@ def _resolve_ou_ladder(
                 corroborated=True,
                 dk_main_line=dk_main_line,
                 dk_line_kind="ou",
+                sharp_event_start=_event_start_from_row(row),
             ),
             None,
         )
@@ -481,6 +552,7 @@ def _resolve_ou_ladder(
                 corroborated=True,
                 dk_main_line=dk_main_line,
                 dk_line_kind="ou",
+                sharp_event_start=_event_start_from_row(row_low),
             ),
             None,
         )
@@ -508,6 +580,7 @@ def _resolve_ou_ladder(
             corroborated=False,
             dk_main_line=dk_main_line,
             dk_line_kind="ou",
+            sharp_event_start=_event_start_from_row(anchor),
         ),
         None,
     )
@@ -573,6 +646,7 @@ def _resolve_milestone_ladder(
                 sharp_books=(source_book,),
                 milestone_admitted=admitted,
                 milestone_devig_method=devig_method,
+                sharp_event_start=_event_start_from_row(row),
                 **book_odds,
             ),
             None,
@@ -600,6 +674,7 @@ def _resolve_milestone_ladder(
                 corroborated=False,
                 dk_main_line=dk_main_line,
                 dk_line_kind="milestone",
+                sharp_event_start=_event_start_from_row(lines[line_low]),
             ),
             None,
         )
@@ -623,6 +698,7 @@ def _resolve_milestone_ladder(
             corroborated=False,
             dk_main_line=dk_main_line,
             dk_line_kind="milestone",
+            sharp_event_start=_event_start_from_row(anchor),
         ),
         None,
     )
@@ -725,6 +801,7 @@ def _resolve_fd_exact_quote(
             fd_over_odds=row["over_odds"],
             fd_under_odds=row["under_odds"],
             sharp_books=("FanDuel",),
+            sharp_event_start=_event_start_from_row(row),
         ),
         None,
     )
@@ -832,6 +909,8 @@ def _assemble_multi_book_quote(
                 ("DraftKings", dk_method or "exact"),
                 ("FanDuel", fd_method or "fd_exact"),
             ),
+            sharp_event_start=dk_book_quote.sharp_event_start
+            or fd_book_quote.sharp_event_start,
         )
 
     if dk_eligible_ou and dk_book_quote is not None:
@@ -901,6 +980,7 @@ def _assemble_multi_book_quote(
         dk_line_source=dk_method,
         fd_line_source=fd_method,
         sharp_by_book=tuple(sharp_by_book),
+        sharp_event_start=ev_quote.sharp_event_start,
     )
 
 
@@ -992,6 +1072,7 @@ def _consensus_sharp_quote(
         fd_over_odds=fd_quote.over_odds,
         fd_under_odds=fd_quote.under_odds,
         sharp_books=("DraftKings", "FanDuel"),
+        sharp_event_start=dk_quote.sharp_event_start or fd_quote.sharp_event_start,
     )
 
 

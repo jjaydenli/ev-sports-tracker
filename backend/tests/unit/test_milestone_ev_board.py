@@ -237,6 +237,7 @@ def test_ou_preferred_over_milestone_precedence(milestone_fixture):
 
 
 def test_find_ev_opportunities_admits_sharp_milestone(milestone_fixture):
+    event_start = "2026-06-19T23:00:00.000Z"
     betr = [
         {
             "sportsbook": "Betr",
@@ -245,6 +246,7 @@ def test_find_ev_opportunities_admits_sharp_milestone(milestone_fixture):
             "line": 0.5,
             "over_odds": -120,
             "under_odds": -120,
+            "event_start": event_start,
         }
     ]
     dk = [
@@ -257,6 +259,7 @@ def test_find_ev_opportunities_admits_sharp_milestone(milestone_fixture):
             "milestone_threshold": row["milestone_threshold"],
             "over_odds": row["over_odds"],
             "is_main_line": row["is_main_line"],
+            "event_start": event_start,
         }
         for row in milestone_fixture["milestone_ladder"]
     ]
@@ -357,8 +360,10 @@ def test_fd_milestone_admitted_on_ev_board():
         league="mlb",
     )
     fd_props = parse_fd_props(grouped)
+    event_start = "2026-06-19T23:00:00.000Z"
     for prop in fd_props:
         prop["league"] = "MLB"
+        prop["event_start"] = event_start
         if prop["line"] == 1.5 and prop["milestone_threshold"] == 2:
             prop["over_odds"] = -350
 
@@ -370,6 +375,8 @@ def test_fd_milestone_admitted_on_ev_board():
             "line": 1.5,
             "over_odds": -120,
             "under_odds": -120,
+            "league": "MLB",
+            "event_start": event_start,
         }
     ]
     results = find_ev_opportunities(betr, [], fanduel_props=fd_props, min_ev=0.0)
@@ -433,6 +440,7 @@ def test_fd_ou_preferred_over_fd_milestone():
 
 def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
     """DK O/U + FD milestone at same line → one combo row, EV from DK O/U."""
+    event_start = "2026-06-19T23:00:00.000Z"
     betr = [
         {
             "sportsbook": "Betr",
@@ -442,6 +450,7 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
             "league": "MLB",
             "over_odds": -120,
             "under_odds": -120,
+            "event_start": event_start,
         }
     ]
     dk = [
@@ -453,6 +462,8 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
             "over_odds": -130,
             "under_odds": -110,
             "is_main_line": True,
+            "league": "MLB",
+            "event_start": event_start,
         }
     ]
     fd = [
@@ -464,6 +475,8 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
             "line_kind": "milestone",
             "milestone_threshold": 1,
             "over_odds": -220,
+            "league": "MLB",
+            "event_start": event_start,
         }
     ]
     results = find_ev_opportunities(betr, dk, fanduel_props=fd, min_ev=0.0)

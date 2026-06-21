@@ -6,6 +6,8 @@ from core.flat_line import (
     push_probability,
 )
 
+_EVENT_START = "2026-06-19T23:00:00.000Z"
+
 
 def test_is_flat_line_detects_integers():
     assert is_flat_line(4.0)
@@ -58,6 +60,7 @@ def test_find_ev_includes_flat_lines_when_flag_set():
             "line_kind": "flat",
             "over_odds": -120,
             "under_odds": -120,
+            "event_start": _EVENT_START,
         }
     ]
     dk = [
@@ -69,6 +72,7 @@ def test_find_ev_includes_flat_lines_when_flag_set():
             "over_odds": -140,
             "under_odds": 120,
             "is_main_line": True,
+            "event_start": _EVENT_START,
         }
     ]
 

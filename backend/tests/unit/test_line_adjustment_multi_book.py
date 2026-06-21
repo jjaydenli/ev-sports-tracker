@@ -11,6 +11,9 @@ from core.line_adjustment import (
 )
 
 
+_EVENT_START = "2026-06-19T23:00:00.000Z"
+
+
 def _betr(player: str, market: str, line: float) -> dict:
     return {
         "sportsbook": "Betr",
@@ -19,6 +22,7 @@ def _betr(player: str, market: str, line: float) -> dict:
         "line": line,
         "over_odds": -120,
         "under_odds": -120,
+        "event_start": _EVENT_START,
     }
 
 
@@ -31,6 +35,7 @@ def _dk(player: str, market: str, line: float, over: int, under: int, *, main=Tr
         "over_odds": over,
         "under_odds": under,
         "is_main_line": main,
+        "event_start": _EVENT_START,
     }
 
 
@@ -43,6 +48,7 @@ def _fd(player: str, market: str, line: float, over: int, under: int, *, main=Tr
         "over_odds": over,
         "under_odds": under,
         "is_main_line": main,
+        "event_start": _EVENT_START,
     }
 
 

@@ -102,6 +102,7 @@ def test_rotate_ev_opportunities_file(tmp_path):
 
 
 def test_run_ev_scan_writes_diff_on_second_run(tmp_path):
+    event_start = "2026-06-19T23:00:00.000Z"
     betr_board = [
         {
             "sportsbook": "Betr",
@@ -111,6 +112,7 @@ def test_run_ev_scan_writes_diff_on_second_run(tmp_path):
             "prop_type": "standard",
             "over_odds": -120,
             "under_odds": -120,
+            "event_start": event_start,
         }
     ]
     dk_board = [
@@ -121,6 +123,7 @@ def test_run_ev_scan_writes_diff_on_second_run(tmp_path):
             "line": 20.5,
             "over_odds": -140,
             "under_odds": 120,
+            "event_start": event_start,
         }
     ]
 

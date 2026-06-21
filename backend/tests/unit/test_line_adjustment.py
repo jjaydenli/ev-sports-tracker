@@ -319,6 +319,7 @@ def test_find_ev_opportunities_skips_non_admitted_milestone_quote():
             "line": 1.5,
             "over_odds": -120,
             "under_odds": -120,
+            "event_start": "2026-06-19T23:00:00.000Z",
         }
     ]
     dk = [
@@ -330,9 +331,57 @@ def test_find_ev_opportunities_skips_non_admitted_milestone_quote():
             "line_kind": "milestone",
             "milestone_threshold": 2,
             "over_odds": 110,
+            "event_start": "2026-06-19T23:00:00.000Z",
         }
     ]
 
     results = find_ev_opportunities(betr, dk, min_ev=0.0)
 
     assert results == []
+
+
+def test_ladder_row_carries_event_start():
+    ladder = build_player_market_ladder(
+        [
+            {
+                "player": "Test Player",
+                "market": "points",
+                "line": 20.5,
+                "over_odds": -110,
+                "under_odds": -110,
+                "event_start": "2026-06-19T23:05:00.000Z",
+            },
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    row = ladder["test player|points"][20.5]
+    assert row["event_start"] == "2026-06-19T23:05:00.000Z"
+
+
+def test_resolved_quote_exposes_sharp_event_start():
+    ladder = build_player_market_ladder(
+        [
+            {
+                "player": "Test Player",
+                "market": "points",
+                "line": 20.5,
+                "over_odds": -110,
+                "under_odds": -110,
+                "event_start": "2026-06-19T23:05:00.000Z",
+            },
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    betr = {
+        "player": "Test Player",
+        "market": "points",
+        "line": 20.5,
+        "over_odds": -120,
+        "under_odds": -120,
+    }
+    quote, reason = resolve_sharp_quote(
+        betr, ladder, normalize_player_name=normalize_player_name
+    )
+    assert reason is None
+    assert quote is not None
+    assert quote.sharp_event_start == "2026-06-19T23:05:00.000Z"

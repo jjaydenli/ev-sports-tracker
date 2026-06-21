@@ -2,6 +2,8 @@ import json
 
 from core.ev_pipeline import run_ev_scan
 
+_EVENT_START = "2026-06-19T23:00:00.000Z"
+
 
 def test_run_ev_scan_writes_opportunities(tmp_path):
     betr_board = [
@@ -13,6 +15,7 @@ def test_run_ev_scan_writes_opportunities(tmp_path):
             "prop_type": "standard",
             "over_odds": -120,
             "under_odds": -120,
+            "event_start": _EVENT_START,
         }
     ]
     dk_board = [
@@ -23,6 +26,7 @@ def test_run_ev_scan_writes_opportunities(tmp_path):
             "line": 20.5,
             "over_odds": -140,
             "under_odds": 120,
+            "event_start": _EVENT_START,
         }
     ]
 

@@ -17,6 +17,7 @@ def _betr_prop(
     *,
     over_odds: int | None = -120,
     under_odds: int | None = -120,
+    event_start: str = "2026-06-19T23:00:00.000Z",
 ) -> dict:
     return {
         "sportsbook": "Betr",
@@ -26,10 +27,19 @@ def _betr_prop(
         "prop_type": "standard",
         "over_odds": over_odds,
         "under_odds": under_odds,
+        "event_start": event_start,
     }
 
 
-def _dk_prop(player: str, market: str, line: float, over: int, under: int) -> dict:
+def _dk_prop(
+    player: str,
+    market: str,
+    line: float,
+    over: int,
+    under: int,
+    *,
+    event_start: str = "2026-06-19T23:00:00.000Z",
+) -> dict:
     return {
         "sportsbook": "DraftKings",
         "player": player,
@@ -37,6 +47,7 @@ def _dk_prop(player: str, market: str, line: float, over: int, under: int) -> di
         "line": line,
         "over_odds": over,
         "under_odds": under,
+        "event_start": event_start,
     }
 
 
@@ -71,6 +82,7 @@ def test_find_ev_opportunities_includes_league_from_dfs_prop():
     betr = _betr_prop("Aaron Judge", "hits", 1.5)
     betr["league"] = "MLB"
     dk = [_dk_prop("Aaron Judge", "hits", 1.5, -115, -110)]
+    dk[0]["league"] = "MLB"
 
     results = find_ev_opportunities([betr], dk, min_ev=0.0)
 
@@ -308,17 +320,30 @@ def test_find_ev_opportunities_passes_doubleheader_game_one_same_hour():
     assert results
 
 
-def test_find_ev_opportunities_missing_event_start_not_suppressed():
+def test_find_ev_opportunities_missing_event_start_pregame_fail_closed():
+    """Pregame Betr without event_start must not match sharp lines (fail closed)."""
     betr = _betr_prop("Test Player", "points", 20.5)
+    del betr["event_start"]
     dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
     dk["event_start"] = "2026-06-20T23:00:00.000Z"
 
-    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
-    assert results
+    assert find_ev_opportunities([betr], [dk], min_ev=0.0) == []
 
 
-def test_find_ev_opportunities_filters_series_duplicate_game_different_start():
-    """DK ladder overwrites same pm_key|line (last wins); start index must match."""
+def test_find_ev_opportunities_filters_doubleheader_game_two_block():
+    """DH game 1 Betr must not match game 2 DK lines (different event_hour)."""
+    betr = _betr_prop("Test Player", "hits", 1.5)
+    betr["event_start"] = "2026-06-19T17:05:00.000Z"
+    betr["game"] = "CIN@NYY"
+    dk = _dk_prop("Test Player", "hits", 1.5, -110, -110)
+    dk["event_start"] = "2026-06-19T23:10:00.000Z"
+    dk["game"] = "CIN@NYY"
+
+    assert find_ev_opportunities([betr], [dk], min_ev=0.0) == []
+
+
+def test_find_ev_opportunities_freeman_series_uses_matching_day_only():
+    """Betr today resolves against same-day DK only, not tomorrow's duplicate game."""
     betr = _betr_prop("Freddie Freeman", "total_bases", 1.5)
     betr["game"] = "BAL@LAD"
     betr["event_start"] = "2026-06-20T02:10:00.000Z"
@@ -329,4 +354,57 @@ def test_find_ev_opportunities_filters_series_duplicate_game_different_start():
     dk_tomorrow["game"] = "BAL@LAD"
     dk_tomorrow["event_start"] = "2026-06-21T02:10:00.000Z"
 
-    assert find_ev_opportunities([betr], [dk_today, dk_tomorrow], min_ev=0.0) == []
+    results = find_ev_opportunities([betr], [dk_today, dk_tomorrow], min_ev=0.0)
+    assert results
+    assert results[0]["dk_over_odds"] == -106
+
+
+def test_find_ev_opportunities_freeman_series_blocks_tomorrow_only():
+    """When only tomorrow's sharp line exists, Betr today does not match."""
+    betr = _betr_prop("Freddie Freeman", "total_bases", 1.5)
+    betr["game"] = "BAL@LAD"
+    betr["event_start"] = "2026-06-20T02:10:00.000Z"
+    dk_tomorrow = _dk_prop("Freddie Freeman", "total_bases", 1.5, 134, -179)
+    dk_tomorrow["game"] = "BAL@LAD"
+    dk_tomorrow["event_start"] = "2026-06-21T02:10:00.000Z"
+
+    assert find_ev_opportunities([betr], [dk_tomorrow], min_ev=0.0) == []
+
+
+def test_find_ev_opportunities_multi_book_filters_mismatched_event_hour():
+    """Betr today uses DK only when FD row is tomorrow at the same line."""
+    betr = _betr_prop("Test Player", "points", 20.5)
+    betr["event_start"] = "2026-06-19T23:05:00.000Z"
+    dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
+    dk["event_start"] = "2026-06-19T23:10:00.000Z"
+    fd = {
+        "sportsbook": "FanDuel",
+        "player": "Test Player",
+        "market": "points",
+        "line": 20.5,
+        "over_odds": -130,
+        "under_odds": 110,
+        "event_start": "2026-06-20T23:10:00.000Z",
+    }
+
+    results = find_ev_opportunities([betr], [dk], fanduel_props=[fd], min_ev=0.0)
+    assert results
+    assert results[0]["dk_over_odds"] == -140
+    assert results[0]["fd_over_odds"] is None
+
+
+def test_find_ev_opportunities_filters_series_duplicate_game_different_start():
+    """Last-wins ladder no longer matters: per-Betr filter keeps today's DK row."""
+    betr = _betr_prop("Freddie Freeman", "total_bases", 1.5)
+    betr["game"] = "BAL@LAD"
+    betr["event_start"] = "2026-06-20T02:10:00.000Z"
+    dk_today = _dk_prop("Freddie Freeman", "total_bases", 1.5, -106, -125)
+    dk_today["game"] = "BAL@LAD"
+    dk_today["event_start"] = "2026-06-20T02:10:00.000Z"
+    dk_tomorrow = _dk_prop("Freddie Freeman", "total_bases", 1.5, 134, -179)
+    dk_tomorrow["game"] = "BAL@LAD"
+    dk_tomorrow["event_start"] = "2026-06-21T02:10:00.000Z"
+
+    results = find_ev_opportunities([betr], [dk_today, dk_tomorrow], min_ev=0.0)
+    assert results
+    assert results[0]["dk_over_odds"] == -106

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from config.market_maps import O05_EQUIVALENT_MARKETS
 from core.flat_line import (
     adjusted_breakeven_probability,
     is_flat_line,
@@ -89,12 +90,41 @@ def _filter_sharp_props_by_match_context(
     betr_key = build_match_context_key(
         betr_prop, normalize_player_name=normalize_player_name
     )
-    return [
+    native = [
         prop
         for prop in props
         if build_match_context_key(prop, normalize_player_name=normalize_player_name)
         == betr_key
     ]
+
+    betr_market = betr_prop["market"]
+    if betr_market not in O05_EQUIVALENT_MARKETS or float(betr_prop["line"]) != 0.5:
+        return native
+
+    has_native_05 = any(
+        float(prop["line"]) == 0.5 and prop.get("line_kind", "ou") != "milestone"
+        for prop in native
+    )
+    if has_native_05:
+        return native
+
+    borrowed: list[dict] = []
+    for prop in props:
+        if (
+            prop.get("market") in O05_EQUIVALENT_MARKETS
+            and prop.get("market") != betr_market
+            and float(prop.get("line", -1)) == 0.5
+            and prop.get("line_kind", "ou") != "milestone"
+        ):
+            swapped = {**prop, "market": betr_market}
+            if (
+                build_match_context_key(
+                    swapped, normalize_player_name=normalize_player_name
+                )
+                == betr_key
+            ):
+                borrowed.append(swapped)
+    return native + borrowed
 
 
 def index_props_by_key(props: list[dict]) -> dict[str, dict]:

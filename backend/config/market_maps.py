@@ -168,3 +168,14 @@ def get_canonical_market(platform: str, raw_market: str) -> str:
     platform_map = PLATFORM_MARKET_MAPPINGS.get(platform, {})
     normalized = raw_market.strip().lower()
     return platform_map.get(normalized, normalized)
+
+
+# Markets that are identical events at the 0.5 line only (a hit ⇔ ≥1 total base).
+O05_EQUIVALENT_MARKETS = frozenset({"hits", "total_bases"})
+
+
+def equivalent_o05_markets(market: str) -> frozenset[str]:
+    """Markets interchangeable with `market` at the o0.5 line (incl. itself)."""
+    if market in O05_EQUIVALENT_MARKETS:
+        return O05_EQUIVALENT_MARKETS
+    return frozenset({market})

@@ -1,0 +1,281 @@
+{
+  "data": {
+    "eventDrawer": {
+      "id": "Drawer:105477089:Hits(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+      "drawerChildren": [
+        {
+          "id": "MarketplaceShelf:Hits(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": null,
+          "marketplaceShelfChildren": [
+            {
+              "id": "CompactMultipleMarketCard:ff63141d-787d-5406-9e5a-f7c0c0c43556",
+              "rawId": "ff63141d-787d-5406-9e5a-f7c0c0c43556",
+              "attributes": [
+                "PARLAY_PLUS_ELIGIBLE"
+              ],
+              "markets": [
+                {
+                  "id": "Market:e80d7399-a8a7-4399-a09a-b703e9f45e56",
+                  "name": "Jazz Chisholm Jr. Total Hits",
+                  "status": "OPEN",
+                  "type": "TOTAL",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:16:01.874887Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:39998f08-55a5-4589-9738-a082e66878ab",
+                      "rawId": "39998f08-55a5-4589-9738-a082e66878ab",
+                      "name": {
+                        "cleanName": "Over",
+                        "defaultName": "O 0.5",
+                        "fullName": "Over 0.5",
+                        "minimalName": "O 0.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "8",
+                        "numeratorLong": "13",
+                        "formattedOdds": "-160",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 0.5,
+                        "formattedPoints": "0.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "OVER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:e0533cbf-7481-4f44-b610-0e9a354f3ede",
+                      "rawId": "e0533cbf-7481-4f44-b610-0e9a354f3ede",
+                      "name": {
+                        "cleanName": "Under",
+                        "defaultName": "U 0.5",
+                        "fullName": "Under 0.5",
+                        "minimalName": "U 0.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "4",
+                        "numeratorLong": "9",
+                        "formattedOdds": "+125",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 0.5,
+                        "formattedPoints": "0.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "UNDER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                }
+              ],
+              "deepLink": null,
+              "marketTags": [
+                "Batter Props",
+                "Prop Analyzer Additional Markets"
+              ],
+              "requiresMarketHeader": true,
+              "participant": {
+                "id": "Participant:8a74ed49-6920-4add-9b3b-ae51e6f52c2b",
+                "mediumName": "J. Chisholm Jr.",
+                "__typename": "Participant"
+              },
+              "__typename": "CompactMultipleMarketCard"
+            },
+            {
+              "id": "CompactMultipleMarketCard:e6a45c98-01ec-56f5-a75f-28812357728d",
+              "rawId": "e6a45c98-01ec-56f5-a75f-28812357728d",
+              "attributes": [
+                "PARLAY_PLUS_ELIGIBLE"
+              ],
+              "markets": [
+                {
+                  "id": "Market:2f081ada-fd34-4458-b8aa-9549ae3be18c",
+                  "name": "Amed Rosario Total Hits",
+                  "status": "OPEN",
+                  "type": "TOTAL",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:16:01.905398Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:9861026d-2573-413a-91a7-2042ef7a7789",
+                      "rawId": "9861026d-2573-413a-91a7-2042ef7a7789",
+                      "name": {
+                        "cleanName": "Over",
+                        "defaultName": "O 1.5",
+                        "fullName": "Over 1.5",
+                        "minimalName": "O 1.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "5",
+                        "numeratorLong": "14",
+                        "formattedOdds": "+180",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 1.5,
+                        "formattedPoints": "1.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "OVER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:e8112968-c48c-4e7a-b2c4-23b734221b61",
+                      "rawId": "e8112968-c48c-4e7a-b2c4-23b734221b61",
+                      "name": {
+                        "cleanName": "Under",
+                        "defaultName": "U 1.5",
+                        "fullName": "Under 1.5",
+                        "minimalName": "U 1.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "12",
+                        "numeratorLong": "17",
+                        "formattedOdds": "-240",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 1.5,
+                        "formattedPoints": "1.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "UNDER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                }
+              ],
+              "deepLink": null,
+              "marketTags": [
+                "Batter Props",
+                "Prop Analyzer Additional Markets"
+              ],
+              "requiresMarketHeader": true,
+              "participant": {
+                "id": "Participant:4eb77903-8244-4768-a7d1-7327b5bb53d4",
+                "mediumName": "A. Rosario",
+                "__typename": "Participant"
+              },
+              "__typename": "CompactMultipleMarketCard"
+            },
+            {
+              "id": "CompactMultipleMarketCard:b9141a41-226f-501e-81f3-b26c0a8146b6",
+              "rawId": "b9141a41-226f-501e-81f3-b26c0a8146b6",
+              "attributes": [
+                "PARLAY_PLUS_ELIGIBLE"
+              ],
+              "markets": [
+                {
+                  "id": "Market:b066a5d0-55d3-47cc-935c-0cc51f556fe7",
+                  "name": "Zach McKinstry Total Hits",
+                  "status": "OPEN",
+                  "type": "TOTAL",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:18:01.309245Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:275b060f-6786-4176-9a89-9acfbf6f5738",
+                      "rawId": "275b060f-6786-4176-9a89-9acfbf6f5738",
+                      "name": {
+                        "cleanName": "Over",
+                        "defaultName": "O 0.5",
+                        "fullName": "Over 0.5",
+                        "minimalName": "O 0.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "6",
+                        "numeratorLong": "11",
+                        "formattedOdds": "-120",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 0.5,
+                        "formattedPoints": "0.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "OVER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:16b06f11-e80f-41f8-810a-0995b87db369",
+                      "rawId": "16b06f11-e80f-41f8-810a-0995b87db369",
+                      "name": {
+                        "cleanName": "Under",
+                        "defaultName": "U 0.5",
+                        "fullName": "Under 0.5",
+                        "minimalName": "U 0.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "11",
+                        "numeratorLong": "21",
+                        "formattedOdds": "-110",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 0.5,
+                        "formattedPoints": "0.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "UNDER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                }
+              ],
+              "deepLink": null,
+              "marketTags": [
+                "Batter Props",
+                "Prop Analyzer Additional Markets"
+              ],
+              "requiresMarketHeader": true,
+              "participant": {
+                "id": "Participant:c88edeee-47b6-454b-92d9-5bfa8e624bf5",
+                "mediumName": "Z. McKinstry",
+                "__typename": "Participant"
+              },
+              "__typename": "CompactMultipleMarketCard"
+            }
+          ],
+          "__typename": "MarketplaceShelf"
+        }
+      ],
+      "__typename": "Drawer"
+    }
+  }
+}

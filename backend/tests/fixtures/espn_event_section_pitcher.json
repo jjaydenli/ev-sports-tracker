@@ -1,0 +1,41 @@
+{
+  "data": {
+    "eventSection": {
+      "id": "Section:5c54374f-0deb-4c2b-9dfc-efdf9f121494:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+      "pollingIntervalMilliseconds": 30000,
+      "slug": "pitcher-props",
+      "sectionChildren": [
+        {
+          "id": "Drawer:100235117:PitcherStrikeouts:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "aec6fadc-51ca-4ca4-a3ef-fc0df5ee6162",
+          "labelText": "Pitcher Strikeouts",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": true,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:100235117:PitcherStrikeouts(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "PitcherStrikeouts(O/U)",
+          "labelText": "Pitcher Strikeouts (O/U)",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": true,
+          "__typename": "Drawer"
+        },
+        {
+          "__typename": "HorizontalImageCards"
+        },
+        {
+          "__typename": "DataDisclaimerCard"
+        },
+        {
+          "__typename": "DataDisclaimerCard"
+        }
+      ],
+      "__typename": "Section"
+    }
+  }
+}

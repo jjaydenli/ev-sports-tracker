@@ -40,13 +40,15 @@ EV_ELIGIBLE_ADJUSTMENT_METHODS: frozenset[str] = frozenset(
         "dk_interpolated",
         "fd_exact",
         "fd_alt",
+        "espn_exact",
+        "espn_alt",
         "multi_book_consensus",
     }
 )
 
 # True O/U at the Betr target line (not interpolated) — used for multi-book consensus.
 EXACT_AT_TARGET_METHODS: frozenset[str] = frozenset(
-    {"exact", "dk_alt", "fd_exact", "fd_alt"}
+    {"exact", "dk_alt", "fd_exact", "fd_alt", "espn_exact", "espn_alt"}
 )
 
 def load_sharp_book_weights() -> dict[str, float]:
@@ -56,11 +58,16 @@ def load_sharp_book_weights() -> dict[str, float]:
     When adding a third sharp book, extend this dict and each book's eligibility
     rules (FD: exact O/U only; DK: O/U ladder + milestone fallback; etc.).
     """
-    from config.settings import SHARP_BOOK_WEIGHTS_DK, SHARP_BOOK_WEIGHTS_FD
+    from config.settings import (
+        SHARP_BOOK_WEIGHTS_DK,
+        SHARP_BOOK_WEIGHTS_ESPN,
+        SHARP_BOOK_WEIGHTS_FD,
+    )
 
     return {
         "DraftKings": SHARP_BOOK_WEIGHTS_DK,
         "FanDuel": SHARP_BOOK_WEIGHTS_FD,
+        "ESPN": SHARP_BOOK_WEIGHTS_ESPN,
     }
 
 
@@ -77,17 +84,22 @@ class ResolvedSharpQuote:
     dk_main_line: float | None
     dk_line_kind: DkLineKind = "ou"
     fd_line_kind: DkLineKind = "ou"
+    espn_line_kind: DkLineKind = "ou"
     dk_over_odds: int | None = None
     dk_under_odds: int | None = None
     fd_over_odds: int | None = None
     fd_under_odds: int | None = None
+    espn_over_odds: int | None = None
+    espn_under_odds: int | None = None
     sharp_books: tuple[str, ...] = ()
     milestone_admitted: bool = False
     milestone_devig_method: str | None = None
     dk_milestone_one_sided: bool = False
     fd_milestone_one_sided: bool = False
+    espn_milestone_one_sided: bool = False
     dk_line_source: str | None = None
     fd_line_source: str | None = None
+    espn_line_source: str | None = None
     sharp_by_book: tuple[tuple[str, str], ...] = ()
     sharp_event_start: str | None = None
 
@@ -765,6 +777,48 @@ def resolve_sharp_quote(
     return None, ou_reason or "no_dk_market"
 
 
+def _resolve_espn_exact_quote(
+    betr_prop: dict,
+    espn_ladder: dict[str, dict[float, dict[str, Any]]],
+    *,
+    normalize_player_name,
+) -> tuple[ResolvedSharpQuote | None, str | None]:
+    """Resolve ESPN O/U only when an exact alt or main line exists at the Betr line."""
+    target_line = float(betr_prop["line"])
+    pm_key = build_player_market_key(
+        betr_prop, normalize_player_name=normalize_player_name
+    )
+    lines = espn_ladder.get(pm_key)
+    if not lines:
+        return None, "no_espn_market"
+    if target_line not in lines:
+        return None, "no_espn_exact_line"
+
+    row = lines[target_line]
+    main_lines = sorted(
+        line for line, entry in lines.items() if entry.get("is_main_line", True)
+    )
+    espn_main_line = main_lines[0] if main_lines else None
+    method = "espn_alt" if not row.get("is_main_line", True) else "espn_exact"
+    return (
+        ResolvedSharpQuote(
+            over_odds=row["over_odds"],
+            under_odds=row["under_odds"],
+            dk_line=target_line,
+            betr_line=target_line,
+            adjustment_method=method,
+            corroborated=True,
+            dk_main_line=espn_main_line,
+            dk_line_kind="ou",
+            espn_over_odds=row["over_odds"],
+            espn_under_odds=row["under_odds"],
+            sharp_books=("ESPN",),
+            sharp_event_start=_event_start_from_row(row),
+        ),
+        None,
+    )
+
+
 def _resolve_fd_exact_quote(
     betr_prop: dict,
     fd_ladder: dict[str, dict[float, dict[str, Any]]],
@@ -834,6 +888,9 @@ def _book_quote_display_odds(
         if book == "FanDuel":
             over = quote.fd_over_odds
             under = quote.fd_under_odds
+        elif book == "ESPN":
+            over = quote.espn_over_odds
+            under = quote.espn_under_odds
         else:
             over = quote.dk_over_odds
             under = quote.dk_under_odds
@@ -842,6 +899,15 @@ def _book_quote_display_odds(
         over = quote.fd_over_odds if quote.fd_over_odds is not None else quote.over_odds
         under = (
             quote.fd_under_odds if quote.fd_under_odds is not None else quote.under_odds
+        )
+    elif book == "ESPN":
+        over = (
+            quote.espn_over_odds if quote.espn_over_odds is not None else quote.over_odds
+        )
+        under = (
+            quote.espn_under_odds
+            if quote.espn_under_odds is not None
+            else quote.under_odds
         )
     else:
         over = quote.dk_over_odds if quote.dk_over_odds is not None else quote.over_odds
@@ -865,29 +931,40 @@ def _assemble_multi_book_quote(
     betr_line: float,
     dk_book_quote: ResolvedSharpQuote | None,
     fd_book_quote: ResolvedSharpQuote | None,
+    espn_book_quote: ResolvedSharpQuote | None = None,
 ) -> ResolvedSharpQuote | None:
     """Compose per-book columns and pick EV source per locked policy."""
-    dk_over, dk_under, dk_kind, dk_ms_one, dk_method = _book_quote_display_odds(
-        dk_book_quote, "DraftKings"
-    )
-    fd_over, fd_under, fd_kind, fd_ms_one, fd_method = _book_quote_display_odds(
-        fd_book_quote, "FanDuel"
-    )
+    book_quotes = {
+        "DraftKings": dk_book_quote,
+        "FanDuel": fd_book_quote,
+        "ESPN": espn_book_quote,
+    }
+    display: dict[str, tuple[int | None, int | None, DkLineKind, bool, str | None]] = {}
+    exact_books: list[tuple[str, ResolvedSharpQuote]] = []
+    eligible_ou: list[tuple[str, ResolvedSharpQuote]] = []
 
-    dk_exact = dk_book_quote is not None and _is_exact_ou_at_target(dk_book_quote)
-    fd_exact = fd_book_quote is not None and _is_exact_ou_at_target(fd_book_quote)
-    dk_eligible_ou = dk_book_quote is not None and _is_eligible_ou_quote(dk_book_quote)
-    fd_eligible_ou = fd_book_quote is not None and _is_eligible_ou_quote(fd_book_quote)
+    for book, quote in book_quotes.items():
+        over, under, kind, ms_one, method = _book_quote_display_odds(quote, book)
+        display[book] = (over, under, kind, ms_one, method)
+        if quote is not None and _is_exact_ou_at_target(quote):
+            exact_books.append((book, quote))
+        if quote is not None and _is_eligible_ou_quote(quote):
+            eligible_ou.append((book, quote))
 
-    ev_quote: ResolvedSharpQuote | None = None
-    line_source: str | None = None
+    dk_over, dk_under, dk_kind, dk_ms_one, dk_method = display["DraftKings"]
+    fd_over, fd_under, fd_kind, fd_ms_one, fd_method = display["FanDuel"]
+    espn_over, espn_under, espn_kind, espn_ms_one, espn_method = display["ESPN"]
 
-    if dk_exact and fd_exact and dk_book_quote is not None and fd_book_quote is not None:
-        consensus = _consensus_sharp_quote(
-            betr_line=betr_line,
-            dk_quote=dk_book_quote,
-            fd_quote=fd_book_quote,
+    # Consensus when every book with an exact O/U quote agrees at the Betr line.
+    active_exact = [item for item in exact_books if item[1] is not None]
+    if len(active_exact) >= 2:
+        consensus = _consensus_sharp_quote(betr_line=betr_line, quotes=active_exact)
+        sharp_books = tuple(book for book, _ in active_exact)
+        sharp_by_book = tuple(
+            (book, (display[book][4] or "exact"))
+            for book, _ in active_exact
         )
+        dk_ref = dk_book_quote or active_exact[0][1]
         return ResolvedSharpQuote(
             over_odds=consensus.over_odds,
             under_odds=consensus.under_odds,
@@ -895,47 +972,46 @@ def _assemble_multi_book_quote(
             betr_line=betr_line,
             adjustment_method="multi_book_consensus",
             corroborated=True,
-            dk_main_line=dk_book_quote.dk_main_line,
+            dk_main_line=dk_ref.dk_main_line,
             dk_line_kind="ou",
             fd_line_kind="ou",
+            espn_line_kind="ou",
             dk_over_odds=dk_over,
             dk_under_odds=dk_under,
             fd_over_odds=fd_over,
             fd_under_odds=fd_under,
-            sharp_books=("DraftKings", "FanDuel"),
+            espn_over_odds=espn_over,
+            espn_under_odds=espn_under,
+            sharp_books=sharp_books,
             dk_line_source=dk_method,
             fd_line_source=fd_method,
-            sharp_by_book=(
-                ("DraftKings", dk_method or "exact"),
-                ("FanDuel", fd_method or "fd_exact"),
-            ),
-            sharp_event_start=dk_book_quote.sharp_event_start
-            or fd_book_quote.sharp_event_start,
+            espn_line_source=espn_method,
+            sharp_by_book=sharp_by_book,
+            sharp_event_start=consensus.sharp_event_start,
         )
 
-    if dk_eligible_ou and dk_book_quote is not None:
-        ev_quote = dk_book_quote
-        line_source = dk_book_quote.adjustment_method
-    elif fd_eligible_ou and fd_book_quote is not None:
-        ev_quote = fd_book_quote
-        line_source = fd_book_quote.adjustment_method
-    elif (
-        dk_book_quote is not None
-        and is_ev_eligible_quote(dk_book_quote)
-        and dk_book_quote.dk_line_kind == "milestone"
-    ):
-        ev_quote = dk_book_quote
-        line_source = "dk_milestone_exact"
-    elif (
-        fd_book_quote is not None
-        and is_ev_eligible_quote(fd_book_quote)
-        and fd_book_quote.dk_line_kind == "milestone"
-    ):
-        ev_quote = fd_book_quote
-        line_source = "dk_milestone_exact"
-    else:
-        return None
+    priority = ("DraftKings", "FanDuel", "ESPN")
+    ev_quote: ResolvedSharpQuote | None = None
+    line_source: str | None = None
+    for book in priority:
+        quote = book_quotes[book]
+        if quote is not None and _is_eligible_ou_quote(quote):
+            ev_quote = quote
+            line_source = quote.adjustment_method
+            break
 
+    if ev_quote is None:
+        for book in priority:
+            quote = book_quotes[book]
+            if quote is not None and is_ev_eligible_quote(quote) and quote.dk_line_kind == "milestone":
+                ev_quote = quote
+                line_source = "dk_milestone_exact"
+                break
+        if ev_quote is None:
+            return None
+
+    dk_eligible_ou = dk_book_quote is not None and _is_eligible_ou_quote(dk_book_quote)
+    fd_eligible_ou = fd_book_quote is not None and _is_eligible_ou_quote(fd_book_quote)
     dk_has_ms_display = _milestone_exact_for_display(dk_book_quote)
     fd_has_ms_display = _milestone_exact_for_display(fd_book_quote)
     ev_from_ou = ev_quote is not None and ev_quote.dk_line_kind == "ou"
@@ -948,14 +1024,12 @@ def _assemble_multi_book_quote(
 
     sharp_books: list[str] = []
     sharp_by_book: list[tuple[str, str]] = []
-    if dk_book_quote is not None and (dk_over is not None or dk_under is not None):
-        sharp_books.append("DraftKings")
-        if dk_method:
-            sharp_by_book.append(("DraftKings", dk_method))
-    if fd_book_quote is not None and (fd_over is not None or fd_under is not None):
-        sharp_books.append("FanDuel")
-        if fd_method:
-            sharp_by_book.append(("FanDuel", fd_method))
+    for book in priority:
+        over, under, _, _, method = display[book]
+        if over is not None or under is not None:
+            sharp_books.append(book)
+            if method:
+                sharp_by_book.append((book, method))
 
     assert ev_quote is not None and line_source is not None
     return ResolvedSharpQuote(
@@ -968,17 +1042,22 @@ def _assemble_multi_book_quote(
         dk_main_line=ev_quote.dk_main_line,
         dk_line_kind=dk_kind,
         fd_line_kind=fd_kind,
+        espn_line_kind=espn_kind,
         dk_over_odds=dk_over,
         dk_under_odds=dk_under,
         fd_over_odds=fd_over,
         fd_under_odds=fd_under,
+        espn_over_odds=espn_over,
+        espn_under_odds=espn_under,
         sharp_books=tuple(sharp_books),
         milestone_admitted=ev_quote.milestone_admitted,
         milestone_devig_method=ev_quote.milestone_devig_method,
         dk_milestone_one_sided=dk_ms_one,
         fd_milestone_one_sided=fd_ms_one,
+        espn_milestone_one_sided=espn_ms_one,
         dk_line_source=dk_method,
         fd_line_source=fd_method,
+        espn_line_source=espn_method,
         sharp_by_book=tuple(sharp_by_book),
         sharp_event_start=ev_quote.sharp_event_start,
     )
@@ -1014,6 +1093,13 @@ def resolve_book_sharp_quote(
             return None, milestone_reason or reason
         return ou_quote, reason
 
+    if book == "ESPN":
+        return _resolve_espn_exact_quote(
+            betr_prop,
+            ou_ladder,
+            normalize_player_name=normalize_player_name,
+        )
+
     ou_quote, ou_reason = _resolve_ou_ladder(
         betr_prop, ou_ladder, normalize_player_name=normalize_player_name
     )
@@ -1041,23 +1127,35 @@ def resolve_book_sharp_quote(
 def _consensus_sharp_quote(
     *,
     betr_line: float,
-    dk_quote: ResolvedSharpQuote,
-    fd_quote: ResolvedSharpQuote,
+    quotes: list[tuple[str, ResolvedSharpQuote]],
 ) -> ResolvedSharpQuote:
-    """Equal-weight average of de-vigged fair probs across exact sharp books."""
-    fair_dk = _fair_probs_from_odds(dk_quote.over_odds, dk_quote.under_odds or 0)
-    fair_fd = _fair_probs_from_odds(fd_quote.over_odds, fd_quote.under_odds or 0)
+    """Weighted average of de-vigged fair probs across exact sharp books."""
     weights = load_sharp_book_weights()
-    weight_dk = weights.get("DraftKings", 1.0)
-    weight_fd = weights.get("FanDuel", 1.0)
-    total_weight = weight_dk + weight_fd
-    fair_over = (fair_dk[0] * weight_dk + fair_fd[0] * weight_fd) / total_weight
-    fair_under = (fair_dk[1] * weight_dk + fair_fd[1] * weight_fd) / total_weight
+    fair_pairs: list[tuple[float, float, float]] = []
+    for book, quote in quotes:
+        fair = _fair_probs_from_odds(quote.over_odds, quote.under_odds or 0)
+        weight = weights.get(book, 1.0)
+        fair_pairs.append((fair[0], fair[1], weight))
+    total_weight = sum(weight for _, _, weight in fair_pairs)
+    if total_weight <= 0:
+        total_weight = float(len(fair_pairs))
+        fair_pairs = [(over, under, 1.0) for over, under, _ in fair_pairs]
+    fair_over = sum(over * weight for over, _, weight in fair_pairs) / total_weight
+    fair_under = sum(under * weight for _, under, weight in fair_pairs) / total_weight
     norm = fair_over + fair_under
     if norm > 0:
         fair_over /= norm
         fair_under /= norm
     over_odds, under_odds = _odds_from_fair_probs(fair_over, fair_under)
+
+    dk_quote = next((q for book, q in quotes if book == "DraftKings"), quotes[0][1])
+    fd_quote = next((q for book, q in quotes if book == "FanDuel"), None)
+    espn_quote = next((q for book, q in quotes if book == "ESPN"), None)
+    sharp_books = tuple(book for book, _ in quotes)
+    event_start = next(
+        (q.sharp_event_start for _, q in quotes if q.sharp_event_start),
+        None,
+    )
     return ResolvedSharpQuote(
         over_odds=over_odds,
         under_odds=under_odds,
@@ -1067,12 +1165,14 @@ def _consensus_sharp_quote(
         corroborated=True,
         dk_main_line=dk_quote.dk_main_line,
         dk_line_kind="ou",
-        dk_over_odds=dk_quote.over_odds,
-        dk_under_odds=dk_quote.under_odds,
-        fd_over_odds=fd_quote.over_odds,
-        fd_under_odds=fd_quote.under_odds,
-        sharp_books=("DraftKings", "FanDuel"),
-        sharp_event_start=dk_quote.sharp_event_start or fd_quote.sharp_event_start,
+        dk_over_odds=dk_quote.over_odds if "DraftKings" in sharp_books else None,
+        dk_under_odds=dk_quote.under_odds if "DraftKings" in sharp_books else None,
+        fd_over_odds=fd_quote.over_odds if fd_quote else None,
+        fd_under_odds=fd_quote.under_odds if fd_quote else None,
+        espn_over_odds=espn_quote.over_odds if espn_quote else None,
+        espn_under_odds=espn_quote.under_odds if espn_quote else None,
+        sharp_books=sharp_books,
+        sharp_event_start=event_start,
     )
 
 
@@ -1085,18 +1185,24 @@ def resolve_multi_book_sharp_quote(
     milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
     dk_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
     fd_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
+    espn_ou_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """
-    Resolve DK + FanDuel sharp prices independently per book, assemble one quote.
+    Resolve DK + FanDuel (+ optional ESPN) sharp prices independently per book.
 
-    Each book prefers O/U (exact/alt/interpolated for DK; exact/alt for FD), else
+    Each book prefers O/U (exact/alt/interpolated for DK; exact/alt for FD/ESPN), else
     milestone when O/U is missing or DK-extrapolated only. EV from consensus when
-    both exact O/U, else best eligible O/U (DK preferred), else admitted milestone.
-    Cross-book milestone is display-only when the other book supplies EV O/U.
+    two or more books have exact O/U, else best eligible O/U (DK preferred), else
+    admitted milestone. Cross-book milestone is display-only when another book supplies EV O/U.
     """
     dk_ms = dk_milestone_ladder if dk_milestone_ladder is not None else milestone_ladder
     fd_ms = fd_milestone_ladder if fd_milestone_ladder is not None else {}
-    ou_ladders = {"DraftKings": dk_ou_ladder, "FanDuel": fd_ou_ladder}
+    ou_ladders = {
+        "DraftKings": dk_ou_ladder,
+        "FanDuel": fd_ou_ladder,
+    }
+    if espn_ou_ladder is not None:
+        ou_ladders["ESPN"] = espn_ou_ladder
 
     dk_quote, dk_reason = resolve_book_sharp_quote(
         "DraftKings",
@@ -1114,13 +1220,25 @@ def resolve_multi_book_sharp_quote(
         normalize_player_name=normalize_player_name,
         ou_ladders=ou_ladders,
     )
+    espn_quote: ResolvedSharpQuote | None = None
+    espn_reason: str | None = None
+    if espn_ou_ladder is not None:
+        espn_quote, espn_reason = resolve_book_sharp_quote(
+            "ESPN",
+            betr_prop,
+            espn_ou_ladder,
+            None,
+            normalize_player_name=normalize_player_name,
+            ou_ladders=ou_ladders,
+        )
 
     target_line = float(betr_prop["line"])
     assembled = _assemble_multi_book_quote(
         betr_line=target_line,
         dk_book_quote=dk_quote,
         fd_book_quote=fd_quote,
+        espn_book_quote=espn_quote,
     )
     if assembled is not None:
         return assembled, None
-    return None, fd_reason or dk_reason or "no_sharp_market"
+    return None, espn_reason or fd_reason or dk_reason or "no_sharp_market"

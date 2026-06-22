@@ -28,6 +28,7 @@ from core.pipeline_artifacts import (
     DK_NORMALIZED,
     EV_OUTPUT_FILENAME,
     FD_NORMALIZED,
+    ESPN_NORMALIZED,
     MATCH_REPORT_FILENAME,
     UNMATCHED_BETR_FILENAME,
     UNMATCHED_DK_FILENAME,
@@ -45,8 +46,8 @@ def load_json_list(path: Path) -> list[dict]:
 
 def split_normalized_by_sportsbook(
     unified_props: list[dict],
-) -> tuple[list[dict], list[dict], list[dict]]:
-    """Split a unified board into Betr, DraftKings, and FanDuel lists."""
+) -> tuple[list[dict], list[dict], list[dict], list[dict]]:
+    """Split a unified board into Betr, DraftKings, FanDuel, and ESPN lists."""
     betr_props = [
         prop for prop in unified_props if prop.get("sportsbook") == "Betr"
     ]
@@ -56,13 +57,17 @@ def split_normalized_by_sportsbook(
     fd_props = [
         prop for prop in unified_props if prop.get("sportsbook") == "FanDuel"
     ]
-    return betr_props, dk_props, fd_props
+    espn_props = [
+        prop for prop in unified_props if prop.get("sportsbook") == "ESPN"
+    ]
+    return betr_props, dk_props, fd_props, espn_props
 
 
 _NORMALIZED_BY_SOURCE: dict[str, str] = {
     "betr": BETR_NORMALIZED,
     "dk": DK_NORMALIZED,
     "fd": FD_NORMALIZED,
+    "espn": ESPN_NORMALIZED,
 }
 
 
@@ -71,8 +76,8 @@ def load_comparison_inputs(
     *,
     expected_run_id: str | None = None,
     active_sources: tuple[str, ...] | None = None,
-) -> tuple[list[dict], list[dict], list[dict]]:
-    """Load normalized Betr, DraftKings, and FanDuel props from disk.
+) -> tuple[list[dict], list[dict], list[dict], list[dict]]:
+    """Load normalized Betr, DraftKings, FanDuel, and ESPN props from disk.
 
     When ``active_sources`` is set (partial scrape runs), only those sources are
     loaded and run_id-checked; inactive sources return empty lists so stale
@@ -87,6 +92,8 @@ def load_comparison_inputs(
         if not _source_active(source):
             return []
         path = data_dir / _NORMALIZED_BY_SOURCE[source]
+        if not path.exists():
+            return []
         if expected_run_id:
             run_id, props = load_wrapped_board(path)
             if run_id != expected_run_id:
@@ -100,21 +107,24 @@ def load_comparison_inputs(
     betr_props = _load_source("betr")
     dk_props = _load_source("dk")
     fd_props = _load_source("fd")
+    espn_props = _load_source("espn")
 
     unified_path = data_dir / UNIFIED_OUTPUT_FILENAME
     need_betr = not betr_props and _source_active("betr")
     need_dk = not dk_props and _source_active("dk")
     need_fd = not fd_props and _source_active("fd")
-    if unified_path.exists() and (need_betr or need_dk or need_fd):
+    need_espn = not espn_props and _source_active("espn")
+    if unified_path.exists() and (need_betr or need_dk or need_fd or need_espn):
         unified = load_json_list(unified_path)
-        betr_from_unified, dk_from_unified, fd_from_unified = (
+        betr_from_unified, dk_from_unified, fd_from_unified, espn_from_unified = (
             split_normalized_by_sportsbook(unified)
         )
         betr_props = betr_props or betr_from_unified
         dk_props = dk_props or dk_from_unified
         fd_props = fd_props or fd_from_unified
+        espn_props = espn_props or espn_from_unified
 
-    return betr_props, dk_props, fd_props
+    return betr_props, dk_props, fd_props, espn_props
 
 
 def _league_key(prop: dict) -> str:
@@ -129,13 +139,14 @@ def compute_by_league_match_stats(
     dk_props: list[dict],
     *,
     fd_props: list[dict] | None = None,
+    espn_props: list[dict] | None = None,
     include_flat_lines: bool = False,
 ) -> dict[str, dict]:
     """Per-league match diagnostics derived from normalized props."""
     leagues = sorted(
         {
             _league_key(prop)
-            for prop in betr_props + dk_props + (fd_props or [])
+            for prop in betr_props + dk_props + (fd_props or []) + (espn_props or [])
         }
     )
     by_league: dict[str, dict] = {}
@@ -147,18 +158,25 @@ def compute_by_league_match_stats(
             if fd_props
             else None
         )
-        if not betr_subset and not dk_subset and not fd_subset:
+        espn_subset = (
+            [p for p in (espn_props or []) if _league_key(p) == league]
+            if espn_props
+            else None
+        )
+        if not betr_subset and not dk_subset and not fd_subset and not espn_subset:
             continue
         if not betr_subset and not dk_subset:
             by_league[league] = {
                 "status": "books_only",
                 "fd_props": len(fd_subset or []),
+                "espn_props": len(espn_subset or []),
             }
             continue
         stats = compute_match_stats(
             betr_subset,
             dk_subset,
             fanduel_props=fd_subset,
+            espn_props=espn_subset,
             include_flat_lines=include_flat_lines,
         )
         by_league[league] = dict(stats)
@@ -173,6 +191,7 @@ def persist_match_diagnostics(
     dk_props: list[dict],
     *,
     fd_props: list[dict] | None = None,
+    espn_props: list[dict] | None = None,
     include_flat_lines: bool = False,
 ) -> dict[str, int | float | dict]:
     """Write match stats and unmatched prop lists for scrape/match efficacy checks."""
@@ -181,12 +200,14 @@ def persist_match_diagnostics(
         betr_props,
         dk_props,
         fanduel_props=fd_props,
+        espn_props=espn_props,
         include_flat_lines=include_flat_lines,
     )
     by_league = compute_by_league_match_stats(
         betr_props,
         dk_props,
         fd_props=fd_props,
+        espn_props=espn_props,
         include_flat_lines=include_flat_lines,
     )
     report: dict[str, int | float | dict | str] = {
@@ -207,6 +228,7 @@ def persist_match_diagnostics(
             betr_props,
             dk_props,
             fanduel_props=fd_props,
+            espn_props=espn_props,
             include_flat_lines=include_flat_lines,
         ),
         data_path / UNMATCHED_BETR_FILENAME,
@@ -219,6 +241,7 @@ def persist_match_diagnostics(
     logger.info(
         "match diagnostics: "
         f"betr={stats['betr_props']} dk={stats['dk_props']} fd={stats.get('fd_props', 0)} "
+        f"espn={stats.get('espn_props', 0)} "
         f"matched={stats['matched_keys']} "
         f"({stats['betr_match_rate_pct']}%) "
         f"unmatched_betr={stats['unmatched_betr']} "
@@ -249,7 +272,7 @@ def run_ev_scan(
     if normalize_first:
         normalize_all(data_path)
 
-    betr_props, dk_props, fd_props = load_comparison_inputs(
+    betr_props, dk_props, fd_props, espn_props = load_comparison_inputs(
         data_path,
         expected_run_id=expected_run_id,
         active_sources=active_sources,
@@ -257,20 +280,23 @@ def run_ev_scan(
     if not betr_props:
         logger.error(f"no betr props found in {data_path}")
         return []
-    if not dk_props and not fd_props:
+    if not dk_props and not fd_props and not espn_props:
         logger.error(
-            f"no sharp book props found in {data_path} (need draftkings and/or fanduel)"
+            f"no sharp book props found in {data_path} "
+            "(need draftkings, fanduel, and/or espn)"
         )
         return []
 
     logger.info(
         f"comparing {len(betr_props)} betr props against "
-        f"{len(dk_props)} draftkings + {len(fd_props)} fanduel props"
+        f"{len(dk_props)} draftkings + {len(fd_props)} fanduel + "
+        f"{len(espn_props)} espn props"
     )
     opportunities = compare_betr_vs_draftkings(
         betr_props,
         dk_props,
         fanduel_props=fd_props or None,
+        espn_props=espn_props or None,
         min_ev=min_ev,
         top_n=top_n,
         include_flat_lines=include_flat_lines,

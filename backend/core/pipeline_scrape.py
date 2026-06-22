@@ -6,11 +6,13 @@ from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
     configured_stat_categories_for_league,
 )
+from config.espn_competitions import ESPN_LEAGUE_SLATES
 from config.fd_competitions import FD_LEAGUE_SLATES
 from config.pipeline_sources import dk_league_key, normalize_league
 from core.scrape_result import ScrapeResult
 from scrapers.dfs.betr.betr_engine import BetrEngine
 from scrapers.sportsbooks.dk_engine import DraftKingsEngine
+from scrapers.sportsbooks.espn_engine import ESPNEngine
 from scrapers.sportsbooks.fd_engine import FanDuelEngine
 
 
@@ -132,6 +134,43 @@ async def scrape_fd_league(league: str) -> ScrapeResult:
         )
 
 
+async def scrape_espn_league(league: str) -> ScrapeResult:
+    """Fetch ESPN raw props for one league without persisting."""
+    league_key = normalize_league(league)
+    espn_slate = league_key.lower()
+    if espn_slate not in ESPN_LEAGUE_SLATES:
+        return ScrapeResult(
+            source="espn",
+            league=league_key,
+            status="skipped",
+            reason="not_configured",
+        )
+    try:
+        engine = ESPNEngine(league=espn_slate)
+        props = await engine.scrape()
+        if not props:
+            return ScrapeResult(
+                source="espn",
+                league=league_key,
+                status="no_events",
+                prop_count=0,
+            )
+        return ScrapeResult(
+            source="espn",
+            league=league_key,
+            status="ok",
+            prop_count=len(props),
+            props=props,
+        )
+    except Exception as exc:
+        return ScrapeResult(
+            source="espn",
+            league=league_key,
+            status="failed",
+            error=str(exc),
+        )
+
+
 async def scrape_source_league(source: str, league: str) -> ScrapeResult:
     """Dispatch a pipeline source key to its league scraper."""
     if source == "betr":
@@ -140,4 +179,6 @@ async def scrape_source_league(source: str, league: str) -> ScrapeResult:
         return await scrape_dk_league(league)
     if source == "fd":
         return await scrape_fd_league(league)
+    if source == "espn":
+        return await scrape_espn_league(league)
     raise ValueError(f"unknown pipeline source: {source}")

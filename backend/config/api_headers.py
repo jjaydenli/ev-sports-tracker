@@ -2,6 +2,8 @@
 
 import os
 
+from config.espn_queries import ESPN_APP_VERSION
+
 DABBLE_AUTH_URL = "https://api.dabble.com/sign-in"
 DABBLE_SCHEDULE_URL = (
     "https://api.dabble.com/search/dfs/competitions/"
@@ -60,6 +62,55 @@ FD_BASE_HEADERS = {
     "Accept": "application/json",
     "Referer": "https://sportsbook.fanduel.com/",
 }
+
+# ESPN / TheScore Bet (ESPN BET) sportsbook — GraphQL persisted queries (GET).
+# Confirmed live 2026-06-22: host below, not api.thescore.bet. See docs/betting_odds/espn.md.
+ESPN_SPORTSBOOK_API_HOST = os.getenv(
+    "ESPN_SPORTSBOOK_API_HOST", "https://sportsbook.us-default.thescore.bet"
+).rstrip("/")
+# Persisted-query GET path: /graphql/persisted_queries/<sha256Hash>?operationName=...&variables=...&extensions=...
+ESPN_GRAPHQL_PERSISTED_PATH = "/graphql/persisted_queries"
+ESPN_ORIGIN = os.getenv("ESPN_ORIGIN", "https://sportsbook.thescore.bet")
+ESPN_REFERER = os.getenv("ESPN_REFERER", "https://sportsbook.thescore.bet/")
+ESPN_USER_AGENT = os.getenv(
+    "ESPN_USER_AGENT",
+    (
+        "Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/149.0.0.0 Mobile Safari/537.36"
+    ),
+)
+
+# Client-parity headers from the captured GET (espnbet web app). The token and
+# x-install-id are injected per request by build_espn_headers().
+ESPN_CLIENT_HEADERS: dict[str, str] = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "User-Agent": ESPN_USER_AGENT,
+    "Origin": ESPN_ORIGIN,
+    "Referer": ESPN_REFERER,
+    "apollographql-client-name": "espnbet-espnbet-web",
+    "apollographql-client-version": ESPN_APP_VERSION,
+    "x-app": "espnbet",
+    "x-app-version": ESPN_APP_VERSION,
+    "x-client": "espnbet",
+    "x-platform": "web",
+}
+
+
+def build_espn_headers(install_id: str, token: str | None = None) -> dict[str, str]:
+    """Return ESPN GraphQL request headers for one install id (+ optional JWE token).
+
+    ``Startup`` (the anonymous mint) is the only op called without ``token``; every
+    read op carries ``x-anonymous-authorization: Bearer <JWE>``.
+    """
+    headers = dict(ESPN_CLIENT_HEADERS)
+    headers["x-install-id"] = install_id
+    if token:
+        token = token.strip()
+        if not token.lower().startswith("bearer "):
+            token = f"Bearer {token}"
+        headers["x-anonymous-authorization"] = token
+    return headers
 
 BETR_GRAPHQL_URL = "https://api.fantasy.betr.app/graphql"
 

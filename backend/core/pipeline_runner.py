@@ -393,7 +393,7 @@ def run_refresh(
                 if skip_scrape
                 else (*dfs_sources, *book_sources)
             )
-            betr_props, dk_props, fd_props = load_comparison_inputs(
+            betr_props, dk_props, fd_props, espn_props = load_comparison_inputs(
                 data_path,
                 expected_run_id=expected_run_id,
                 active_sources=active_sources,
@@ -401,9 +401,10 @@ def run_refresh(
         if not betr_props:
             logger.error("missing betr normalized props for EV scan")
             return 1
-        if not dk_props and not fd_props:
+        if not dk_props and not fd_props and not espn_props:
             logger.error(
-                "missing sharp book normalized props for EV scan (need dk and/or fd)"
+                "missing sharp book normalized props for EV scan "
+                "(need dk, fd, and/or espn)"
             )
             return 1
 
@@ -413,6 +414,7 @@ def run_refresh(
                 betr_props,
                 dk_props,
                 fd_props=fd_props or None,
+                espn_props=espn_props or None,
                 include_flat_lines=include_flat_lines,
             )
         with timer.stage("ev scan"):
@@ -431,6 +433,7 @@ def run_refresh(
         logger.success(
             "refresh summary: "
             f"betr={stats['betr_props']} dk={stats['dk_props']} fd={stats.get('fd_props', 0)} "
+            f"espn={stats.get('espn_props', 0)} "
             f"matched={stats['matched_keys']} ({stats['betr_match_rate_pct']}%) "
             f"unmatched_betr={stats['unmatched_betr']} unmatched_dk={stats['unmatched_dk']} "
             f"top={len(opportunities)} plus_ev={plus_ev_count} "

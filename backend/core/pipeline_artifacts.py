@@ -19,6 +19,7 @@ UNMATCHED_DK_FILENAME = "unmatched_dk.json"
 BETR_NORMALIZED = "betr_normalized.json"
 DK_NORMALIZED = "dk_normalized.json"
 FD_NORMALIZED = "fd_normalized.json"
+ESPN_NORMALIZED = "espn_normalized.json"
 UNIFIED_OUTPUT_FILENAME = "unified_master_board.json"
 
 SCRAPE_COVERAGE_FILENAME = "scrape_coverage.json"
@@ -27,12 +28,14 @@ MASTER_BOARD_BY_SOURCE: dict[str, str] = {
     "betr": "betr_master_board.json",
     "dk": "dk_master_board.json",
     "fd": "fd_master_board.json",
+    "espn": "espn_master_board.json",
 }
 
 NORMALIZED_BY_SOURCE: dict[str, str] = {
     "betr": BETR_NORMALIZED,
     "dk": DK_NORMALIZED,
     "fd": FD_NORMALIZED,
+    "espn": ESPN_NORMALIZED,
 }
 
 EV_ARTIFACTS: tuple[str, ...] = (

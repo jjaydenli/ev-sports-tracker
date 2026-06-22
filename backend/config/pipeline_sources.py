@@ -15,7 +15,7 @@ PIPELINE_LEAGUES: tuple[str, ...] = tuple(BETR_TO_DK_LEAGUE.keys())
 DFS_SOURCES: tuple[str, ...] = ("betr",)
 
 # Sharp / reference sportsbooks.
-BOOK_SOURCES: tuple[str, ...] = ("dk", "fd")
+BOOK_SOURCES: tuple[str, ...] = ("dk", "fd", "espn")
 
 # normalize.py PLATFORM_CONFIG keys
 DFS_TO_PLATFORM: dict[str, str] = {
@@ -24,6 +24,7 @@ DFS_TO_PLATFORM: dict[str, str] = {
 BOOK_TO_PLATFORM: dict[str, str] = {
     "dk": "draftkings",
     "fd": "fanduel",
+    "espn": "espn",
 }
 
 SOURCE_TO_PLATFORM: dict[str, str] = {**DFS_TO_PLATFORM, **BOOK_TO_PLATFORM}

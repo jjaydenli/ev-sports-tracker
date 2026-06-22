@@ -17,12 +17,13 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
     "EV%",
     "DK",
     "FD",
+    "ESPN",
     "Src",
     "Live",
 )
 
 # Minimum column widths (excluding separator spaces). Stat widened for longer markets.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 10, 4, 5, 5, 10, 10, 9, 4)
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 10, 4, 5, 5, 10, 10, 10, 9, 4)
 
 _ANSI_ESCAPE = re.compile(r"\033\[[0-9;]*m")
 
@@ -118,7 +119,7 @@ def _format_game(game: str | None, team: str | None) -> str:
 
 
 def format_ev_opportunity_row(row: dict) -> str:
-    """One pipeline table row: player | lg | game | side | stat | line | hit% | ev | dk | fd | src | live."""
+    """One pipeline table row: player | lg | game | side | stat | line | hit% | ev | dk | fd | espn | src | live."""
     line = row.get("line")
     line_text = str(int(line)) if line is not None and float(line) == int(float(line)) else str(line)
     hit_pct = row.get("side_hit_pct")
@@ -145,6 +146,11 @@ def format_ev_opportunity_row(row: dict) -> str:
             row.get("fd_over_odds"),
             row.get("fd_under_odds"),
             milestone_one_sided=bool(row.get("fd_milestone_one_sided")),
+        ),
+        format_ou_odds(
+            row.get("espn_over_odds"),
+            row.get("espn_under_odds"),
+            milestone_one_sided=bool(row.get("espn_milestone_one_sided")),
         ),
         _format_line_source(str(row.get("line_source", ""))),
         live_text,

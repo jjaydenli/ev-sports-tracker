@@ -69,6 +69,8 @@ def test_format_ev_opportunity_row_columns():
         "dk_under_odds": 110,
         "fd_over_odds": -125,
         "fd_under_odds": 105,
+        "espn_over_odds": -140,
+        "espn_under_odds": 105,
         "line_source": "multi_book_consensus",
     }
     line = format_ev_opportunity_row(row)
@@ -82,6 +84,7 @@ def test_format_ev_opportunity_row_columns():
     assert "+110/-130" not in line
     assert "-130/+110" in line
     assert "-125/+105" in line
+    assert "-140/+105" in line
     assert "mb_cons" in line
     _assert_row_column_widths(line)
 
@@ -123,6 +126,7 @@ def test_format_ev_opportunities_table_includes_header():
     assert "+EV" not in table
     assert "DK" in table
     assert "FD" in table
+    assert "ESPN" in table
     assert "Src" in table
     assert "Live" in table
 

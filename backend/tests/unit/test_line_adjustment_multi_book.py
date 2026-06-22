@@ -56,6 +56,7 @@ def test_load_sharp_book_weights_defaults():
     weights = load_sharp_book_weights()
     assert weights["DraftKings"] == 1.0
     assert weights["FanDuel"] == 1.0
+    assert weights["ESPN"] == 1.0
 
 
 def test_consensus_weights_skew_toward_heavier_book(monkeypatch):
@@ -85,17 +86,111 @@ def test_consensus_weights_skew_toward_heavier_book(monkeypatch):
 
     weighted = _consensus_sharp_quote(
         betr_line=22.5,
-        dk_quote=dk_quote,
-        fd_quote=fd_quote,
+        quotes=[("DraftKings", dk_quote), ("FanDuel", fd_quote)],
     )
 
     monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_DK", 1.0)
     monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_FD", 1.0)
     baseline = _consensus_sharp_quote(
         betr_line=22.5,
-        dk_quote=dk_quote,
-        fd_quote=fd_quote,
+        quotes=[("DraftKings", dk_quote), ("FanDuel", fd_quote)],
     )
+
+    assert weighted.over_odds != baseline.over_odds
+
+
+def _espn(player: str, market: str, line: float, over: int, under: int, *, main=True) -> dict:
+    return {
+        "sportsbook": "ESPN",
+        "player": player,
+        "market": market,
+        "line": line,
+        "over_odds": over,
+        "under_odds": under,
+        "is_main_line": main,
+        "event_start": _EVENT_START,
+    }
+
+
+def test_three_book_consensus_when_all_exact():
+    betr = _betr("Test Player", "points", 22.5)
+    dk_ladder = build_player_market_ladder(
+        [_dk("Test Player", "points", 22.5, -130, 110, main=False)],
+        normalize_player_name=normalize_player_name,
+    )
+    fd_ladder = build_player_market_ladder(
+        [_fd("Test Player", "points", 22.5, -120, -110, main=False)],
+        normalize_player_name=normalize_player_name,
+    )
+    espn_ladder = build_player_market_ladder(
+        [_espn("Test Player", "points", 22.5, -125, -115, main=False)],
+        normalize_player_name=normalize_player_name,
+    )
+
+    quote, reason = resolve_multi_book_sharp_quote(
+        betr,
+        dk_ladder,
+        fd_ladder,
+        normalize_player_name=normalize_player_name,
+        espn_ou_ladder=espn_ladder,
+    )
+
+    assert reason is None
+    assert quote is not None
+    assert quote.adjustment_method == "multi_book_consensus"
+    assert quote.sharp_books == ("DraftKings", "FanDuel", "ESPN")
+
+
+def test_consensus_weights_espn_env_override(monkeypatch):
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_DK", 1.0)
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_FD", 1.0)
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_ESPN", 3.0)
+
+    quotes = [
+        (
+            "DraftKings",
+            ResolvedSharpQuote(
+                over_odds=-200,
+                under_odds=170,
+                dk_line=22.5,
+                betr_line=22.5,
+                adjustment_method="exact",
+                corroborated=True,
+                dk_main_line=22.5,
+                dk_line_kind="ou",
+            ),
+        ),
+        (
+            "FanDuel",
+            ResolvedSharpQuote(
+                over_odds=-110,
+                under_odds=-110,
+                dk_line=22.5,
+                betr_line=22.5,
+                adjustment_method="fd_exact",
+                corroborated=True,
+                dk_main_line=22.5,
+                dk_line_kind="ou",
+            ),
+        ),
+        (
+            "ESPN",
+            ResolvedSharpQuote(
+                over_odds=-105,
+                under_odds=-115,
+                dk_line=22.5,
+                betr_line=22.5,
+                adjustment_method="espn_exact",
+                corroborated=True,
+                dk_main_line=22.5,
+                dk_line_kind="ou",
+            ),
+        ),
+    ]
+    weighted = _consensus_sharp_quote(betr_line=22.5, quotes=quotes)
+
+    monkeypatch.setattr("config.settings.SHARP_BOOK_WEIGHTS_ESPN", 1.0)
+    baseline = _consensus_sharp_quote(betr_line=22.5, quotes=quotes)
 
     assert weighted.over_odds != baseline.over_odds
 

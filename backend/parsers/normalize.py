@@ -12,6 +12,7 @@ from config.pipeline_sources import SOURCE_TO_PLATFORM
 from core.pipeline_artifacts import load_wrapped_board, save_wrapped_board
 from parsers.betr_parser import parse_betr_props
 from parsers.dk_parser import parse_dk_props
+from parsers.espn_parser import parse_espn_props
 from parsers.fd_parser import parse_fd_props
 
 # Active platforms included in normalize_all(). Dabble is archived under archive/dabble/.
@@ -19,18 +20,21 @@ PLATFORM_CONFIG = {
     "betr": ("betr_master_board.json", "betr_normalized.json", parse_betr_props),
     "draftkings": ("dk_master_board.json", "dk_normalized.json", parse_dk_props),
     "fanduel": ("fd_master_board.json", "fd_normalized.json", parse_fd_props),
+    "espn": ("espn_master_board.json", "espn_normalized.json", parse_espn_props),
 }
 
 SOURCE_TO_NORMALIZED: dict[str, str] = {
     "betr": "betr_normalized.json",
     "dk": "dk_normalized.json",
     "fd": "fd_normalized.json",
+    "espn": "espn_normalized.json",
 }
 
 SOURCE_TO_MASTER: dict[str, str] = {
     "betr": "betr_master_board.json",
     "dk": "dk_master_board.json",
     "fd": "fd_master_board.json",
+    "espn": "espn_master_board.json",
 }
 
 UNIFIED_OUTPUT_FILENAME = "unified_master_board.json"

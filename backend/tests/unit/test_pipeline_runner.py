@@ -51,6 +51,32 @@ def _ok_result(source: str, league: str, count: int) -> ScrapeResult:
             }
             for index in range(count)
         ]
+    elif source == "fd":
+        props = [
+            {
+                "sportsbook": "FanDuel",
+                "player": f"FD Player {index}",
+                "market": "hits" if league == "MLB" else "points",
+                "line": 1.5 + index if league == "MLB" else 10.5 + index,
+                "league": league,
+                "over_odds": -115,
+                "under_odds": -105,
+            }
+            for index in range(count)
+        ]
+    elif source == "espn":
+        props = [
+            {
+                "sportsbook": "ESPN",
+                "player": f"ESPN Player {index}",
+                "market": "hits" if league == "MLB" else "points",
+                "line": 1.5 + index if league == "MLB" else 10.5 + index,
+                "league": league,
+                "over_odds": -118,
+                "under_odds": -102,
+            }
+            for index in range(count)
+        ]
     else:
         betr_key = "HITS" if league == "MLB" else "POINTS"
         betr_value = 1.5 if league == "MLB" else 10.5
@@ -144,9 +170,9 @@ def test_run_refresh_skip_scrape_writes_ev(mock_preflight, tmp_path):
 @patch("core.pipeline_runner._preflight_betr_auth")
 def test_run_refresh_full_scrape_all_leagues(mock_preflight, mock_scrape, tmp_path):
     async def fake_scrape(source: str, league: str) -> ScrapeResult:
-        if _basketball_league(league) and source in {"betr", "dk", "fd"}:
+        if _basketball_league(league) and source in {"betr", "dk", "fd", "espn"}:
             return _ok_result(source, league, 2)
-        if league == "MLB" and source in {"betr", "dk", "fd"}:
+        if league == "MLB" and source in {"betr", "dk", "fd", "espn"}:
             return _ok_result(source, league, 2)
         return _no_events(source, league)
 
@@ -157,7 +183,7 @@ def test_run_refresh_full_scrape_all_leagues(mock_preflight, mock_scrape, tmp_pa
     code = run_refresh(data_dir=tmp_path)
 
     assert code == 0
-    assert mock_scrape.await_count == 9
+    assert mock_scrape.await_count == 12
     _, betr = load_wrapped_board(tmp_path / BETR_NORMALIZED)
     assert len(betr) == 6
     coverage = json.loads((tmp_path / "scrape_coverage.json").read_text(encoding="utf-8"))
@@ -238,6 +264,38 @@ def _fd_ok_result(league: str, count: int) -> ScrapeResult:
 
 @patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
 @patch("core.pipeline_runner._preflight_betr_auth")
+def test_run_refresh_espn_only_partial_run(mock_preflight, mock_scrape, tmp_path):
+    _write_stale_dk_board(tmp_path)
+
+    async def fake_scrape(source: str, league: str) -> ScrapeResult:
+        if source == "betr" and league == "MLB":
+            return _ok_result("betr", league, 2)
+        if source == "espn" and league == "MLB":
+            return _ok_result("espn", league, 1)
+        return _no_events(source, league)
+
+    mock_scrape.side_effect = fake_scrape
+
+    from core.pipeline_runner import run_refresh
+
+    code = run_refresh(data_dir=tmp_path, books=("espn",), leagues=("MLB",))
+
+    assert code == 0
+    betr_props, dk_props, fd_props, espn_props = load_comparison_inputs(
+        tmp_path,
+        expected_run_id=json.loads(
+            (tmp_path / "scrape_coverage.json").read_text(encoding="utf-8")
+        )["run_id"],
+        active_sources=("betr", "espn"),
+    )
+    assert betr_props
+    assert dk_props == []
+    assert fd_props == []
+    assert espn_props
+
+
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
+@patch("core.pipeline_runner._preflight_betr_auth")
 def test_run_refresh_fd_only_ignores_stale_dk_board(mock_preflight, mock_scrape, tmp_path):
     _write_stale_dk_board(tmp_path)
 
@@ -258,7 +316,7 @@ def test_run_refresh_fd_only_ignores_stale_dk_board(mock_preflight, mock_scrape,
     assert (tmp_path / "ev_opportunities.json").exists()
     _, stale_dk = load_wrapped_board(tmp_path / DK_NORMALIZED)
     assert len(stale_dk) == 1
-    betr_props, dk_props, fd_props = load_comparison_inputs(
+    betr_props, dk_props, fd_props, _espn_props = load_comparison_inputs(
         tmp_path,
         expected_run_id=json.loads(
             (tmp_path / "scrape_coverage.json").read_text(encoding="utf-8")
@@ -298,7 +356,7 @@ def test_load_comparison_inputs_skips_inactive_sources_with_stale_run_id(tmp_pat
     save_wrapped_board(tmp_path / FD_NORMALIZED, run_id=current_run, props=fd)
     _write_stale_dk_board(tmp_path)
 
-    betr_props, dk_props, fd_props = load_comparison_inputs(
+    betr_props, dk_props, fd_props, _espn_props = load_comparison_inputs(
         tmp_path,
         expected_run_id=current_run,
         active_sources=("betr", "fd"),
@@ -327,7 +385,7 @@ def test_run_refresh_continues_when_one_league_empty(mock_preflight, mock_scrape
     async def fake_scrape(source: str, league: str) -> ScrapeResult:
         if league == "NBA":
             return _no_events(source, league)
-        if league == "MLB" and source in {"betr", "dk", "fd"}:
+        if league == "MLB" and source in {"betr", "dk", "fd", "espn"}:
             return _ok_result(source, league, 2)
         return _no_events(source, league)
 

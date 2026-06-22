@@ -1,0 +1,101 @@
+{
+  "data": {
+    "eventSection": {
+      "id": "Section:91f894c6-f457-4491-8b7a-974492182e5a:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+      "pollingIntervalMilliseconds": 30000,
+      "slug": "batter-props",
+      "sectionChildren": [
+        {
+          "id": "Drawer:105477089:HomeRuns:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "844647ef-2145-47e4-a568-d4c27c82f752",
+          "labelText": "Home Runs",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": true,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:Hits:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "c9ab52e9-7d4d-44a1-8f71-5953c757e850",
+          "labelText": "Hits",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": true,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:TotalBases:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "cc36acd4-3248-4532-90f7-afba5a9c6f6f",
+          "labelText": "Total Bases",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": true,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:RBIs:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "f6331031-d9e3-4d5a-bc6a-e067f4560a69",
+          "labelText": "RBIs",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:HomeRuns(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "HomeRuns(O/U)",
+          "labelText": "Home Runs (O/U)",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:Hits(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "Hits(O/U)",
+          "labelText": "Hits (O/U)",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:TotalBases(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "TotalBases(O/U)",
+          "labelText": "Total Bases (O/U)",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:RBIs(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "RBIs(O/U)",
+          "labelText": "RBIs (O/U)",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
+          "__typename": "HorizontalImageCards"
+        },
+        {
+          "__typename": "DataDisclaimerCard"
+        },
+        {
+          "__typename": "DataDisclaimerCard"
+        }
+      ],
+      "__typename": "Section"
+    }
+  }
+}

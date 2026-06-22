@@ -1,0 +1,419 @@
+{
+  "data": {
+    "page": {
+      "id": "Page:66a87597-31bd-4675-9f79-b74893bd80d7",
+      "type": "PAGE",
+      "pageHeaders": [
+        {
+          "id": "EventDetailsHeader:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "fallbackEvent": {
+            "id": "StandardEvent:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+            "boxscore": null,
+            "deepLink": {
+              "canonicalUrl": "espn-sportsbook:/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33",
+              "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33",
+              "__typename": "TsbDeepLink"
+            },
+            "espnMedia": null,
+            "extraInformation": null,
+            "name": "New York Yankees @ Detroit Tigers",
+            "startTime": "2026-06-22T22:10:00.000000Z",
+            "status": "PRE_GAME",
+            "slug": "2026-06-22-united-states-new-york-yankees-detroit-tigers",
+            "resourceUri": "/baseball/events/99720",
+            "competition": {
+              "id": "Competition:345f7485-36e6-498a-a1d0-435f51eff5df",
+              "name": "MLB",
+              "slug": "mlb",
+              "resourceUri": "",
+              "__typename": "Competition"
+            },
+            "sport": {
+              "id": "Sport:4618ea1f-c106-4f01-a0f6-e0603aab1408",
+              "name": "Baseball",
+              "slug": "baseball",
+              "resourceUri": "",
+              "__typename": "Sport"
+            },
+            "organization": {
+              "id": "Organization:80ea0391-d06d-4eca-ad7f-cea185f07308",
+              "slug": "united-states",
+              "__typename": "Organization"
+            },
+            "statistics": null,
+            "homeKeyStarter": {
+              "id": "Participant:da8d8161-9289-470d-b337-f638cf914a81",
+              "abbreviation": "FV",
+              "mediumName": "F. Valdez",
+              "fullName": "Framber Valdez",
+              "resourceUri": "/baseball/players/8415",
+              "__typename": "Participant"
+            },
+            "awayKeyStarter": {
+              "id": "Participant:a3ae8f68-667c-4bb8-aac5-d59a2b6d0ceb",
+              "abbreviation": "GC",
+              "mediumName": "G. Cole",
+              "fullName": "Gerrit Cole",
+              "resourceUri": "/baseball/players/2913",
+              "__typename": "Participant"
+            },
+            "eventLiveStream": null,
+            "homeParticipant": {
+              "id": "Participant:26af0373-67e8-425c-bb52-11ab43be1019",
+              "abbreviation": "DET",
+              "mediumName": "DET Tigers",
+              "fullName": "Detroit Tigers",
+              "resourceUri": "/baseball/teams/8",
+              "__typename": "Participant"
+            },
+            "awayParticipant": {
+              "id": "Participant:4d437327-e11e-4838-87d8-12e535dd3afd",
+              "abbreviation": "NYY",
+              "mediumName": "NY Yankees",
+              "fullName": "New York Yankees",
+              "resourceUri": "/baseball/teams/3",
+              "__typename": "Participant"
+            },
+            "__typename": "StandardEvent",
+            "updatedAtTime": "2026-06-21T20:10:06.578310Z"
+          },
+          "richEvent": {
+            "id": "LiveApiBaseballEvent:99720",
+            "eventStatus": "PRE_GAME",
+            "league": {
+              "slug": "mlb",
+              "__typename": "LiveApiBaseballLeague"
+            },
+            "gameInfo": {
+              "startsAt": "2026-06-22T22:10:00Z",
+              "__typename": "LiveApiBaseballGameInfo"
+            },
+            "resourceUri": "/baseball/events/99720",
+            "sport": "BASEBALL",
+            "homeTeam": {
+              "id": "LiveApiBaseballTeam:8",
+              "mediumName": "Tigers",
+              "colour1": "0C2C56",
+              "logos": {
+                "w72xh72": "https://assets-sports-gcp.thescore.com/baseball/team/8/w72xh72_logo.png",
+                "w128xh128": "https://assets-sports-gcp.thescore.com/baseball/team/8/small_logo.png",
+                "w256xh256": "https://assets-sports-gcp.thescore.com/baseball/team/8/logo.png",
+                "__typename": "LiveApiTeamLogo"
+              },
+              "resourceUri": "/baseball/teams/8",
+              "__typename": "LiveApiBaseballTeam"
+            },
+            "awayTeam": {
+              "id": "LiveApiBaseballTeam:3",
+              "mediumName": "Yankees",
+              "colour1": "0C2340",
+              "logos": {
+                "w72xh72": "https://assets-sports-gcp.thescore.com/baseball/team/3/w72xh72_logo.png",
+                "w128xh128": "https://assets-sports-gcp.thescore.com/baseball/team/3/small_logo.png",
+                "w256xh256": "https://assets-sports-gcp.thescore.com/baseball/team/3/logo.png",
+                "__typename": "LiveApiTeamLogo"
+              },
+              "resourceUri": "/baseball/teams/3",
+              "__typename": "LiveApiBaseballTeam"
+            },
+            "homeStanding": {
+              "rankString": "4th AL Central",
+              "shortRecord": "33-44",
+              "rankAndRecordString": "33-44, 4th AL Central",
+              "__typename": "LiveApiBaseballStanding"
+            },
+            "awayStanding": {
+              "rankString": "1st AL East",
+              "shortRecord": "46-30",
+              "rankAndRecordString": "46-30, 1st AL East",
+              "__typename": "LiveApiBaseballStanding"
+            },
+            "boxScore": null,
+            "__typename": "LiveApiBaseballEvent"
+          },
+          "__typename": "EventDetailsHeader"
+        }
+      ],
+      "pageChildren": [
+        {
+          "id": "Section:fac09661-f700-420c-8fa2-3c5fb7eac7e3:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Popular",
+          "default": true,
+          "slug": "popular",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": true,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/popular",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:98238edc-4ad1-4175-b2dc-b9e730ed90d1:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Power Hour",
+          "default": false,
+          "slug": "power-hour",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": false,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/power-hour",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:91f894c6-f457-4491-8b7a-974492182e5a:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Batter Props",
+          "default": false,
+          "slug": "batter-props",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": true,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/batter-props",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:5c54374f-0deb-4c2b-9dfc-efdf9f121494:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Pitcher Props",
+          "default": false,
+          "slug": "pitcher-props",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": true,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/pitcher-props",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:6cf230d9-9f97-4a5f-9e0a-030157bce06f:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "1st 5 Innings",
+          "default": false,
+          "slug": "1st-5-innings",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": false,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/1st-5-innings",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:4b1aa3b1-aad6-4b98-ad8e-8508d4027425:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Innings",
+          "default": false,
+          "slug": "innings",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": true,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/innings",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:260b41f2-e82b-4705-b986-cc307be8a3f2:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Plate Appearance",
+          "default": false,
+          "slug": "plate-appearance",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": false,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/plate-appearance",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:c75f24ef-34ce-4adc-9e09-559d32b84830:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Game Props",
+          "default": false,
+          "slug": "game_props",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": true,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/game_props",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:1df3c481-4cd8-4945-be15-1807b1f5b004:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Featured Parlays",
+          "default": false,
+          "slug": "featured-bets",
+          "archetype": "FEATURED_BETS_EVENT",
+          "hasContent": false,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/featured-bets",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        },
+        {
+          "id": "Section:cd2ed9a3-78f0-48a1-b6d1-74be6d3380e6:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": "Specials",
+          "default": false,
+          "slug": "specials",
+          "archetype": "DYNAMIC_EVENT",
+          "hasContent": true,
+          "fallbackChild": {
+            "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+            "title": "No bets available",
+            "description": "Check back soon!",
+            "imageCard": {
+              "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+              "image": {
+                "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+                "__typename": "ResizableImage"
+              },
+              "__typename": "ImageCard"
+            },
+            "__typename": "EmptyStateCard"
+          },
+          "deepLink": {
+            "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33/section/specials",
+            "__typename": "TsbDeepLink"
+          },
+          "__typename": "Section"
+        }
+      ],
+      "quickBetDetails": {
+        "id": "QuickBetDetails:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+        "rawEventId": "0d4827b4-814e-4761-8f15-73d0c62f5e33",
+        "deepLink": null,
+        "__typename": "QuickBetDetails"
+      },
+      "sideEffectDeepLink": null,
+      "__typename": "Page"
+    }
+  }
+}

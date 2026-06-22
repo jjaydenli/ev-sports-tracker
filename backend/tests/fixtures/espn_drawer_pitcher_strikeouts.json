@@ -1,0 +1,195 @@
+{
+  "data": {
+    "eventDrawer": {
+      "id": "Drawer:100235117:PitcherStrikeouts(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+      "drawerChildren": [
+        {
+          "id": "MarketplaceShelf:PitcherStrikeouts(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "label": null,
+          "marketplaceShelfChildren": [
+            {
+              "id": "CompactMultipleMarketCard:72143c27-1386-5434-897b-2aa68588b4f3",
+              "rawId": "72143c27-1386-5434-897b-2aa68588b4f3",
+              "attributes": [
+                "PARLAY_PLUS_ELIGIBLE"
+              ],
+              "markets": [
+                {
+                  "id": "Market:19491d88-3c91-49da-9894-79113d2a6231",
+                  "name": "Framber Valdez Total Strikeouts",
+                  "status": "OPEN",
+                  "type": "TOTAL",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T10:44:01.514566Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:b088736a-c0bd-453c-9f7d-c59290e68d3e",
+                      "rawId": "b088736a-c0bd-453c-9f7d-c59290e68d3e",
+                      "name": {
+                        "cleanName": "Over",
+                        "defaultName": "O 4.5",
+                        "fullName": "Over 4.5",
+                        "minimalName": "O 4.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "31",
+                        "numeratorLong": "51",
+                        "formattedOdds": "-155",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 4.5,
+                        "formattedPoints": "4.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "OVER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:ef304989-1a70-43d0-9f1b-94b0f6a6bd9f",
+                      "rawId": "ef304989-1a70-43d0-9f1b-94b0f6a6bd9f",
+                      "name": {
+                        "cleanName": "Under",
+                        "defaultName": "U 4.5",
+                        "fullName": "Under 4.5",
+                        "minimalName": "U 4.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "10",
+                        "numeratorLong": "21",
+                        "formattedOdds": "+110",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 4.5,
+                        "formattedPoints": "4.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "UNDER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                }
+              ],
+              "deepLink": null,
+              "marketTags": [
+                "Pitcher Props",
+                "Prop Analyzer Additional Markets",
+                "TSM MLB PlayerProps"
+              ],
+              "requiresMarketHeader": true,
+              "participant": {
+                "id": "Participant:da8d8161-9289-470d-b337-f638cf914a81",
+                "mediumName": "F. Valdez",
+                "__typename": "Participant"
+              },
+              "__typename": "CompactMultipleMarketCard"
+            },
+            {
+              "id": "CompactMultipleMarketCard:03e496bd-6cb4-5855-858d-c237d9175e91",
+              "rawId": "03e496bd-6cb4-5855-858d-c237d9175e91",
+              "attributes": [
+                "PARLAY_PLUS_ELIGIBLE"
+              ],
+              "markets": [
+                {
+                  "id": "Market:f8219c74-02d0-49ce-88f9-4607107b55e5",
+                  "name": "Gerrit Cole Total Strikeouts",
+                  "status": "OPEN",
+                  "type": "TOTAL",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T10:14:02.296298Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:cd976e06-5490-48c0-abec-54994861ad8c",
+                      "rawId": "cd976e06-5490-48c0-abec-54994861ad8c",
+                      "name": {
+                        "cleanName": "Over",
+                        "defaultName": "O 5.5",
+                        "fullName": "Over 5.5",
+                        "minimalName": "O 5.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "6",
+                        "numeratorLong": "11",
+                        "formattedOdds": "-120",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 5.5,
+                        "formattedPoints": "5.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "OVER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:80bf98d6-c19c-48c2-8e76-922657699bae",
+                      "rawId": "80bf98d6-c19c-48c2-8e76-922657699bae",
+                      "name": {
+                        "cleanName": "Under",
+                        "defaultName": "U 5.5",
+                        "fullName": "Under 5.5",
+                        "minimalName": "U 5.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "23",
+                        "numeratorLong": "43",
+                        "formattedOdds": "-115",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 5.5,
+                        "formattedPoints": "5.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "UNDER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                }
+              ],
+              "deepLink": null,
+              "marketTags": [
+                "Pitcher Props",
+                "Prop Analyzer Additional Markets",
+                "TSM MLB PlayerProps"
+              ],
+              "requiresMarketHeader": true,
+              "participant": {
+                "id": "Participant:a3ae8f68-667c-4bb8-aac5-d59a2b6d0ceb",
+                "mediumName": "G. Cole",
+                "__typename": "Participant"
+              },
+              "__typename": "CompactMultipleMarketCard"
+            }
+          ],
+          "__typename": "MarketplaceShelf"
+        }
+      ],
+      "__typename": "Drawer"
+    }
+  }
+}

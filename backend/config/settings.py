@@ -31,6 +31,7 @@ def _float_env(name: str, default: float) -> float:
 # Multi-book consensus weights (equal 1.0 defaults). See core/line_adjustment.py.
 SHARP_BOOK_WEIGHTS_DK = _float_env("SHARP_BOOK_WEIGHTS_DK", 1.0)
 SHARP_BOOK_WEIGHTS_FD = _float_env("SHARP_BOOK_WEIGHTS_FD", 1.0)
+SHARP_BOOK_WEIGHTS_ESPN = _float_env("SHARP_BOOK_WEIGHTS_ESPN", 1.0)
 
 # Milestone (N+) admission gate — fair over prob floor and hold fallback.
 MILESTONE_MIN_FAIR_OVER = _float_env("MILESTONE_MIN_FAIR_OVER", 0.6154)  # −160

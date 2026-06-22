@@ -1,0 +1,1635 @@
+{
+  "data": {
+    "node": {
+      "id": "Section:d9513891-c315-4c16-8554-09d52d3ce9b2",
+      "fallbackChild": {
+        "id": "EmptyStateCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+        "title": "No bets available",
+        "description": "Check back soon!",
+        "imageCard": {
+          "id": "ImageCard:a68b3858-0cc2-4059-ac5f-0de9356d7b37",
+          "image": {
+            "androidXxxhdpiThemable": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=908,height=312/assets/$theme$/illustrations/empty_state/baseball.png",
+            "__typename": "ResizableImage"
+          },
+          "__typename": "ImageCard"
+        },
+        "__typename": "EmptyStateCard"
+      },
+      "sectionChildren": [
+        {
+          "icon": null,
+          "id": "MarketplaceShelf:0a417878-a0e3-4c8f-bec5-b936fed542a0",
+          "marketplaceShelfChildren": [
+            {
+              "attributes": [
+                "PARLAY_PLUS_ELIGIBLE"
+              ],
+              "id": "GridMarketCard:default|0d4827b4-814e-4761-8f15-73d0c62f5e33|f6259d25-a38a-47d7-914d-4ca65028524a",
+              "deepLink": {
+                "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                "__typename": "TsbDeepLink"
+              },
+              "markets": [
+                {
+                  "id": "Market:db979e9b-b9e3-4ba7-9670-c82322598159",
+                  "name": "Moneyline",
+                  "status": "OPEN",
+                  "type": "MONEYLINE",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:10:28.122567Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:c1b524c3-afd6-4528-8a9f-a213938e1254",
+                      "rawId": "c1b524c3-afd6-4528-8a9f-a213938e1254",
+                      "name": {
+                        "cleanName": "NY Yankees",
+                        "defaultName": "NY Yankees",
+                        "fullName": "NY Yankees",
+                        "minimalName": null,
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "13",
+                        "numeratorLong": "23",
+                        "formattedOdds": "-130",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:4d437327-e11e-4838-87d8-12e535dd3afd",
+                        "abbreviation": "NYY",
+                        "mediumName": "NY Yankees",
+                        "fullName": "New York Yankees",
+                        "resourceUri": "/baseball/teams/3",
+                        "__typename": "Participant"
+                      },
+                      "points": null,
+                      "status": "OPEN",
+                      "type": "AWAY_MONEYLINE",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:226d0a8d-20b9-4841-b68a-b829ff7c658a",
+                      "rawId": "226d0a8d-20b9-4841-b68a-b829ff7c658a",
+                      "name": {
+                        "cleanName": "DET Tigers",
+                        "defaultName": "DET Tigers",
+                        "fullName": "DET Tigers",
+                        "minimalName": null,
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "10",
+                        "numeratorLong": "21",
+                        "formattedOdds": "+110",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:26af0373-67e8-425c-bb52-11ab43be1019",
+                        "abbreviation": "DET",
+                        "mediumName": "DET Tigers",
+                        "fullName": "Detroit Tigers",
+                        "resourceUri": "/baseball/teams/8",
+                        "__typename": "Participant"
+                      },
+                      "points": null,
+                      "status": "OPEN",
+                      "type": "HOME_MONEYLINE",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                },
+                {
+                  "id": "Market:51e55d0b-13be-4481-a086-e331c7d5d612",
+                  "name": "Run Line",
+                  "status": "OPEN",
+                  "type": "SPREAD",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T10:17:14.764799Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:a454d4fa-85db-4abc-a560-899c7e4337db",
+                      "rawId": "a454d4fa-85db-4abc-a560-899c7e4337db",
+                      "name": {
+                        "cleanName": "NY Yankees",
+                        "defaultName": "NY Yankees -1.5",
+                        "fullName": "NY Yankees -1.5",
+                        "minimalName": "-1.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "4",
+                        "numeratorLong": "9",
+                        "formattedOdds": "+125",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:4d437327-e11e-4838-87d8-12e535dd3afd",
+                        "abbreviation": "NYY",
+                        "mediumName": "NY Yankees",
+                        "fullName": "New York Yankees",
+                        "resourceUri": "/baseball/teams/3",
+                        "__typename": "Participant"
+                      },
+                      "points": {
+                        "decimalPoints": -1.5,
+                        "formattedPoints": "-1.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "AWAY_SPREAD",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:6ba96be6-1388-4c51-84c2-8975a19983de",
+                      "rawId": "6ba96be6-1388-4c51-84c2-8975a19983de",
+                      "name": {
+                        "cleanName": "DET Tigers",
+                        "defaultName": "DET Tigers +1.5",
+                        "fullName": "DET Tigers +1.5",
+                        "minimalName": "+1.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "3",
+                        "numeratorLong": "5",
+                        "formattedOdds": "-150",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:26af0373-67e8-425c-bb52-11ab43be1019",
+                        "abbreviation": "DET",
+                        "mediumName": "DET Tigers",
+                        "fullName": "Detroit Tigers",
+                        "resourceUri": "/baseball/teams/8",
+                        "__typename": "Participant"
+                      },
+                      "points": {
+                        "decimalPoints": 1.5,
+                        "formattedPoints": "+1.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "HOME_SPREAD",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                },
+                {
+                  "id": "Market:46f1b006-9cbf-4f77-b557-ef6077aa564a",
+                  "name": "Total Runs",
+                  "status": "OPEN",
+                  "type": "TOTAL",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:10:31.061495Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:320049d7-4258-4759-b889-df1a3a325d6c",
+                      "rawId": "320049d7-4258-4759-b889-df1a3a325d6c",
+                      "name": {
+                        "cleanName": "Over",
+                        "defaultName": "O 8.5",
+                        "fullName": "Over 8.5",
+                        "minimalName": "O 8.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "1",
+                        "numeratorLong": "2",
+                        "formattedOdds": "Even",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 8.5,
+                        "formattedPoints": "8.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "OVER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:540e12f2-501c-442c-8a51-07c2ec1a1be2",
+                      "rawId": "540e12f2-501c-442c-8a51-07c2ec1a1be2",
+                      "name": {
+                        "cleanName": "Under",
+                        "defaultName": "U 8.5",
+                        "fullName": "Under 8.5",
+                        "minimalName": "U 8.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "6",
+                        "numeratorLong": "11",
+                        "formattedOdds": "-120",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 8.5,
+                        "formattedPoints": "8.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "UNDER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                }
+              ],
+              "marketTags": [
+                "MLB Event Lines"
+              ],
+              "fallbackEvent": {
+                "id": "StandardEvent:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                "boxscore": null,
+                "deepLink": {
+                  "canonicalUrl": "espn-sportsbook:/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                  "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                  "__typename": "TsbDeepLink"
+                },
+                "espnMedia": null,
+                "extraInformation": null,
+                "name": "New York Yankees @ Detroit Tigers",
+                "startTime": "2026-06-22T22:10:00.000000Z",
+                "status": "PRE_GAME",
+                "slug": "2026-06-22-united-states-new-york-yankees-detroit-tigers",
+                "resourceUri": "/baseball/events/99720",
+                "competition": {
+                  "id": "Competition:345f7485-36e6-498a-a1d0-435f51eff5df",
+                  "name": "MLB",
+                  "slug": "mlb",
+                  "resourceUri": "",
+                  "__typename": "Competition"
+                },
+                "sport": {
+                  "id": "Sport:4618ea1f-c106-4f01-a0f6-e0603aab1408",
+                  "name": "Baseball",
+                  "slug": "baseball",
+                  "resourceUri": "",
+                  "__typename": "Sport"
+                },
+                "organization": {
+                  "id": "Organization:80ea0391-d06d-4eca-ad7f-cea185f07308",
+                  "slug": "united-states",
+                  "__typename": "Organization"
+                },
+                "statistics": null,
+                "homeKeyStarter": {
+                  "id": "Participant:da8d8161-9289-470d-b337-f638cf914a81",
+                  "abbreviation": "FV",
+                  "mediumName": "F. Valdez",
+                  "fullName": "Framber Valdez",
+                  "resourceUri": "/baseball/players/8415",
+                  "__typename": "Participant"
+                },
+                "awayKeyStarter": {
+                  "id": "Participant:a3ae8f68-667c-4bb8-aac5-d59a2b6d0ceb",
+                  "abbreviation": "GC",
+                  "mediumName": "G. Cole",
+                  "fullName": "Gerrit Cole",
+                  "resourceUri": "/baseball/players/2913",
+                  "__typename": "Participant"
+                },
+                "eventLiveStream": null,
+                "homeParticipant": {
+                  "id": "Participant:26af0373-67e8-425c-bb52-11ab43be1019",
+                  "abbreviation": "DET",
+                  "mediumName": "DET Tigers",
+                  "fullName": "Detroit Tigers",
+                  "resourceUri": "/baseball/teams/8",
+                  "__typename": "Participant"
+                },
+                "awayParticipant": {
+                  "id": "Participant:4d437327-e11e-4838-87d8-12e535dd3afd",
+                  "abbreviation": "NYY",
+                  "mediumName": "NY Yankees",
+                  "fullName": "New York Yankees",
+                  "resourceUri": "/baseball/teams/3",
+                  "__typename": "Participant"
+                },
+                "__typename": "StandardEvent",
+                "updatedAtTime": "2026-06-21T20:10:06.578310Z"
+              },
+              "richEvent": {
+                "id": "LiveApiBaseballEvent:99720",
+                "eventStatus": "PRE_GAME",
+                "league": {
+                  "slug": "mlb",
+                  "__typename": "LiveApiBaseballLeague"
+                },
+                "gameInfo": {
+                  "startsAt": "2026-06-22T22:10:00Z",
+                  "__typename": "LiveApiBaseballGameInfo"
+                },
+                "resourceUri": "/baseball/events/99720",
+                "sport": "BASEBALL",
+                "homeTeam": {
+                  "id": "LiveApiBaseballTeam:8",
+                  "mediumName": "Tigers",
+                  "colour1": "0C2C56",
+                  "logos": {
+                    "w72xh72": "https://assets-sports-gcp.thescore.com/baseball/team/8/w72xh72_logo.png",
+                    "w128xh128": "https://assets-sports-gcp.thescore.com/baseball/team/8/small_logo.png",
+                    "w256xh256": "https://assets-sports-gcp.thescore.com/baseball/team/8/logo.png",
+                    "__typename": "LiveApiTeamLogo"
+                  },
+                  "resourceUri": "/baseball/teams/8",
+                  "__typename": "LiveApiBaseballTeam"
+                },
+                "awayTeam": {
+                  "id": "LiveApiBaseballTeam:3",
+                  "mediumName": "Yankees",
+                  "colour1": "0C2340",
+                  "logos": {
+                    "w72xh72": "https://assets-sports-gcp.thescore.com/baseball/team/3/w72xh72_logo.png",
+                    "w128xh128": "https://assets-sports-gcp.thescore.com/baseball/team/3/small_logo.png",
+                    "w256xh256": "https://assets-sports-gcp.thescore.com/baseball/team/3/logo.png",
+                    "__typename": "LiveApiTeamLogo"
+                  },
+                  "resourceUri": "/baseball/teams/3",
+                  "__typename": "LiveApiBaseballTeam"
+                },
+                "homeStanding": {
+                  "rankString": "4th AL Central",
+                  "shortRecord": "33-44",
+                  "rankAndRecordString": "33-44, 4th AL Central",
+                  "__typename": "LiveApiBaseballStanding"
+                },
+                "awayStanding": {
+                  "rankString": "1st AL East",
+                  "shortRecord": "46-30",
+                  "rankAndRecordString": "46-30, 1st AL East",
+                  "__typename": "LiveApiBaseballStanding"
+                },
+                "boxScore": null,
+                "__typename": "LiveApiBaseballEvent"
+              },
+              "rawId": "default|0d4827b4-814e-4761-8f15-73d0c62f5e33|f6259d25-a38a-47d7-914d-4ca65028524a",
+              "recommendedProps": {
+                "icon": "https://api-cdn.thescore.bet/assets/$theme$/icons/promos/fire_l_outlined.png",
+                "title": "Hot Props",
+                "selectionIds": [
+                  "204102b4-8bda-4952-80c7-7de046c33d1c",
+                  "124a1174-8fad-432c-8b20-10dc187f144a",
+                  "b08fd3db-ea27-4790-a50f-4bf5679c4096",
+                  "f8a08834-a71e-4e9e-86df-c55a0ec95ca1",
+                  "5704c67a-9ca1-4071-a45a-344a19fdd679",
+                  "bf64fa2e-be27-407d-84ad-50a479549487"
+                ],
+                "markets": [
+                  {
+                    "id": "Market:adeba53c-4376-4d29-a1ea-51738e151bac",
+                    "classification": "PLAYER_PROP",
+                    "name": "Cody Bellinger Total RBIs",
+                    "participant": {
+                      "id": "Participant:5fd651d2-a70d-4324-98af-92591571ab85",
+                      "abbreviation": "CB",
+                      "mediumName": "C. Bellinger",
+                      "fullName": "Cody Bellinger",
+                      "resourceUri": "/baseball/players/4899",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:204102b4-8bda-4952-80c7-7de046c33d1c",
+                        "rawId": "204102b4-8bda-4952-80c7-7de046c33d1c",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "1+",
+                          "fullName": "1+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "5",
+                          "numeratorLong": "12",
+                          "formattedOdds": "+140",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:31.381752Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:a6dd27a9-d658-4f52-956c-c6a1e9ab8cce",
+                    "classification": "PLAYER_PROP",
+                    "name": "Amed Rosario Total Hits",
+                    "participant": {
+                      "id": "Participant:4eb77903-8244-4768-a7d1-7327b5bb53d4",
+                      "abbreviation": "AR",
+                      "mediumName": "A. Rosario",
+                      "fullName": "Amed Rosario",
+                      "resourceUri": "/baseball/players/5078",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:124a1174-8fad-432c-8b20-10dc187f144a",
+                        "rawId": "124a1174-8fad-432c-8b20-10dc187f144a",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "2+",
+                          "fullName": "2+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "5",
+                          "numeratorLong": "14",
+                          "formattedOdds": "+180",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:18:01.360918Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:695e7705-5b4a-4452-8bf6-827ad38e2e6e",
+                    "classification": "PLAYER_PROP",
+                    "name": "Kevin McGonigle Total Bases",
+                    "participant": {
+                      "id": "Participant:8413c2d3-687b-4235-a0a8-47bc11a4f050",
+                      "abbreviation": "KM",
+                      "mediumName": "K. McGonigle",
+                      "fullName": "Kevin McGonigle",
+                      "resourceUri": "/baseball/players/18596",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:b08fd3db-ea27-4790-a50f-4bf5679c4096",
+                        "rawId": "b08fd3db-ea27-4790-a50f-4bf5679c4096",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "2+",
+                          "fullName": "2+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "4",
+                          "numeratorLong": "9",
+                          "formattedOdds": "+125",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:29.452326Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:5b6beb18-a8e7-4b59-90f0-0026977ff098",
+                    "classification": "PLAYER_PROP",
+                    "name": "Gerrit Cole Total Strikeouts",
+                    "participant": {
+                      "id": "Participant:a3ae8f68-667c-4bb8-aac5-d59a2b6d0ceb",
+                      "abbreviation": "GC",
+                      "mediumName": "G. Cole",
+                      "fullName": "Gerrit Cole",
+                      "resourceUri": "/baseball/players/2913",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:f8a08834-a71e-4e9e-86df-c55a0ec95ca1",
+                        "rawId": "f8a08834-a71e-4e9e-86df-c55a0ec95ca1",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "6+",
+                          "fullName": "6+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "6",
+                          "numeratorLong": "11",
+                          "formattedOdds": "-120",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T10:14:02.294587Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:80155196-a675-4d1c-9cf8-14589fe73102",
+                    "classification": "PLAYER_PROP",
+                    "name": "Riley Greene Total Home Runs",
+                    "participant": {
+                      "id": "Participant:a9072f54-baba-478e-babb-662093335719",
+                      "abbreviation": "RG",
+                      "mediumName": "R. Greene",
+                      "fullName": "Riley Greene",
+                      "resourceUri": "/baseball/players/12329",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:5704c67a-9ca1-4071-a45a-344a19fdd679",
+                        "rawId": "5704c67a-9ca1-4071-a45a-344a19fdd679",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "1+",
+                          "fullName": "1+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "4",
+                          "numeratorLong": "21",
+                          "formattedOdds": "+425",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:30.019256Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:fa2257cd-8e73-451f-8881-5724a628211d",
+                    "classification": "PLAYER_PROP",
+                    "name": "Paul Goldschmidt Total Hits",
+                    "participant": {
+                      "id": "Participant:aac0e232-833c-4008-a779-999ff9140983",
+                      "abbreviation": "PG",
+                      "mediumName": "P. Goldschmidt",
+                      "fullName": "Paul Goldschmidt",
+                      "resourceUri": "/baseball/players/1851",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:bf64fa2e-be27-407d-84ad-50a479549487",
+                        "rawId": "bf64fa2e-be27-407d-84ad-50a479549487",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "2+",
+                          "fullName": "2+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "10",
+                          "numeratorLong": "29",
+                          "formattedOdds": "+190",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:18:01.451837Z",
+                    "__typename": "Market"
+                  }
+                ],
+                "selectionRichParticipants": [
+                  {
+                    "selectionId": "204102b4-8bda-4952-80c7-7de046c33d1c",
+                    "participant": {
+                      "id": "Participant:5fd651d2-a70d-4324-98af-92591571ab85",
+                      "abbreviation": "CB",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/4899/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/4899",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "124a1174-8fad-432c-8b20-10dc187f144a",
+                    "participant": {
+                      "id": "Participant:4eb77903-8244-4768-a7d1-7327b5bb53d4",
+                      "abbreviation": "AR",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/5078/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/5078",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "b08fd3db-ea27-4790-a50f-4bf5679c4096",
+                    "participant": {
+                      "id": "Participant:8413c2d3-687b-4235-a0a8-47bc11a4f050",
+                      "abbreviation": "KM",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/18596/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/18596",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "f8a08834-a71e-4e9e-86df-c55a0ec95ca1",
+                    "participant": {
+                      "id": "Participant:a3ae8f68-667c-4bb8-aac5-d59a2b6d0ceb",
+                      "abbreviation": "GC",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/2913/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/2913",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "5704c67a-9ca1-4071-a45a-344a19fdd679",
+                    "participant": {
+                      "id": "Participant:a9072f54-baba-478e-babb-662093335719",
+                      "abbreviation": "RG",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/12329/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/12329",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "bf64fa2e-be27-407d-84ad-50a479549487",
+                    "participant": {
+                      "id": "Participant:aac0e232-833c-4008-a779-999ff9140983",
+                      "abbreviation": "PG",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/1851/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/1851",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  }
+                ],
+                "__typename": "RecommendedProps"
+              },
+              "icon": {
+                "customSize": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=84,height=84,format=auto/assets/$theme$/icons/sports/baseball_primary.png",
+                "customHeight": null,
+                "customWidth": null,
+                "__typename": "ResizableImage"
+              },
+              "__typename": "GridMarketCard",
+              "event": {
+                "id": "EventWrapper:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                "fallbackEvent": {
+                  "id": "StandardEvent:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                  "boxscore": null,
+                  "deepLink": {
+                    "canonicalUrl": "espn-sportsbook:/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                    "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                    "__typename": "TsbDeepLink"
+                  },
+                  "espnMedia": null,
+                  "extraInformation": null,
+                  "name": "New York Yankees @ Detroit Tigers",
+                  "startTime": "2026-06-22T22:10:00.000000Z",
+                  "status": "PRE_GAME",
+                  "slug": "2026-06-22-united-states-new-york-yankees-detroit-tigers",
+                  "resourceUri": "/baseball/events/99720",
+                  "competition": {
+                    "id": "Competition:345f7485-36e6-498a-a1d0-435f51eff5df",
+                    "name": "MLB",
+                    "slug": "mlb",
+                    "resourceUri": "",
+                    "__typename": "Competition"
+                  },
+                  "sport": {
+                    "id": "Sport:4618ea1f-c106-4f01-a0f6-e0603aab1408",
+                    "name": "Baseball",
+                    "slug": "baseball",
+                    "resourceUri": "",
+                    "__typename": "Sport"
+                  },
+                  "organization": {
+                    "id": "Organization:80ea0391-d06d-4eca-ad7f-cea185f07308",
+                    "slug": "united-states",
+                    "__typename": "Organization"
+                  },
+                  "statistics": null,
+                  "homeKeyStarter": {
+                    "id": "Participant:da8d8161-9289-470d-b337-f638cf914a81",
+                    "abbreviation": "FV",
+                    "mediumName": "F. Valdez",
+                    "fullName": "Framber Valdez",
+                    "resourceUri": "/baseball/players/8415",
+                    "__typename": "Participant"
+                  },
+                  "awayKeyStarter": {
+                    "id": "Participant:a3ae8f68-667c-4bb8-aac5-d59a2b6d0ceb",
+                    "abbreviation": "GC",
+                    "mediumName": "G. Cole",
+                    "fullName": "Gerrit Cole",
+                    "resourceUri": "/baseball/players/2913",
+                    "__typename": "Participant"
+                  },
+                  "eventLiveStream": null,
+                  "homeParticipant": {
+                    "id": "Participant:26af0373-67e8-425c-bb52-11ab43be1019",
+                    "abbreviation": "DET",
+                    "mediumName": "DET Tigers",
+                    "fullName": "Detroit Tigers",
+                    "resourceUri": "/baseball/teams/8",
+                    "__typename": "Participant"
+                  },
+                  "awayParticipant": {
+                    "id": "Participant:4d437327-e11e-4838-87d8-12e535dd3afd",
+                    "abbreviation": "NYY",
+                    "mediumName": "NY Yankees",
+                    "fullName": "New York Yankees",
+                    "resourceUri": "/baseball/teams/3",
+                    "__typename": "Participant"
+                  },
+                  "__typename": "StandardEvent",
+                  "updatedAtTime": "2026-06-21T20:10:06.578310Z"
+                },
+                "__typename": "EventWrapper"
+              }
+            },
+            {
+              "attributes": [
+                "PARLAY_PLUS_ELIGIBLE"
+              ],
+              "id": "GridMarketCard:default|0d8acc38-cc6c-4863-9bf3-31112d93f7d3|f6259d25-a38a-47d7-914d-4ca65028524a",
+              "deepLink": {
+                "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                "__typename": "TsbDeepLink"
+              },
+              "markets": [
+                {
+                  "id": "Market:84832796-66ee-4968-821e-97352829bcdc",
+                  "name": "Moneyline",
+                  "status": "OPEN",
+                  "type": "MONEYLINE",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:10:32.625538Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:be6399d9-3713-4faa-916c-e956a486f802",
+                      "rawId": "be6399d9-3713-4faa-916c-e956a486f802",
+                      "name": {
+                        "cleanName": "KC Royals",
+                        "defaultName": "KC Royals",
+                        "fullName": "KC Royals",
+                        "minimalName": null,
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "20",
+                        "numeratorLong": "51",
+                        "formattedOdds": "+155",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:f6529958-f6fb-4526-bd64-12b322ad6bd5",
+                        "abbreviation": "KC",
+                        "mediumName": "KC Royals",
+                        "fullName": "Kansas City Royals",
+                        "resourceUri": "/baseball/teams/9",
+                        "__typename": "Participant"
+                      },
+                      "points": null,
+                      "status": "OPEN",
+                      "type": "AWAY_MONEYLINE",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:04278a3c-a996-4bc8-aa4c-6c54adcf982a",
+                      "rawId": "04278a3c-a996-4bc8-aa4c-6c54adcf982a",
+                      "name": {
+                        "cleanName": "TB Rays",
+                        "defaultName": "TB Rays",
+                        "fullName": "TB Rays",
+                        "minimalName": null,
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "37",
+                        "numeratorLong": "57",
+                        "formattedOdds": "-185",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:b18c01b3-a3fb-4b86-80da-d759e52ea83f",
+                        "abbreviation": "TB",
+                        "mediumName": "TB Rays",
+                        "fullName": "Tampa Bay Rays",
+                        "resourceUri": "/baseball/teams/5",
+                        "__typename": "Participant"
+                      },
+                      "points": null,
+                      "status": "OPEN",
+                      "type": "HOME_MONEYLINE",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                },
+                {
+                  "id": "Market:e4ac2d78-0b43-48e5-9489-800ab632fdfe",
+                  "name": "Run Line",
+                  "status": "OPEN",
+                  "type": "SPREAD",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:10:34.929100Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:aa1088ef-dfc1-403f-ac9f-9f248f5aed3b",
+                      "rawId": "aa1088ef-dfc1-403f-ac9f-9f248f5aed3b",
+                      "name": {
+                        "cleanName": "KC Royals",
+                        "defaultName": "KC Royals +1.5",
+                        "fullName": "KC Royals +1.5",
+                        "minimalName": "+1.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "3",
+                        "numeratorLong": "5",
+                        "formattedOdds": "-150",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:f6529958-f6fb-4526-bd64-12b322ad6bd5",
+                        "abbreviation": "KC",
+                        "mediumName": "KC Royals",
+                        "fullName": "Kansas City Royals",
+                        "resourceUri": "/baseball/teams/9",
+                        "__typename": "Participant"
+                      },
+                      "points": {
+                        "decimalPoints": 1.5,
+                        "formattedPoints": "+1.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "AWAY_SPREAD",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:3f57066a-3b91-4107-80fa-b7d02f6f86a2",
+                      "rawId": "3f57066a-3b91-4107-80fa-b7d02f6f86a2",
+                      "name": {
+                        "cleanName": "TB Rays",
+                        "defaultName": "TB Rays -1.5",
+                        "fullName": "TB Rays -1.5",
+                        "minimalName": "-1.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "4",
+                        "numeratorLong": "9",
+                        "formattedOdds": "+125",
+                        "__typename": "Odds"
+                      },
+                      "participant": {
+                        "id": "Participant:b18c01b3-a3fb-4b86-80da-d759e52ea83f",
+                        "abbreviation": "TB",
+                        "mediumName": "TB Rays",
+                        "fullName": "Tampa Bay Rays",
+                        "resourceUri": "/baseball/teams/5",
+                        "__typename": "Participant"
+                      },
+                      "points": {
+                        "decimalPoints": -1.5,
+                        "formattedPoints": "-1.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "HOME_SPREAD",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                },
+                {
+                  "id": "Market:76d2093b-f23c-42c9-873c-202b0ca2e57c",
+                  "name": "Total Runs",
+                  "status": "OPEN",
+                  "type": "TOTAL",
+                  "extraInformation": null,
+                  "startTime": null,
+                  "statisticAccrued": null,
+                  "updatedAtTime": "2026-06-22T09:10:34.951671Z",
+                  "__typename": "Market",
+                  "selections": [
+                    {
+                      "id": "MarketSelection:c6e9db5f-f259-4632-a502-56587085f1b2",
+                      "rawId": "c6e9db5f-f259-4632-a502-56587085f1b2",
+                      "name": {
+                        "cleanName": "Over",
+                        "defaultName": "O 7.5",
+                        "fullName": "Over 7.5",
+                        "minimalName": "O 7.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "1",
+                        "numeratorLong": "2",
+                        "formattedOdds": "Even",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 7.5,
+                        "formattedPoints": "7.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "OVER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    },
+                    {
+                      "id": "MarketSelection:55037a1b-3184-4d77-9fee-b98a2e3c8888",
+                      "rawId": "55037a1b-3184-4d77-9fee-b98a2e3c8888",
+                      "name": {
+                        "cleanName": "Under",
+                        "defaultName": "U 7.5",
+                        "fullName": "Under 7.5",
+                        "minimalName": "U 7.5",
+                        "__typename": "SelectionName"
+                      },
+                      "odds": {
+                        "denominatorLong": "6",
+                        "numeratorLong": "11",
+                        "formattedOdds": "-120",
+                        "__typename": "Odds"
+                      },
+                      "participant": null,
+                      "points": {
+                        "decimalPoints": 7.5,
+                        "formattedPoints": "7.5",
+                        "__typename": "Points"
+                      },
+                      "status": "OPEN",
+                      "type": "UNDER",
+                      "probabilityEncrypted": null,
+                      "__typename": "MarketSelection"
+                    }
+                  ]
+                }
+              ],
+              "marketTags": [
+                "MLB Event Lines"
+              ],
+              "fallbackEvent": {
+                "id": "StandardEvent:0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                "boxscore": null,
+                "deepLink": {
+                  "canonicalUrl": "espn-sportsbook:/sport/baseball/organization/united-states/competition/mlb/event/0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                  "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                  "__typename": "TsbDeepLink"
+                },
+                "espnMedia": null,
+                "extraInformation": null,
+                "name": "Kansas City Royals @ Tampa Bay Rays",
+                "startTime": "2026-06-22T22:40:00.000000Z",
+                "status": "PRE_GAME",
+                "slug": "2026-06-22-united-states-kansas-city-royals-tampa-bay-rays",
+                "resourceUri": "/baseball/events/98818",
+                "competition": {
+                  "id": "Competition:345f7485-36e6-498a-a1d0-435f51eff5df",
+                  "name": "MLB",
+                  "slug": "mlb",
+                  "resourceUri": "",
+                  "__typename": "Competition"
+                },
+                "sport": {
+                  "id": "Sport:4618ea1f-c106-4f01-a0f6-e0603aab1408",
+                  "name": "Baseball",
+                  "slug": "baseball",
+                  "resourceUri": "",
+                  "__typename": "Sport"
+                },
+                "organization": {
+                  "id": "Organization:80ea0391-d06d-4eca-ad7f-cea185f07308",
+                  "slug": "united-states",
+                  "__typename": "Organization"
+                },
+                "statistics": null,
+                "homeKeyStarter": {
+                  "id": "Participant:faf34dbd-467a-41cd-ba6f-ac03a117cf79",
+                  "abbreviation": "DR",
+                  "mediumName": "D. Rasmussen",
+                  "fullName": "Drew Rasmussen",
+                  "resourceUri": "/baseball/players/11824",
+                  "__typename": "Participant"
+                },
+                "awayKeyStarter": {
+                  "id": "Participant:1a7081e4-0e5a-42c1-80af-93cadfb77144",
+                  "abbreviation": "MW",
+                  "mediumName": "M. Wacha",
+                  "fullName": "Michael Wacha",
+                  "resourceUri": "/baseball/players/3633",
+                  "__typename": "Participant"
+                },
+                "eventLiveStream": null,
+                "homeParticipant": {
+                  "id": "Participant:b18c01b3-a3fb-4b86-80da-d759e52ea83f",
+                  "abbreviation": "TB",
+                  "mediumName": "TB Rays",
+                  "fullName": "Tampa Bay Rays",
+                  "resourceUri": "/baseball/teams/5",
+                  "__typename": "Participant"
+                },
+                "awayParticipant": {
+                  "id": "Participant:f6529958-f6fb-4526-bd64-12b322ad6bd5",
+                  "abbreviation": "KC",
+                  "mediumName": "KC Royals",
+                  "fullName": "Kansas City Royals",
+                  "resourceUri": "/baseball/teams/9",
+                  "__typename": "Participant"
+                },
+                "__typename": "StandardEvent",
+                "updatedAtTime": "2026-06-21T20:15:29.293580Z"
+              },
+              "richEvent": {
+                "id": "LiveApiBaseballEvent:98818",
+                "eventStatus": "PRE_GAME",
+                "league": {
+                  "slug": "mlb",
+                  "__typename": "LiveApiBaseballLeague"
+                },
+                "gameInfo": {
+                  "startsAt": "2026-06-22T22:40:00Z",
+                  "__typename": "LiveApiBaseballGameInfo"
+                },
+                "resourceUri": "/baseball/events/98818",
+                "sport": "BASEBALL",
+                "homeTeam": {
+                  "id": "LiveApiBaseballTeam:5",
+                  "mediumName": "Rays",
+                  "colour1": "092C5C",
+                  "logos": {
+                    "w72xh72": "https://assets-sports-gcp.thescore.com/baseball/team/5/w72xh72_logo.png",
+                    "w128xh128": "https://assets-sports-gcp.thescore.com/baseball/team/5/small_logo.png",
+                    "w256xh256": "https://assets-sports-gcp.thescore.com/baseball/team/5/logo.png",
+                    "__typename": "LiveApiTeamLogo"
+                  },
+                  "resourceUri": "/baseball/teams/5",
+                  "__typename": "LiveApiBaseballTeam"
+                },
+                "awayTeam": {
+                  "id": "LiveApiBaseballTeam:9",
+                  "mediumName": "Royals",
+                  "colour1": "0031A7",
+                  "logos": {
+                    "w72xh72": "https://assets-sports-gcp.thescore.com/baseball/team/9/w72xh72_logo.png",
+                    "w128xh128": "https://assets-sports-gcp.thescore.com/baseball/team/9/small_logo.png",
+                    "w256xh256": "https://assets-sports-gcp.thescore.com/baseball/team/9/logo.png",
+                    "__typename": "LiveApiTeamLogo"
+                  },
+                  "resourceUri": "/baseball/teams/9",
+                  "__typename": "LiveApiBaseballTeam"
+                },
+                "homeStanding": {
+                  "rankString": "2nd AL East",
+                  "shortRecord": "43-31",
+                  "rankAndRecordString": "43-31, 2nd AL East",
+                  "__typename": "LiveApiBaseballStanding"
+                },
+                "awayStanding": {
+                  "rankString": "5th AL Central",
+                  "shortRecord": "32-46",
+                  "rankAndRecordString": "32-46, 5th AL Central",
+                  "__typename": "LiveApiBaseballStanding"
+                },
+                "boxScore": null,
+                "__typename": "LiveApiBaseballEvent"
+              },
+              "rawId": "default|0d8acc38-cc6c-4863-9bf3-31112d93f7d3|f6259d25-a38a-47d7-914d-4ca65028524a",
+              "recommendedProps": {
+                "icon": "https://api-cdn.thescore.bet/assets/$theme$/icons/promos/fire_l_outlined.png",
+                "title": "Hot Props",
+                "selectionIds": [
+                  "40d26995-25f5-4406-973b-19a9c4e28b8e",
+                  "a1ce05c2-213e-4c3f-9124-cfca588a9b6e",
+                  "fd761f42-dfae-40ef-93eb-5b685cd3a3e7",
+                  "d4ee5e39-2519-41f4-b2f9-83e084c29af7",
+                  "a8684780-b5fa-404b-8063-323d269ddbfa",
+                  "78750cef-a8e6-47b9-ab46-c3c7444d7e46"
+                ],
+                "markets": [
+                  {
+                    "id": "Market:39acd05d-1d56-41e3-96b0-b0863d6c9b4e",
+                    "classification": "PLAYER_PROP",
+                    "name": "Junior Caminero Total Home Runs",
+                    "participant": {
+                      "id": "Participant:6798aa18-c708-4eff-b60c-94dee70d4a69",
+                      "abbreviation": "JC",
+                      "mediumName": "J. Caminero",
+                      "fullName": "Junior Caminero",
+                      "resourceUri": "/baseball/players/16275",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:40d26995-25f5-4406-973b-19a9c4e28b8e",
+                        "rawId": "40d26995-25f5-4406-973b-19a9c4e28b8e",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "1+",
+                          "fullName": "1+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "4",
+                          "numeratorLong": "15",
+                          "formattedOdds": "+275",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:34.369157Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:51ab3dc5-411c-4d6f-9c7b-15f6f9d9aa0c",
+                    "classification": "PLAYER_PROP",
+                    "name": "Yandy D\u00edaz Total Hits",
+                    "participant": {
+                      "id": "Participant:0d4d70a9-a457-4140-99ff-cb02b6be0e1a",
+                      "abbreviation": "YD",
+                      "mediumName": "Yan. Diaz",
+                      "fullName": "Yandy D\u00edaz",
+                      "resourceUri": "/baseball/players/4588",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:a1ce05c2-213e-4c3f-9124-cfca588a9b6e",
+                        "rawId": "a1ce05c2-213e-4c3f-9124-cfca588a9b6e",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "2+",
+                          "fullName": "2+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "2",
+                          "numeratorLong": "5",
+                          "formattedOdds": "+150",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:20:34.636478Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:4ad3479b-6a27-4e9c-8a55-255e0d4ba015",
+                    "classification": "PLAYER_PROP",
+                    "name": "Drew Rasmussen Total Strikeouts",
+                    "participant": {
+                      "id": "Participant:faf34dbd-467a-41cd-ba6f-ac03a117cf79",
+                      "abbreviation": "DR",
+                      "mediumName": "D. Rasmussen",
+                      "fullName": "Drew Rasmussen",
+                      "resourceUri": "/baseball/players/11824",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:fd761f42-dfae-40ef-93eb-5b685cd3a3e7",
+                        "rawId": "fd761f42-dfae-40ef-93eb-5b685cd3a3e7",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "7+",
+                          "fullName": "7+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "10",
+                          "numeratorLong": "23",
+                          "formattedOdds": "+130",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:34.080002Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:fa781718-34d5-4cb2-af32-8d51001a3b64",
+                    "classification": "PLAYER_PROP",
+                    "name": "Jonathan Aranda Total RBIs",
+                    "participant": {
+                      "id": "Participant:4ce20c65-01c9-4ab3-91c1-d55c501b5bb6",
+                      "abbreviation": "JA",
+                      "mediumName": "J. Aranda",
+                      "fullName": "Jonathan Aranda",
+                      "resourceUri": "/baseball/players/13641",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:d4ee5e39-2519-41f4-b2f9-83e084c29af7",
+                        "rawId": "d4ee5e39-2519-41f4-b2f9-83e084c29af7",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "1+",
+                          "fullName": "1+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "10",
+                          "numeratorLong": "27",
+                          "formattedOdds": "+170",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:35.236522Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:1369d928-b56c-469b-bfed-9af183db5f52",
+                    "classification": "PLAYER_PROP",
+                    "name": "Chandler Simpson Total Bases",
+                    "participant": {
+                      "id": "Participant:a86904c0-93e4-462a-9e6e-19c24c490af1",
+                      "abbreviation": "CS",
+                      "mediumName": "C. Simpson",
+                      "fullName": "Chandler Simpson",
+                      "resourceUri": "/baseball/players/16538",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:a8684780-b5fa-404b-8063-323d269ddbfa",
+                        "rawId": "a8684780-b5fa-404b-8063-323d269ddbfa",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "2+",
+                          "fullName": "2+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "5",
+                          "numeratorLong": "12",
+                          "formattedOdds": "+140",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:33.644114Z",
+                    "__typename": "Market"
+                  },
+                  {
+                    "id": "Market:388577b2-a3b6-4c75-bc1f-eb09907709ba",
+                    "classification": "PLAYER_PROP",
+                    "name": "Michael Wacha Total Strikeouts",
+                    "participant": {
+                      "id": "Participant:1a7081e4-0e5a-42c1-80af-93cadfb77144",
+                      "abbreviation": "MW",
+                      "mediumName": "M. Wacha",
+                      "fullName": "Michael Wacha",
+                      "resourceUri": "/baseball/players/3633",
+                      "__typename": "Participant"
+                    },
+                    "selections": [
+                      {
+                        "id": "MarketSelection:78750cef-a8e6-47b9-ab46-c3c7444d7e46",
+                        "rawId": "78750cef-a8e6-47b9-ab46-c3c7444d7e46",
+                        "status": "OPEN",
+                        "type": "LIST",
+                        "name": {
+                          "minimalName": "5+",
+                          "fullName": "5+",
+                          "__typename": "SelectionName"
+                        },
+                        "participant": null,
+                        "odds": {
+                          "denominatorLong": "4",
+                          "numeratorLong": "9",
+                          "formattedOdds": "+125",
+                          "__typename": "Odds"
+                        },
+                        "__typename": "MarketSelection"
+                      }
+                    ],
+                    "updatedAtTime": "2026-06-22T09:10:34.049199Z",
+                    "__typename": "Market"
+                  }
+                ],
+                "selectionRichParticipants": [
+                  {
+                    "selectionId": "40d26995-25f5-4406-973b-19a9c4e28b8e",
+                    "participant": {
+                      "id": "Participant:6798aa18-c708-4eff-b60c-94dee70d4a69",
+                      "abbreviation": "JC",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/16275/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/16275",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "a1ce05c2-213e-4c3f-9124-cfca588a9b6e",
+                    "participant": {
+                      "id": "Participant:0d4d70a9-a457-4140-99ff-cb02b6be0e1a",
+                      "abbreviation": "YD",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/4588/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/4588",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "fd761f42-dfae-40ef-93eb-5b685cd3a3e7",
+                    "participant": {
+                      "id": "Participant:faf34dbd-467a-41cd-ba6f-ac03a117cf79",
+                      "abbreviation": "DR",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/11824/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/11824",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "d4ee5e39-2519-41f4-b2f9-83e084c29af7",
+                    "participant": {
+                      "id": "Participant:4ce20c65-01c9-4ab3-91c1-d55c501b5bb6",
+                      "abbreviation": "JA",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/13641/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/13641",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "a8684780-b5fa-404b-8063-323d269ddbfa",
+                    "participant": {
+                      "id": "Participant:a86904c0-93e4-462a-9e6e-19c24c490af1",
+                      "abbreviation": "CS",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/16538/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/16538",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  },
+                  {
+                    "selectionId": "78750cef-a8e6-47b9-ab46-c3c7444d7e46",
+                    "participant": {
+                      "id": "Participant:1a7081e4-0e5a-42c1-80af-93cadfb77144",
+                      "abbreviation": "MW",
+                      "type": "PLAYER",
+                      "__typename": "Participant"
+                    },
+                    "richParticipant": {
+                      "headshots": [
+                        {
+                          "url": "https://assets-sports-gcp.thescore.com/baseball/player/3633/transparent_medium_headshot.png",
+                          "__typename": "LiveApiImage"
+                        }
+                      ],
+                      "resourceUri": "/baseball/players/3633",
+                      "__typename": "LiveApiBaseballPlayer"
+                    },
+                    "__typename": "SelectionRichParticipant"
+                  }
+                ],
+                "__typename": "RecommendedProps"
+              },
+              "icon": {
+                "customSize": "https://api-cdn.thescore.bet/cdn-cgi/image/fit=contain,width=84,height=84,format=auto/assets/$theme$/icons/sports/baseball_primary.png",
+                "customHeight": null,
+                "customWidth": null,
+                "__typename": "ResizableImage"
+              },
+              "__typename": "GridMarketCard",
+              "event": {
+                "id": "EventWrapper:0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                "fallbackEvent": {
+                  "id": "StandardEvent:0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                  "boxscore": null,
+                  "deepLink": {
+                    "canonicalUrl": "espn-sportsbook:/sport/baseball/organization/united-states/competition/mlb/event/0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                    "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d8acc38-cc6c-4863-9bf3-31112d93f7d3",
+                    "__typename": "TsbDeepLink"
+                  },
+                  "espnMedia": null,
+                  "extraInformation": null,
+                  "name": "Kansas City Royals @ Tampa Bay Rays",
+                  "startTime": "2026-06-22T22:40:00.000000Z",
+                  "status": "PRE_GAME",
+                  "slug": "2026-06-22-united-states-kansas-city-royals-tampa-bay-rays",
+                  "resourceUri": "/baseball/events/98818",
+                  "competition": {
+                    "id": "Competition:345f7485-36e6-498a-a1d0-435f51eff5df",
+                    "name": "MLB",
+                    "slug": "mlb",
+                    "resourceUri": "",
+                    "__typename": "Competition"
+                  },
+                  "sport": {
+                    "id": "Sport:4618ea1f-c106-4f01-a0f6-e0603aab1408",
+                    "name": "Baseball",
+                    "slug": "baseball",
+                    "resourceUri": "",
+                    "__typename": "Sport"
+                  },
+                  "organization": {
+                    "id": "Organization:80ea0391-d06d-4eca-ad7f-cea185f07308",
+                    "slug": "united-states",
+                    "__typename": "Organization"
+                  },
+                  "statistics": null,
+                  "homeKeyStarter": {
+                    "id": "Participant:faf34dbd-467a-41cd-ba6f-ac03a117cf79",
+                    "abbreviation": "DR",
+                    "mediumName": "D. Rasmussen",
+                    "fullName": "Drew Rasmussen",
+                    "resourceUri": "/baseball/players/11824",
+                    "__typename": "Participant"
+                  },
+                  "awayKeyStarter": {
+                    "id": "Participant:1a7081e4-0e5a-42c1-80af-93cadfb77144",
+                    "abbreviation": "MW",
+                    "mediumName": "M. Wacha",
+                    "fullName": "Michael Wacha",
+                    "resourceUri": "/baseball/players/3633",
+                    "__typename": "Participant"
+                  },
+                  "eventLiveStream": null,
+                  "homeParticipant": {
+                    "id": "Participant:b18c01b3-a3fb-4b86-80da-d759e52ea83f",
+                    "abbreviation": "TB",
+                    "mediumName": "TB Rays",
+                    "fullName": "Tampa Bay Rays",
+                    "resourceUri": "/baseball/teams/5",
+                    "__typename": "Participant"
+                  },
+                  "awayParticipant": {
+                    "id": "Participant:f6529958-f6fb-4526-bd64-12b322ad6bd5",
+                    "abbreviation": "KC",
+                    "mediumName": "KC Royals",
+                    "fullName": "Kansas City Royals",
+                    "resourceUri": "/baseball/teams/9",
+                    "__typename": "Participant"
+                  },
+                  "__typename": "StandardEvent",
+                  "updatedAtTime": "2026-06-21T20:15:29.293580Z"
+                },
+                "__typename": "EventWrapper"
+              }
+            }
+          ],
+          "__typename": "MarketplaceShelf"
+        },
+        {
+          "__typename": "HorizontalImageCards"
+        },
+        {
+          "__typename": "DataDisclaimerCard"
+        },
+        {
+          "__typename": "DataDisclaimerCard"
+        }
+      ],
+      "slug": "lines",
+      "__typename": "Section"
+    }
+  }
+}

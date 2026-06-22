@@ -35,13 +35,15 @@ DEFAULT_SHARP_SPORTSBOOK = "DraftKings"
 
 def _book_odds_from_resolved(
     resolved: ResolvedSharpQuote,
-) -> tuple[int | None, int | None, int | None, int | None]:
-    """Split DK vs FD O/U odds; avoid labeling FD-only quotes as DK."""
+) -> tuple[int | None, int | None, int | None, int | None, int | None, int | None]:
+    """Split DK vs FD vs ESPN O/U odds; avoid labeling a single-book quote as another."""
     books = tuple(resolved.sharp_books) if resolved.sharp_books else ("DraftKings",)
     dk_over = resolved.dk_over_odds
     dk_under = resolved.dk_under_odds
     fd_over = resolved.fd_over_odds
     fd_under = resolved.fd_under_odds
+    espn_over = resolved.espn_over_odds
+    espn_under = resolved.espn_under_odds
     if resolved.dk_line_kind == "milestone":
         if "DraftKings" not in books:
             dk_over = None
@@ -49,13 +51,19 @@ def _book_odds_from_resolved(
         if "FanDuel" not in books:
             fd_over = None
             fd_under = None
+        if "ESPN" not in books:
+            espn_over = None
+            espn_under = None
     elif dk_over is None and books == ("DraftKings",):
         dk_over = resolved.over_odds
         dk_under = resolved.under_odds
     elif fd_over is None and books == ("FanDuel",):
         fd_over = resolved.over_odds
         fd_under = resolved.under_odds
-    return dk_over, dk_under, fd_over, fd_under
+    elif espn_over is None and books == ("ESPN",):
+        espn_over = resolved.over_odds
+        espn_under = resolved.under_odds
+    return dk_over, dk_under, fd_over, fd_under, espn_over, espn_under
 
 
 def normalize_player_name(name: str) -> str:
@@ -192,7 +200,9 @@ def _append_side_opportunity(
     ev_from_milestone = resolved.adjustment_method == "dk_milestone_exact"
     undisclosed_vig_caveat = ev_from_milestone
     plus_ev = ev > min_ev
-    dk_over, dk_under, fd_over, fd_under = _book_odds_from_resolved(resolved)
+    dk_over, dk_under, fd_over, fd_under, espn_over, espn_under = (
+        _book_odds_from_resolved(resolved)
+    )
     sharp_by_book = (
         dict(resolved.sharp_by_book) if resolved.sharp_by_book else None
     )
@@ -216,6 +226,8 @@ def _append_side_opportunity(
             "dk_under_odds": dk_under,
             "fd_over_odds": fd_over,
             "fd_under_odds": fd_under,
+            "espn_over_odds": espn_over,
+            "espn_under_odds": espn_under,
             "sharp_books": list(resolved.sharp_books)
             if resolved.sharp_books
             else [DEFAULT_SHARP_SPORTSBOOK],
@@ -226,10 +238,13 @@ def _append_side_opportunity(
             "corroborated": resolved.corroborated,
             "dk_line_kind": resolved.dk_line_kind,
             "fd_line_kind": resolved.fd_line_kind,
+            "espn_line_kind": resolved.espn_line_kind,
             "dk_milestone_one_sided": resolved.dk_milestone_one_sided,
             "fd_milestone_one_sided": resolved.fd_milestone_one_sided,
+            "espn_milestone_one_sided": resolved.espn_milestone_one_sided,
             "dk_line_source": resolved.dk_line_source,
             "fd_line_source": resolved.fd_line_source,
+            "espn_line_source": resolved.espn_line_source,
             "sharp_by_book": sharp_by_book,
             "dk_quote_one_sided": undisclosed_vig_caveat,
             "undisclosed_vig_caveat": undisclosed_vig_caveat,
@@ -251,6 +266,7 @@ def find_ev_opportunities(
     sportsbook_props: list[dict],
     *,
     fanduel_props: list[dict] | None = None,
+    espn_props: list[dict] | None = None,
     dfs_breakeven_odds: int = BETR_STANDARD_BREAKEVEN_ODDS,
     min_ev: float = 0.0,
     top_n: int | None = None,
@@ -287,7 +303,12 @@ def find_ev_opportunities(
             if fanduel_props
             else []
         )
-        if not filtered_dk and not filtered_fd:
+        filtered_espn = (
+            _filter_sharp_props_by_match_context(dfs_prop, espn_props)
+            if espn_props
+            else []
+        )
+        if not filtered_dk and not filtered_fd and not filtered_espn:
             continue
 
         ou_ladder = build_player_market_ladder(
@@ -299,6 +320,13 @@ def find_ev_opportunities(
             )
             if fanduel_props
             else {}
+        )
+        espn_ou_ladder = (
+            build_player_market_ladder(
+                filtered_espn, normalize_player_name=normalize_player_name
+            )
+            if espn_props
+            else None
         )
         sharp_milestone_props = [
             prop
@@ -315,10 +343,12 @@ def find_ev_opportunities(
             sharp_milestone_props, normalize_player_name=normalize_player_name
         )
         milestone_ladder = merge_milestone_ladders(milestone_ladders)
-        use_multi_book = bool(fanduel_props)
+        use_multi_book = bool(fanduel_props or espn_props)
         ou_ladders["DraftKings"] = ou_ladder
         if fanduel_props:
             ou_ladders["FanDuel"] = fd_ou_ladder
+        if espn_props and espn_ou_ladder is not None:
+            ou_ladders["ESPN"] = espn_ou_ladder
 
         if use_multi_book:
             resolved, _reason = resolve_multi_book_sharp_quote(
@@ -329,6 +359,7 @@ def find_ev_opportunities(
                 milestone_ladder=milestone_ladder,
                 dk_milestone_ladder=milestone_ladders.get("DraftKings"),
                 fd_milestone_ladder=milestone_ladders.get("FanDuel"),
+                espn_ou_ladder=espn_ou_ladder,
             )
         else:
             resolved, _reason = resolve_sharp_quote(
@@ -379,6 +410,7 @@ def compare_betr_vs_draftkings(
     draftkings_props: list[dict],
     *,
     fanduel_props: list[dict] | None = None,
+    espn_props: list[dict] | None = None,
     min_ev: float = 0.0,
     dfs_breakeven_odds: int = BETR_STANDARD_BREAKEVEN_ODDS,
     top_n: int | None = None,
@@ -390,6 +422,7 @@ def compare_betr_vs_draftkings(
         betr_props,
         draftkings_props,
         fanduel_props=fanduel_props,
+        espn_props=espn_props,
         dfs_breakeven_odds=dfs_breakeven_odds,
         min_ev=min_ev,
         top_n=top_n,
@@ -401,9 +434,11 @@ def compare_betr_vs_draftkings(
 def _build_match_ladders(
     draftkings_props: list[dict],
     fanduel_props: list[dict] | None = None,
+    espn_props: list[dict] | None = None,
 ) -> tuple[
     dict[str, dict[float, dict]],
     dict[str, dict[float, dict]],
+    dict[str, dict[float, dict]] | None,
     dict[str, dict[float, dict]] | None,
 ]:
     ou_ladder = build_player_market_ladder(
@@ -414,6 +449,13 @@ def _build_match_ladders(
             fanduel_props, normalize_player_name=normalize_player_name
         )
         if fanduel_props
+        else None
+    )
+    espn_ou_ladder = (
+        build_player_market_ladder(
+            espn_props, normalize_player_name=normalize_player_name
+        )
+        if espn_props
         else None
     )
     sharp_milestone_props = [
@@ -432,7 +474,7 @@ def _build_match_ladders(
             sharp_milestone_props, normalize_player_name=normalize_player_name
         )
     )
-    return ou_ladder, milestone_ladder, fd_ou_ladder
+    return ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder
 
 
 def betr_unmatched_reason(
@@ -442,19 +484,21 @@ def betr_unmatched_reason(
     include_flat_lines: bool = False,
     milestone_ladder: dict[str, dict[float, dict]] | None = None,
     fd_ou_ladder: dict[str, dict[float, dict]] | None = None,
+    espn_ou_ladder: dict[str, dict[float, dict]] | None = None,
 ) -> str | None:
     """Return None when the Betr prop can be aligned to sharp books; else a reason code."""
     line = float(betr_prop["line"])
     if is_flat_line(line) and not include_flat_lines:
         return "flat_line_skipped"
 
-    if fd_ou_ladder is not None:
+    if fd_ou_ladder is not None or espn_ou_ladder is not None:
         resolved, reason = resolve_multi_book_sharp_quote(
             betr_prop,
             ou_ladder,
-            fd_ou_ladder,
+            fd_ou_ladder or {},
             normalize_player_name=normalize_player_name,
             milestone_ladder=milestone_ladder,
+            espn_ou_ladder=espn_ou_ladder,
         )
     else:
         resolved, reason = resolve_sharp_quote(
@@ -477,6 +521,7 @@ def betr_match_reason(
     include_flat_lines: bool = False,
     milestone_ladder: dict[str, dict[float, dict]] | None = None,
     fd_ou_ladder: dict[str, dict[float, dict]] | None = None,
+    espn_ou_ladder: dict[str, dict[float, dict]] | None = None,
 ) -> str | None:
     """Backward-compatible alias for betr_unmatched_reason."""
     return betr_unmatched_reason(
@@ -485,6 +530,7 @@ def betr_match_reason(
         include_flat_lines=include_flat_lines,
         milestone_ladder=milestone_ladder,
         fd_ou_ladder=fd_ou_ladder,
+        espn_ou_ladder=espn_ou_ladder,
     )
 
 
@@ -493,11 +539,12 @@ def compute_match_stats(
     draftkings_props: list[dict],
     *,
     fanduel_props: list[dict] | None = None,
+    espn_props: list[dict] | None = None,
     include_flat_lines: bool = False,
 ) -> dict[str, int | float]:
     """Count cross-book matches, unmatched props, and Betr match rate."""
-    ou_ladder, milestone_ladder, fd_ou_ladder = _build_match_ladders(
-        draftkings_props, fanduel_props
+    ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder = _build_match_ladders(
+        draftkings_props, fanduel_props, espn_props
     )
     betr_keys = {build_prop_key(prop) for prop in betr_props}
 
@@ -519,6 +566,7 @@ def compute_match_stats(
             include_flat_lines=include_flat_lines,
             milestone_ladder=milestone_ladder,
             fd_ou_ladder=fd_ou_ladder,
+            espn_ou_ladder=espn_ou_ladder,
         )
         if reason is None:
             matched += 1
@@ -540,6 +588,7 @@ def compute_match_stats(
         "betr_props": betr_total,
         "dk_props": len(draftkings_props),
         "fd_props": len(fanduel_props or []),
+        "espn_props": len(espn_props or []),
         "matched_keys": matched,
         "unmatched_betr": unmatched_betr,
         "unmatched_betr_no_dk_line": counts["unmatched_betr_no_dk_market"]
@@ -564,11 +613,12 @@ def list_unmatched_betr_props(
     draftkings_props: list[dict],
     *,
     fanduel_props: list[dict] | None = None,
+    espn_props: list[dict] | None = None,
     include_flat_lines: bool = False,
 ) -> list[dict]:
     """Betr props that cannot be compared to sharp books, with reason and available lines."""
-    ou_ladder, milestone_ladder, fd_ou_ladder = _build_match_ladders(
-        draftkings_props, fanduel_props
+    ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder = _build_match_ladders(
+        draftkings_props, fanduel_props, espn_props
     )
     unmatched: list[dict] = []
 
@@ -579,6 +629,7 @@ def list_unmatched_betr_props(
             include_flat_lines=include_flat_lines,
             milestone_ladder=milestone_ladder,
             fd_ou_ladder=fd_ou_ladder,
+            espn_ou_ladder=espn_ou_ladder,
         )
         if reason is None:
             continue
@@ -588,6 +639,7 @@ def list_unmatched_betr_props(
             | set(milestone_ladder.get(pm_key, {}).keys())
         )
         fd_lines = sorted(set((fd_ou_ladder or {}).get(pm_key, {}).keys()))
+        espn_lines = sorted(set((espn_ou_ladder or {}).get(pm_key, {}).keys()))
         unmatched.append(
             {
                 "player": betr_prop["player"],
@@ -600,6 +652,7 @@ def list_unmatched_betr_props(
                 "reason": reason,
                 "dk_lines_available": dk_lines,
                 "fd_lines_available": fd_lines,
+                "espn_lines_available": espn_lines,
             }
         )
 

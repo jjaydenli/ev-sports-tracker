@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any
 
 from config.espn_markets import is_ou_group_id, prop_section_slugs_for_league
+from config.team_abbrev import canonicalize_team_abbr
 
 # Per-league GraphQL slate (decision 8: MLB first, WNBA TBD until its own capture).
 ESPN_LEAGUE_SLATES: dict[str, dict[str, str]] = {
@@ -27,25 +28,17 @@ ESPN_LEAGUE_SLATES: dict[str, dict[str, str]] = {
 }
 
 
-# ESPN team abbreviations that differ from the betr/DK/FD (anchor) vocabulary used in
-# the cross-book match-context key. Map ESPN → canonical so game strings align.
-_ESPN_TEAM_ABBR_ALIASES: dict[str, str] = {
-    "CWS": "CHW",  # Chicago White Sox — ESPN says CWS, betr/DK/FD say CHW
-}
-
-
-def _canonical_team_abbr(abbr: str) -> str:
-    """Normalize an ESPN team abbreviation to the cross-book canonical form."""
-    return _ESPN_TEAM_ABBR_ALIASES.get(abbr.upper(), abbr.upper())
-
-
 def _event_game_key(event: dict[str, Any]) -> str:
-    """Build the ``AWAY@HOME`` matchup key (canonical abbrevs) from an event."""
+    """Build the ``AWAY@HOME`` matchup key (canonical abbrevs) from an event.
+
+    ESPN's deviating codes (e.g. ``CWS``) are canonicalized through the shared
+    cross-book map in ``config.team_abbrev``.
+    """
     away = (event.get("awayParticipant") or {}).get("abbreviation") or ""
     home = (event.get("homeParticipant") or {}).get("abbreviation") or ""
     if not away or not home:
         return ""
-    return f"{_canonical_team_abbr(away)}@{_canonical_team_abbr(home)}"
+    return f"{canonicalize_team_abbr(away)}@{canonicalize_team_abbr(home)}"
 
 
 def competition_canonical_url(league: str) -> str:

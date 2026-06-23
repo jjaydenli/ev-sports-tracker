@@ -10,6 +10,21 @@ def test_normalize_game_key_uppercases():
     assert normalize_game_key("cin@nyy") == "CIN@NYY"
 
 
+def test_normalize_game_key_canonicalizes_deviating_abbrevs():
+    # DK / ESPN deviations converge on the betr vocabulary.
+    assert normalize_game_key("CLE@CWS") == "CLE@CHW"
+    assert normalize_game_key("PHI@WAS") == "PHI@WSH"
+    assert normalize_game_key("PHO@IND") == "PHX@IND"
+
+
+def test_dk_deviating_game_matches_betr_context_key():
+    betr = {"player": "Luis Robert", "market": "hits", "league": "MLB", "game": "CLE@CHW"}
+    dk = {"player": "Luis Robert", "market": "hits", "league": "MLB", "game": "CLE@CWS"}
+    assert build_match_context_key(
+        betr, normalize_player_name=normalize_player_name
+    ) == build_match_context_key(dk, normalize_player_name=normalize_player_name)
+
+
 def test_build_player_market_key_scopes_live_snapshot():
     prop = {
         "player": "Nathaniel Lowe",

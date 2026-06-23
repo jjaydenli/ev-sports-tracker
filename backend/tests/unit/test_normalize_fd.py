@@ -94,6 +94,28 @@ def test_parse_fd_props_propagates_league_from_grouped_ladder():
     assert rows[0]["line_kind"] == "ou"
 
 
+def test_parse_fd_props_propagates_game_from_grouped_ladder():
+    """The cross-book ``game`` stamped by the engine survives grouped expansion."""
+    rows = parse_fd_props(
+        [
+            {
+                "sportsbook": "FanDuel",
+                "player": "Parker Messick",
+                "market": "strikeouts",
+                "line_kind": "ou",
+                "league": "MLB",
+                "game": "CLE@MIL",
+                "event_id": "35730475",
+                "tab": "pitcher-props",
+                "lines": [
+                    {"line": 5.5, "over_odds": -114, "under_odds": -114},
+                ],
+            }
+        ]
+    )
+    assert rows[0]["game"] == "CLE@MIL"
+
+
 def test_parse_fd_props_milestone_fields_survive_normalization():
     grouped = [
         {

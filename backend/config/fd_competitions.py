@@ -12,6 +12,7 @@ from config.api_headers import (
     FD_EVENT_PAGE_PATH,
     FD_SPORTSBOOK_API_HOST,
 )
+from config.team_abbrev import game_key_from_full_names
 
 # League custom page on sportsbook.fanduel.com/navigation/{league}
 FD_LEAGUE_SLATES: dict[str, dict[str, str]] = {
@@ -167,6 +168,46 @@ def build_event_start_map(
         open_date = event.get("openDate", "")
         if open_date:
             mapping[str(event_id)] = str(open_date)
+    return mapping
+
+
+def build_event_game_map(
+    payload: dict[str, Any],
+    *,
+    competition_id: str | None = None,
+    require_matchup: bool = True,
+) -> dict[str, str]:
+    """Map FanDuel event_id -> canonical ``AWAY@HOME`` for cross-book game scoping.
+
+    FanDuel events carry only full team names (e.g. ``"Cleveland Guardians (S Bibee)
+    @ Chicago White Sox (D Martin)"``); names are resolved to betr-canonical
+    abbreviations via ``config.team_abbrev``. Events whose team names are unmapped
+    are skipped (logged) and simply carry no ``game`` — degrading to today's behavior
+    for that team rather than mismatching.
+    """
+    from loguru import logger
+
+    allowed_ids = set(
+        extract_event_ids(
+            payload,
+            competition_id=competition_id,
+            require_matchup=require_matchup,
+        )
+    )
+    attachments = payload.get("attachments") or {}
+    events = attachments.get("events") or {}
+    mapping: dict[str, str] = {}
+    for event_id in allowed_ids:
+        event = events.get(event_id) or events.get(int(event_id)) or {}
+        name = str(event.get("name") or "")
+        parts = MATCHUP_EVENT_NAME_RE.split(name, maxsplit=1)
+        if len(parts) != 2:
+            continue
+        game = game_key_from_full_names(parts[0], parts[1])
+        if game:
+            mapping[str(event_id)] = game
+        else:
+            logger.warning(f"fanduel game-map: unmapped team name in event {name!r}")
     return mapping
 
 

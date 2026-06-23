@@ -8,6 +8,7 @@ from typing import Any, Literal
 
 from loguru import logger
 
+from config.team_abbrev import canonicalize_team_abbr
 from utils.math_utils import american_to_implied, multiplicative_devig
 
 # Logit shift applied per 1.0 point of line gap (target - anchor) by market.
@@ -140,8 +141,17 @@ def _shift_per_point(market: str) -> float:
 
 
 def normalize_game_key(game: str) -> str:
-    """Canonical matchup key (e.g. CIN@NYY) for cross-book ladder lookup."""
-    return game.strip().upper()
+    """Canonical matchup key (e.g. CIN@NYY) for cross-book ladder lookup.
+
+    Each ``AWAY@HOME`` team code is canonicalized to the betr vocabulary so books
+    that emit deviating abbreviations (DK ``CWS``/``PHO``/``WAS``, ESPN ``CWS``)
+    match betr's ``CHW``/``PHX``/``WSH``.
+    """
+    key = game.strip().upper()
+    if key.count("@") == 1:
+        away, home = key.split("@")
+        return f"{canonicalize_team_abbr(away)}@{canonicalize_team_abbr(home)}"
+    return key
 
 
 def _hour_floor(iso: str) -> str:

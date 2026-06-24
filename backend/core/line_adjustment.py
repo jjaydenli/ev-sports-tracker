@@ -8,7 +8,6 @@ from typing import Any, Literal
 
 from loguru import logger
 
-from config.team_abbrev import canonicalize_team_abbr
 from utils.math_utils import american_to_implied, multiplicative_devig
 
 # Logit shift applied per 1.0 point of line gap (target - anchor) by market.
@@ -140,20 +139,6 @@ def _shift_per_point(market: str) -> float:
     )
 
 
-def normalize_game_key(game: str) -> str:
-    """Canonical matchup key (e.g. CIN@NYY) for cross-book ladder lookup.
-
-    Each ``AWAY@HOME`` team code is canonicalized to the betr vocabulary so books
-    that emit deviating abbreviations (DK ``CWS``/``PHO``/``WAS``, ESPN ``CWS``)
-    match betr's ``CHW``/``PHX``/``WSH``.
-    """
-    key = game.strip().upper()
-    if key.count("@") == 1:
-        away, home = key.split("@")
-        return f"{canonicalize_team_abbr(away)}@{canonicalize_team_abbr(home)}"
-    return key
-
-
 def _hour_floor(iso: str) -> str:
     """Hour-precision prefix of an ISO UTC timestamp (e.g. 2026-06-19T17)."""
     return iso[:13] if iso else ""
@@ -165,18 +150,16 @@ def build_match_context_key(
     normalize_player_name,
 ) -> str:
     """
-    Canonical match-context key: player|market|league|[game]|[event_hour]|[live].
+    Canonical match-context key: player|market|league|[event_hour]|[live].
 
     Line-agnostic; ``event_hour`` is UTC hour-floor (``iso[:13]``) when
-    ``event_start`` is present. Live rows without ``event_start`` omit the hour.
+    ``event_start`` is present and is the sole game discriminator. Live rows
+    without ``event_start`` omit the hour.
     """
     key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
     league = prop.get("league")
     if league:
         key = f"{key}|{str(league).upper()}"
-    game = prop.get("game")
-    if game:
-        key = f"{key}|{normalize_game_key(game)}"
     event_start = prop.get("event_start", "")
     if event_start:
         key = f"{key}|{_hour_floor(event_start)}"
@@ -196,19 +179,37 @@ def build_player_market_key(
     normalize_player_name,
 ) -> str:
     """
-    Player + market ladder key, optionally scoped by game and live snapshot.
+    Player + market ladder key, optionally scoped by event-hour and live snapshot.
 
     Live Betr rows carry ``is_live``; sharp books tag live DK rows the same way.
-    Pregame rows omit the live suffix so back-to-back matchups (same teams, different
-    dates) do not collide with in-progress DFS props.
+    ``event_hour`` is the UTC hour-floor (``iso[:13]``) of ``event_start`` and is the
+    sole game discriminator, so back-to-back matchups (same teams, different start
+    times) do not collide. Pregame rows omit the live suffix.
     """
     key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
-    game = prop.get("game")
-    if game:
-        key = f"{key}|{normalize_game_key(game)}"
+    event_start = prop.get("event_start", "")
+    if event_start:
+        key = f"{key}|{_hour_floor(event_start)}"
     if prop.get("is_live"):
         key = f"{key}|live"
     return key
+
+
+def _collision_is_ambiguous(
+    existing: dict[str, Any], new_over: int, new_under: int | None
+) -> bool:
+    """True when a same-line ladder collision carries *conflicting* odds.
+
+    Identical odds are a harmless duplicate (same EV either way) and may overwrite
+    silently. Differing odds at the same ``player|market|hour|line`` are
+    unresolvable — most often two distinct players colliding under one normalized
+    name — so the key is dropped from matching rather than silently resolved to
+    whichever row wrote last. See the ``team``/player-id disambiguation notes; the
+    match gate has no player identity beyond the normalized name today.
+    """
+    if existing["over_odds"] != new_over:
+        return True
+    return existing.get("under_odds") != new_under
 
 
 def build_player_market_ladder(
@@ -216,8 +217,14 @@ def build_player_market_ladder(
     *,
     normalize_player_name,
 ) -> dict[str, dict[float, dict[str, Any]]]:
-    """Index DK O/U rows by player|market -> line -> odds metadata."""
+    """Index DK O/U rows by player|market -> line -> odds metadata.
+
+    A same-line collision with conflicting odds marks the whole ``pm_key``
+    ambiguous and drops it, so an unresolvable same-name clash yields no match
+    rather than a silent wrong-odds match.
+    """
     ladder: dict[str, dict[float, dict[str, Any]]] = {}
+    ambiguous: set[str] = set()
     for prop in dk_props:
         if prop.get("line_kind", "ou") == "milestone":
             continue
@@ -228,20 +235,26 @@ def build_player_market_ladder(
         pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
         bucket = ladder.setdefault(pm_key, {})
-        if line in bucket:
+        existing = bucket.get(line)
+        if existing is not None and _collision_is_ambiguous(
+            existing, int(over_odds), int(under_odds)
+        ):
             logger.warning(
-                "sharp O/U ladder collision pm_key={pm_key} line={line} "
-                "event_start={event_start}",
+                "ambiguous sharp O/U collision — dropping pm_key={pm_key} from "
+                "matching line={line} event_start={event_start}",
                 pm_key=pm_key,
                 line=line,
                 event_start=prop.get("event_start", ""),
             )
+            ambiguous.add(pm_key)
         bucket[line] = {
             "over_odds": int(over_odds),
             "under_odds": int(under_odds),
             "is_main_line": bool(prop.get("is_main_line", True)),
             "event_start": prop.get("event_start", ""),
         }
+    for pm_key in ambiguous:
+        ladder.pop(pm_key, None)
     return ladder
 
 
@@ -250,8 +263,13 @@ def build_milestone_ladder(
     *,
     normalize_player_name,
 ) -> dict[str, dict[float, dict[str, Any]]]:
-    """Index milestone (N+) rows by player|market -> converted line -> over odds."""
+    """Index milestone (N+) rows by player|market -> converted line -> over odds.
+
+    A same-line collision with conflicting over odds drops the ``pm_key`` from
+    matching, matching ``build_player_market_ladder``'s ambiguity handling.
+    """
     ladder: dict[str, dict[float, dict[str, Any]]] = {}
+    ambiguous: set[str] = set()
     for prop in sharp_props:
         if prop.get("line_kind") != "milestone":
             continue
@@ -262,14 +280,18 @@ def build_milestone_ladder(
         line = float(prop["line"])
         source_book = prop.get("sportsbook", "DraftKings")
         bucket = ladder.setdefault(pm_key, {})
-        if line in bucket:
+        existing = bucket.get(line)
+        if existing is not None and _collision_is_ambiguous(
+            existing, int(over_odds), None
+        ):
             logger.warning(
-                "sharp milestone ladder collision pm_key={pm_key} line={line} "
-                "event_start={event_start}",
+                "ambiguous sharp milestone collision — dropping pm_key={pm_key} "
+                "from matching line={line} event_start={event_start}",
                 pm_key=pm_key,
                 line=line,
                 event_start=prop.get("event_start", ""),
             )
+            ambiguous.add(pm_key)
         bucket[line] = {
             "over_odds": int(over_odds),
             "milestone_threshold": prop.get("milestone_threshold"),
@@ -277,6 +299,8 @@ def build_milestone_ladder(
             "sportsbook": source_book,
             "event_start": prop.get("event_start", ""),
         }
+    for pm_key in ambiguous:
+        ladder.pop(pm_key, None)
     return ladder
 
 
@@ -285,8 +309,13 @@ def build_milestone_ladders(
     *,
     normalize_player_name,
 ) -> dict[str, dict[str, dict[float, dict[str, Any]]]]:
-    """Per-book milestone ladders keyed by sportsbook name."""
+    """Per-book milestone ladders keyed by sportsbook name.
+
+    A same-line collision with conflicting over odds drops the ``(book, pm_key)``
+    from matching, matching ``build_player_market_ladder``'s ambiguity handling.
+    """
     ladders: dict[str, dict[str, dict[float, dict[str, Any]]]] = {}
+    ambiguous: set[tuple[str, str]] = set()
     for prop in sharp_props:
         if prop.get("line_kind") != "milestone":
             continue
@@ -297,15 +326,20 @@ def build_milestone_ladders(
         pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
         line = float(prop["line"])
         bucket = ladders.setdefault(source_book, {}).setdefault(pm_key, {})
-        if line in bucket:
+        existing = bucket.get(line)
+        if existing is not None and _collision_is_ambiguous(
+            existing, int(over_odds), None
+        ):
             logger.warning(
-                "sharp per-book milestone collision book={book} pm_key={pm_key} "
-                "line={line} event_start={event_start}",
+                "ambiguous sharp per-book milestone collision — dropping "
+                "book={book} pm_key={pm_key} from matching line={line} "
+                "event_start={event_start}",
                 book=source_book,
                 pm_key=pm_key,
                 line=line,
                 event_start=prop.get("event_start", ""),
             )
+            ambiguous.add((source_book, pm_key))
         bucket[line] = {
             "over_odds": int(over_odds),
             "milestone_threshold": prop.get("milestone_threshold"),
@@ -313,6 +347,8 @@ def build_milestone_ladders(
             "sportsbook": source_book,
             "event_start": prop.get("event_start", ""),
         }
+    for source_book, pm_key in ambiguous:
+        ladders.get(source_book, {}).pop(pm_key, None)
     return ladders
 
 

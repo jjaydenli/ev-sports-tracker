@@ -191,9 +191,20 @@ def test_context_required_no_borrow_on_event_hour_mismatch():
     assert find_ev_opportunities(betr, dk, min_ev=0.0) == []
 
 
-def test_context_required_no_borrow_on_game_mismatch():
-    betr = [_betr("Freddie Freeman", "hits", 0.5, game="BAL@LAD")]
-    dk = [_dk("Freddie Freeman", "total_bases", 0.5, -110, -110, game="NYY@BOS")]
+def test_context_required_no_borrow_on_event_hour_mismatch():
+    # The gate is the UTC event-hour, not the game string, so props in different
+    # event hours must not borrow across the o0.5 equivalence.
+    betr = [_betr("Freddie Freeman", "hits", 0.5, event_start="2026-06-19T23:00:00.000Z")]
+    dk = [
+        _dk(
+            "Freddie Freeman",
+            "total_bases",
+            0.5,
+            -110,
+            -110,
+            event_start="2026-06-20T02:00:00.000Z",
+        )
+    ]
 
     filtered = _filter_sharp_props_by_match_context(betr[0], dk)
     assert filtered == []

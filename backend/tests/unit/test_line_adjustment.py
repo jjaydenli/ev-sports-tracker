@@ -354,7 +354,7 @@ def test_ladder_row_carries_event_start():
         ],
         normalize_player_name=normalize_player_name,
     )
-    row = ladder["test player|points"][20.5]
+    row = ladder["test player|points|2026-06-19T23"][20.5]
     assert row["event_start"] == "2026-06-19T23:05:00.000Z"
 
 
@@ -378,6 +378,7 @@ def test_resolved_quote_exposes_sharp_event_start():
         "line": 20.5,
         "over_odds": -120,
         "under_odds": -120,
+        "event_start": "2026-06-19T23:05:00.000Z",
     }
     quote, reason = resolve_sharp_quote(
         betr, ladder, normalize_player_name=normalize_player_name
@@ -385,3 +386,53 @@ def test_resolved_quote_exposes_sharp_event_start():
     assert reason is None
     assert quote is not None
     assert quote.sharp_event_start == "2026-06-19T23:05:00.000Z"
+
+
+def _ou_row(player, line, over, under, *, event_start="2026-06-19T23:05:00.000Z"):
+    return {
+        "player": player,
+        "market": "hits",
+        "line": line,
+        "over_odds": over,
+        "under_odds": under,
+        "event_start": event_start,
+    }
+
+
+def test_conflicting_collision_drops_pm_key_from_ladder():
+    # Two distinct players collapse to one normalized name|market|hour key; their
+    # same-line quotes conflict, so the whole key is dropped rather than silently
+    # resolving to whichever row wrote last.
+    ladder = build_player_market_ladder(
+        [
+            _ou_row("Will Smith", 0.5, -130, +110),
+            _ou_row("Will Smith", 0.5, +140, -170),
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    assert "will smith|hits|2026-06-19T23" not in ladder
+
+    betr = _ou_row("Will Smith", 0.5, -120, -120)
+    quote, reason = resolve_sharp_quote(
+        betr, ladder, normalize_player_name=normalize_player_name
+    )
+    assert quote is None
+    assert reason == "no_dk_market"
+
+
+def test_identical_odds_duplicate_keeps_matching():
+    # A harmless duplicate (same odds) overwrites silently and still resolves.
+    ladder = build_player_market_ladder(
+        [
+            _ou_row("Solo Player", 0.5, -120, -110),
+            _ou_row("Solo Player", 0.5, -120, -110),
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    betr = _ou_row("Solo Player", 0.5, -130, -130)
+    quote, reason = resolve_sharp_quote(
+        betr, ladder, normalize_player_name=normalize_player_name
+    )
+    assert reason is None
+    assert quote is not None
+    assert quote.adjustment_method == "exact"

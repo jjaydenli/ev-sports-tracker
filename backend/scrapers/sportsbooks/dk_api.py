@@ -483,7 +483,7 @@ def game_key_from_dk_event(event: dict[str, Any]) -> str | None:
 
 
 def build_event_game_map(payload: dict[str, Any]) -> dict[str, str]:
-    """Map DK event_id -> AWAY@HOME for cross-book game scoping."""
+    """Map DK event_id -> AWAY@HOME for the display ``game`` string (not match-gating)."""
     mapping: dict[str, str] = {}
     for event in payload.get("events") or []:
         event_id = event.get("id")

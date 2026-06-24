@@ -1,16 +1,17 @@
 """Central cross-book team-abbreviation canonicalization.
 
 Each book emits team codes in a slightly different vocabulary; betr (the DFS
-anchor) defines the canonical form used in the cross-book match-context key.
+anchor) defines the canonical form used in the display ``game`` string. The
+cross-book match gate keys on event-hour, not abbreviations, so these helpers
+are display-only — a mismatched abbreviation no longer costs a match.
 
 - Abbreviation-emitting books (betr, DraftKings, ESPN) are normalized through
-  :data:`TEAM_ABBR_ALIASES` via :func:`canonicalize_team_abbr` — applied centrally
-  in ``core.line_adjustment.normalize_game_key`` so every ``AWAY@HOME`` key
-  converges regardless of source book.
-- FanDuel exposes only full team names (no abbreviations), so its ``game`` key is
-  built from :data:`TEAM_FULL_NAME_TO_ABBR` via :func:`game_key_from_full_names`.
+  :data:`TEAM_ABBR_ALIASES` via :func:`canonicalize_team_abbr` so every
+  ``AWAY@HOME`` display string converges regardless of source book.
+- FanDuel exposes only full team names (no abbreviations), so its ``game`` string
+  is built from :data:`TEAM_FULL_NAME_TO_ABBR` via :func:`game_key_from_full_names`.
 
-Both maps target the same canonical (betr) vocabulary so cross-book keys align.
+Both maps target the same canonical (betr) vocabulary so displayed games align.
 """
 
 from __future__ import annotations

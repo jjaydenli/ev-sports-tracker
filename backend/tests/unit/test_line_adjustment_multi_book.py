@@ -279,6 +279,7 @@ def test_dk_ou_plus_fd_milestone_assembles_one_combo_quote():
                 "milestone_threshold": 1,
                 "over_odds": -165,
                 "sportsbook": "FanDuel",
+                "event_start": _EVENT_START,
             }
         ],
         normalize_player_name=normalize_player_name,

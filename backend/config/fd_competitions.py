@@ -177,13 +177,14 @@ def build_event_game_map(
     competition_id: str | None = None,
     require_matchup: bool = True,
 ) -> dict[str, str]:
-    """Map FanDuel event_id -> canonical ``AWAY@HOME`` for cross-book game scoping.
+    """Map FanDuel event_id -> canonical ``AWAY@HOME`` for the display ``game`` string.
 
     FanDuel events carry only full team names (e.g. ``"Cleveland Guardians (S Bibee)
     @ Chicago White Sox (D Martin)"``); names are resolved to betr-canonical
     abbreviations via ``config.team_abbrev``. Events whose team names are unmapped
-    are skipped (logged) and simply carry no ``game`` — degrading to today's behavior
-    for that team rather than mismatching.
+    are skipped (logged) and simply carry no ``game``; since the cross-book match
+    gate keys on event-hour (not abbreviations), a missing ``game`` no longer costs
+    a match — it only blanks the display string.
     """
     from loguru import logger
 

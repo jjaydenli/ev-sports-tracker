@@ -1,0 +1,39 @@
+{
+  "description": "Two DK props for same player|market|hour at same line with conflicting odds — collision detected, pm_key dropped, 0 opportunities.",
+  "betr_props": [
+    {
+      "sportsbook": "Betr",
+      "player": "Gerrit Cole",
+      "market": "strikeouts",
+      "line": 7.5,
+      "league": "MLB",
+      "over_odds": -120,
+      "under_odds": -120,
+      "event_start": "2026-07-01T20:05:00.000Z"
+    }
+  ],
+  "dk_props": [
+    {
+      "sportsbook": "DraftKings",
+      "player": "Gerrit Cole",
+      "market": "strikeouts",
+      "line": 7.5,
+      "league": "MLB",
+      "over_odds": -130,
+      "under_odds": 110,
+      "is_main_line": true,
+      "event_start": "2026-07-01T20:05:00.000Z"
+    },
+    {
+      "sportsbook": "DraftKings",
+      "player": "Gerrit Cole",
+      "market": "strikeouts",
+      "line": 7.5,
+      "league": "MLB",
+      "over_odds": -120,
+      "under_odds": -120,
+      "is_main_line": true,
+      "event_start": "2026-07-01T20:05:00.000Z"
+    }
+  ]
+}

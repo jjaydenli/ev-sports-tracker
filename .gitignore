@@ -12,9 +12,15 @@ __pycache__/
 
 # Python test/cache
 .pytest_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
 
 # OS / editor
 .DS_Store
+
+
 
 # IDEs
 .vscode/

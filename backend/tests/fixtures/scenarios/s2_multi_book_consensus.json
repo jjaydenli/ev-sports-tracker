@@ -1,0 +1,54 @@
+{
+  "description": "DK + FD + ESPN all have exact O/U at Betr line — triggers multi_book_consensus devig.",
+  "betr_props": [
+    {
+      "sportsbook": "Betr",
+      "player": "Shohei Ohtani",
+      "market": "strikeouts",
+      "line": 6.5,
+      "league": "MLB",
+      "over_odds": -120,
+      "under_odds": -120,
+      "event_start": "2026-07-01T21:00:00.000Z"
+    }
+  ],
+  "dk_props": [
+    {
+      "sportsbook": "DraftKings",
+      "player": "Shohei Ohtani",
+      "market": "strikeouts",
+      "line": 6.5,
+      "league": "MLB",
+      "over_odds": -120,
+      "under_odds": -115,
+      "is_main_line": true,
+      "event_start": "2026-07-01T21:05:00.000Z"
+    }
+  ],
+  "fd_props": [
+    {
+      "sportsbook": "FanDuel",
+      "player": "Shohei Ohtani",
+      "market": "strikeouts",
+      "line": 6.5,
+      "league": "MLB",
+      "over_odds": -120,
+      "under_odds": -110,
+      "is_main_line": true,
+      "event_start": "2026-07-01T21:10:00.000Z"
+    }
+  ],
+  "espn_props": [
+    {
+      "sportsbook": "ESPN",
+      "player": "Shohei Ohtani",
+      "market": "strikeouts",
+      "line": 6.5,
+      "league": "MLB",
+      "over_odds": -115,
+      "under_odds": -115,
+      "is_main_line": true,
+      "event_start": "2026-07-01T21:08:00.000Z"
+    }
+  ]
+}

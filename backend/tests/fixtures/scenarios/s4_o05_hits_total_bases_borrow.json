@@ -1,0 +1,30 @@
+{
+  "description": "Betr hits o0.5 with no DK hits line — DK total_bases 0.5 is borrowed via O05_EQUIVALENT_MARKETS.",
+  "betr_props": [
+    {
+      "sportsbook": "Betr",
+      "player": "Freddie Freeman",
+      "market": "hits",
+      "line": 0.5,
+      "league": "MLB",
+      "game": "LAD@SF",
+      "over_odds": -120,
+      "under_odds": -120,
+      "event_start": "2026-07-01T23:05:00.000Z"
+    }
+  ],
+  "dk_props": [
+    {
+      "sportsbook": "DraftKings",
+      "player": "Freddie Freeman",
+      "market": "total_bases",
+      "line": 0.5,
+      "league": "MLB",
+      "game": "LAD@SF",
+      "over_odds": -150,
+      "under_odds": 125,
+      "is_main_line": true,
+      "event_start": "2026-07-01T23:05:00.000Z"
+    }
+  ]
+}

@@ -205,6 +205,7 @@ def test_find_ev_opportunities_skips_blocked_under_side():
 
     results = find_ev_opportunities(betr, dk, min_ev=0.0)
 
+    assert results, "over-side opportunity should still be produced when under_odds=None"
     assert all(row["side"] != "under" for row in results)
 
 

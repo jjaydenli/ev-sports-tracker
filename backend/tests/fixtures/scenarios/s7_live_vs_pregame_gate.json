@@ -1,0 +1,26 @@
+{
+  "description": "Live Betr prop (is_live=True, no event_start) cannot match pregame DK prop — live|pregame key mismatch gates it out.",
+  "betr_props": [
+    {
+      "sportsbook": "Betr",
+      "player": "Jose Ramirez",
+      "market": "points",
+      "line": 10.5,
+      "over_odds": -120,
+      "under_odds": -120,
+      "is_live": true
+    }
+  ],
+  "dk_props": [
+    {
+      "sportsbook": "DraftKings",
+      "player": "Jose Ramirez",
+      "market": "points",
+      "line": 10.5,
+      "over_odds": -130,
+      "under_odds": 110,
+      "is_main_line": true,
+      "event_start": "2026-07-01T20:00:00.000Z"
+    }
+  ]
+}

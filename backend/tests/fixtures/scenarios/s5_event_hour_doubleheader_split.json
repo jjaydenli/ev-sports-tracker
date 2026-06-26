@@ -1,0 +1,39 @@
+{
+  "description": "Doubleheader: same player at two event hours — Betr at 17:00 matches DK at 17:10, not DK at 23:00.",
+  "betr_props": [
+    {
+      "sportsbook": "Betr",
+      "player": "Mike Trout",
+      "market": "hits",
+      "line": 1.5,
+      "league": "MLB",
+      "over_odds": -120,
+      "under_odds": -120,
+      "event_start": "2026-07-04T17:05:00.000Z"
+    }
+  ],
+  "dk_props": [
+    {
+      "sportsbook": "DraftKings",
+      "player": "Mike Trout",
+      "market": "hits",
+      "line": 1.5,
+      "league": "MLB",
+      "over_odds": -140,
+      "under_odds": 120,
+      "is_main_line": true,
+      "event_start": "2026-07-04T17:10:00.000Z"
+    },
+    {
+      "sportsbook": "DraftKings",
+      "player": "Mike Trout",
+      "market": "hits",
+      "line": 1.5,
+      "league": "MLB",
+      "over_odds": -135,
+      "under_odds": 115,
+      "is_main_line": true,
+      "event_start": "2026-07-04T23:05:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,272 @@
+# serializer version: 1
+# name: test_match_stats_multi_prop_snapshot
+  dict({
+    'betr_match_rate_pct': 50.0,
+    'betr_props': 2,
+    'dk_props': 1,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 1,
+    'unmatched_betr': 1,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 1,
+    'unmatched_betr_no_dk_market': 1,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 0,
+  })
+# ---
+# name: test_s1_clean_single_book_ou
+  list([
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -140,
+      'dk_under_odds': 120,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': 0.0166,
+      'ev_pct': 1.66,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 1.5,
+      'line_source': 'exact',
+      'market': 'hits',
+      'milestone_admitted': False,
+      'player': 'Aaron Judge',
+      'plus_ev': True,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'over',
+      'side_hit_pct': 56.2,
+    }),
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -140,
+      'dk_under_odds': 120,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': -0.1075,
+      'ev_pct': -10.75,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 1.5,
+      'line_source': 'exact',
+      'market': 'hits',
+      'milestone_admitted': False,
+      'player': 'Aaron Judge',
+      'plus_ev': False,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'under',
+      'side_hit_pct': 43.8,
+    }),
+  ])
+# ---
+# name: test_s2_multi_book_consensus
+  list([
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -120,
+      'dk_under_odds': -115,
+      'espn_over_odds': -115,
+      'espn_under_odds': -115,
+      'ev': -0.0405,
+      'ev_pct': -4.05,
+      'fd_over_odds': -120,
+      'fd_under_odds': -110,
+      'line': 6.5,
+      'line_source': 'multi_book_consensus',
+      'market': 'strikeouts',
+      'milestone_admitted': False,
+      'player': 'Shohei Ohtani',
+      'plus_ev': False,
+      'sharp_books': list([
+        'DraftKings',
+        'FanDuel',
+        'ESPN',
+      ]),
+      'side': 'over',
+      'side_hit_pct': 50.5,
+    }),
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -120,
+      'dk_under_odds': -115,
+      'espn_over_odds': -115,
+      'espn_under_odds': -115,
+      'ev': -0.0504,
+      'ev_pct': -5.04,
+      'fd_over_odds': -120,
+      'fd_under_odds': -110,
+      'line': 6.5,
+      'line_source': 'multi_book_consensus',
+      'market': 'strikeouts',
+      'milestone_admitted': False,
+      'player': 'Shohei Ohtani',
+      'plus_ev': False,
+      'sharp_books': list([
+        'DraftKings',
+        'FanDuel',
+        'ESPN',
+      ]),
+      'side': 'under',
+      'side_hit_pct': 49.5,
+    }),
+  ])
+# ---
+# name: test_s3_milestone_devig_admission
+  list([
+    dict({
+      'corroborated': False,
+      'dk_over_odds': -400,
+      'dk_under_odds': None,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': 0.2545,
+      'ev_pct': 25.45,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 0.5,
+      'line_source': 'dk_milestone_exact',
+      'market': 'hits',
+      'milestone_admitted': True,
+      'player': 'Francisco Lindor',
+      'plus_ev': True,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'over',
+      'side_hit_pct': 80.0,
+    }),
+    dict({
+      'corroborated': False,
+      'dk_over_odds': -400,
+      'dk_under_odds': None,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': -0.3455,
+      'ev_pct': -34.55,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 0.5,
+      'line_source': 'dk_milestone_exact',
+      'market': 'hits',
+      'milestone_admitted': True,
+      'player': 'Francisco Lindor',
+      'plus_ev': False,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'under',
+      'side_hit_pct': 20.0,
+    }),
+  ])
+# ---
+# name: test_s4_o05_hits_total_bases_borrow
+  list([
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -150,
+      'dk_under_odds': 125,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': 0.029,
+      'ev_pct': 2.9,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 0.5,
+      'line_source': 'exact',
+      'market': 'hits',
+      'milestone_admitted': False,
+      'player': 'Freddie Freeman',
+      'plus_ev': True,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'over',
+      'side_hit_pct': 57.45,
+    }),
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -150,
+      'dk_under_odds': 125,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': -0.1199,
+      'ev_pct': -11.99,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 0.5,
+      'line_source': 'exact',
+      'market': 'hits',
+      'milestone_admitted': False,
+      'player': 'Freddie Freeman',
+      'plus_ev': False,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'under',
+      'side_hit_pct': 42.55,
+    }),
+  ])
+# ---
+# name: test_s5_event_hour_doubleheader_split
+  list([
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -140,
+      'dk_under_odds': 120,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': 0.0166,
+      'ev_pct': 1.66,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 1.5,
+      'line_source': 'exact',
+      'market': 'hits',
+      'milestone_admitted': False,
+      'player': 'Mike Trout',
+      'plus_ev': True,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'over',
+      'side_hit_pct': 56.2,
+    }),
+    dict({
+      'corroborated': True,
+      'dk_over_odds': -140,
+      'dk_under_odds': 120,
+      'espn_over_odds': None,
+      'espn_under_odds': None,
+      'ev': -0.1075,
+      'ev_pct': -10.75,
+      'fd_over_odds': None,
+      'fd_under_odds': None,
+      'line': 1.5,
+      'line_source': 'exact',
+      'market': 'hits',
+      'milestone_admitted': False,
+      'player': 'Mike Trout',
+      'plus_ev': False,
+      'sharp_books': list([
+        'DraftKings',
+      ]),
+      'side': 'under',
+      'side_hit_pct': 43.8,
+    }),
+  ])
+# ---
+# name: test_s6_ambiguous_sharp_ladder_collision
+  list([
+  ])
+# ---
+# name: test_s7_live_vs_pregame_gate
+  list([
+  ])
+# ---

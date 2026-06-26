@@ -45,6 +45,7 @@ def test_flatten_pitcher_strikeouts_ou():
 
 def test_flatten_batter_hits_ou():
     props = flatten_drawer_content(_load(BATTER_DRAWER), event_id=EVENT_ID, league="mlb")
+    assert props, "expected at least one prop from batter hits drawer"
     assert all(p["market"] == "hits" for p in props)
     chisholm = next(p for p in props if p["player"] == "Jazz Chisholm Jr.")
     assert chisholm["lines"][0]["line"] == 0.5

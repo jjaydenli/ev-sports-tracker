@@ -1,0 +1,153 @@
+# serializer version: 1
+# name: test_match_stats_scenario_matrix[s1_clean_single_book_ou.json]
+  dict({
+    'betr_match_rate_pct': 100.0,
+    'betr_props': 1,
+    'dk_props': 1,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 1,
+    'unmatched_betr': 0,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 0,
+    'unmatched_betr_no_dk_market': 0,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 0,
+  })
+# ---
+# name: test_match_stats_scenario_matrix[s2_multi_book_consensus.json]
+  dict({
+    'betr_match_rate_pct': 100.0,
+    'betr_props': 1,
+    'dk_props': 1,
+    'espn_props': 1,
+    'fd_props': 1,
+    'matched_keys': 1,
+    'unmatched_betr': 0,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 0,
+    'unmatched_betr_no_dk_market': 0,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 0,
+  })
+# ---
+# name: test_match_stats_scenario_matrix[s3_milestone_devig_admission.json]
+  dict({
+    'betr_match_rate_pct': 100.0,
+    'betr_props': 1,
+    'dk_props': 2,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 1,
+    'unmatched_betr': 0,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 0,
+    'unmatched_betr_no_dk_market': 0,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 1,
+  })
+# ---
+# name: test_match_stats_scenario_matrix[s4_o05_hits_total_bases_borrow.json]
+  dict({
+    'betr_match_rate_pct': 0.0,
+    'betr_props': 1,
+    'dk_props': 1,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 0,
+    'unmatched_betr': 1,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 1,
+    'unmatched_betr_no_dk_market': 1,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 1,
+  })
+# ---
+# name: test_match_stats_scenario_matrix[s5_event_hour_doubleheader_split.json]
+  dict({
+    'betr_match_rate_pct': 100.0,
+    'betr_props': 1,
+    'dk_props': 2,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 1,
+    'unmatched_betr': 0,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 0,
+    'unmatched_betr_no_dk_market': 0,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 0,
+  })
+# ---
+# name: test_match_stats_scenario_matrix[s6_ambiguous_sharp_ladder_collision.json]
+  dict({
+    'betr_match_rate_pct': 0.0,
+    'betr_props': 1,
+    'dk_props': 2,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 0,
+    'unmatched_betr': 1,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 1,
+    'unmatched_betr_no_dk_market': 1,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 0,
+  })
+# ---
+# name: test_match_stats_scenario_matrix[s7_live_vs_pregame_gate.json]
+  dict({
+    'betr_match_rate_pct': 0.0,
+    'betr_props': 1,
+    'dk_props': 1,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 0,
+    'unmatched_betr': 1,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 1,
+    'unmatched_betr_no_dk_market': 1,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 0,
+  })
+# ---
+# name: test_team_abbrev_mismatch_match_stats_golden
+  dict({
+    'betr_match_rate_pct': 100.0,
+    'betr_props': 1,
+    'dk_props': 1,
+    'espn_props': 0,
+    'fd_props': 0,
+    'matched_keys': 1,
+    'unmatched_betr': 0,
+    'unmatched_betr_dk_missing_odds': 0,
+    'unmatched_betr_flat_line_skipped': 0,
+    'unmatched_betr_line_mismatch': 0,
+    'unmatched_betr_no_dk_bracket': 0,
+    'unmatched_betr_no_dk_line': 0,
+    'unmatched_betr_no_dk_market': 0,
+    'unmatched_betr_no_exact_sharp_line': 0,
+    'unmatched_dk': 0,
+  })
+# ---

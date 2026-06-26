@@ -1,0 +1,41 @@
+{
+  "description": "DK milestone ladder (two rungs at 0.5 and 1.5) — ladder-normalized devig, milestone_admitted=True.",
+  "betr_props": [
+    {
+      "sportsbook": "Betr",
+      "player": "Francisco Lindor",
+      "market": "hits",
+      "line": 0.5,
+      "league": "MLB",
+      "over_odds": -120,
+      "under_odds": -120,
+      "event_start": "2026-07-01T23:05:00.000Z"
+    }
+  ],
+  "dk_props": [
+    {
+      "sportsbook": "DraftKings",
+      "player": "Francisco Lindor",
+      "market": "hits",
+      "line": 0.5,
+      "league": "MLB",
+      "line_kind": "milestone",
+      "milestone_threshold": 1,
+      "over_odds": -400,
+      "is_main_line": true,
+      "event_start": "2026-07-01T23:05:00.000Z"
+    },
+    {
+      "sportsbook": "DraftKings",
+      "player": "Francisco Lindor",
+      "market": "hits",
+      "line": 1.5,
+      "league": "MLB",
+      "line_kind": "milestone",
+      "milestone_threshold": 2,
+      "over_odds": -200,
+      "is_main_line": false,
+      "event_start": "2026-07-01T23:05:00.000Z"
+    }
+  ]
+}

@@ -289,6 +289,7 @@ BODY="$(build_pr_body)"
 
 if [[ "$SKIP_PLAN_CHECK" == 0 ]]; then
   ./scripts/check_plan_archived.sh "$LOG_BASE"
+  ./scripts/check_arch_sync.sh "$LOG_BASE"
 fi
 
 resolve_mode

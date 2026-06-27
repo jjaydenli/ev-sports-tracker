@@ -108,7 +108,11 @@ def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
     """True when the sharp quote is eligible for +EV ranking."""
     if quote.adjustment_method == "ou_ms_combo":
         return True
-    if quote.dk_line_kind == "milestone":
+    if (
+        quote.dk_line_kind == "milestone"
+        or quote.fd_line_kind == "milestone"
+        or quote.espn_line_kind == "milestone"
+    ):
         return (
             quote.adjustment_method == "dk_milestone_exact"
             and quote.milestone_admitted
@@ -379,6 +383,15 @@ def _milestone_raw_book_odds(
             "dk_under_odds": None,
             "fd_over_odds": raw_over,
             "fd_under_odds": None,
+        }
+    if source_book == "ESPN":
+        return {
+            "dk_over_odds": None,
+            "dk_under_odds": None,
+            "fd_over_odds": None,
+            "fd_under_odds": None,
+            "espn_over_odds": raw_over,
+            "espn_under_odds": None,
         }
     return {
         "dk_over_odds": raw_over,
@@ -688,13 +701,15 @@ def _resolve_milestone_ladder(
             market=market,
             ou_hold=preferred_hold,
         )
-        devigged_over, _ = _odds_from_fair_probs(fair_over, 1.0 - fair_over)
-        admitted = fair_over >= MILESTONE_MIN_FAIR_OVER
+        devigged_over, devigged_under = _odds_from_fair_probs(fair_over, 1.0 - fair_over)
+        admitted_over = fair_over >= MILESTONE_MIN_FAIR_OVER
+        admitted_under = fair_over < 0.5  # under is heavy side; Betr under can be +EV
+        admitted = admitted_over or admitted_under
         book_odds = _milestone_raw_book_odds(source_book, int(row["over_odds"]))
         return (
             ResolvedSharpQuote(
                 over_odds=devigged_over,
-                under_odds=None,
+                under_odds=devigged_under if admitted_under else None,
                 dk_line=target_line,
                 betr_line=target_line,
                 adjustment_method="dk_milestone_exact",
@@ -1140,11 +1155,24 @@ def resolve_book_sharp_quote(
         return ou_quote, reason
 
     if book == "ESPN":
-        return _resolve_espn_exact_quote(
+        ou_quote, reason = _resolve_espn_exact_quote(
             betr_prop,
             ou_ladder,
             normalize_player_name=normalize_player_name,
         )
+        use_milestone = milestone_ladder and ou_quote is None
+        if use_milestone:
+            milestone_quote, milestone_reason = _resolve_milestone_ladder(
+                betr_prop,
+                milestone_ladder,
+                normalize_player_name=normalize_player_name,
+                ou_ladders=ou_ladders,
+                hold_source_book_only="ESPN" in (ou_ladders or {}),
+            )
+            if milestone_quote is not None:
+                return milestone_quote, None
+            return None, milestone_reason or reason
+        return ou_quote, reason
 
     ou_quote, ou_reason = _resolve_ou_ladder(
         betr_prop, ou_ladder, normalize_player_name=normalize_player_name
@@ -1232,6 +1260,7 @@ def resolve_multi_book_sharp_quote(
     dk_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
     fd_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
     espn_ou_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
+    espn_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """
     Resolve DK + FanDuel (+ optional ESPN) sharp prices independently per book.
@@ -1266,14 +1295,15 @@ def resolve_multi_book_sharp_quote(
         normalize_player_name=normalize_player_name,
         ou_ladders=ou_ladders,
     )
+    espn_ms = espn_milestone_ladder if espn_milestone_ladder is not None else {}
     espn_quote: ResolvedSharpQuote | None = None
     espn_reason: str | None = None
-    if espn_ou_ladder is not None:
+    if espn_ou_ladder is not None or espn_milestone_ladder:
         espn_quote, espn_reason = resolve_book_sharp_quote(
             "ESPN",
             betr_prop,
-            espn_ou_ladder,
-            None,
+            espn_ou_ladder or {},
+            espn_ms or None,
             normalize_player_name=normalize_player_name,
             ou_ladders=ou_ladders,
         )

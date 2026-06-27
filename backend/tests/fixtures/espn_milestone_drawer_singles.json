@@ -1,0 +1,88 @@
+{
+  "data": {
+    "eventDrawer": {
+      "id": "Drawer:105477089:a1b2c3d4-0000-0000-0000-000000000001:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+      "drawerChildren": [
+        {
+          "marketplaceShelfChildren": [
+            {
+              "__typename": "MarketCard",
+              "participant": {"mediumName": "Jazz Chisholm Jr."},
+              "markets": [
+                {
+                  "id": "market-singles-1",
+                  "name": "Jazz Chisholm Jr. Total Singles",
+                  "type": "LIST",
+                  "status": "OPEN",
+                  "selections": [
+                    {
+                      "id": "sel-1",
+                      "name": {"cleanName": "1+"},
+                      "type": "OVER",
+                      "status": "OPEN",
+                      "odds": {"formattedOdds": "-175"}
+                    },
+                    {
+                      "id": "sel-2",
+                      "name": {"cleanName": "2+"},
+                      "type": "OVER",
+                      "status": "OPEN",
+                      "odds": {"formattedOdds": "+250"}
+                    }
+                  ]
+                },
+                {
+                  "id": "market-singles-closed",
+                  "name": "Someone Else Total Singles",
+                  "type": "LIST",
+                  "status": "SUSPENDED",
+                  "selections": [
+                    {
+                      "id": "sel-x",
+                      "name": {"cleanName": "1+"},
+                      "type": "OVER",
+                      "status": "OPEN",
+                      "odds": {"formattedOdds": "-130"}
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "__typename": "TableMarketCard",
+              "rows": [
+                {
+                  "__typename": "TableMarketCardRow",
+                  "label": "A. Judge",
+                  "selections": [
+                    {
+                      "id": "sel-3",
+                      "name": {"cleanName": "1+"},
+                      "type": "OVER",
+                      "status": "OPEN",
+                      "odds": {"formattedOdds": "-155"}
+                    },
+                    null
+                  ]
+                },
+                {
+                  "__typename": "TableMarketCardRow",
+                  "label": "J. Chisholm",
+                  "selections": [
+                    {
+                      "id": "sel-4",
+                      "name": {"cleanName": "1+"},
+                      "type": "OVER",
+                      "status": "SUSPENDED",
+                      "odds": {"formattedOdds": "-120"}
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

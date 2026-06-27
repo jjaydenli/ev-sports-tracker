@@ -46,6 +46,36 @@
           "__typename": "Drawer"
         },
         {
+          "id": "Drawer:105477089:a1b2c3d4-0000-0000-0000-000000000001:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "a1b2c3d4-0000-0000-0000-000000000001",
+          "labelText": "Singles",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:b2c3d4e5-0000-0000-0000-000000000002:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "b2c3d4e5-0000-0000-0000-000000000002",
+          "labelText": "Doubles",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
+          "id": "Drawer:105477089:c3d4e5f6-0000-0000-0000-000000000003:Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+          "groupId": "c3d4e5f6-0000-0000-0000-000000000003",
+          "labelText": "Stolen Bases",
+          "attributes": [
+            "PARLAY_PLUS_ELIGIBLE"
+          ],
+          "autoExpand": false,
+          "__typename": "Drawer"
+        },
+        {
           "id": "Drawer:105477089:HomeRuns(O/U):Event:0d4827b4-814e-4761-8f15-73d0c62f5e33",
           "groupId": "HomeRuns(O/U)",
           "labelText": "Home Runs (O/U)",

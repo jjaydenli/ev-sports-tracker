@@ -190,3 +190,80 @@ def test_persist_match_diagnostics_writes_report_files(tmp_path):
     assert "generated_at" in report
     assert (tmp_path / "unmatched_betr.json").exists()
     assert (tmp_path / "unmatched_dk.json").exists()
+
+
+def test_compute_match_stats_espn_milestone_shifts_reason_from_no_market():
+    """With ESPN milestone data the stats layer must find the market, not report no_dk_market."""
+    betr = [
+        {
+            "player": "Jazz Chisholm Jr.",
+            "market": "singles",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "over_odds": -160,
+            "under_odds": 130,
+        }
+    ]
+    espn_heavy_over = [
+        {
+            "sportsbook": "ESPN",
+            "player": "Jazz Chisholm Jr.",
+            "market": "singles",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "over_odds": -175,
+            "under_odds": None,
+            "is_main_line": True,
+            "milestone_threshold": 1,
+            "league": "MLB",
+        }
+    ]
+
+    stats_without_espn = compute_match_stats(betr, [])
+    stats_with_espn = compute_match_stats(betr, [], espn_props=espn_heavy_over)
+
+    # Without ESPN: no sharp market known → no_dk_market
+    assert stats_without_espn["unmatched_betr_no_dk_market"] == 1
+
+    # With ESPN milestone (over-admitted): market discovered, reason shifts away from no_dk_market
+    assert stats_with_espn["unmatched_betr_no_dk_market"] == 0, (
+        "_build_match_ladders must include ESPN milestone props so betr_unmatched_reason "
+        "finds the market rather than reporting no_dk_market"
+    )
+
+
+def test_compute_match_stats_espn_milestone_under_admitted_counts_as_matched():
+    """ESPN milestone over at +110 (under-admitted) lets Betr under be evaluated as matched."""
+    betr = [
+        {
+            "player": "Jazz Chisholm Jr.",
+            "market": "singles",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "over_odds": -160,
+            "under_odds": 130,
+        }
+    ]
+    # ESPN prices the over as a moderate underdog — fair_over < 0.5 → admitted_under=True
+    espn_light_over = [
+        {
+            "sportsbook": "ESPN",
+            "player": "Jazz Chisholm Jr.",
+            "market": "singles",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "over_odds": 110,
+            "under_odds": None,
+            "is_main_line": True,
+            "milestone_threshold": 1,
+            "league": "MLB",
+        }
+    ]
+
+    stats = compute_match_stats(betr, [], espn_props=espn_light_over)
+
+    assert stats["matched_keys"] == 1, (
+        "ESPN milestone over at +110 (fair_over < 0.5) should admit the under side "
+        "and allow the Betr under to be evaluated as matched"
+    )
+    assert stats["unmatched_betr"] == 0

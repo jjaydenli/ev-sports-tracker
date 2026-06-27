@@ -164,3 +164,105 @@ def test_parse_espn_props_skips_rows_with_missing_odds() -> None:
 
 def test_parse_espn_props_empty_input_returns_empty() -> None:
     assert parse_espn_props([]) == []
+
+
+# ---------------------------------------------------------------------------
+# is_live passthrough
+# ---------------------------------------------------------------------------
+
+
+def test_parse_espn_prop_copies_is_live() -> None:
+    raw = {**_base_espn(), "is_live": True}
+    prop = parse_espn_prop(raw)
+    assert prop is not None
+    assert prop.get("is_live") is True
+
+
+def test_parse_espn_prop_no_is_live_key_when_absent() -> None:
+    prop = parse_espn_prop(_base_espn())
+    assert prop is not None
+    assert "is_live" not in prop
+
+
+def test_parse_espn_props_is_live_passthrough_grouped() -> None:
+    raw = [
+        {
+            "sportsbook": "ESPN",
+            "player": "Shohei Ohtani",
+            "market": "strikeouts",
+            "league": "MLB",
+            "is_live": True,
+            "lines": [
+                {"line": 5.5, "over_odds": -130, "under_odds": 110, "is_main_line": True},
+                {"line": 6.5, "over_odds": -115, "under_odds": -115, "is_main_line": False},
+            ],
+        }
+    ]
+    props = parse_espn_props(raw)
+    assert len(props) == 2
+    assert all(p.get("is_live") is True for p in props)
+
+
+def test_parse_espn_props_no_is_live_when_absent() -> None:
+    raw = [
+        {
+            "sportsbook": "ESPN",
+            "player": "Aaron Judge",
+            "market": "hits",
+            "line": 0.5,
+            "over_odds": -140,
+            "under_odds": 120,
+        }
+    ]
+    props = parse_espn_props(raw)
+    assert len(props) == 1
+    assert "is_live" not in props[0]
+
+
+# ---------------------------------------------------------------------------
+# milestone row passthrough (under_odds=None exemption)
+# ---------------------------------------------------------------------------
+
+
+def test_parse_espn_prop_accepts_milestone_row_with_null_under_odds() -> None:
+    raw = {
+        "sportsbook": "ESPN",
+        "player": "Jazz Chisholm Jr.",
+        "market": "singles",
+        "line": 0.5,
+        "line_kind": "milestone",
+        "over_odds": -175,
+        "under_odds": None,
+        "is_main_line": True,
+        "milestone_threshold": 1,
+    }
+    prop = parse_espn_prop(raw)
+    assert prop is not None
+    assert prop["player"] == "Jazz Chisholm Jr."
+    assert prop["line_kind"] == "milestone"
+    assert prop["over_odds"] == -175
+    assert prop["under_odds"] is None
+
+
+def test_parse_espn_prop_still_rejects_ou_row_with_null_under_odds() -> None:
+    raw = {**_base_espn(), "under_odds": None}
+    assert parse_espn_prop(raw) is None
+
+
+def test_parse_espn_props_milestone_rows_survive_parser() -> None:
+    raw = [
+        {
+            "sportsbook": "ESPN",
+            "player": "Aaron Judge",
+            "market": "singles",
+            "line": 0.5,
+            "line_kind": "milestone",
+            "over_odds": -155,
+            "under_odds": None,
+            "is_main_line": True,
+        }
+    ]
+    props = parse_espn_props(raw)
+    assert len(props) == 1
+    assert props[0]["line_kind"] == "milestone"
+    assert props[0]["under_odds"] is None

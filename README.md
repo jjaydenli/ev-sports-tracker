@@ -46,7 +46,7 @@ ev-sports-tracker/
     ├── core/
     │   ├── models.py             # NormalizedProp schemas (platform agnostic)
     │   ├── engine.py             # EV calculations
-    │   ├── line_adjustment.py    # DK ladder + FD exact + multi-book consensus
+    │   ├── line_adjustment.py    # DK/FD/ESPN ladders, multi-book consensus + milestone EV
     │   ├── ev_pipeline.py        # Unified board → EV output
     │   ├── ev_display.py         # Ranked plays CLI table
     │   ├── ev_run_diff.py        # Consecutive run diff vs prior top-N
@@ -127,7 +127,7 @@ Each run uses **fresh scrape data only** (no stale normalized boards). Use the m
 - `--include-flat-lines` — include Betr integer lines (push-adjusted breakeven; off by default)
 - `--timing` — wall-clock summary per pipeline stage (scrape, normalize, EV)
 
-DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md). FanDuel tabs and multi-book consensus: [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md). ESPN GraphQL transport and O/U leaf shape: [docs/betting_odds/espn.md](docs/betting_odds/espn.md).
+DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md). FanDuel tabs and multi-book consensus: [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md). ESPN GraphQL transport, O/U and milestone (LIST) drawer shapes: [docs/betting_odds/espn.md](docs/betting_odds/espn.md).
 
 Betr auth: refresh grant (`BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL`; optional `BETR_KEYCLOAK_CLIENT_ID` from DevTools), or manual `BETR_BEARER_TOKEN`, or password grant. Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
 

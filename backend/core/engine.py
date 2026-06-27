@@ -339,6 +339,12 @@ def find_ev_opportunities(
                 for prop in filtered_fd
                 if prop.get("line_kind") == "milestone"
             )
+        if espn_props:
+            sharp_milestone_props.extend(
+                prop
+                for prop in filtered_espn
+                if prop.get("line_kind") == "milestone"
+            )
         milestone_ladders = build_milestone_ladders(
             sharp_milestone_props, normalize_player_name=normalize_player_name
         )
@@ -360,6 +366,7 @@ def find_ev_opportunities(
                 dk_milestone_ladder=milestone_ladders.get("DraftKings"),
                 fd_milestone_ladder=milestone_ladders.get("FanDuel"),
                 espn_ou_ladder=espn_ou_ladder,
+                espn_milestone_ladder=milestone_ladders.get("ESPN"),
             )
         else:
             resolved, _reason = resolve_sharp_quote(
@@ -440,6 +447,7 @@ def _build_match_ladders(
     dict[str, dict[float, dict]],
     dict[str, dict[float, dict]] | None,
     dict[str, dict[float, dict]] | None,
+    dict[str, dict[float, dict]] | None,
 ]:
     ou_ladder = build_player_market_ladder(
         draftkings_props, normalize_player_name=normalize_player_name
@@ -469,12 +477,18 @@ def _build_match_ladders(
             for prop in fanduel_props
             if prop.get("line_kind") == "milestone"
         )
-    milestone_ladder = merge_milestone_ladders(
-        build_milestone_ladders(
-            sharp_milestone_props, normalize_player_name=normalize_player_name
+    if espn_props:
+        sharp_milestone_props.extend(
+            prop
+            for prop in espn_props
+            if prop.get("line_kind") == "milestone"
         )
+    all_milestone_ladders = build_milestone_ladders(
+        sharp_milestone_props, normalize_player_name=normalize_player_name
     )
-    return ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder
+    espn_milestone_ladder = all_milestone_ladders.get("ESPN") or None
+    milestone_ladder = merge_milestone_ladders(all_milestone_ladders)
+    return ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder, espn_milestone_ladder
 
 
 def betr_unmatched_reason(
@@ -485,13 +499,14 @@ def betr_unmatched_reason(
     milestone_ladder: dict[str, dict[float, dict]] | None = None,
     fd_ou_ladder: dict[str, dict[float, dict]] | None = None,
     espn_ou_ladder: dict[str, dict[float, dict]] | None = None,
+    espn_milestone_ladder: dict[str, dict[float, dict]] | None = None,
 ) -> str | None:
     """Return None when the Betr prop can be aligned to sharp books; else a reason code."""
     line = float(betr_prop["line"])
     if is_flat_line(line) and not include_flat_lines:
         return "flat_line_skipped"
 
-    if fd_ou_ladder is not None or espn_ou_ladder is not None:
+    if fd_ou_ladder is not None or espn_ou_ladder is not None or espn_milestone_ladder:
         resolved, reason = resolve_multi_book_sharp_quote(
             betr_prop,
             ou_ladder,
@@ -499,6 +514,7 @@ def betr_unmatched_reason(
             normalize_player_name=normalize_player_name,
             milestone_ladder=milestone_ladder,
             espn_ou_ladder=espn_ou_ladder,
+            espn_milestone_ladder=espn_milestone_ladder,
         )
     else:
         resolved, reason = resolve_sharp_quote(
@@ -522,6 +538,7 @@ def betr_match_reason(
     milestone_ladder: dict[str, dict[float, dict]] | None = None,
     fd_ou_ladder: dict[str, dict[float, dict]] | None = None,
     espn_ou_ladder: dict[str, dict[float, dict]] | None = None,
+    espn_milestone_ladder: dict[str, dict[float, dict]] | None = None,
 ) -> str | None:
     """Backward-compatible alias for betr_unmatched_reason."""
     return betr_unmatched_reason(
@@ -531,6 +548,7 @@ def betr_match_reason(
         milestone_ladder=milestone_ladder,
         fd_ou_ladder=fd_ou_ladder,
         espn_ou_ladder=espn_ou_ladder,
+        espn_milestone_ladder=espn_milestone_ladder,
     )
 
 
@@ -543,7 +561,7 @@ def compute_match_stats(
     include_flat_lines: bool = False,
 ) -> dict[str, int | float]:
     """Count cross-book matches, unmatched props, and Betr match rate."""
-    ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder = _build_match_ladders(
+    ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder, espn_milestone_ladder = _build_match_ladders(
         draftkings_props, fanduel_props, espn_props
     )
     betr_keys = {build_prop_key(prop) for prop in betr_props}
@@ -567,6 +585,7 @@ def compute_match_stats(
             milestone_ladder=milestone_ladder,
             fd_ou_ladder=fd_ou_ladder,
             espn_ou_ladder=espn_ou_ladder,
+            espn_milestone_ladder=espn_milestone_ladder,
         )
         if reason is None:
             matched += 1
@@ -617,7 +636,7 @@ def list_unmatched_betr_props(
     include_flat_lines: bool = False,
 ) -> list[dict]:
     """Betr props that cannot be compared to sharp books, with reason and available lines."""
-    ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder = _build_match_ladders(
+    ou_ladder, milestone_ladder, fd_ou_ladder, espn_ou_ladder, espn_milestone_ladder = _build_match_ladders(
         draftkings_props, fanduel_props, espn_props
     )
     unmatched: list[dict] = []
@@ -630,6 +649,7 @@ def list_unmatched_betr_props(
             milestone_ladder=milestone_ladder,
             fd_ou_ladder=fd_ou_ladder,
             espn_ou_ladder=espn_ou_ladder,
+            espn_milestone_ladder=espn_milestone_ladder,
         )
         if reason is None:
             continue

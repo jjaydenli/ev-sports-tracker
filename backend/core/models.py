@@ -17,6 +17,7 @@ class NormalizedProp(TypedDict, total=False):
     game: str
     team: str
     source_market_id: str
+    is_live: bool
 
 
 class EvOpportunity(TypedDict):

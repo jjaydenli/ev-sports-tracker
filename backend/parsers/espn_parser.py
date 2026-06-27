@@ -25,7 +25,9 @@ def parse_espn_prop(raw_prop: dict) -> dict | None:
 
     if not player or raw_market is None or line is None:
         return None
-    if raw_prop.get("over_odds") is None or raw_prop.get("under_odds") is None:
+    if raw_prop.get("over_odds") is None:
+        return None
+    if line_kind != "milestone" and raw_prop.get("under_odds") is None:
         return None
 
     normalized = {
@@ -52,6 +54,8 @@ def parse_espn_prop(raw_prop: dict) -> dict | None:
     game = raw_prop.get("game")
     if game:
         normalized["game"] = str(game)
+    if raw_prop.get("is_live"):
+        normalized["is_live"] = True
     return normalized
 
 
@@ -81,6 +85,8 @@ def parse_espn_props(raw_props: list[dict]) -> list[dict]:
         game = raw_prop.get("game")
         if game:
             base["game"] = str(game)
+        if raw_prop.get("is_live"):
+            base["is_live"] = True
         for line_row in _line_entries(raw_prop):
             merged = {**base, **line_row}
             prop = parse_espn_prop(merged)

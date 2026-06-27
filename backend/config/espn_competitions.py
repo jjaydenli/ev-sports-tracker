@@ -12,7 +12,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from config.espn_markets import is_ou_group_id, prop_section_slugs_for_league
+from config.espn_markets import (
+    is_milestone_label,
+    is_ou_group_id,
+    prop_section_slugs_for_league,
+)
 from config.team_abbrev import canonicalize_team_abbr
 
 # Per-league GraphQL slate (decision 8: MLB first, WNBA TBD until its own capture).
@@ -144,14 +148,15 @@ def extract_event_prop_sections(
     return sections
 
 
-def extract_section_ou_drawers(
+def extract_section_drawers(
     event_section_payload: dict[str, Any],
 ) -> list[dict[str, str]]:
-    """Return O/U drawer stubs from an EventSection response.
+    """Return O/U and milestone drawer stubs from an EventSection response.
 
-    Keeps only drawers whose ``groupId`` is a literal ``"<Stat>(O/U)"`` (the
-    over/under boards); milestone/LIST drawers (UUID groupIds) are dropped.
-    Each stub: ``{drawer_id, group_id, label_text, section_slug}``.
+    Each stub: ``{drawer_id, group_id, label_text, section_slug, kind}`` where
+    ``kind`` is ``"ou"`` for literal ``"<Stat>(O/U)"`` groupIds or ``"milestone"``
+    for drawers whose labelText matches ``ESPN_MILESTONE_LABEL_TO_MARKET``.
+    Other drawers (unknown UUID groupIds, non-matching labels) are dropped.
     """
     section = (event_section_payload.get("data") or {}).get("eventSection") or {}
     section_slug = section.get("slug") or ""
@@ -160,14 +165,32 @@ def extract_section_ou_drawers(
         if child.get("__typename") != "Drawer":
             continue
         group_id = child.get("groupId")
-        if not is_ou_group_id(group_id):
-            continue
-        drawers.append(
-            {
-                "drawer_id": child.get("id") or "",
-                "group_id": group_id,
-                "label_text": child.get("labelText") or "",
-                "section_slug": section_slug,
-            }
-        )
+        label_text = child.get("labelText") or ""
+        if is_ou_group_id(group_id):
+            drawers.append(
+                {
+                    "drawer_id": child.get("id") or "",
+                    "group_id": group_id,
+                    "label_text": label_text,
+                    "section_slug": section_slug,
+                    "kind": "ou",
+                }
+            )
+        elif is_milestone_label(label_text):
+            drawers.append(
+                {
+                    "drawer_id": child.get("id") or "",
+                    "group_id": group_id or "",
+                    "label_text": label_text,
+                    "section_slug": section_slug,
+                    "kind": "milestone",
+                }
+            )
     return drawers
+
+
+def extract_section_ou_drawers(
+    event_section_payload: dict[str, Any],
+) -> list[dict[str, str]]:
+    """Backward-compatible alias: return only O/U drawer stubs (no ``kind`` field)."""
+    return [d for d in extract_section_drawers(event_section_payload) if d["kind"] == "ou"]

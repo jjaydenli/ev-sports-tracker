@@ -9,4 +9,4 @@
 
 ## Commits
 
-<!-- Conventional commit subjects on this branch. Filled by scripts/open_pr.sh --browser or --create. -->
+<!-- Conventional commit subjects on this branch. Filled by scripts/open_pr.sh or --create. -->

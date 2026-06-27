@@ -19,6 +19,7 @@ from loguru import logger
 from config.api_headers import ESPN_CLIENT_HEADERS
 from config.espn_markets import (
     canonical_market_for_group_id,
+    canonical_market_for_milestone_label,
     default_scrape_markets_for_league,
     known_markets_for_league,
 )
@@ -30,8 +31,9 @@ from scrapers.sportsbooks.espn_api import (
     fetch_games,
     fetch_event_prop_sections,
     fetch_lines_section_id,
-    fetch_section_ou_drawers,
+    fetch_section_drawers,
     flatten_drawer_content,
+    flatten_milestone_drawer_content,
 )
 from scrapers.sportsbooks.espn_auth import ensure_espn_token
 
@@ -59,6 +61,7 @@ class ESPNEngine(BaseScraper):
         self._token: str | None = None
         self._event_start_map: dict[str, str] = {}
         self._event_game_map: dict[str, str] = {}
+        self._event_live_map: dict[str, bool] = {}
 
     async def authenticate(self) -> str | None:
         """Mint (or reuse) the anonymous JWE; returns the token for parity/logging."""
@@ -73,15 +76,29 @@ class ESPNEngine(BaseScraper):
         if not section_id:
             logger.warning(f"no espn Lines section for {self.league}")
             return []
-        games = await fetch_games(api, section_id)
+        all_games = await fetch_games(api, section_id)
+        active = [
+            g for g in all_games
+            if str(g.get("status") or "").upper() in {"PRE_GAME", "IN_PLAY"}
+        ]
         self._event_start_map = {
-            g["event_id"]: g.get("start_time", "") for g in games if g.get("event_id")
+            g["event_id"]: g.get("start_time", "") for g in active if g.get("event_id")
         }
         self._event_game_map = {
-            g["event_id"]: g.get("game", "") for g in games if g.get("event_id")
+            g["event_id"]: g.get("game", "") for g in active if g.get("event_id")
         }
-        logger.info(f"discovered {len(games)} {self.league.upper()} games from espn slate")
-        return games
+        self._event_live_map = {
+            g["event_id"]: True
+            for g in active
+            if g.get("event_id") and str(g.get("status") or "").upper() == "IN_PLAY"
+        }
+        skipped = len(all_games) - len(active)
+        if skipped:
+            logger.info(
+                f"skipped {skipped} non-active {self.league.upper()} games (FINAL/SUSPENDED/other)"
+            )
+        logger.info(f"discovered {len(active)} {self.league.upper()} games from espn slate")
+        return active
 
     async def _scrape_drawer(
         self,
@@ -109,6 +126,32 @@ class ESPNEngine(BaseScraper):
             section_slug=drawer["section_slug"],
         )
 
+    async def _scrape_milestone_drawer(
+        self,
+        api: ESPNGraphQLClient,
+        semaphore: asyncio.Semaphore,
+        *,
+        event_id: str,
+        drawer: dict[str, str],
+    ) -> list[dict[str, Any]]:
+        async with semaphore:
+            await asyncio.sleep(random.uniform(0, _JITTER_SECONDS))
+            payload = await fetch_drawer_content(
+                api,
+                drawer_id=drawer["drawer_id"],
+                group_id=drawer["group_id"],
+                section_slug=drawer["section_slug"],
+            )
+        if not payload:
+            return []
+        return flatten_milestone_drawer_content(
+            payload,
+            event_id=event_id,
+            league=self.league,
+            label_text=drawer["label_text"],
+            section_slug=drawer["section_slug"],
+        )
+
     async def _scrape_event(
         self,
         api: ESPNGraphQLClient,
@@ -121,13 +164,21 @@ class ESPNEngine(BaseScraper):
         )
         drawer_tasks = []
         for section in sections:
-            drawers = await fetch_section_ou_drawers(api, section_id=section["section_id"])
+            drawers = await fetch_section_drawers(api, section_id=section["section_id"])
             for drawer in drawers:
-                if canonical_market_for_group_id(drawer["group_id"]) not in self.markets:
-                    continue
-                drawer_tasks.append(
-                    self._scrape_drawer(api, semaphore, event_id=event_id, drawer=drawer)
-                )
+                kind = drawer.get("kind")
+                if kind == "ou":
+                    if canonical_market_for_group_id(drawer["group_id"]) not in self.markets:
+                        continue
+                    drawer_tasks.append(
+                        self._scrape_drawer(api, semaphore, event_id=event_id, drawer=drawer)
+                    )
+                elif kind == "milestone":
+                    if canonical_market_for_milestone_label(drawer["label_text"]) not in self.markets:
+                        continue
+                    drawer_tasks.append(
+                        self._scrape_milestone_drawer(api, semaphore, event_id=event_id, drawer=drawer)
+                    )
         rows: list[dict[str, Any]] = []
         for result in await asyncio.gather(*drawer_tasks, return_exceptions=True):
             if isinstance(result, Exception):
@@ -174,6 +225,8 @@ class ESPNEngine(BaseScraper):
                 game = self._event_game_map.get(event_id, "")
                 if game:
                     row["game"] = game
+                if self._event_live_map.get(event_id):
+                    row["is_live"] = True
                 all_props.append(row)
 
         logger.info(

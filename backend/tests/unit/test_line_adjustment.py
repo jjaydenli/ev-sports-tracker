@@ -120,10 +120,10 @@ def test_resolve_milestone_exact_at_betr_line():
     assert quote is not None
     assert quote.adjustment_method == "dk_milestone_exact"
     assert quote.dk_line_kind == "milestone"
-    assert quote.under_odds is None
+    assert quote.under_odds is not None  # under-admitted: fair_over < 0.5 → devigged_under populated
     assert quote.dk_over_odds == 110
     assert quote.over_odds != 110
-    assert quote.milestone_admitted is False
+    assert quote.milestone_admitted is True  # under-admitted path: Betr under can be +EV
 
 
 def test_ou_preferred_over_milestone_when_exact_ou_exists():
@@ -311,6 +311,8 @@ def test_extrapolate_lower_line_increases_fair_over():
 
 
 def test_find_ev_opportunities_skips_non_admitted_milestone_quote():
+    # over_odds=-140 → raw=0.583, fair_over≈0.566 (hold_shrink, factor=0.97)
+    # 0.5 ≤ 0.566 < MILESTONE_MIN_FAIR_OVER(0.6154): neither over- nor under-admitted
     betr = [
         {
             "sportsbook": "Betr",
@@ -330,7 +332,7 @@ def test_find_ev_opportunities_skips_non_admitted_milestone_quote():
             "line": 1.5,
             "line_kind": "milestone",
             "milestone_threshold": 2,
-            "over_odds": 110,
+            "over_odds": -140,
             "event_start": "2026-06-19T23:00:00.000Z",
         }
     ]

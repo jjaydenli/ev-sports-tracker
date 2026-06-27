@@ -26,15 +26,19 @@ from config.espn_competitions import (
     extract_event_prop_sections,
     extract_games,
     extract_lines_section_id,
-    extract_section_ou_drawers,
+    extract_section_drawers,
 )
-from config.espn_markets import canonical_market_for_group_id
+from config.espn_markets import (
+    canonical_market_for_group_id,
+    canonical_market_for_milestone_label,
+)
 from config.espn_queries import persisted_query_extensions, persisted_query_hash
 from scrapers.sportsbooks.espn_auth import ensure_espn_token
 from utils.formatting import normalize_odds_string
 
 ESPN_SPORTSBOOK = "ESPN"
 LINE_KIND_OU = "ou"
+LINE_KIND_MILESTONE = "milestone"
 
 
 # --- transport ---------------------------------------------------------------
@@ -156,12 +160,12 @@ async def fetch_event_prop_sections(
     return extract_event_prop_sections(payload, league=league)
 
 
-async def fetch_section_ou_drawers(
+async def fetch_section_drawers(
     api: ESPNGraphQLClient,
     *,
     section_id: str,
 ) -> list[dict[str, str]]:
-    """Fetch the O/U drawer stubs for one prop section."""
+    """Fetch O/U and milestone drawer stubs for one prop section (single HTTP call)."""
     payload = await api.request(
         "EventSection",
         {
@@ -173,7 +177,8 @@ async def fetch_section_ou_drawers(
     )
     if not payload:
         return []
-    return extract_section_ou_drawers(payload)
+    return extract_section_drawers(payload)
+
 
 
 def _event_ref_from_drawer_id(drawer_id: str) -> str | None:
@@ -280,6 +285,8 @@ def flatten_drawer_content(
             for market in card.get("markets") or []:
                 if str(market.get("type") or "").upper() != "TOTAL":
                     continue
+                if str(market.get("status") or "").upper() != "OPEN":
+                    continue
                 player = _player_from_market_name(
                     str(market.get("name") or ""), participant.get("mediumName")
                 )
@@ -290,11 +297,14 @@ def flatten_drawer_content(
                 line: float | None = None
                 for selection in market.get("selections") or []:
                     side = str(selection.get("type") or "").upper()
+                    sel_open = str(selection.get("status") or "").upper() == "OPEN"
                     if side == "OVER":
-                        over = _parse_odds(selection)
+                        if sel_open:
+                            over = _parse_odds(selection)
                         line = _selection_line(selection) if line is None else line
                     elif side == "UNDER":
-                        under = _parse_odds(selection)
+                        if sel_open:
+                            under = _parse_odds(selection)
                         line = _selection_line(selection) if line is None else line
                 if over is None or under is None or line is None:
                     continue
@@ -338,3 +348,134 @@ def count_espn_line_rows(props: list[dict[str, Any]]) -> int:
         elif prop.get("line") is not None:
             total += 1
     return total
+
+
+def _parse_milestone_clean_name(selection: dict[str, Any]) -> int | None:
+    """Parse threshold N from ``selection.name.cleanName`` == ``"N+"``; else None."""
+    clean = ((selection.get("name") or {}).get("cleanName") or "")
+    if not clean.endswith("+"):
+        return None
+    try:
+        return int(clean[:-1])
+    except ValueError:
+        return None
+
+
+def flatten_milestone_drawer_content(
+    payload: dict[str, Any],
+    *,
+    event_id: str,
+    league: str,
+    label_text: str,
+    section_slug: str | None = None,
+) -> list[dict[str, Any]]:
+    """Flatten an EventDrawerContent LIST (milestone) leaf into flat prop rows.
+
+    Handles two card formats in ``drawerChildren[].marketplaceShelfChildren[]``:
+
+    *  ``markets[]`` — ``market.type == "LIST"``, full player name from
+       ``market.name`` via ``" Total "`` split, ``market.status`` checked.
+    *  ``rows[]`` — ``__typename == "TableMarketCardRow"``, abbreviated player
+       name from ``row.label``; null entries in ``selections`` are skipped.
+
+    ``"N+"`` ``selection.name.cleanName`` → line = ``N − 0.5``.  Only ``"OPEN"``
+    selections with non-null odds are emitted.  Returns one flat dict per
+    ``(player, line)`` with ``line_kind = "milestone"``.
+    """
+    _ = league
+    canonical_market = canonical_market_for_milestone_label(label_text)
+    if not canonical_market:
+        return []
+
+    drawer = (payload.get("data") or {}).get("eventDrawer") or {}
+    rows: list[dict[str, Any]] = []
+    seen: set[tuple[str, float]] = set()
+
+    for shelf in drawer.get("drawerChildren") or []:
+        for card in shelf.get("marketplaceShelfChildren") or []:
+
+            # --- Format 1: markets[] (full player name, LIST type) ---
+            for market in card.get("markets") or []:
+                if str(market.get("type") or "").upper() != "LIST":
+                    continue
+                if str(market.get("status") or "").upper() != "OPEN":
+                    continue
+                player = _player_from_market_name(str(market.get("name") or ""), None)
+                if not player:
+                    continue
+                for selection in market.get("selections") or []:
+                    if selection is None:
+                        continue
+                    if str(selection.get("status") or "").upper() != "OPEN":
+                        continue
+                    threshold = _parse_milestone_clean_name(selection)
+                    if threshold is None:
+                        continue
+                    odds = _parse_odds(selection)
+                    if odds is None:
+                        continue
+                    line = float(threshold) - 0.5
+                    key = (player, line)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    rows.append(
+                        {
+                            "sportsbook": ESPN_SPORTSBOOK,
+                            "event_id": event_id,
+                            "tab": section_slug,
+                            "player": player,
+                            "market": canonical_market,
+                            "line": line,
+                            "line_kind": LINE_KIND_MILESTONE,
+                            "milestone_threshold": threshold,
+                            "over_odds": odds,
+                            "under_odds": None,
+                            "is_main_line": threshold == 1,
+                            "market_id": selection.get("id"),
+                        }
+                    )
+
+            # --- Format 2: rows[] (abbreviated player name, no market-level status) ---
+            for row in card.get("rows") or []:
+                if row is None:
+                    continue
+                if row.get("__typename") != "TableMarketCardRow":
+                    continue
+                player = (row.get("label") or "").strip()
+                if not player:
+                    continue
+                for selection in (row.get("selections") or []):
+                    if selection is None:
+                        continue
+                    if str(selection.get("status") or "").upper() != "OPEN":
+                        continue
+                    threshold = _parse_milestone_clean_name(selection)
+                    if threshold is None:
+                        continue
+                    odds = _parse_odds(selection)
+                    if odds is None:
+                        continue
+                    line = float(threshold) - 0.5
+                    key = (player, line)
+                    if key in seen:
+                        continue
+                    seen.add(key)
+                    rows.append(
+                        {
+                            "sportsbook": ESPN_SPORTSBOOK,
+                            "event_id": event_id,
+                            "tab": section_slug,
+                            "player": player,
+                            "market": canonical_market,
+                            "line": line,
+                            "line_kind": LINE_KIND_MILESTONE,
+                            "milestone_threshold": threshold,
+                            "over_odds": odds,
+                            "under_odds": None,
+                            "is_main_line": threshold == 1,
+                            "market_id": selection.get("id"),
+                        }
+                    )
+
+    return rows

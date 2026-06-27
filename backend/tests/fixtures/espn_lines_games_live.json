@@ -1,0 +1,57 @@
+{
+  "data": {
+    "node": {
+      "id": "Section:d9513891-c315-4c16-8554-09d52d3ce9b2",
+      "sectionChildren": [
+        {
+          "__typename": "MarketplaceShelf",
+          "marketplaceShelfChildren": [
+            {
+              "fallbackEvent": {
+                "id": "StandardEvent:0d4827b4-814e-4761-8f15-73d0c62f5e33",
+                "name": "New York Yankees @ Detroit Tigers",
+                "status": "PRE_GAME",
+                "startTime": "2026-06-22T22:10:00.000000Z",
+                "deepLink": {
+                  "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/0d4827b4-814e-4761-8f15-73d0c62f5e33"
+                },
+                "awayParticipant": {"abbreviation": "NYY", "fullName": "New York Yankees"},
+                "homeParticipant": {"abbreviation": "DET", "fullName": "Detroit Tigers"},
+                "__typename": "StandardEvent"
+              }
+            },
+            {
+              "fallbackEvent": {
+                "id": "StandardEvent:aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                "name": "Boston Red Sox @ New York Mets",
+                "status": "IN_PLAY",
+                "startTime": "2026-06-22T20:05:00.000000Z",
+                "deepLink": {
+                  "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                },
+                "awayParticipant": {"abbreviation": "BOS", "fullName": "Boston Red Sox"},
+                "homeParticipant": {"abbreviation": "NYM", "fullName": "New York Mets"},
+                "__typename": "StandardEvent"
+              }
+            },
+            {
+              "fallbackEvent": {
+                "id": "StandardEvent:ffffffff-0000-1111-2222-333333333333",
+                "name": "Chicago Cubs @ Los Angeles Dodgers",
+                "status": "FINAL",
+                "startTime": "2026-06-22T16:10:00.000000Z",
+                "deepLink": {
+                  "webUrl": "/sport/baseball/organization/united-states/competition/mlb/event/ffffffff-0000-1111-2222-333333333333"
+                },
+                "awayParticipant": {"abbreviation": "CHC", "fullName": "Chicago Cubs"},
+                "homeParticipant": {"abbreviation": "LAD", "fullName": "Los Angeles Dodgers"},
+                "__typename": "StandardEvent"
+              }
+            }
+          ]
+        }
+      ],
+      "__typename": "Section"
+    }
+  }
+}

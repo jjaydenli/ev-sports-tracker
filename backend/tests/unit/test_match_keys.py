@@ -39,7 +39,7 @@ def test_build_player_market_key_scopes_live_snapshot():
         "is_live": True,
     }
     key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
-    assert key == "nathaniel lowe|hits|2026-06-20T02|live"
+    assert key == "nathaniel lowe|hits|live"
 
 
 def test_build_player_market_key_pregame_omits_live_suffix():
@@ -127,3 +127,26 @@ def test_build_match_context_key_live_without_event_start():
     }
     key = build_match_context_key(prop, normalize_player_name=normalize_player_name)
     assert key == "nathaniel lowe|hits|MLB|live"
+
+
+def test_build_match_context_key_live_omits_hour_when_books_disagree():
+    """Live rows skip event_hour so Betr scheduled time can match DK actual start."""
+    betr = {
+        "player": "Bo Bichette",
+        "market": "h+r+rbi",
+        "league": "MLB",
+        "game": "PHI@NYM",
+        "event_start": "2026-06-27T20:10Z",
+        "is_live": True,
+    }
+    dk = {
+        "player": "Bo Bichette",
+        "market": "h+r+rbi",
+        "league": "MLB",
+        "game": "PHI@NYM",
+        "event_start": "2026-06-27T21:20:07.0000000Z",
+        "is_live": True,
+    }
+    betr_key = build_match_context_key(betr, normalize_player_name=normalize_player_name)
+    dk_key = build_match_context_key(dk, normalize_player_name=normalize_player_name)
+    assert betr_key == dk_key == "bo bichette|h+r+rbi|MLB|live"

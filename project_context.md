@@ -1,7 +1,7 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
 
-**Last verified:** 2026-06-26 (engine regression safety net — golden/coverage/property tests; event-hour match gate; ambiguous sharp-ladder collision drop)
+**Last verified:** 2026-06-27 (live MLB match gate — omit `event_hour` for `is_live` rows; DK live `event_start` can differ from Betr scheduled time)
 
 ## 1. Project Overview
 
@@ -34,7 +34,7 @@ Platform docs in [docs/betting_odds/](docs/betting_odds/). Each doc covers auth,
 - **Role:** Primary sharp O/U ladders + milestone (`N+`) fallbacks; primary input to `line_adjustment.py`.
 - **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`, `scrapers/sportsbooks/dk_subcategory_discovery.py`
 - **Milestones:** `line_kind=="milestone"` for NBA/WNBA/MLB `N+` boards. De-vig: contiguous ladder-normalization else hold-shrink (`estimate_ou_hold` / `MILESTONE_ASSUMED_HOLD`). Exact threshold only; post-de-vig fair over must clear `MILESTONE_MIN_FAIR_OVER`. Flagged `not_true_devig` / `milestone_devig_method`; CLI **Src** `ms🔶`. Logic is book-agnostic.
-- **Live (MLB):** League slate discovers pregame (`NOT_STARTED`) + live (`IN_PROGRESS`/`STARTED`) events. Live scrapes `DK_MLB_LIVE_STAT_CATEGORIES` (8 batter tabs; live subcategoryIds differ from pregame, e.g. `walks` live `9536` vs pregame `17411`). Rows tagged `is_live`, `event_id`, `game`, `event_start`.
+- **Live (MLB):** League slate discovers pregame (`NOT_STARTED`) + live (`IN_PROGRESS`/`STARTED`) events. Live scrapes `DK_MLB_LIVE_STAT_CATEGORIES` (8 batter tabs; live subcategoryIds differ from pregame, e.g. `walks` live `9536` vs pregame `17411`). Rows tagged `is_live`, `event_id`, `game`, `event_start` (DK `startEventDate` may differ from Betr/ESPN scheduled start once in-play).
 - **Config:** `dk_subcategories.py` — `DK_NBA_*` / `DK_WNBA_*` / `DK_MLB_STAT_CATEGORIES` / `DK_MLB_LIVE_STAT_CATEGORIES`
 - **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md)
 
@@ -63,7 +63,7 @@ Platform docs in [docs/betting_odds/](docs/betting_odds/). Each doc covers auth,
 
 13-market pregame O/U (`DK_MLB_STAT_CATEGORIES`, incl. `doubles`) + live batter O/U (`DK_MLB_LIVE_STAT_CATEGORIES`, 8 tabs). FD pregame O/U (13 markets, pitcher + batter tabs) + milestone `N+` boards. ESPN pregame + live O/U + batter milestone `N+` boards (singles, doubles, runs, stolen_bases). Betr: scheduled + `IN_PROGRESS` via app-parity `BETR_BASE_HEADERS`. CLI: `./ev --mlb` or `./ev --leagues mlb`.
 
-**Cross-book matching:** `build_match_context_key` = `player|market|league|[event_hour]|[live]`; `event_hour` = UTC hour-floor (`iso[:13]`) — sole game discriminator; `game` AWAY@HOME is display-only. Live Betr props require `|live` suffix; pregame Betr without `event_start` fails closed (no match). Doubleheaders/series separated by `event_hour` (minute drift within same hour still matches).
+**Cross-book matching:** `build_match_context_key` = `player|market|league|[event_hour]|[live]`; `event_hour` = UTC hour-floor (`iso[:13]`) — sole **pregame** game discriminator; `game` AWAY@HOME is display-only. **Live** rows (`is_live`) omit `event_hour` (Betr scheduled vs DK actual-start timestamps can diverge by >1h); `|live` suffix scopes the snapshot. Pregame Betr without `event_start` fails closed (no match). Doubleheaders/series separated by `event_hour` for pregame only (minute drift within same hour still matches).
 
 **o0.5 equivalence:** At line `0.5`, `_filter_sharp_props_by_match_context` (`engine.py`) may borrow `hits`/`total_bases` cross-market per book when native o0.5 missing (`O05_EQUIVALENT_MARKETS` in `market_maps.py`); relabeled shallow copy, milestone rows excluded, bidirectional.
 
@@ -74,7 +74,7 @@ Pregame only — Betr (`League!="WNBA"`) vs DK (`DK_LEAGUE_SLATES["wnba"]`, `DK_
 ## 4. Quantitative Modeling & Math
 
 - **Cross-book display vs matching:** `game` (AWAY@HOME) populated for UI only. `config/team_abbrev.py`: `TEAM_ABBR_ALIASES` / `canonicalize_team_abbr` for DK/ESPN; `game_key_from_full_names` for FD. Missing/mismatched `game` blanks display only — match gate never reads it.
-- **Match keys:** `build_match_context_key` → `player|market|league|[event_hour]|[live]`; `build_player_market_key` → `player|market|[event_hour]|[live]`. Live without `event_start` falls back to `player|market|[league]|live`. **Ambiguous collision:** same key+line with conflicting odds drops the `pm_key` (instead of last-write-wins).
+- **Match keys:** `build_match_context_key` → `player|market|league|[event_hour]|[live]`; `build_player_market_key` → `player|market|[event_hour]|[live]`. Pregame: `event_hour` when `event_start` present. Live: omit `event_hour` (only `|live` suffix); pregame without `event_start` also omits hour. **Ambiguous collision:** same key+line with conflicting odds drops the `pm_key` (instead of last-write-wins).
 - **Market mapping:** `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
 - **De-vig (O/U):** DK/FD American odds → implied probabilities; **multiplicative** removal in `utils/math_utils.py`.
 - **De-vig (milestone):** `devig_milestone_fair_over` in `line_adjustment.py` — contiguous ladder-normalization else hold-shrink (`estimate_ou_hold` / `MILESTONE_ASSUMED_HOLD`); gate `MILESTONE_MIN_FAIR_OVER` (env-tunable in `settings.py`).
@@ -144,7 +144,7 @@ ev-sports-tracker/
     ├── core/
     │   ├── models.py
     │   ├── engine.py           # find_ev_opportunities; per-Betr match-context filter (+ o0.5 hits/tb borrow); filter_min_ev
-    │   ├── line_adjustment.py  # build_match_context_key; build_player_market_key; collision drop; O/U + milestone de-vig; multi-book consensus
+    │   ├── line_adjustment.py  # build_match_context_key (pregame event_hour; live omits hour); build_player_market_key; collision drop; O/U + milestone de-vig; multi-book consensus
     │   ├── flat_line.py
     │   ├── ev_pipeline.py
     │   ├── ev_display.py       # ranked table: Lg, Game, Hit%, EV%, DK, FD, ESPN, Src (ms🔶), Live
@@ -163,10 +163,10 @@ ev-sports-tracker/
         ├── conftest.py
         ├── fixtures/
         ├── integration/
-        └── unit/               # golden snapshots, property (test_math_properties), fixture-shape, match-stats coverage; 515 tests
+        └── unit/               # golden snapshots, property (test_math_properties), fixture-shape, match-stats coverage; 544 tests
 ```
 
-**EV data flow:** `./ev` → league loop (NBA, MLB, WNBA) × sources (betr; dk, fd, espn) → `normalize.py` (master board + `unified_master_board.json`; rows carry `event_start` UTC ISO + display `game`) → `ev_pipeline.py` (`load_comparison_inputs` / `run_ev_scan` honor `active_sources` for partial book runs; `persist_match_diagnostics`; emits `ev_opportunities.json`, `ev_run_diff.json`, `scrape_coverage.json`). Sharp resolution per Betr line: `_filter_sharp_props_by_match_context` (match-context key filter + per-book o0.5 borrow) → per-book `resolve_book_sharp_quote` → `resolve_multi_book_sharp_quote` → one EV row with per-book odds columns.
+**EV data flow:** `./ev` → league loop (NBA, MLB, WNBA) × sources (betr; dk, fd, espn) → `normalize.py` (master board + `unified_master_board.json`; rows carry `event_start` UTC ISO + display `game`) → `ev_pipeline.py` (`load_comparison_inputs` / `run_ev_scan` honor `active_sources` for partial book runs; `persist_match_diagnostics`; emits `ev_opportunities.json`, `ev_run_diff.json`, `scrape_coverage.json`). Sharp resolution per Betr line: `_filter_sharp_props_by_match_context` (match-context key filter — pregame by `event_hour`, live by `|live` only + per-book o0.5 borrow) → per-book `resolve_book_sharp_quote` → `resolve_multi_book_sharp_quote` → one EV row with per-book odds columns.
 
 
 ## 6. Roadmap
@@ -174,8 +174,9 @@ ev-sports-tracker/
 ### Next up (sequenced — live-first, then breadth)
 
 1. ~~**Live MLB — ESPN**~~ ✅ **Implemented** — OPEN-only status guard in `flatten_drawer_content`; `_resolve_games` filters to `{PRE_GAME, IN_PLAY}`; `is_live=True` in `espn_engine` + `espn_parser`; declared in `NormalizedProp`.
-2. **Live MLB — FanDuel:** Flip the deliberate in-play skip (`scrapers/sportsbooks/fd_api.py:439-440`; `event_page_in_play` `:418-422` already reads `inPlay`) into handling; emit `is_live=True` rows; confirm event-page tabs return live ladders. User-owned: confirm an in-play FD tab fetch returns live ladders.
-3. **New sharp book — Caesars (breadth):** Live MLB props — new `*_api`/`*_engine`/`*_parser` trio + `config/` competitions/markets + `team_abbrev.py` canon + `pipeline_sources.py`. Mirror DK/FD/ESPN layout.
+2. ~~**Live MLB — DK/Betr match gate**~~ ✅ **Implemented** — `build_match_context_key` / `build_player_market_key` omit `event_hour` for `is_live` rows so DK live `startEventDate` (actual start) can match Betr scheduled `event_start`.
+3. **Live MLB — FanDuel:** Flip the deliberate in-play skip (`scrapers/sportsbooks/fd_api.py:439-440`; `event_page_in_play` `:418-422` already reads `inPlay`) into handling; emit `is_live=True` rows; confirm event-page tabs return live ladders. User-owned: confirm an in-play FD tab fetch returns live ladders.
+4. **New sharp book — Caesars (breadth):** Live MLB props — new `*_api`/`*_engine`/`*_parser` trio + `config/` competitions/markets + `team_abbrev.py` canon + `pipeline_sources.py`. Mirror DK/FD/ESPN layout.
 
 ### Open
 

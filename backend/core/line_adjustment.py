@@ -158,16 +158,18 @@ def build_match_context_key(
 
     Line-agnostic; ``event_hour`` is UTC hour-floor (``iso[:13]``) when
     ``event_start`` is present and is the sole game discriminator. Live rows
-    without ``event_start`` omit the hour.
+    omit the hour (books disagree on in-game timestamps); pregame rows without
+    ``event_start`` omit the hour as well.
     """
     key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
     league = prop.get("league")
     if league:
         key = f"{key}|{str(league).upper()}"
     event_start = prop.get("event_start", "")
-    if event_start:
+    is_live = bool(prop.get("is_live"))
+    if event_start and not is_live:
         key = f"{key}|{_hour_floor(event_start)}"
-    if prop.get("is_live"):
+    if is_live:
         key = f"{key}|live"
     return key
 
@@ -192,9 +194,10 @@ def build_player_market_key(
     """
     key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
     event_start = prop.get("event_start", "")
-    if event_start:
+    is_live = bool(prop.get("is_live"))
+    if event_start and not is_live:
         key = f"{key}|{_hour_floor(event_start)}"
-    if prop.get("is_live"):
+    if is_live:
         key = f"{key}|live"
     return key
 

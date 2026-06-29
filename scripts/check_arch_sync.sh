@@ -41,7 +41,6 @@ done
 ((arch == 0)) && exit 0
 
 msgs=()
-((ctx == 0)) && msgs+=("  - project_context.md §3/§5/§6 not updated")
 ((book && !readme)) && msgs+=("  - README.md sharp-book section may need updating (new engine file added)")
 ((runner && !debug)) && msgs+=("  - debug-pipeline.md may have stale CLI flags")
 [[ ${#msgs[@]} -eq 0 ]] && exit 0

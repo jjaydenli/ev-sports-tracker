@@ -88,6 +88,7 @@ python -m scripts.probe_dk_subcategories <live_event_id> --league mlb --live --d
 
 ## Capture checklist (new markets)
 
+Manifest: `backend/config/discovery/mlb.yaml`.
 
 1. **DK event id** — game URL or league slate.
 2. **DK prop subCategoryIds** — DevTools per stat tab; verify with `probe_dk_subcategories`.

@@ -1,5 +1,6 @@
 # Proxyman Setup for Dabble API (archived)
 
+**Scope:** Dabble only. Dabble had no public website when this was written — only an iOS app — so API discovery required mobile HTTPS interception (Proxyman). **This is not the general workflow** for active books: Betr and FanDuel use browser DevTools on their web apps; DraftKings uses DevTools for prop `subCategoryId` discovery (see [betr.md](betting_odds/betr.md)). Dabble integration is archived under `backend/archive/dabble/`.
 
 Use this guide to capture the exact headers and tokens the Dabble iOS app sends, then wire them into the legacy scraper.
 

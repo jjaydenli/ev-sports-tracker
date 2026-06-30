@@ -14,10 +14,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Require archived plan on shipping PRs
-        if: github.event_name == 'pull_request'
-        run: ./scripts/check_plan_archived.sh ${{ github.event.pull_request.base.sha }}
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"

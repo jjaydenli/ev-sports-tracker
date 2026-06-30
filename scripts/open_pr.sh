@@ -12,7 +12,6 @@ cd "$REPO_ROOT"
 BASE_BRANCH="main"
 MODE="auto"
 DO_PUSH=0
-SKIP_PLAN_CHECK=0
 SKIP_ARCH_CHECK=0
 
 usage() {
@@ -20,13 +19,11 @@ usage() {
 Usage: ./scripts/open_pr.sh [options] [base-branch]
 
   Default: push + open GitHub compare page (title + body prefilled).
-  Archive active plans first: ./scripts/archive_plan.sh docs/plans/<feature>.md
 
 Options:
   --create           gh pr create/edit, then open PR page
   --manual           Print title, body, and compare URL (no push/browser)
   --push             Push branch (with --manual, skip opening PR)
-  --skip-plan-check  Skip plan archive guard
   --skip-arch-check  Skip architecture-sync guard
   -h, --help         Show help
 EOF
@@ -37,7 +34,6 @@ while [[ $# -gt 0 ]]; do
     --create) MODE="create"; shift ;;
     --manual) MODE="manual"; shift ;;
     --push) DO_PUSH=1; shift ;;
-    --skip-plan-check) SKIP_PLAN_CHECK=1; shift ;;
     --skip-arch-check) SKIP_ARCH_CHECK=1; shift ;;
     -h | --help) usage; exit 0 ;;
     -*)
@@ -141,9 +137,6 @@ require_gh() {
 TITLE="$(git log "${LOG_BASE}..HEAD" --reverse --format=%s | head -1)"
 BODY="$(build_pr_body)"
 
-if [[ "$SKIP_PLAN_CHECK" == 0 ]]; then
-  ./scripts/check_plan_archived.sh "$LOG_BASE"
-fi
 if [[ "$SKIP_ARCH_CHECK" == 0 ]]; then
   ./scripts/check_arch_sync.sh "$LOG_BASE"
 fi

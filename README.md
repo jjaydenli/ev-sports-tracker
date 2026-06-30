@@ -1,136 +1,114 @@
 # EV Sports Tracker
 
-Multi-platform Expected Value (+EV) sports betting engine. Compares fixed-payout player props on DFS apps (primarily **Betr**) against dynamically priced sharp sportsbook lines (**DraftKings**, **FanDuel**, **ESPN / TheScore Bet**) to find profitable discrepancies.
+Python pipeline that identifies +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines against sharp sportsbook prices. Scrapes, normalizes, and de-vigs data from three sportsbooks with undocumented APIs — DraftKings, FanDuel, and ESPN BET (TheScore Bet) — then ranks opportunities by edge.
+
+## Technical highlights
+
+- **API reverse engineering** — all three sportsbooks have unpublished APIs. ESPN BET uses GET-based GraphQL persisted queries with an encrypted JWE bearer token (minted anonymously via a `Startup` op; cached and reactively re-minted on 401). DraftKings and FanDuel use undocumented REST endpoints discovered through DevTools captures.
+
+- **De-vig algorithm for one-sided markets** — sportsbooks offer milestone props (`N+` over-only) with no paired under, making standard two-sided de-vigging impossible. When a contiguous `N+` ladder exists, the engine renormalizes the vig-inflated survival curve `S(N) = P(X≥N)` back to fair probability mass. Falls back to hold-shrink when only a lone threshold is available.
+
+- **Match-context resolution** — props across books are matched on a canonical key `player|market|league|game|event_hour|live` where `event_hour` is the UTC hour-floor of game start. This eliminates cross-day ladder drift (e.g. a player listed for tomorrow's game being priced against today's Betr prop) and disambiguates MLB doubleheaders without special-case logic.
+
+- **Data-driven book registry** — a `SharpBookConfig` dataclass drives all resolution logic (O/U interpolation strategy, milestone fallback, hold estimation). Adding a fourth sportsbook requires one registry entry; zero edits to resolution or assembly code.
+
+## How it works
+
+```
+Betr (DFS)  ──┐
+DraftKings  ──┤──▶  normalize  ──▶  match-context filter  ──▶  per-book resolve  ──▶  ranked +EV output
+FanDuel     ──┤                         (canonical key)          (de-vig + ladder)
+ESPN BET    ──┘
+```
+
+Each run scrapes all configured sources in parallel, normalizes to a shared `NormalizedProp` schema, then for each Betr prop filters the sharp pool to the same game snapshot before building O/U or milestone ladders. Multi-book consensus runs when two or more books price the same line exactly.
+
+Architecture decisions: [`docs/design/`](docs/design/)
 
 ## Repository layout
 
 ```
 ev-sports-tracker/
-├── ev                            # bash wrapper → backend pipeline_runner
+├── ev                            # bash entry point → backend/core/pipeline_runner.py
 └── backend/
     ├── config/
-    │   ├── api_headers.py        # Platform-specific user-agents/headers
-    │   ├── market_maps.py        # Canonical market translations
-    │   ├── dk_subcategories.py   # DK subCategoryId map
-    │   ├── fd_competitions.py    # FD league/event discovery
-    │   ├── fd_markets.py         # FD tab ↔ canonical market map
-    │   ├── espn_competitions.py  # ESPN league/event discovery
-    │   ├── espn_markets.py       # ESPN O/U drawer ↔ canonical market
+    │   ├── api_headers.py        # Platform-specific headers and auth builders
+    │   ├── market_maps.py        # Canonical market name translations
+    │   ├── sharp_books.py        # SharpBookConfig registry (DK / FD / ESPN)
+    │   ├── dk_subcategories.py   # DK subCategoryId map per market/league
+    │   ├── team_abbrev.py        # Cross-book team abbreviation canonicalization
+    │   ├── pipeline_sources.py   # League + source registry
     │   ├── espn_queries.py       # ESPN GraphQL persisted-query hashes
-    │   ├── team_abbrev.py        # Cross-book team-abbrev canonicalization
-    │   ├── pipeline_sources.py   # Leagues + DFS/book source registry
-    │   ├── settings.py           # Credential loading from .env
-    │   └── .env.example          # Template for local secrets
-    ├── scripts/
-    │   ├── probe_dk_subcategories.py
-    │   ├── probe_fd_events.py
-    │   └── probe_espn_events.py
-    ├── utils/
-    │   ├── math_utils.py         # Multiplicative de-vigging, conversion formulas
-    │   └── formatting.py         # Standardizers (names, leagues, teams)
+    │   └── settings.py           # Credential loading from .env
     ├── scrapers/
-    │   ├── base_scraper.py       # Abstract base class enforcing standard pipeline
-    │   ├── dfs/
-    │   │   ├── betr/             # Betr GraphQL (httpx)
-    │   │   └── dabble_engine.py  # Legacy
+    │   ├── base_scraper.py       # Abstract base: authenticate → scrape → save
+    │   ├── dfs/betr/             # Betr GraphQL (httpx)
     │   └── sportsbooks/
-    │       ├── dk_engine.py      # DraftKings markets API (httpx)
-    │       ├── dk_api.py
-    │       ├── fd_engine.py      # FanDuel event-page props
-    │       ├── fd_api.py
-    │       ├── espn_engine.py    # ESPN / TheScore Bet GraphQL (persisted queries)
-    │       ├── espn_api.py
-    │       └── espn_auth.py      # Anonymous JWE mint + cache
+    │       ├── dk_engine.py / dk_api.py
+    │       ├── fd_engine.py / fd_api.py
+    │       └── espn_engine.py / espn_api.py / espn_auth.py
     ├── parsers/
-    │   ├── betr_parser.py, dk_parser.py, fd_parser.py, espn_parser.py, normalize.py
+    │   ├── betr_parser.py, dk_parser.py, fd_parser.py, espn_parser.py
+    │   └── normalize.py          # Unified NormalizedProp output schema
     ├── core/
-    │   ├── models.py             # NormalizedProp schemas (platform agnostic)
-    │   ├── engine.py             # EV calculations
-    │   ├── line_adjustment.py    # DK/FD/ESPN ladders, multi-book consensus + milestone EV
-    │   ├── ev_pipeline.py        # Unified board → EV output
-    │   ├── ev_display.py         # Ranked plays CLI table
-    │   ├── ev_run_diff.py        # Consecutive run diff vs prior top-N
-    │   ├── pipeline_timing.py    # Wall-clock stage timer
-    │   └── pipeline_runner.py    # Daily refresh orchestrator
+    │   ├── ladder_index.py       # Match-context keys, O/U + milestone ladder builders
+    │   ├── resolution_math.py    # De-vig, logit interpolation, survival-curve normalization
+    │   ├── line_adjustment.py    # Single-book resolution (BookQuote, ResolvedSharpQuote)
+    │   ├── multi_book_resolver.py# Multi-book assembly and weighted consensus
+    │   ├── engine.py             # EV calculation, per-prop sharp filtering
+    │   ├── ev_pipeline.py        # Unified board → ranked JSON output
+    │   └── pipeline_runner.py    # Orchestrator and CLI
     ├── tests/
-    │   ├── conftest.py           # Shared fixtures and mock HTTP responses
-    │   ├── fixtures/
-    │   └── unit/                 # Offline pytest (no live network)
-    ├── data/
-    │   └── processed/            # Parsed/normalized output (gitignored)
-    ├── requirements.txt
-    └── pytest.ini
+    │   ├── fixtures/             # Captured API payloads (offline; no live network in tests)
+    │   └── unit/
+    └── data/processed/           # Run output (gitignored)
 ```
-
 
 ## Setup
 
-1. Create and activate a virtual environment:
+```bash
+cd backend
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp config/.env.example config/.env   # fill in credentials — never commit this file
+```
 
-   ```bash
-   cd backend
-   python -m venv .venv
-   source .venv/bin/activate
-   ```
+**Betr auth:** set `BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` (from DevTools on login). Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [`docs/betting_odds/betr.md`](docs/betting_odds/betr.md).
 
-2. Install dependencies:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. Configure credentials locally:
-
-   ```bash
-   cp config/.env.example config/.env
-   # or: cp config/.env.example .env
-   ```
-
-   Fill in credentials in `config/.env` or `backend/.env`. Never commit this file or tokens.
-
-   **Betr (recommended):** `BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` + `BETR_KEYCLOAK_CLIENT_ID` (from DevTools). Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
-
-4. Run tests:
-
-   ```bash
-   pytest
-   ```
+```bash
+pytest -q   # 550+ tests, offline fixtures only
+```
 
 ## Daily refresh
 
-From the repo root (activates `backend/.venv` if present) or from `backend/` with `.venv` active:
+From the repo root (activates `backend/.venv` automatically):
 
 ```bash
 ./ev
-# same as: cd backend && python -m core.pipeline_runner
 ```
 
-This runs **all configured leagues** (NBA, MLB, WNBA): for each league, dfs + books scrape in parallel, merge in memory, normalize once, then EV scan. Writes:
+Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → EV scan. Output written to `backend/data/processed/`:
 
-- `data/processed/scrape_coverage.json` — per source/league status (`ok`, `no_events`, `skipped`, `failed`) and `run_id`
-- `data/processed/ev_opportunities.json` — top matched plays by EV (default 15; wrapped with `run_id`)
-- `data/processed/ev_opportunities.previous.json` — prior run’s top-N (rotated before overwrite)
-- `data/processed/ev_run_diff.json` — new / removed / improved / fell vs previous top-N
-- `data/processed/match_report.json` — matched/unmatched counts, `by_league`, and `betr_match_rate_pct`
-- `data/processed/unmatched_betr.json` — Betr lines with no sharp match
-- `data/processed/unmatched_dk.json` — DK lines with no Betr twin on the same key
+| File | Contents |
+|------|----------|
+| `ev_opportunities.json` | Ranked +EV plays (default top 15) |
+| `ev_run_diff.json` | New / removed / improved vs previous run |
+| `match_report.json` | Match rates by league and source |
+| `scrape_coverage.json` | Per-source scrape status |
+| `unmatched_betr.json` | Betr lines with no sharp match |
 
-Each run uses **fresh scrape data only** (no stale normalized boards). Use the match files to judge scrape coverage and cross-book alignment before trusting +EV rows. Useful flags:
+**Useful flags:**
 
-- `--books dk,fd,espn` — scrape selected sportsbooks; **all dfs apps always refresh** on EV runs
-- `--leagues nba,mlb` — subset of leagues (default: all)
-- `--scrape-only` — scrape + normalize only (no EV); `--dfs betr` limits dfs when debugging
-- `--skip-scrape` — normalize + EV from existing master boards on disk (explicit override)
-- `--top-n 15` — max rows written (default 15)
-- `--min-ev 0.01` — mark `plus_ev` when edge > 1%; also **filters** output to those rows (default `0` shows all edges in top-N)
-- `--plus-ev-only` — filter to `ev > --min-ev` (use with `--min-ev 0` for strictly positive EV only)
-- `--include-flat-lines` — include Betr integer lines (push-adjusted breakeven; off by default)
-- `--timing` — wall-clock summary per pipeline stage (scrape, normalize, EV)
+```bash
+./ev --mlb                      # MLB only
+./ev --books dk,espn            # subset of sharp books
+./ev --top-n 25 --min-ev 0.02   # show top 25, mark edge > 2% as +EV
+./ev --scrape-only              # scrape + normalize, skip EV
+./ev --timing                   # wall-clock summary per pipeline stage
+```
 
-DK subcategories, alternate lines, and line alignment: [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md). FanDuel tabs and multi-book consensus: [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md). ESPN GraphQL transport, O/U and milestone (LIST) drawer shapes: [docs/betting_odds/espn.md](docs/betting_odds/espn.md).
-
-Betr auth: refresh grant (`BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL`; optional `BETR_KEYCLOAK_CLIENT_ID` from DevTools), or manual `BETR_BEARER_TOKEN`, or password grant. Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [docs/betting_odds/betr.md](docs/betting_odds/betr.md).
+Platform-specific API notes: [`docs/betting_odds/`](docs/betting_odds/)
 
 ## Security
 
-All API keys, passwords, and JWTs must stay in `.env` and be loaded via `os.getenv()`. Do not hardcode credentials or tokens in source files.
+All API keys and tokens are loaded via `os.getenv()` from `config/.env`. No credentials are hardcoded or committed. The git history is scanned on pre-commit to block accidental `.env` inclusion.

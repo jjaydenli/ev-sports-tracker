@@ -58,6 +58,7 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | hits_allowed | 9886 |
 | rbi | 8025 |
 
+Probe configured or pasted IDs: `python -m scripts.probe_dk_subcategories <event_id> --league mlb`. See [mlb.md](mlb.md).
 
 Betr-only markets awaiting IDs are listed in `DK_NBA_PENDING_STAT_CATEGORIES` (skipped at scrape).
 

@@ -1,12 +1,10 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-
 **Last verified:** 2026-06-30
 
 ## 1. Project Overview
 
 +EV sports betting engine: compares fixed-payout player props on DFS apps (primarily **Betr**) against sharp sportsbook lines (**DraftKings**, **FanDuel**, **ESPN/TheScore Bet**). Standardizes naming, calculates no-vig fair value, outputs ranked JSON opportunities. **Dabble** archived under `backend/archive/dabble/`.
-
 
 ## 2. Tech Stack
 
@@ -75,8 +73,8 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 
 ```text
 ev-sports-tracker/
-├── docs/plans/                         # active handoffs; archive/ when shipped
-├── scripts/                            # archive_plan.sh, check_arch_sync.sh, open_pr.sh
+├── scripts/                            # check_arch_sync.sh, open_pr.sh
+├── docs/design/                        # architecture decision records
 ├── .github/workflows/ci.yml
 ├── ev                                    # → backend pipeline_runner
 └── backend/
@@ -98,8 +96,6 @@ ev-sports-tracker/
 ```
 
 **EV data flow:** `./ev` → league loop × sources (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, `ev_run_diff.json`, `scrape_coverage.json`) → per-Betr match-context filter → per-book sharp resolve → multi-book consensus → ranked output.
-
-**Design → implement:** `docs/plans/<feature>.md` → implement skill → `./scripts/archive_plan.sh` before PR. See [docs/plans/README.md](docs/plans/README.md).
 
 ## 6. Roadmap
 

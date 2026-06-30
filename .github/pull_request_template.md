@@ -5,7 +5,6 @@
 ## Test plan
 
 - [ ] `cd backend && pytest -q`
-- [ ] Plan archived: `./scripts/archive_plan.sh docs/plans/<feature>.md` (required on feature branch before PR; CI fails shipping PRs with active handoffs)
 
 ## Commits
 

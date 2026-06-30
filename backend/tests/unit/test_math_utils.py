@@ -1,7 +1,7 @@
 import pytest
 
 from config.settings import MILESTONE_ASSUMED_HOLD, MILESTONE_MIN_FAIR_OVER
-from core.line_adjustment import devig_milestone_fair_over
+from core.resolution_math import devig_milestone_fair_over
 from utils.math_utils import (
     BETR_STANDARD_BREAKEVEN_ODDS,
     american_to_implied,

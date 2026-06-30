@@ -1,36 +1,27 @@
-"""Align DraftKings prices to Betr lines via exact alt, interpolation, or extrapolation."""
+"""Align Sportsbook prices to Betr lines via exact alt, interpolation, or extrapolation."""
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from loguru import logger
+from config.sharp_books import SHARP_BOOK_BY_NAME
+from core.ladder_index import (
+    _event_start_from_row,
+    build_player_market_key,
+)
+from core.resolution_math import (
+    _extrapolate_fair_probs,
+    _extrapolate_milestone_fair_over,
+    _fair_over_from_milestone,
+    _fair_probs_from_odds,
+    _interp_logit,
+    _odds_from_fair_probs,
+    devig_milestone_fair_over,
+    estimate_ou_hold,
+)
 
-from utils.math_utils import american_to_implied, multiplicative_devig
-
-# Logit shift applied per 1.0 point of line gap (target - anchor) by market.
-EXTRAPOLATION_LOGIT_SHIFT_PER_POINT: dict[str, float] = {
-    "points": 0.12,
-    "rebounds": 0.10,
-    "assists": 0.10,
-    "threes": 0.11,
-    "steals": 0.11,
-    "blocks": 0.11,
-    "stl+blk": 0.10,
-    "pra": 0.09,
-    "pts+reb": 0.09,
-    "pts+ast": 0.09,
-    "reb+ast": 0.09,
-    "hits": 0.08,
-    "total_bases": 0.08,
-    "h+r+rbi": 0.08,
-    "singles": 0.08,
-    "default": 0.08,
-}
-
-DkLineKind = Literal["ou", "milestone"]
+LineKind = Literal["ou", "milestone"]
 
 # Sharp quotes eligible for +EV ranking.
 EV_ELIGIBLE_ADJUSTMENT_METHODS: frozenset[str] = frozenset(
@@ -51,24 +42,14 @@ EXACT_AT_TARGET_METHODS: frozenset[str] = frozenset(
     {"exact", "dk_alt", "fd_exact", "fd_alt", "espn_exact", "espn_alt"}
 )
 
-def load_sharp_book_weights() -> dict[str, float]:
-    """
-    Per-book weights for multi-book consensus (env-tunable; equal 1.0 defaults).
 
-    When adding a third sharp book, extend this dict and each book's eligibility
-    rules (FD: exact O/U only; DK: O/U ladder + milestone fallback; etc.).
-    """
-    from config.settings import (
-        SHARP_BOOK_WEIGHTS_DK,
-        SHARP_BOOK_WEIGHTS_ESPN,
-        SHARP_BOOK_WEIGHTS_FD,
-    )
-
-    return {
-        "DraftKings": SHARP_BOOK_WEIGHTS_DK,
-        "FanDuel": SHARP_BOOK_WEIGHTS_FD,
-        "ESPN": SHARP_BOOK_WEIGHTS_ESPN,
-    }
+@dataclass(frozen=True)
+class BookQuote:
+    over_odds: int | None
+    under_odds: int | None
+    line_kind: LineKind
+    line_source: str | None
+    milestone_one_sided: bool = False
 
 
 @dataclass(frozen=True)
@@ -82,37 +63,21 @@ class ResolvedSharpQuote:
     adjustment_method: str
     corroborated: bool
     dk_main_line: float | None
-    dk_line_kind: DkLineKind = "ou"
-    fd_line_kind: DkLineKind = "ou"
-    espn_line_kind: DkLineKind = "ou"
-    dk_over_odds: int | None = None
-    dk_under_odds: int | None = None
-    fd_over_odds: int | None = None
-    fd_under_odds: int | None = None
-    espn_over_odds: int | None = None
-    espn_under_odds: int | None = None
+    ev_line_kind: LineKind = "ou"
+    per_book: tuple[tuple[str, BookQuote], ...] = ()
     sharp_books: tuple[str, ...] = ()
     milestone_admitted: bool = False
     milestone_devig_method: str | None = None
-    dk_milestone_one_sided: bool = False
-    fd_milestone_one_sided: bool = False
-    espn_milestone_one_sided: bool = False
-    dk_line_source: str | None = None
-    fd_line_source: str | None = None
-    espn_line_source: str | None = None
     sharp_by_book: tuple[tuple[str, str], ...] = ()
     sharp_event_start: str | None = None
+
+    def book_quote(self, book: str) -> BookQuote | None:
+        return next((bq for b, bq in self.per_book if b == book), None)
 
 
 def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
     """True when the sharp quote is eligible for +EV ranking."""
-    if quote.adjustment_method == "ou_ms_combo":
-        return True
-    if (
-        quote.dk_line_kind == "milestone"
-        or quote.fd_line_kind == "milestone"
-        or quote.espn_line_kind == "milestone"
-    ):
+    if quote.ev_line_kind == "milestone":
         return (
             quote.adjustment_method == "dk_milestone_exact"
             and quote.milestone_admitted
@@ -120,442 +85,26 @@ def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
     return quote.adjustment_method in EV_ELIGIBLE_ADJUSTMENT_METHODS
 
 
-def _logit(probability: float) -> float:
-    clamped = min(max(probability, 1e-6), 1 - 1e-6)
-    return math.log(clamped / (1 - clamped))
+def _exact_ou_method(book: str, is_alt: bool) -> str:
+    if book == "DraftKings":
+        return "dk_alt" if is_alt else "exact"
+    prefix = {"FanDuel": "fd", "ESPN": "espn"}.get(book, book.lower())
+    return f"{prefix}_alt" if is_alt else f"{prefix}_exact"
 
 
-def _inv_logit(value: float) -> float:
-    return 1 / (1 + math.exp(-value))
-
-
-def _interp_logit(p_low: float, p_high: float, weight_high: float) -> float:
-    """Linear interpolation in logit space; weight_high=1 -> p_high."""
-    weight_high = min(max(weight_high, 0.0), 1.0)
-    low = _logit(p_low)
-    high = _logit(p_high)
-    return _inv_logit((1 - weight_high) * low + weight_high * high)
-
-
-def _shift_per_point(market: str) -> float:
-    return EXTRAPOLATION_LOGIT_SHIFT_PER_POINT.get(
-        market, EXTRAPOLATION_LOGIT_SHIFT_PER_POINT["default"]
-    )
-
-
-def _hour_floor(iso: str) -> str:
-    """Hour-precision prefix of an ISO UTC timestamp (e.g. 2026-06-19T17)."""
-    return iso[:13] if iso else ""
-
-
-def build_match_context_key(
-    prop: dict,
-    *,
-    normalize_player_name,
-) -> str:
-    """
-    Canonical match-context key: player|market|league|[event_hour]|[live].
-
-    Line-agnostic; ``event_hour`` is UTC hour-floor (``iso[:13]``) when
-    ``event_start`` is present and is the sole game discriminator. Live rows
-    omit the hour (books disagree on in-game timestamps); pregame rows without
-    ``event_start`` omit the hour as well.
-    """
-    key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
-    league = prop.get("league")
-    if league:
-        key = f"{key}|{str(league).upper()}"
-    event_start = prop.get("event_start", "")
-    is_live = bool(prop.get("is_live"))
-    if event_start and not is_live:
-        key = f"{key}|{_hour_floor(event_start)}"
-    if is_live:
-        key = f"{key}|live"
-    return key
-
-
-def _event_start_from_row(row: dict[str, Any]) -> str | None:
-    start = row.get("event_start") or ""
-    return start if start else None
-
-
-def build_player_market_key(
-    prop: dict,
-    *,
-    normalize_player_name,
-) -> str:
-    """
-    Player + market ladder key, optionally scoped by event-hour and live snapshot.
-
-    Live Betr rows carry ``is_live``; sharp books tag live DK rows the same way.
-    ``event_hour`` is the UTC hour-floor (``iso[:13]``) of ``event_start`` and is the
-    sole game discriminator, so back-to-back matchups (same teams, different start
-    times) do not collide. Pregame rows omit the live suffix.
-    """
-    key = f"{normalize_player_name(prop['player'])}|{prop['market']}"
-    event_start = prop.get("event_start", "")
-    is_live = bool(prop.get("is_live"))
-    if event_start and not is_live:
-        key = f"{key}|{_hour_floor(event_start)}"
-    if is_live:
-        key = f"{key}|live"
-    return key
-
-
-def _collision_is_ambiguous(
-    existing: dict[str, Any], new_over: int, new_under: int | None
-) -> bool:
-    """True when a same-line ladder collision carries *conflicting* odds.
-
-    Identical odds are a harmless duplicate (same EV either way) and may overwrite
-    silently. Differing odds at the same ``player|market|hour|line`` are
-    unresolvable — most often two distinct players colliding under one normalized
-    name — so the key is dropped from matching rather than silently resolved to
-    whichever row wrote last. See the ``team``/player-id disambiguation notes; the
-    match gate has no player identity beyond the normalized name today.
-    """
-    if existing["over_odds"] != new_over:
-        return True
-    return existing.get("under_odds") != new_under
-
-
-def build_player_market_ladder(
-    dk_props: list[dict],
-    *,
-    normalize_player_name,
-) -> dict[str, dict[float, dict[str, Any]]]:
-    """Index DK O/U rows by player|market -> line -> odds metadata.
-
-    A same-line collision with conflicting odds marks the whole ``pm_key``
-    ambiguous and drops it, so an unresolvable same-name clash yields no match
-    rather than a silent wrong-odds match.
-    """
-    ladder: dict[str, dict[float, dict[str, Any]]] = {}
-    ambiguous: set[str] = set()
-    for prop in dk_props:
-        if prop.get("line_kind", "ou") == "milestone":
-            continue
-        over_odds = prop.get("over_odds")
-        under_odds = prop.get("under_odds")
-        if over_odds is None or under_odds is None:
-            continue
-        pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
-        line = float(prop["line"])
-        bucket = ladder.setdefault(pm_key, {})
-        existing = bucket.get(line)
-        if existing is not None and _collision_is_ambiguous(
-            existing, int(over_odds), int(under_odds)
-        ):
-            logger.warning(
-                "ambiguous sharp O/U collision — dropping pm_key={pm_key} from "
-                "matching line={line} event_start={event_start}",
-                pm_key=pm_key,
-                line=line,
-                event_start=prop.get("event_start", ""),
-            )
-            ambiguous.add(pm_key)
-        bucket[line] = {
-            "over_odds": int(over_odds),
-            "under_odds": int(under_odds),
-            "is_main_line": bool(prop.get("is_main_line", True)),
-            "event_start": prop.get("event_start", ""),
-        }
-    for pm_key in ambiguous:
-        ladder.pop(pm_key, None)
-    return ladder
-
-
-def build_milestone_ladder(
-    sharp_props: list[dict],
-    *,
-    normalize_player_name,
-) -> dict[str, dict[float, dict[str, Any]]]:
-    """Index milestone (N+) rows by player|market -> converted line -> over odds.
-
-    A same-line collision with conflicting over odds drops the ``pm_key`` from
-    matching, matching ``build_player_market_ladder``'s ambiguity handling.
-    """
-    ladder: dict[str, dict[float, dict[str, Any]]] = {}
-    ambiguous: set[str] = set()
-    for prop in sharp_props:
-        if prop.get("line_kind") != "milestone":
-            continue
-        over_odds = prop.get("over_odds")
-        if over_odds is None:
-            continue
-        pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
-        line = float(prop["line"])
-        source_book = prop.get("sportsbook", "DraftKings")
-        bucket = ladder.setdefault(pm_key, {})
-        existing = bucket.get(line)
-        if existing is not None and _collision_is_ambiguous(
-            existing, int(over_odds), None
-        ):
-            logger.warning(
-                "ambiguous sharp milestone collision — dropping pm_key={pm_key} "
-                "from matching line={line} event_start={event_start}",
-                pm_key=pm_key,
-                line=line,
-                event_start=prop.get("event_start", ""),
-            )
-            ambiguous.add(pm_key)
-        bucket[line] = {
-            "over_odds": int(over_odds),
-            "milestone_threshold": prop.get("milestone_threshold"),
-            "is_main_line": bool(prop.get("is_main_line", True)),
-            "sportsbook": source_book,
-            "event_start": prop.get("event_start", ""),
-        }
-    for pm_key in ambiguous:
-        ladder.pop(pm_key, None)
-    return ladder
-
-
-def build_milestone_ladders(
-    sharp_props: list[dict],
-    *,
-    normalize_player_name,
-) -> dict[str, dict[str, dict[float, dict[str, Any]]]]:
-    """Per-book milestone ladders keyed by sportsbook name.
-
-    A same-line collision with conflicting over odds drops the ``(book, pm_key)``
-    from matching, matching ``build_player_market_ladder``'s ambiguity handling.
-    """
-    ladders: dict[str, dict[str, dict[float, dict[str, Any]]]] = {}
-    ambiguous: set[tuple[str, str]] = set()
-    for prop in sharp_props:
-        if prop.get("line_kind") != "milestone":
-            continue
-        over_odds = prop.get("over_odds")
-        if over_odds is None:
-            continue
-        source_book = prop.get("sportsbook", "DraftKings")
-        pm_key = build_player_market_key(prop, normalize_player_name=normalize_player_name)
-        line = float(prop["line"])
-        bucket = ladders.setdefault(source_book, {}).setdefault(pm_key, {})
-        existing = bucket.get(line)
-        if existing is not None and _collision_is_ambiguous(
-            existing, int(over_odds), None
-        ):
-            logger.warning(
-                "ambiguous sharp per-book milestone collision — dropping "
-                "book={book} pm_key={pm_key} from matching line={line} "
-                "event_start={event_start}",
-                book=source_book,
-                pm_key=pm_key,
-                line=line,
-                event_start=prop.get("event_start", ""),
-            )
-            ambiguous.add((source_book, pm_key))
-        bucket[line] = {
-            "over_odds": int(over_odds),
-            "milestone_threshold": prop.get("milestone_threshold"),
-            "is_main_line": bool(prop.get("is_main_line", True)),
-            "sportsbook": source_book,
-            "event_start": prop.get("event_start", ""),
-        }
-    for source_book, pm_key in ambiguous:
-        ladders.get(source_book, {}).pop(pm_key, None)
-    return ladders
-
-
-def merge_milestone_ladders(
-    ladders: dict[str, dict[str, dict[float, dict[str, Any]]]],
-    *,
-    book_precedence: tuple[str, ...] = ("DraftKings", "FanDuel"),
-) -> dict[str, dict[float, dict[str, Any]]]:
-    """Merge per-book milestone ladders; earlier books win on line collisions."""
-    merged: dict[str, dict[float, dict[str, Any]]] = {}
-    for book in book_precedence:
-        for pm_key, lines in ladders.get(book, {}).items():
-            merged.setdefault(pm_key, {})
-            for line, row in lines.items():
-                if line not in merged[pm_key]:
-                    merged[pm_key][line] = row
-    return merged
-
-
-def _milestone_raw_book_odds(
-    source_book: str,
-    raw_over: int,
-) -> dict[str, int | None]:
-    """Map raw milestone over odds to the correct per-book display fields."""
-    if source_book == "FanDuel":
-        return {
-            "dk_over_odds": None,
-            "dk_under_odds": None,
-            "fd_over_odds": raw_over,
-            "fd_under_odds": None,
-        }
-    if source_book == "ESPN":
-        return {
-            "dk_over_odds": None,
-            "dk_under_odds": None,
-            "fd_over_odds": None,
-            "fd_under_odds": None,
-            "espn_over_odds": raw_over,
-            "espn_under_odds": None,
-        }
+def _no_market_reason(book: str) -> str:
     return {
-        "dk_over_odds": raw_over,
-        "dk_under_odds": None,
-        "fd_over_odds": None,
-        "fd_under_odds": None,
-    }
+        "DraftKings": "no_dk_market",
+        "FanDuel": "no_fd_market",
+        "ESPN": "no_espn_market",
+    }.get(book, f"no_{book.lower()}_market")
 
 
-def estimate_ou_hold(
-    ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]],
-    pm_key: str,
-    *,
-    preferred_book: str | None = None,
-    source_book_only: bool = False,
-) -> float | None:
-    """Average two-sided hold for a player|market across O/U rows; None when no O/U exists."""
-    book_order = list(ou_ladders.keys())
-    if preferred_book and preferred_book in ou_ladders:
-        book_order = [preferred_book] + [
-            book for book in book_order if book != preferred_book
-        ]
-    if source_book_only and preferred_book:
-        book_order = [preferred_book]
-
-    holds: list[float] = []
-    for book in book_order:
-        lines = ou_ladders.get(book, {}).get(pm_key)
-        if not lines:
-            continue
-        for row in lines.values():
-            over_odds = row.get("over_odds")
-            under_odds = row.get("under_odds")
-            if over_odds is None or under_odds is None:
-                continue
-            over_implied = american_to_implied(int(over_odds))
-            under_implied = american_to_implied(int(under_odds))
-            holds.append(over_implied + under_implied - 1.0)
-        if holds:
-            return sum(holds) / len(holds)
-    return None
-
-
-def _contiguous_milestone_segment(
-    sorted_lines: list[float],
-    target_line: float,
-    *,
-    step: float = 1.0,
-) -> list[float] | None:
-    """Return the contiguous ladder segment containing target_line, or None."""
-    if target_line not in sorted_lines:
-        return None
-    idx = sorted_lines.index(target_line)
-    start = idx
-    while start > 0 and abs(sorted_lines[start] - sorted_lines[start - 1] - step) < 1e-9:
-        start -= 1
-    end = idx
-    while (
-        end < len(sorted_lines) - 1
-        and abs(sorted_lines[end + 1] - sorted_lines[end] - step) < 1e-9
-    ):
-        end += 1
-    segment = sorted_lines[start : end + 1]
-    if len(segment) >= 2:
-        return segment
-    return None
-
-
-def _survival_at_line(
-    segment: list[float],
-    lines: dict[float, dict[str, Any]],
-    target_line: float,
-) -> float:
-    """Fair P(X >= threshold) from renormalized PMF masses on a milestone ladder."""
-    survivals = [american_to_implied(lines[line]["over_odds"]) for line in segment]
-    masses = [1.0 - survivals[0]]
-    masses.extend(s - survivals[i + 1] for i, s in enumerate(survivals[:-1]))
-    masses.append(survivals[-1])
-    masses = [max(0.0, mass) for mass in masses]
-    total = sum(masses)
-    if total <= 0:
-        return american_to_implied(lines[target_line]["over_odds"])
-    masses = [mass / total for mass in masses]
-    target_idx = segment.index(target_line)
-    if target_idx + 1 >= len(masses):
-        return masses[-1]
-    return sum(masses[target_idx + 1 :])
-
-
-def devig_milestone_fair_over(
-    lines: dict[float, dict[str, Any]],
-    target_line: float,
-    *,
-    market: str,
-    ou_hold: float | None,
-) -> tuple[float, str]:
-    """
-    De-vig a milestone over-only price via ladder normalization or hold shrink.
-
-    Returns (fair_over_probability, method_name).
-    """
-    from config.settings import MILESTONE_ASSUMED_HOLD
-
-    _ = market  # reserved for market-specific ladder steps if needed later
-    sorted_lines = sorted(lines.keys())
-    segment = _contiguous_milestone_segment(sorted_lines, target_line)
-    if segment is not None:
-        return _survival_at_line(segment, lines, target_line), "ladder_normalized"
-
-    raw = american_to_implied(lines[target_line]["over_odds"])
-    hold = ou_hold if ou_hold is not None else MILESTONE_ASSUMED_HOLD
-    return raw * (1.0 - hold / 2.0), "hold_shrink"
-
-
-def _fair_probs_from_odds(over_odds: int, under_odds: int) -> tuple[float, float]:
-    return multiplicative_devig(over_odds, under_odds)
-
-
-def _fair_over_from_milestone(over_odds: int) -> float:
-    return american_to_implied(over_odds)
-
-
-def _odds_from_fair_probs(fair_over: float, fair_under: float) -> tuple[int, int]:
-    from utils.math_utils import implied_to_american
-
-    return implied_to_american(fair_over), implied_to_american(fair_under)
-
-
-def _extrapolate_fair_probs(
-    fair_over: float,
-    fair_under: float,
-    *,
-    anchor_line: float,
-    target_line: float,
-    market: str,
-) -> tuple[float, float]:
-    """
-    Shift fair probs from anchor_line to target_line.
-
-    Lower target vs anchor -> higher over / lower under probability.
-    """
-    gap = anchor_line - target_line
-    shift = _shift_per_point(market) * gap
-    fair_over = _inv_logit(_logit(fair_over) + shift)
-    fair_under = _inv_logit(_logit(fair_under) - shift)
-    total = fair_over + fair_under
-    if total <= 0:
-        return fair_over, fair_under
-    return fair_over / total, fair_under / total
-
-
-def _extrapolate_milestone_fair_over(
-    fair_over: float,
-    *,
-    anchor_line: float,
-    target_line: float,
-    market: str,
-) -> float:
-    gap = anchor_line - target_line
-    shift = _shift_per_point(market) * gap
-    return _inv_logit(_logit(fair_over) + shift)
+def _no_exact_line_reason(book: str) -> str:
+    return {
+        "FanDuel": "no_fd_exact_line",
+        "ESPN": "no_espn_exact_line",
+    }.get(book, f"no_{book.lower()}_exact_line")
 
 
 def _resolve_ou_ladder(
@@ -582,6 +131,12 @@ def _resolve_ou_ladder(
     if target_line in lines:
         row = lines[target_line]
         method = "dk_alt" if not row.get("is_main_line", True) else "exact"
+        bq = BookQuote(
+            over_odds=row["over_odds"],
+            under_odds=row["under_odds"],
+            line_kind="ou",
+            line_source=method,
+        )
         return (
             ResolvedSharpQuote(
                 over_odds=row["over_odds"],
@@ -591,7 +146,9 @@ def _resolve_ou_ladder(
                 adjustment_method=method,
                 corroborated=True,
                 dk_main_line=dk_main_line,
-                dk_line_kind="ou",
+                ev_line_kind="ou",
+                per_book=(("DraftKings", bq),),
+                sharp_books=("DraftKings",),
                 sharp_event_start=_event_start_from_row(row),
             ),
             None,
@@ -616,6 +173,12 @@ def _resolve_ou_ladder(
         fair_over = _interp_logit(fair_low_over, fair_high_over, weight_high)
         fair_under = _interp_logit(fair_low_under, fair_high_under, weight_high)
         over_odds, under_odds = _odds_from_fair_probs(fair_over, fair_under)
+        bq = BookQuote(
+            over_odds=over_odds,
+            under_odds=under_odds,
+            line_kind="ou",
+            line_source="dk_interpolated",
+        )
         return (
             ResolvedSharpQuote(
                 over_odds=over_odds,
@@ -625,7 +188,9 @@ def _resolve_ou_ladder(
                 adjustment_method="dk_interpolated",
                 corroborated=True,
                 dk_main_line=dk_main_line,
-                dk_line_kind="ou",
+                ev_line_kind="ou",
+                per_book=(("DraftKings", bq),),
+                sharp_books=("DraftKings",),
                 sharp_event_start=_event_start_from_row(row_low),
             ),
             None,
@@ -644,6 +209,12 @@ def _resolve_ou_ladder(
         market=market,
     )
     over_odds, under_odds = _odds_from_fair_probs(fair_over, fair_under)
+    bq = BookQuote(
+        over_odds=over_odds,
+        under_odds=under_odds,
+        line_kind="ou",
+        line_source="dk_extrapolated",
+    )
     return (
         ResolvedSharpQuote(
             over_odds=over_odds,
@@ -653,7 +224,9 @@ def _resolve_ou_ladder(
             adjustment_method="dk_extrapolated",
             corroborated=False,
             dk_main_line=dk_main_line,
-            dk_line_kind="ou",
+            ev_line_kind="ou",
+            per_book=(("DraftKings", bq),),
+            sharp_books=("DraftKings",),
             sharp_event_start=_event_start_from_row(anchor),
         ),
         None,
@@ -708,7 +281,14 @@ def _resolve_milestone_ladder(
         admitted_over = fair_over >= MILESTONE_MIN_FAIR_OVER
         admitted_under = fair_over < 0.5  # under is heavy side; Betr under can be +EV
         admitted = admitted_over or admitted_under
-        book_odds = _milestone_raw_book_odds(source_book, int(row["over_odds"]))
+        raw_over = int(row["over_odds"])
+        bq = BookQuote(
+            over_odds=raw_over,
+            under_odds=None,
+            line_kind="milestone",
+            line_source="dk_milestone_exact",
+            milestone_one_sided=True,
+        )
         return (
             ResolvedSharpQuote(
                 over_odds=devigged_over,
@@ -718,12 +298,12 @@ def _resolve_milestone_ladder(
                 adjustment_method="dk_milestone_exact",
                 corroborated=False,
                 dk_main_line=dk_main_line,
-                dk_line_kind="milestone",
+                ev_line_kind="milestone",
+                per_book=((source_book, bq),),
                 sharp_books=(source_book,),
                 milestone_admitted=admitted,
                 milestone_devig_method=devig_method,
                 sharp_event_start=_event_start_from_row(row),
-                **book_odds,
             ),
             None,
         )
@@ -740,6 +320,14 @@ def _resolve_milestone_ladder(
         weight_high = (target_line - line_low) / (line_high - line_low)
         fair_over = _interp_logit(fair_low, fair_high, weight_high)
         over_odds, _ = _odds_from_fair_probs(fair_over, 1 - fair_over)
+        ms_book = lines[line_low].get("sportsbook", "DraftKings")
+        bq = BookQuote(
+            over_odds=over_odds,
+            under_odds=None,
+            line_kind="milestone",
+            line_source="dk_milestone_interpolated",
+            milestone_one_sided=True,
+        )
         return (
             ResolvedSharpQuote(
                 over_odds=over_odds,
@@ -749,7 +337,9 @@ def _resolve_milestone_ladder(
                 adjustment_method="dk_milestone_interpolated",
                 corroborated=False,
                 dk_main_line=dk_main_line,
-                dk_line_kind="milestone",
+                ev_line_kind="milestone",
+                per_book=((ms_book, bq),),
+                sharp_books=(ms_book,),
                 sharp_event_start=_event_start_from_row(lines[line_low]),
             ),
             None,
@@ -764,6 +354,14 @@ def _resolve_milestone_ladder(
         market=market,
     )
     over_odds, _ = _odds_from_fair_probs(fair_over, 1 - fair_over)
+    ms_book = anchor.get("sportsbook", "DraftKings")
+    bq = BookQuote(
+        over_odds=over_odds,
+        under_odds=None,
+        line_kind="milestone",
+        line_source="dk_milestone_extrapolated",
+        milestone_one_sided=True,
+    )
     return (
         ResolvedSharpQuote(
             over_odds=over_odds,
@@ -773,7 +371,9 @@ def _resolve_milestone_ladder(
             adjustment_method="dk_milestone_extrapolated",
             corroborated=False,
             dk_main_line=dk_main_line,
-            dk_line_kind="milestone",
+            ev_line_kind="milestone",
+            per_book=((ms_book, bq),),
+            sharp_books=(ms_book,),
             sharp_event_start=_event_start_from_row(anchor),
         ),
         None,
@@ -841,289 +441,51 @@ def resolve_sharp_quote(
     return None, ou_reason or "no_dk_market"
 
 
-def _resolve_espn_exact_quote(
+def _resolve_exact_ou(
     betr_prop: dict,
-    espn_ladder: dict[str, dict[float, dict[str, Any]]],
+    ou_ladder: dict[str, dict[float, dict[str, Any]]],
     *,
-    normalize_player_name,
-) -> tuple[ResolvedSharpQuote | None, str | None]:
-    """Resolve ESPN O/U only when an exact alt or main line exists at the Betr line."""
-    target_line = float(betr_prop["line"])
-    pm_key = build_player_market_key(
-        betr_prop, normalize_player_name=normalize_player_name
-    )
-    lines = espn_ladder.get(pm_key)
-    if not lines:
-        return None, "no_espn_market"
-    if target_line not in lines:
-        return None, "no_espn_exact_line"
-
-    row = lines[target_line]
-    main_lines = sorted(
-        line for line, entry in lines.items() if entry.get("is_main_line", True)
-    )
-    espn_main_line = main_lines[0] if main_lines else None
-    method = "espn_alt" if not row.get("is_main_line", True) else "espn_exact"
-    return (
-        ResolvedSharpQuote(
-            over_odds=row["over_odds"],
-            under_odds=row["under_odds"],
-            dk_line=target_line,
-            betr_line=target_line,
-            adjustment_method=method,
-            corroborated=True,
-            dk_main_line=espn_main_line,
-            dk_line_kind="ou",
-            espn_over_odds=row["over_odds"],
-            espn_under_odds=row["under_odds"],
-            sharp_books=("ESPN",),
-            sharp_event_start=_event_start_from_row(row),
-        ),
-        None,
-    )
-
-
-def _resolve_fd_exact_quote(
-    betr_prop: dict,
-    fd_ladder: dict[str, dict[float, dict[str, Any]]],
-    *,
-    normalize_player_name,
-) -> tuple[ResolvedSharpQuote | None, str | None]:
-    """Resolve FanDuel O/U only when an exact alt or main line exists at the Betr line."""
-    target_line = float(betr_prop["line"])
-    pm_key = build_player_market_key(
-        betr_prop, normalize_player_name=normalize_player_name
-    )
-    lines = fd_ladder.get(pm_key)
-    if not lines:
-        return None, "no_fd_market"
-    if target_line not in lines:
-        return None, "no_fd_exact_line"
-
-    row = lines[target_line]
-    main_lines = sorted(
-        line for line, entry in lines.items() if entry.get("is_main_line", True)
-    )
-    fd_main_line = main_lines[0] if main_lines else None
-    method = "fd_alt" if not row.get("is_main_line", True) else "fd_exact"
-    return (
-        ResolvedSharpQuote(
-            over_odds=row["over_odds"],
-            under_odds=row["under_odds"],
-            dk_line=target_line,
-            betr_line=target_line,
-            adjustment_method=method,
-            corroborated=True,
-            dk_main_line=fd_main_line,
-            dk_line_kind="ou",
-            fd_over_odds=row["over_odds"],
-            fd_under_odds=row["under_odds"],
-            sharp_books=("FanDuel",),
-            sharp_event_start=_event_start_from_row(row),
-        ),
-        None,
-    )
-
-
-def _is_eligible_ou_quote(quote: ResolvedSharpQuote) -> bool:
-    """True when the book quote is eligible O/U for EV (not milestone)."""
-    return (
-        quote.dk_line_kind == "ou"
-        and quote.adjustment_method in EV_ELIGIBLE_ADJUSTMENT_METHODS
-    )
-
-
-def _is_exact_ou_at_target(quote: ResolvedSharpQuote) -> bool:
-    return (
-        quote.dk_line_kind == "ou"
-        and quote.adjustment_method in EXACT_AT_TARGET_METHODS
-    )
-
-
-def _book_quote_display_odds(
-    quote: ResolvedSharpQuote | None,
     book: str,
-) -> tuple[int | None, int | None, DkLineKind, bool, str | None]:
-    """Per-book column odds, line kind, milestone-one-sided flag, and method."""
-    if quote is None:
-        return None, None, "ou", False, None
-    method = quote.adjustment_method
-    if quote.dk_line_kind == "milestone":
-        if book == "FanDuel":
-            over = quote.fd_over_odds
-            under = quote.fd_under_odds
-        elif book == "ESPN":
-            over = quote.espn_over_odds
-            under = quote.espn_under_odds
-        else:
-            over = quote.dk_over_odds
-            under = quote.dk_under_odds
-        return over, under, "milestone", over is not None and under is None, method
-    if book == "FanDuel":
-        over = quote.fd_over_odds if quote.fd_over_odds is not None else quote.over_odds
-        under = (
-            quote.fd_under_odds if quote.fd_under_odds is not None else quote.under_odds
-        )
-    elif book == "ESPN":
-        over = (
-            quote.espn_over_odds if quote.espn_over_odds is not None else quote.over_odds
-        )
-        under = (
-            quote.espn_under_odds
-            if quote.espn_under_odds is not None
-            else quote.under_odds
-        )
-    else:
-        over = quote.dk_over_odds if quote.dk_over_odds is not None else quote.over_odds
-        under = (
-            quote.dk_under_odds if quote.dk_under_odds is not None else quote.under_odds
-        )
-    return over, under, "ou", False, method
+    normalize_player_name,
+) -> tuple[ResolvedSharpQuote | None, str | None]:
+    """Resolve O/U only when an exact alt or main line exists at the Betr line."""
+    target_line = float(betr_prop["line"])
+    pm_key = build_player_market_key(
+        betr_prop, normalize_player_name=normalize_player_name
+    )
+    lines = ou_ladder.get(pm_key)
+    if not lines:
+        return None, _no_market_reason(book)
+    if target_line not in lines:
+        return None, _no_exact_line_reason(book)
 
-
-def _milestone_exact_for_display(quote: ResolvedSharpQuote | None) -> bool:
-    """True when the book has an exact milestone at the Betr line (display-only ok)."""
+    row = lines[target_line]
+    main_lines = sorted(
+        line for line, entry in lines.items() if entry.get("is_main_line", True)
+    )
+    main_line = main_lines[0] if main_lines else None
+    method = _exact_ou_method(book, not row.get("is_main_line", True))
+    bq = BookQuote(
+        over_odds=row["over_odds"],
+        under_odds=row["under_odds"],
+        line_kind="ou",
+        line_source=method,
+    )
     return (
-        quote is not None
-        and quote.dk_line_kind == "milestone"
-        and quote.adjustment_method == "dk_milestone_exact"
-    )
-
-
-def _assemble_multi_book_quote(
-    *,
-    betr_line: float,
-    dk_book_quote: ResolvedSharpQuote | None,
-    fd_book_quote: ResolvedSharpQuote | None,
-    espn_book_quote: ResolvedSharpQuote | None = None,
-) -> ResolvedSharpQuote | None:
-    """Compose per-book columns and pick EV source per locked policy."""
-    book_quotes = {
-        "DraftKings": dk_book_quote,
-        "FanDuel": fd_book_quote,
-        "ESPN": espn_book_quote,
-    }
-    display: dict[str, tuple[int | None, int | None, DkLineKind, bool, str | None]] = {}
-    exact_books: list[tuple[str, ResolvedSharpQuote]] = []
-    eligible_ou: list[tuple[str, ResolvedSharpQuote]] = []
-
-    for book, quote in book_quotes.items():
-        over, under, kind, ms_one, method = _book_quote_display_odds(quote, book)
-        display[book] = (over, under, kind, ms_one, method)
-        if quote is not None and _is_exact_ou_at_target(quote):
-            exact_books.append((book, quote))
-        if quote is not None and _is_eligible_ou_quote(quote):
-            eligible_ou.append((book, quote))
-
-    dk_over, dk_under, dk_kind, dk_ms_one, dk_method = display["DraftKings"]
-    fd_over, fd_under, fd_kind, fd_ms_one, fd_method = display["FanDuel"]
-    espn_over, espn_under, espn_kind, espn_ms_one, espn_method = display["ESPN"]
-
-    # Consensus when every book with an exact O/U quote agrees at the Betr line.
-    active_exact = [item for item in exact_books if item[1] is not None]
-    if len(active_exact) >= 2:
-        consensus = _consensus_sharp_quote(betr_line=betr_line, quotes=active_exact)
-        sharp_books = tuple(book for book, _ in active_exact)
-        sharp_by_book = tuple(
-            (book, (display[book][4] or "exact"))
-            for book, _ in active_exact
-        )
-        dk_ref = dk_book_quote or active_exact[0][1]
-        return ResolvedSharpQuote(
-            over_odds=consensus.over_odds,
-            under_odds=consensus.under_odds,
-            dk_line=betr_line,
-            betr_line=betr_line,
-            adjustment_method="multi_book_consensus",
+        ResolvedSharpQuote(
+            over_odds=row["over_odds"],
+            under_odds=row["under_odds"],
+            dk_line=target_line,
+            betr_line=target_line,
+            adjustment_method=method,
             corroborated=True,
-            dk_main_line=dk_ref.dk_main_line,
-            dk_line_kind="ou",
-            fd_line_kind="ou",
-            espn_line_kind="ou",
-            dk_over_odds=dk_over,
-            dk_under_odds=dk_under,
-            fd_over_odds=fd_over,
-            fd_under_odds=fd_under,
-            espn_over_odds=espn_over,
-            espn_under_odds=espn_under,
-            sharp_books=sharp_books,
-            dk_line_source=dk_method,
-            fd_line_source=fd_method,
-            espn_line_source=espn_method,
-            sharp_by_book=sharp_by_book,
-            sharp_event_start=consensus.sharp_event_start,
-        )
-
-    priority = ("DraftKings", "FanDuel", "ESPN")
-    ev_quote: ResolvedSharpQuote | None = None
-    line_source: str | None = None
-    for book in priority:
-        quote = book_quotes[book]
-        if quote is not None and _is_eligible_ou_quote(quote):
-            ev_quote = quote
-            line_source = quote.adjustment_method
-            break
-
-    if ev_quote is None:
-        for book in priority:
-            quote = book_quotes[book]
-            if quote is not None and is_ev_eligible_quote(quote) and quote.dk_line_kind == "milestone":
-                ev_quote = quote
-                line_source = "dk_milestone_exact"
-                break
-        if ev_quote is None:
-            return None
-
-    dk_eligible_ou = dk_book_quote is not None and _is_eligible_ou_quote(dk_book_quote)
-    fd_eligible_ou = fd_book_quote is not None and _is_eligible_ou_quote(fd_book_quote)
-    dk_has_ms_display = _milestone_exact_for_display(dk_book_quote)
-    fd_has_ms_display = _milestone_exact_for_display(fd_book_quote)
-    ev_from_ou = ev_quote is not None and ev_quote.dk_line_kind == "ou"
-    other_ms_only = (
-        (ev_from_ou and dk_eligible_ou and fd_has_ms_display and not fd_eligible_ou)
-        or (ev_from_ou and fd_eligible_ou and dk_has_ms_display and not dk_eligible_ou)
-    )
-    if other_ms_only:
-        line_source = "ou_ms_combo"
-
-    sharp_books: list[str] = []
-    sharp_by_book: list[tuple[str, str]] = []
-    for book in priority:
-        over, under, _, _, method = display[book]
-        if over is not None or under is not None:
-            sharp_books.append(book)
-            if method:
-                sharp_by_book.append((book, method))
-
-    assert ev_quote is not None and line_source is not None
-    return ResolvedSharpQuote(
-        over_odds=ev_quote.over_odds,
-        under_odds=ev_quote.under_odds,
-        dk_line=ev_quote.dk_line,
-        betr_line=betr_line,
-        adjustment_method=line_source,
-        corroborated=ev_quote.corroborated,
-        dk_main_line=ev_quote.dk_main_line,
-        dk_line_kind=dk_kind,
-        fd_line_kind=fd_kind,
-        espn_line_kind=espn_kind,
-        dk_over_odds=dk_over,
-        dk_under_odds=dk_under,
-        fd_over_odds=fd_over,
-        fd_under_odds=fd_under,
-        espn_over_odds=espn_over,
-        espn_under_odds=espn_under,
-        sharp_books=tuple(sharp_books),
-        milestone_admitted=ev_quote.milestone_admitted,
-        milestone_devig_method=ev_quote.milestone_devig_method,
-        dk_milestone_one_sided=dk_ms_one,
-        fd_milestone_one_sided=fd_ms_one,
-        espn_milestone_one_sided=espn_ms_one,
-        dk_line_source=dk_method,
-        fd_line_source=fd_method,
-        espn_line_source=espn_method,
-        sharp_by_book=tuple(sharp_by_book),
-        sharp_event_start=ev_quote.sharp_event_start,
+            dk_main_line=main_line,
+            ev_line_kind="ou",
+            per_book=((book, bq),),
+            sharp_books=(book,),
+            sharp_event_start=_event_start_from_row(row),
+        ),
+        None,
     )
 
 
@@ -1137,60 +499,39 @@ def resolve_book_sharp_quote(
     ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]] | None = None,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """Resolve one sharp book: O/U first, milestone when O/U missing or extrapolated only."""
-    if book == "FanDuel":
-        ou_quote, reason = _resolve_fd_exact_quote(
+    cfg = SHARP_BOOK_BY_NAME.get(book)
+    if cfg is None:
+        return None, f"unknown_book_{book}"
+
+    if cfg.ou_resolution == "full":
+        ou_quote, ou_reason = _resolve_ou_ladder(
+            betr_prop, ou_ladder, normalize_player_name=normalize_player_name
+        )
+    else:
+        ou_quote, ou_reason = _resolve_exact_ou(
             betr_prop,
             ou_ladder,
+            book=book,
             normalize_player_name=normalize_player_name,
         )
-        use_milestone = milestone_ladder and ou_quote is None
-        if use_milestone:
-            milestone_quote, milestone_reason = _resolve_milestone_ladder(
-                betr_prop,
-                milestone_ladder,
-                normalize_player_name=normalize_player_name,
-                ou_ladders=ou_ladders,
-                hold_source_book_only=True,
-            )
-            if milestone_quote is not None:
-                return milestone_quote, None
-            return None, milestone_reason or reason
-        return ou_quote, reason
 
-    if book == "ESPN":
-        ou_quote, reason = _resolve_espn_exact_quote(
-            betr_prop,
-            ou_ladder,
-            normalize_player_name=normalize_player_name,
-        )
-        use_milestone = milestone_ladder and ou_quote is None
-        if use_milestone:
-            milestone_quote, milestone_reason = _resolve_milestone_ladder(
-                betr_prop,
-                milestone_ladder,
-                normalize_player_name=normalize_player_name,
-                ou_ladders=ou_ladders,
-                hold_source_book_only="ESPN" in (ou_ladders or {}),
-            )
-            if milestone_quote is not None:
-                return milestone_quote, None
-            return None, milestone_reason or reason
-        return ou_quote, reason
-
-    ou_quote, ou_reason = _resolve_ou_ladder(
-        betr_prop, ou_ladder, normalize_player_name=normalize_player_name
-    )
-    use_milestone = milestone_ladder and (
-        ou_quote is None or ou_quote.adjustment_method == "dk_extrapolated"
+    use_milestone = cfg.milestone_fallback and milestone_ladder and (
+        ou_quote is None
+        or (cfg.ou_resolution == "full" and ou_quote.adjustment_method == "dk_extrapolated")
     )
     if use_milestone:
         milestone_ou_ladders = ou_ladders or {book: ou_ladder}
+        hold_for_milestone = (
+            cfg.hold_own_book_only
+            if cfg.hold_own_book_only
+            else book in (ou_ladders or {})
+        )
         milestone_quote, milestone_reason = _resolve_milestone_ladder(
             betr_prop,
             milestone_ladder,
             normalize_player_name=normalize_player_name,
             ou_ladders=milestone_ou_ladders,
-            hold_source_book_only=True,
+            hold_source_book_only=hold_for_milestone,
         )
         if milestone_quote is not None:
             return milestone_quote, None
@@ -1198,126 +539,4 @@ def resolve_book_sharp_quote(
             return None, milestone_reason or ou_reason
     if ou_quote is not None:
         return ou_quote, None
-    return None, ou_reason or "no_dk_market"
-
-
-def _consensus_sharp_quote(
-    *,
-    betr_line: float,
-    quotes: list[tuple[str, ResolvedSharpQuote]],
-) -> ResolvedSharpQuote:
-    """Weighted average of de-vigged fair probs across exact sharp books."""
-    weights = load_sharp_book_weights()
-    fair_pairs: list[tuple[float, float, float]] = []
-    for book, quote in quotes:
-        fair = _fair_probs_from_odds(quote.over_odds, quote.under_odds or 0)
-        weight = weights.get(book, 1.0)
-        fair_pairs.append((fair[0], fair[1], weight))
-    total_weight = sum(weight for _, _, weight in fair_pairs)
-    if total_weight <= 0:
-        total_weight = float(len(fair_pairs))
-        fair_pairs = [(over, under, 1.0) for over, under, _ in fair_pairs]
-    fair_over = sum(over * weight for over, _, weight in fair_pairs) / total_weight
-    fair_under = sum(under * weight for _, under, weight in fair_pairs) / total_weight
-    norm = fair_over + fair_under
-    if norm > 0:
-        fair_over /= norm
-        fair_under /= norm
-    over_odds, under_odds = _odds_from_fair_probs(fair_over, fair_under)
-
-    dk_quote = next((q for book, q in quotes if book == "DraftKings"), quotes[0][1])
-    fd_quote = next((q for book, q in quotes if book == "FanDuel"), None)
-    espn_quote = next((q for book, q in quotes if book == "ESPN"), None)
-    sharp_books = tuple(book for book, _ in quotes)
-    event_start = next(
-        (q.sharp_event_start for _, q in quotes if q.sharp_event_start),
-        None,
-    )
-    return ResolvedSharpQuote(
-        over_odds=over_odds,
-        under_odds=under_odds,
-        dk_line=betr_line,
-        betr_line=betr_line,
-        adjustment_method="multi_book_consensus",
-        corroborated=True,
-        dk_main_line=dk_quote.dk_main_line,
-        dk_line_kind="ou",
-        dk_over_odds=dk_quote.over_odds if "DraftKings" in sharp_books else None,
-        dk_under_odds=dk_quote.under_odds if "DraftKings" in sharp_books else None,
-        fd_over_odds=fd_quote.over_odds if fd_quote else None,
-        fd_under_odds=fd_quote.under_odds if fd_quote else None,
-        espn_over_odds=espn_quote.over_odds if espn_quote else None,
-        espn_under_odds=espn_quote.under_odds if espn_quote else None,
-        sharp_books=sharp_books,
-        sharp_event_start=event_start,
-    )
-
-
-def resolve_multi_book_sharp_quote(
-    betr_prop: dict,
-    dk_ou_ladder: dict[str, dict[float, dict[str, Any]]],
-    fd_ou_ladder: dict[str, dict[float, dict[str, Any]]],
-    *,
-    normalize_player_name,
-    milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
-    dk_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
-    fd_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
-    espn_ou_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
-    espn_milestone_ladder: dict[str, dict[float, dict[str, Any]]] | None = None,
-) -> tuple[ResolvedSharpQuote | None, str | None]:
-    """
-    Resolve DK + FanDuel (+ optional ESPN) sharp prices independently per book.
-
-    Each book prefers O/U (exact/alt/interpolated for DK; exact/alt for FD/ESPN), else
-    milestone when O/U is missing or DK-extrapolated only. EV from consensus when
-    two or more books have exact O/U, else best eligible O/U (DK preferred), else
-    admitted milestone. Cross-book milestone is display-only when another book supplies EV O/U.
-    """
-    dk_ms = dk_milestone_ladder if dk_milestone_ladder is not None else milestone_ladder
-    fd_ms = fd_milestone_ladder if fd_milestone_ladder is not None else {}
-    ou_ladders = {
-        "DraftKings": dk_ou_ladder,
-        "FanDuel": fd_ou_ladder,
-    }
-    if espn_ou_ladder is not None:
-        ou_ladders["ESPN"] = espn_ou_ladder
-
-    dk_quote, dk_reason = resolve_book_sharp_quote(
-        "DraftKings",
-        betr_prop,
-        dk_ou_ladder,
-        dk_ms,
-        normalize_player_name=normalize_player_name,
-        ou_ladders=ou_ladders,
-    )
-    fd_quote, fd_reason = resolve_book_sharp_quote(
-        "FanDuel",
-        betr_prop,
-        fd_ou_ladder,
-        fd_ms or None,
-        normalize_player_name=normalize_player_name,
-        ou_ladders=ou_ladders,
-    )
-    espn_ms = espn_milestone_ladder if espn_milestone_ladder is not None else {}
-    espn_quote: ResolvedSharpQuote | None = None
-    espn_reason: str | None = None
-    if espn_ou_ladder is not None or espn_milestone_ladder:
-        espn_quote, espn_reason = resolve_book_sharp_quote(
-            "ESPN",
-            betr_prop,
-            espn_ou_ladder or {},
-            espn_ms or None,
-            normalize_player_name=normalize_player_name,
-            ou_ladders=ou_ladders,
-        )
-
-    target_line = float(betr_prop["line"])
-    assembled = _assemble_multi_book_quote(
-        betr_line=target_line,
-        dk_book_quote=dk_quote,
-        fd_book_quote=fd_quote,
-        espn_book_quote=espn_quote,
-    )
-    if assembled is not None:
-        return assembled, None
-    return None, espn_reason or fd_reason or dk_reason or "no_sharp_market"
+    return None, ou_reason or _no_market_reason(book)

@@ -2,24 +2,28 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from config.market_maps import O05_EQUIVALENT_MARKETS
 from core.flat_line import (
     adjusted_breakeven_probability,
     is_flat_line,
     line_kind,
 )
-from core.line_adjustment import (
-    ResolvedSharpQuote,
+from core.ladder_index import (
     build_match_context_key,
     build_milestone_ladder,
     build_milestone_ladders,
     build_player_market_key as build_scoped_player_market_key,
     build_player_market_ladder,
-    is_ev_eligible_quote,
     merge_milestone_ladders,
-    resolve_multi_book_sharp_quote,
+)
+from core.line_adjustment import (
+    ResolvedSharpQuote,
+    is_ev_eligible_quote,
     resolve_sharp_quote,
 )
+from core.multi_book_resolver import resolve_multi_book_sharp_quote
 from utils.math_utils import (
     BETR_STANDARD_BREAKEVEN_ODDS,
     american_to_implied,
@@ -29,22 +33,49 @@ from utils.math_utils import (
     multiplicative_devig,
 )
 
-DEFAULT_DFS_SPORTSBOOK = "Betr"
 DEFAULT_SHARP_SPORTSBOOK = "DraftKings"
+
+
+@dataclass(frozen=True)
+class DFSSide:
+    name: str
+    breakeven_odds: int
+
+
+BETR = DFSSide(name="Betr", breakeven_odds=BETR_STANDARD_BREAKEVEN_ODDS)
+
+
+def _book_field(book: str, field: str, resolved: ResolvedSharpQuote):
+    bq = resolved.book_quote(book)
+    if bq is None:
+        return "ou" if field == "line_kind" else (False if field == "milestone_one_sided" else None)
+    if field == "line_kind":
+        return bq.line_kind
+    if field == "milestone_one_sided":
+        return bq.milestone_one_sided
+    if field == "line_source":
+        return bq.line_source
+    if field == "over_odds":
+        return bq.over_odds
+    if field == "under_odds":
+        return bq.under_odds
+    raise ValueError(f"unknown book field: {field}")
 
 
 def _book_odds_from_resolved(
     resolved: ResolvedSharpQuote,
 ) -> tuple[int | None, int | None, int | None, int | None, int | None, int | None]:
-    """Split DK vs FD vs ESPN O/U odds; avoid labeling a single-book quote as another."""
+    """Split DK vs FD vs ESPN O/U odds from per_book; preserve output schema."""
     books = tuple(resolved.sharp_books) if resolved.sharp_books else ("DraftKings",)
-    dk_over = resolved.dk_over_odds
-    dk_under = resolved.dk_under_odds
-    fd_over = resolved.fd_over_odds
-    fd_under = resolved.fd_under_odds
-    espn_over = resolved.espn_over_odds
-    espn_under = resolved.espn_under_odds
-    if resolved.dk_line_kind == "milestone":
+    dk_over = _book_field("DraftKings", "over_odds", resolved)
+    dk_under = _book_field("DraftKings", "under_odds", resolved)
+    fd_over = _book_field("FanDuel", "over_odds", resolved)
+    fd_under = _book_field("FanDuel", "under_odds", resolved)
+    espn_over = _book_field("ESPN", "over_odds", resolved)
+    espn_under = _book_field("ESPN", "under_odds", resolved)
+
+    dk_kind = _book_field("DraftKings", "line_kind", resolved)
+    if dk_kind == "milestone":
         if "DraftKings" not in books:
             dk_over = None
             dk_under = None
@@ -170,7 +201,7 @@ def _fair_probs_from_resolved(resolved: ResolvedSharpQuote) -> tuple[float, floa
         if total > 0:
             return fair_over / total, fair_under / total
         return fair_over, fair_under
-    if resolved.dk_line_kind == "milestone" or resolved.under_odds is None:
+    if resolved.ev_line_kind == "milestone" or resolved.under_odds is None:
         fair_over = american_to_implied(resolved.over_odds)
         return fair_over, 1.0 - fair_over
     return multiplicative_devig(resolved.over_odds, resolved.under_odds)
@@ -194,6 +225,7 @@ def _append_side_opportunity(
     fair_over: float,
     fair_under: float,
     min_ev: float,
+    dfs_sportsbook: str,
 ) -> None:
     ev = calculate_ev(fair_prob, breakeven_prob)
     no_vig_side, no_vig_prob = _favored_no_vig(fair_over, fair_under)
@@ -236,15 +268,21 @@ def _append_side_opportunity(
             "dk_main_line": resolved.dk_main_line,
             "line_source": resolved.adjustment_method,
             "corroborated": resolved.corroborated,
-            "dk_line_kind": resolved.dk_line_kind,
-            "fd_line_kind": resolved.fd_line_kind,
-            "espn_line_kind": resolved.espn_line_kind,
-            "dk_milestone_one_sided": resolved.dk_milestone_one_sided,
-            "fd_milestone_one_sided": resolved.fd_milestone_one_sided,
-            "espn_milestone_one_sided": resolved.espn_milestone_one_sided,
-            "dk_line_source": resolved.dk_line_source,
-            "fd_line_source": resolved.fd_line_source,
-            "espn_line_source": resolved.espn_line_source,
+            "dk_line_kind": _book_field("DraftKings", "line_kind", resolved),
+            "fd_line_kind": _book_field("FanDuel", "line_kind", resolved),
+            "espn_line_kind": _book_field("ESPN", "line_kind", resolved),
+            "dk_milestone_one_sided": _book_field(
+                "DraftKings", "milestone_one_sided", resolved
+            ),
+            "fd_milestone_one_sided": _book_field(
+                "FanDuel", "milestone_one_sided", resolved
+            ),
+            "espn_milestone_one_sided": _book_field(
+                "ESPN", "milestone_one_sided", resolved
+            ),
+            "dk_line_source": _book_field("DraftKings", "line_source", resolved),
+            "fd_line_source": _book_field("FanDuel", "line_source", resolved),
+            "espn_line_source": _book_field("ESPN", "line_source", resolved),
             "sharp_by_book": sharp_by_book,
             "dk_quote_one_sided": undisclosed_vig_caveat,
             "undisclosed_vig_caveat": undisclosed_vig_caveat,
@@ -252,7 +290,7 @@ def _append_side_opportunity(
             "milestone_devig_method": resolved.milestone_devig_method,
             "milestone_admitted": resolved.milestone_admitted,
             "not_true_devig": ev_from_milestone,
-            "dfs_sportsbook": dfs_prop.get("sportsbook", DEFAULT_DFS_SPORTSBOOK),
+            "dfs_sportsbook": dfs_sportsbook,
             "sharp_sportsbook": DEFAULT_SHARP_SPORTSBOOK,
             "is_live": dfs_prop.get("is_live", False),
             "game": dfs_prop.get("game"),
@@ -267,7 +305,8 @@ def find_ev_opportunities(
     *,
     fanduel_props: list[dict] | None = None,
     espn_props: list[dict] | None = None,
-    dfs_breakeven_odds: int = BETR_STANDARD_BREAKEVEN_ODDS,
+    dfs_side: DFSSide = BETR,
+    dfs_breakeven_odds: int | None = None,
     min_ev: float = 0.0,
     top_n: int | None = None,
     include_flat_lines: bool = False,
@@ -282,6 +321,11 @@ def find_ev_opportunities(
     """
     ou_ladders: dict[str, dict[str, dict[float, dict]]] = {"DraftKings": {}}
     opportunities: list[dict] = []
+    effective_breakeven_odds = (
+        dfs_breakeven_odds
+        if dfs_breakeven_odds is not None
+        else dfs_side.breakeven_odds
+    )
 
     for dfs_prop in dfs_props:
         if not dfs_prop.get("is_live") and not dfs_prop.get("event_start"):
@@ -289,7 +333,7 @@ def find_ev_opportunities(
 
         breakeven_prob = _breakeven_probability(
             dfs_prop,
-            dfs_breakeven_odds=dfs_breakeven_odds,
+            dfs_breakeven_odds=effective_breakeven_odds,
             include_flat_lines=include_flat_lines,
         )
         if breakeven_prob is None:
@@ -390,6 +434,7 @@ def find_ev_opportunities(
                     fair_over=fair_over,
                     fair_under=fair_under,
                     min_ev=min_ev,
+                    dfs_sportsbook=dfs_side.name,
                 )
             if dfs_prop.get("under_odds") is not None:
                 _append_side_opportunity(
@@ -402,6 +447,7 @@ def find_ev_opportunities(
                     fair_over=fair_over,
                     fair_under=fair_under,
                     min_ev=min_ev,
+                    dfs_sportsbook=dfs_side.name,
                 )
 
     opportunities.sort(key=lambda row: row["ev"], reverse=True)
@@ -418,8 +464,9 @@ def compare_betr_vs_draftkings(
     *,
     fanduel_props: list[dict] | None = None,
     espn_props: list[dict] | None = None,
+    dfs_side: DFSSide = BETR,
     min_ev: float = 0.0,
-    dfs_breakeven_odds: int = BETR_STANDARD_BREAKEVEN_ODDS,
+    dfs_breakeven_odds: int | None = None,
     top_n: int | None = None,
     include_flat_lines: bool = False,
     filter_min_ev: bool = False,
@@ -430,6 +477,7 @@ def compare_betr_vs_draftkings(
         draftkings_props,
         fanduel_props=fanduel_props,
         espn_props=espn_props,
+        dfs_side=dfs_side,
         dfs_breakeven_odds=dfs_breakeven_odds,
         min_ev=min_ev,
         top_n=top_n,

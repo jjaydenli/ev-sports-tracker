@@ -1,13 +1,18 @@
 import pytest
 
-from core.engine import find_ev_opportunities, normalize_player_name
-from core.line_adjustment import (
+from core.engine import (
+    DFSSide,
+    _book_odds_from_resolved,
+    find_ev_opportunities,
+    normalize_player_name,
+)
+from core.ladder_index import build_milestone_ladders, build_player_market_ladder
+from core.line_adjustment import BookQuote, ResolvedSharpQuote
+from core.multi_book_resolver import (
+    _assemble_multi_book_quote,
     _consensus_sharp_quote,
-    build_milestone_ladders,
-    build_player_market_ladder,
     load_sharp_book_weights,
     resolve_multi_book_sharp_quote,
-    ResolvedSharpQuote,
 )
 
 
@@ -71,7 +76,18 @@ def test_consensus_weights_skew_toward_heavier_book(monkeypatch):
         adjustment_method="exact",
         corroborated=True,
         dk_main_line=22.5,
-        dk_line_kind="ou",
+        ev_line_kind="ou",
+        per_book=(
+            (
+                "DraftKings",
+                BookQuote(
+                    over_odds=-200,
+                    under_odds=170,
+                    line_kind="ou",
+                    line_source="exact",
+                ),
+            ),
+        ),
     )
     fd_quote = ResolvedSharpQuote(
         over_odds=-110,
@@ -81,7 +97,18 @@ def test_consensus_weights_skew_toward_heavier_book(monkeypatch):
         adjustment_method="fd_exact",
         corroborated=True,
         dk_main_line=22.5,
-        dk_line_kind="ou",
+        ev_line_kind="ou",
+        per_book=(
+            (
+                "FanDuel",
+                BookQuote(
+                    over_odds=-110,
+                    under_odds=-110,
+                    line_kind="ou",
+                    line_source="fd_exact",
+                ),
+            ),
+        ),
     )
 
     weighted = _consensus_sharp_quote(
@@ -157,7 +184,18 @@ def test_consensus_weights_espn_env_override(monkeypatch):
                 adjustment_method="exact",
                 corroborated=True,
                 dk_main_line=22.5,
-                dk_line_kind="ou",
+                ev_line_kind="ou",
+                per_book=(
+                    (
+                        "DraftKings",
+                        BookQuote(
+                            over_odds=-200,
+                            under_odds=170,
+                            line_kind="ou",
+                            line_source="exact",
+                        ),
+                    ),
+                ),
             ),
         ),
         (
@@ -170,7 +208,18 @@ def test_consensus_weights_espn_env_override(monkeypatch):
                 adjustment_method="fd_exact",
                 corroborated=True,
                 dk_main_line=22.5,
-                dk_line_kind="ou",
+                ev_line_kind="ou",
+                per_book=(
+                    (
+                        "FanDuel",
+                        BookQuote(
+                            over_odds=-110,
+                            under_odds=-110,
+                            line_kind="ou",
+                            line_source="fd_exact",
+                        ),
+                    ),
+                ),
             ),
         ),
         (
@@ -183,7 +232,18 @@ def test_consensus_weights_espn_env_override(monkeypatch):
                 adjustment_method="espn_exact",
                 corroborated=True,
                 dk_main_line=22.5,
-                dk_line_kind="ou",
+                ev_line_kind="ou",
+                per_book=(
+                    (
+                        "ESPN",
+                        BookQuote(
+                            over_odds=-105,
+                            under_odds=-115,
+                            line_kind="ou",
+                            line_source="espn_exact",
+                        ),
+                    ),
+                ),
             ),
         ),
     ]
@@ -217,8 +277,8 @@ def test_multi_book_consensus_when_both_exact_at_betr_line():
     assert quote is not None
     assert quote.adjustment_method == "multi_book_consensus"
     assert quote.sharp_books == ("DraftKings", "FanDuel")
-    assert quote.dk_over_odds == -130
-    assert quote.fd_over_odds == -120
+    assert quote.book_quote("DraftKings").over_odds == -130
+    assert quote.book_quote("FanDuel").over_odds == -120
 
 
 def test_fd_exact_preferred_over_dk_interpolation():
@@ -244,8 +304,8 @@ def test_fd_exact_preferred_over_dk_interpolation():
 
     assert quote is not None
     assert quote.adjustment_method == "dk_interpolated"
-    assert quote.dk_over_odds is not None
-    assert quote.fd_over_odds == -115
+    assert quote.book_quote("DraftKings") is not None
+    assert quote.book_quote("FanDuel").over_odds == -115
 
 
 def test_fd_only_exact_unlocks_ev_when_dk_missing():
@@ -295,11 +355,110 @@ def test_dk_ou_plus_fd_milestone_assembles_one_combo_quote():
 
     assert reason is None
     assert quote is not None
-    assert quote.adjustment_method == "ou_ms_combo"
-    assert quote.dk_over_odds == -114
-    assert quote.dk_under_odds == -117
-    assert quote.fd_over_odds == -165
-    assert quote.fd_under_odds is None
-    assert quote.fd_milestone_one_sided is True
+    assert quote.adjustment_method != "ou_ms_combo"
+    assert quote.adjustment_method == "exact"
+    assert quote.book_quote("DraftKings").over_odds == -114
+    assert quote.book_quote("DraftKings").under_odds == -117
+    assert quote.book_quote("FanDuel").over_odds == -165
+    assert quote.book_quote("FanDuel").under_odds is None
+    assert quote.book_quote("FanDuel").milestone_one_sided is True
     assert quote.over_odds == -114
     assert quote.under_odds == -117
+
+
+def test_fourth_sharp_book_resolves_without_per_book_guard(monkeypatch):
+    """Appending a 4th book to SHARP_BOOKS resolves via registry, not if/elif."""
+    from config import sharp_books as sharp_books_mod
+    from core.line_adjustment import resolve_book_sharp_quote
+
+    pinnacle = sharp_books_mod.SharpBookConfig(
+        "Pinnacle",
+        ev_priority=4,
+        ou_resolution="exact_only",
+        milestone_fallback=False,
+        hold_own_book_only=True,
+    )
+    monkeypatch.setattr(
+        "core.line_adjustment.SHARP_BOOK_BY_NAME",
+        {**sharp_books_mod.SHARP_BOOK_BY_NAME, pinnacle.name: pinnacle},
+    )
+
+    ladder = build_player_market_ladder(
+        [
+            {
+                "player": "Test Player",
+                "market": "points",
+                "line": 22.5,
+                "over_odds": -110,
+                "under_odds": -110,
+                "sportsbook": "Pinnacle",
+                "event_start": _EVENT_START,
+            }
+        ],
+        normalize_player_name=normalize_player_name,
+    )
+    betr = _betr("Test Player", "points", 22.5)
+    quote, reason = resolve_book_sharp_quote(
+        "Pinnacle",
+        betr,
+        ladder,
+        None,
+        normalize_player_name=normalize_player_name,
+    )
+    assert reason is None
+    assert quote is not None
+    assert quote.book_quote("Pinnacle") is not None
+
+
+def test_dfs_side_name_in_output():
+    betr = [_betr("Test Player", "points", 22.5)]
+    dk = [_dk("Test Player", "points", 22.5, -140, 120, main=False)]
+    results = find_ev_opportunities(
+        betr,
+        dk,
+        min_ev=0.0,
+        dfs_side=DFSSide("PrizePicks", -120),
+    )
+    assert results
+    assert all(row["dfs_sportsbook"] == "PrizePicks" for row in results)
+
+
+def test_book_odds_from_resolved_preserves_output_keys():
+    resolved = ResolvedSharpQuote(
+        over_odds=-130,
+        under_odds=110,
+        dk_line=22.5,
+        betr_line=22.5,
+        adjustment_method="exact",
+        corroborated=True,
+        dk_main_line=22.5,
+        ev_line_kind="ou",
+        per_book=(
+            (
+                "DraftKings",
+                BookQuote(
+                    over_odds=-130,
+                    under_odds=110,
+                    line_kind="ou",
+                    line_source="exact",
+                ),
+            ),
+            (
+                "FanDuel",
+                BookQuote(
+                    over_odds=-120,
+                    under_odds=-110,
+                    line_kind="ou",
+                    line_source="fd_exact",
+                ),
+            ),
+        ),
+        sharp_books=("DraftKings", "FanDuel"),
+    )
+    dk_over, dk_under, fd_over, fd_under, espn_over, espn_under = (
+        _book_odds_from_resolved(resolved)
+    )
+    assert dk_over == -130
+    assert fd_over == -120
+    assert espn_over is None
+    assert resolved.book_quote("DraftKings").line_kind == "ou"

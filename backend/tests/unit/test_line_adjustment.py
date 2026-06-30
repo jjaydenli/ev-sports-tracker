@@ -1,12 +1,13 @@
 from core.engine import find_ev_opportunities, normalize_player_name
+from core.ladder_index import build_milestone_ladder, build_player_market_ladder
 from core.line_adjustment import (
-    _extrapolate_fair_probs,
-    _fair_probs_from_odds,
-    build_milestone_ladder,
-    build_player_market_ladder,
+    BookQuote,
     is_ev_eligible_quote,
     resolve_sharp_quote,
+    ResolvedSharpQuote,
 )
+from core.multi_book_resolver import _assemble_multi_book_quote
+from core.resolution_math import _extrapolate_fair_probs, _fair_probs_from_odds
 
 
 def test_resolve_exact_line_on_alternate():
@@ -48,7 +49,7 @@ def test_resolve_exact_line_on_alternate():
     assert quote.adjustment_method == "dk_alt"
     assert quote.corroborated is True
     assert quote.over_odds == -105
-    assert quote.dk_line_kind == "ou"
+    assert quote.ev_line_kind == "ou"
 
 
 def test_resolve_extrapolates_when_only_main_line():
@@ -119,9 +120,9 @@ def test_resolve_milestone_exact_at_betr_line():
     assert reason is None
     assert quote is not None
     assert quote.adjustment_method == "dk_milestone_exact"
-    assert quote.dk_line_kind == "milestone"
+    assert quote.ev_line_kind == "milestone"
     assert quote.under_odds is not None  # under-admitted: fair_over < 0.5 → devigged_under populated
-    assert quote.dk_over_odds == 110
+    assert quote.book_quote("DraftKings").over_odds == 110
     assert quote.over_odds != 110
     assert quote.milestone_admitted is True  # under-admitted path: Betr under can be +EV
 
@@ -170,7 +171,7 @@ def test_ou_preferred_over_milestone_when_exact_ou_exists():
 
     assert quote is not None
     assert quote.adjustment_method == "exact"
-    assert quote.dk_line_kind == "ou"
+    assert quote.ev_line_kind == "ou"
 
 
 def test_milestone_fallback_when_ou_extrapolated():
@@ -218,7 +219,7 @@ def test_milestone_fallback_when_ou_extrapolated():
 
     assert quote is not None
     assert quote.adjustment_method == "dk_milestone_exact"
-    assert quote.dk_line_kind == "milestone"
+    assert quote.ev_line_kind == "milestone"
 
 
 def test_find_ev_opportunities_skips_extrapolated_line_mismatch():
@@ -438,3 +439,153 @@ def test_identical_odds_duplicate_keeps_matching():
     assert reason is None
     assert quote is not None
     assert quote.adjustment_method == "exact"
+
+
+def test_is_ev_eligible_ou_ev_with_espn_milestone_display_only():
+    """DK O/U EV must not be blocked by ESPN milestone in per_book (display-only)."""
+    quote = ResolvedSharpQuote(
+        over_odds=-114,
+        under_odds=-117,
+        dk_line=0.5,
+        betr_line=0.5,
+        adjustment_method="exact",
+        corroborated=True,
+        dk_main_line=0.5,
+        ev_line_kind="ou",
+        per_book=(
+            (
+                "DraftKings",
+                BookQuote(
+                    over_odds=-114,
+                    under_odds=-117,
+                    line_kind="ou",
+                    line_source="exact",
+                ),
+            ),
+            (
+                "ESPN",
+                BookQuote(
+                    over_odds=-200,
+                    under_odds=None,
+                    line_kind="milestone",
+                    line_source="dk_milestone_exact",
+                    milestone_one_sided=True,
+                ),
+            ),
+        ),
+    )
+    assert is_ev_eligible_quote(quote)
+
+
+def test_ou_ms_combo_eliminated_dk_ou_fd_milestone_still_eligible():
+    dk_quote = ResolvedSharpQuote(
+        over_odds=-114,
+        under_odds=-117,
+        dk_line=0.5,
+        betr_line=0.5,
+        adjustment_method="exact",
+        corroborated=True,
+        dk_main_line=0.5,
+        ev_line_kind="ou",
+        per_book=(
+            (
+                "DraftKings",
+                BookQuote(
+                    over_odds=-114,
+                    under_odds=-117,
+                    line_kind="ou",
+                    line_source="exact",
+                ),
+            ),
+        ),
+        sharp_books=("DraftKings",),
+    )
+    fd_quote = ResolvedSharpQuote(
+        over_odds=-165,
+        under_odds=None,
+        dk_line=0.5,
+        betr_line=0.5,
+        adjustment_method="dk_milestone_exact",
+        corroborated=False,
+        dk_main_line=0.5,
+        ev_line_kind="milestone",
+        per_book=(
+            (
+                "FanDuel",
+                BookQuote(
+                    over_odds=-165,
+                    under_odds=None,
+                    line_kind="milestone",
+                    line_source="dk_milestone_exact",
+                    milestone_one_sided=True,
+                ),
+            ),
+        ),
+        sharp_books=("FanDuel",),
+        milestone_admitted=True,
+    )
+    assembled = _assemble_multi_book_quote(
+        betr_line=0.5,
+        book_quotes={"DraftKings": dk_quote, "FanDuel": fd_quote, "ESPN": None},
+    )
+    assert assembled is not None
+    assert assembled.adjustment_method != "ou_ms_combo"
+    assert assembled.ev_line_kind == "ou"
+    assert is_ev_eligible_quote(assembled)
+
+
+def test_per_book_populated_on_multi_book_assembly():
+    dk_quote = ResolvedSharpQuote(
+        over_odds=-130,
+        under_odds=110,
+        dk_line=22.5,
+        betr_line=22.5,
+        adjustment_method="exact",
+        corroborated=True,
+        dk_main_line=22.5,
+        ev_line_kind="ou",
+        per_book=(
+            (
+                "DraftKings",
+                BookQuote(
+                    over_odds=-130,
+                    under_odds=110,
+                    line_kind="ou",
+                    line_source="exact",
+                ),
+            ),
+        ),
+        sharp_books=("DraftKings",),
+    )
+    fd_quote = ResolvedSharpQuote(
+        over_odds=-120,
+        under_odds=-110,
+        dk_line=22.5,
+        betr_line=22.5,
+        adjustment_method="fd_exact",
+        corroborated=True,
+        dk_main_line=22.5,
+        ev_line_kind="ou",
+        per_book=(
+            (
+                "FanDuel",
+                BookQuote(
+                    over_odds=-120,
+                    under_odds=-110,
+                    line_kind="ou",
+                    line_source="fd_exact",
+                ),
+            ),
+        ),
+        sharp_books=("FanDuel",),
+    )
+    assembled = _assemble_multi_book_quote(
+        betr_line=22.5,
+        book_quotes={"DraftKings": dk_quote, "FanDuel": fd_quote, "ESPN": None},
+    )
+    assert assembled is not None
+    dk_bq = assembled.book_quote("DraftKings")
+    fd_bq = assembled.book_quote("FanDuel")
+    assert dk_bq is not None and dk_bq.over_odds == -130 and dk_bq.line_kind == "ou"
+    assert fd_bq is not None and fd_bq.over_odds == -120 and fd_bq.line_source == "fd_exact"
+    assert assembled.book_quote("ESPN") is None

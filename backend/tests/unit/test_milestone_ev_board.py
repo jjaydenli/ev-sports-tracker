@@ -6,16 +6,17 @@ import pytest
 from config.settings import MILESTONE_ASSUMED_HOLD, MILESTONE_MIN_FAIR_OVER
 from core.engine import find_ev_opportunities, normalize_player_name
 from core.ev_display import format_ev_opportunity_row
-from core.line_adjustment import (
+from core.ladder_index import (
     build_milestone_ladder,
     build_milestone_ladders,
     build_player_market_ladder,
-    devig_milestone_fair_over,
-    estimate_ou_hold,
-    is_ev_eligible_quote,
     merge_milestone_ladders,
+)
+from core.line_adjustment import (
+    is_ev_eligible_quote,
     resolve_sharp_quote,
 )
+from core.resolution_math import devig_milestone_fair_over, estimate_ou_hold
 from parsers.fd_parser import parse_fd_props
 from scrapers.sportsbooks.fd_api import flatten_event_page_response
 from utils.math_utils import american_to_implied, implied_to_american
@@ -160,7 +161,7 @@ def test_milestone_admitted_gate_boundary():
 
 
 def test_is_ev_eligible_milestone_exact_admitted():
-    from core.line_adjustment import ResolvedSharpQuote
+    from core.line_adjustment import BookQuote, ResolvedSharpQuote
 
     admitted = ResolvedSharpQuote(
         over_odds=-200,
@@ -170,7 +171,7 @@ def test_is_ev_eligible_milestone_exact_admitted():
         adjustment_method="dk_milestone_exact",
         corroborated=False,
         dk_main_line=0.5,
-        dk_line_kind="milestone",
+        ev_line_kind="milestone",
         milestone_admitted=True,
         milestone_devig_method="hold_shrink",
     )
@@ -184,7 +185,7 @@ def test_is_ev_eligible_milestone_exact_admitted():
         adjustment_method="dk_milestone_exact",
         corroborated=False,
         dk_main_line=0.5,
-        dk_line_kind="milestone",
+        ev_line_kind="milestone",
         milestone_admitted=False,
     )
     assert not is_ev_eligible_quote(rejected)
@@ -197,7 +198,7 @@ def test_is_ev_eligible_milestone_exact_admitted():
         adjustment_method="dk_milestone_interpolated",
         corroborated=False,
         dk_main_line=0.5,
-        dk_line_kind="milestone",
+        ev_line_kind="milestone",
         milestone_admitted=True,
     )
     assert not is_ev_eligible_quote(interpolated)
@@ -233,7 +234,7 @@ def test_ou_preferred_over_milestone_precedence(milestone_fixture):
     )
     assert quote is not None
     assert quote.adjustment_method == "exact"
-    assert quote.dk_line_kind == "ou"
+    assert quote.ev_line_kind == "ou"
 
 
 def test_find_ev_opportunities_admits_sharp_milestone(milestone_fixture):
@@ -435,7 +436,7 @@ def test_fd_ou_preferred_over_fd_milestone():
     )
     assert quote is not None
     assert quote.adjustment_method == "exact"
-    assert quote.dk_line_kind == "ou"
+    assert quote.ev_line_kind == "ou"
 
 
 def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
@@ -483,7 +484,7 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
     over_rows = [row for row in results if row["side"] == "over"]
     assert len(over_rows) == 1
     row = over_rows[0]
-    assert row["line_source"] == "ou_ms_combo"
+    assert row["line_source"] == "exact"
     assert row["dk_over_odds"] == -130
     assert row["dk_under_odds"] == -110
     assert row["fd_over_odds"] == -220
@@ -492,8 +493,8 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
     assert row["not_true_devig"] is False
     assert row["sharp_books"] == ["DraftKings", "FanDuel"]
     line = format_ev_opportunity_row(row)
-    assert "ou+ms🔶" in line
     assert "-220/🔶" in line
+    assert "exact" in line
 
 
 def test_dk_milestone_wins_when_fd_collides_at_same_line():
@@ -537,8 +538,8 @@ def test_dk_milestone_wins_when_fd_collides_at_same_line():
     )
     assert quote is not None
     assert quote.sharp_books == ("DraftKings",)
-    assert quote.dk_over_odds == -114
-    assert quote.fd_over_odds is None
+    assert quote.book_quote("DraftKings").over_odds == -114
+    assert quote.book_quote("FanDuel") is None
 
 
 def test_junior_perez_dk_milestone_used_when_ou_only_at_15():
@@ -598,5 +599,5 @@ def test_junior_perez_dk_milestone_used_when_ou_only_at_15():
     assert quote is not None
     assert quote.adjustment_method == "dk_milestone_exact"
     assert quote.sharp_books == ("DraftKings",)
-    assert quote.dk_over_odds == -114
-    assert quote.fd_over_odds is None
+    assert quote.book_quote("DraftKings").over_odds == -114
+    assert quote.book_quote("FanDuel") is None

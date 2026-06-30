@@ -61,7 +61,7 @@ market:    { id, name:"<Player> Total <Stat>", type:"TOTAL", selections:[…] }
 selection: { type:"OVER"/"UNDER", odds.formattedOdds:"-155", points.decimalPoints:4.5 }
 ```
 
-American odds = `selection.odds.formattedOdds`; line = `selection.points.decimalPoints` (**nested**,
+American odds = `selection.odds.formattedOdds` (parsed by `_parse_odds` in `espn_api.py`); `"Even"` (case-insensitive) → `+100` — without this, even-money sides fail `int()` and the O/U row is dropped. Line = `selection.points.decimalPoints` (**nested**,
 not a scalar); over/under = `selection.type`. Player name from `market.name` (`"<Player> Total …"`).
 Traversal helpers: [`config/espn_competitions.py`](../../backend/config/espn_competitions.py);
 group-id → canonical: [`config/espn_markets.py`](../../backend/config/espn_markets.py).

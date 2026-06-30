@@ -221,12 +221,15 @@ async def fetch_drawer_content(
 
 
 def _parse_odds(selection: dict[str, Any]) -> int | None:
-    """Parse ``selection.odds.formattedOdds`` ("-155"/"+110") into an American int."""
+    """Parse ``selection.odds.formattedOdds`` ("-155"/"+110"/"Even") into an American int."""
     formatted = ((selection.get("odds") or {}).get("formattedOdds")) or ""
     if not formatted:
         return None
+    normalized = str(formatted).strip()
+    if normalized.lower() == "even":
+        return 100
     try:
-        return int(normalize_odds_string(str(formatted)))
+        return int(normalize_odds_string(normalized))
     except ValueError:
         return None
 

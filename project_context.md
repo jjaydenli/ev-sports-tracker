@@ -46,7 +46,7 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 
 - **Role:** Third sharp book (`espn`). GraphQL persisted queries + anonymous JWE auth.
 - **Code:** `espn_api.py`, `espn_auth.py`, `espn_engine.py`, `espn_parser.py`, `config/espn_*.py`
-- **MLB:** Pregame + live (`IN_PLAY`) O/U + batter milestone `N+` boards; OPEN-only status guard.
+- **MLB:** Pregame + live O/U + batter milestones; OPEN-only guard; `_parse_odds` maps `"Even"` → `+100`.
 - **Detail:** [docs/betting_odds/espn.md](docs/betting_odds/espn.md)
 
 ### Dabble (archived)

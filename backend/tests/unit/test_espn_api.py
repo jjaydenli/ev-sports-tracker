@@ -12,6 +12,7 @@ from config.espn_competitions import (
 )
 from scrapers.sportsbooks.espn_api import (
     ESPNGraphQLClient,
+    _parse_odds,
     count_espn_line_rows,
     flatten_drawer_content,
     flatten_milestone_drawer_content,
@@ -35,6 +36,60 @@ FINAL_EVENT_ID = "ffffffff-0000-1111-2222-333333333333"
 
 def _load(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def test_parse_odds_even_maps_to_plus_100():
+    assert _parse_odds({"odds": {"formattedOdds": "Even"}}) == 100
+    assert _parse_odds({"odds": {"formattedOdds": "even"}}) == 100
+
+
+def test_flatten_ou_with_even_odds():
+    payload = {
+        "data": {
+            "eventDrawer": {
+                "id": "Drawer:1:Hits(O/U):Event:" + EVENT_ID,
+                "drawerChildren": [
+                    {
+                        "marketplaceShelfChildren": [
+                            {
+                                "participant": {"mediumName": "Austin Wells"},
+                                "markets": [
+                                    {
+                                        "name": "Austin Wells Total Hits",
+                                        "status": "OPEN",
+                                        "type": "TOTAL",
+                                        "selections": [
+                                            {
+                                                "type": "OVER",
+                                                "status": "OPEN",
+                                                "odds": {"formattedOdds": "Even"},
+                                                "points": {"decimalPoints": 0.5},
+                                            },
+                                            {
+                                                "type": "UNDER",
+                                                "status": "OPEN",
+                                                "odds": {"formattedOdds": "-130"},
+                                                "points": {"decimalPoints": 0.5},
+                                            },
+                                        ],
+                                    }
+                                ],
+                            }
+                        ]
+                    }
+                ],
+            }
+        }
+    }
+    props = flatten_drawer_content(payload, event_id=EVENT_ID, league="mlb")
+    assert len(props) == 1
+    wells = props[0]
+    assert wells["player"] == "Austin Wells"
+    assert wells["market"] == "hits"
+    line = wells["lines"][0]
+    assert line["line"] == 0.5
+    assert line["over_odds"] == 100
+    assert line["under_odds"] == -130
 
 
 def test_flatten_pitcher_strikeouts_ou():

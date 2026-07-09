@@ -91,16 +91,20 @@ done
 NOTIFIED_FILE=$(mktemp)
 TOAST_FILE=$(mktemp)
 EV_LOG=$(mktemp)
-trap 'rm -f "$NOTIFIED_FILE" "$TOAST_FILE" "$EV_LOG"' EXIT
+trap 'rm -f "$NOTIFIED_FILE" "$TOAST_FILE" "$TOAST_FILE.keys" "$EV_LOG"' EXIT
 export NOTIFIED_FILE TOAST_FILE
 
 # --- OS-agnostic notification backend ---------------------------------------
 # Detected once. WSL is Linux + a Microsoft kernel, so it must be checked before
-# the generic-Linux branch.
+# the generic-Linux branch. On macOS prefer terminal-notifier (own NC identity);
+# plain osascript is attributed to Script Editor and silently drops on Sequoia
+# when that app lacks Notifications permission (exit 0, no banner).
 POWERSHELL="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
+MACOS_NOTIFY_HINT_SHOWN=0
 detect_notify_backend() {
   case "$(uname -s)" in
     Darwin)
+      command -v terminal-notifier >/dev/null 2>&1 && { echo terminal-notifier; return; }
       command -v osascript >/dev/null 2>&1 && { echo macos; return; }
       ;;
     Linux)
@@ -128,25 +132,82 @@ notify_wsl() {  # title, body
 \$appid = '{1AC14E77-02E7-4E5D-B744-2EB1AE5198B7}\WindowsPowerShell\v1.0\powershell.exe'
 [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier(\$appid).Show(\$toast)
 PS1EOF
-  "$POWERSHELL" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$(wslpath -w "$ps1file")" \
-    || printf 'loop: toast failed (powershell)\n' >&2
+  if ! "$POWERSHELL" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "$(wslpath -w "$ps1file")"; then
+    printf 'loop: toast failed (powershell)\n' >&2
+    rm -f "$ps1file"
+    return 1
+  fi
   rm -f "$ps1file"
+  return 0
 }
 
-notify() {  # title, body — dispatch to the detected backend
+# macOS osascript often exits 0 while NC rejects the connection — treat that as fail.
+_macos_osascript_failed() {
+  local err_file="$1" rc="$2"
+  [[ $rc -ne 0 ]] && return 0
+  grep -qiE 'notification center invalid|Connection invalid|ServerConnectionFailure' "$err_file" 2>/dev/null
+}
+
+_macos_notify_hint() {
+  [[ $MACOS_NOTIFY_HINT_SHOWN -eq 1 ]] && return
+  MACOS_NOTIFY_HINT_SHOWN=1
+  printf 'loop: macOS toast failed — brew install terminal-notifier, or allow Script Editor in System Settings → Notifications\n' >&2
+}
+
+notify_macos_terminal_notifier() {  # title, body
+  local title="$1" body="$2" err
+  err=$(mktemp)
+  if ! terminal-notifier -title "$title" -message "$body" -sound Glass 2>"$err"; then
+    printf 'loop: toast failed (terminal-notifier)\n' >&2
+    cat "$err" >&2 || true
+    rm -f "$err"
+    return 1
+  fi
+  rm -f "$err"
+  return 0
+}
+
+notify_macos_osascript() {  # title, body
+  local title="$1" body="$2" err rc
+  err=$(mktemp)
+  # argv form avoids shell-quoting bugs; sound makes a silent drop more obvious.
+  osascript \
+    -e 'on run argv' \
+    -e 'display notification (item 2 of argv) with title (item 1 of argv) sound name "Glass"' \
+    -e 'end run' \
+    -- "$title" "$body" 2>"$err"
+  rc=$?
+  if _macos_osascript_failed "$err" "$rc"; then
+    _macos_notify_hint
+    rm -f "$err"
+    return 1
+  fi
+  rm -f "$err"
+  return 0
+}
+
+notify() {  # title, body — dispatch; 0 on success, 1 on failure
   local title="$1" body="$2"
   case "$NOTIFY_BACKEND" in
-    wsl)   notify_wsl "$title" "$body" ;;
-    macos) osascript -e "display notification \"${body//\"/\\\"}\" with title \"${title//\"/\\\"}\"" \
-             || printf 'loop: toast failed (osascript)\n' >&2 ;;
-    linux) notify-send "$title" "$body" || printf 'loop: toast failed (notify-send)\n' >&2 ;;
-    none)  : ;;  # no backend available on this host; table output still prints
+    wsl)               notify_wsl "$title" "$body" ;;
+    terminal-notifier) notify_macos_terminal_notifier "$title" "$body" ;;
+    macos)             notify_macos_osascript "$title" "$body" ;;
+    linux)
+      if notify-send "$title" "$body"; then
+        return 0
+      fi
+      printf 'loop: toast failed (notify-send)\n' >&2
+      return 1
+      ;;
+    none) return 0 ;;  # table-only; nothing to deliver — still mark keys seen
   esac
 }
 # ----------------------------------------------------------------------------
 
 if [[ "$NOTIFY_BACKEND" == none ]]; then
   printf 'loop: no desktop-notification backend found; running table-only.\n' >&2
+elif [[ "$NOTIFY_BACKEND" == macos ]]; then
+  printf 'loop: macOS toast via osascript (Script Editor). Prefer: brew install terminal-notifier\n' >&2
 fi
 
 START=$(date +%s)
@@ -219,29 +280,53 @@ new_props = [(prop_key(p), p) for p in props if prop_key(p) not in seen]
 if not new_props:
     sys.exit(0)
 
-with open(notified_path, 'a') as f:
-    for key, _ in new_props:
-        f.write(key + '\n')
+def format_line(line):
+    if line is None:
+        return ""
+    try:
+        f = float(line)
+        return str(int(f)) if f == int(f) else str(line)
+    except (TypeError, ValueError):
+        return str(line)
+
+def format_market(market):
+    return str(market or "").replace("_", " ").strip()
+
+def format_toast_body(p):
+    # "[name] [o/u] [line] [prop type]" e.g. "Shohei Ohtani over 0.5 home runs"
+    player = str(p.get("player") or "").strip()
+    side = str(p.get("side") or "").strip().lower()
+    line = format_line(p.get("line"))
+    market = format_market(p.get("market"))
+    return " ".join(part for part in (player, side, line, market) if part)
 
 n = len(new_props)
 _, first = new_props[0]
-ev_pct = first.get('ev_pct') or 0.0
-body = (
-    f"{first.get('player','')} {first.get('market','')} "
-    f"{first.get('line','')} {first.get('side','')} +{ev_pct:.1f}%"
-)
+body = format_toast_body(first)
 if n > 1:
     body += f" (+{n-1} more)"
 
+# Keys are written only after a successful toast (see bash below) so a silent
+# macOS drop can retry on the next iteration.
 with open(toast_path, 'w') as f:
     f.write(f"EV alert ({n} new, {len(props)} total)\n{body}\n")
+    for key, _ in new_props:
+        f.write(key + "\n")
 PYEOF
 
   if [[ -s "$TOAST_FILE" ]]; then
-    # Portable two-line read (avoids `mapfile`, absent from macOS's bash 3.2).
+    # Portable read (avoids `mapfile`, absent from macOS's bash 3.2).
+    # Line 1 = title, line 2 = body, remaining lines = prop keys to mark notified.
     TOAST_TITLE=""; TOAST_BODY=""
-    { IFS= read -r TOAST_TITLE; IFS= read -r TOAST_BODY; } < "$TOAST_FILE" || true
-    notify "${TOAST_TITLE:-EV alert}" "${TOAST_BODY:-}"
+    {
+      IFS= read -r TOAST_TITLE
+      IFS= read -r TOAST_BODY
+      cat > "${TOAST_FILE}.keys"
+    } < "$TOAST_FILE" || true
+    if notify "${TOAST_TITLE:-EV alert}" "${TOAST_BODY:-}"; then
+      cat "${TOAST_FILE}.keys" >> "$NOTIFIED_FILE"
+    fi
+    rm -f "${TOAST_FILE}.keys"
   fi
 
   # Pace the loop so an instant ./ev return can't busy-spin (see MIN_INTERVAL).

@@ -46,8 +46,9 @@ time a prop crosses the `--min-ev` threshold within that run.
    (`player|market|line|side|league`) tracks what has already been notified; a toast fires only for
    keys not seen earlier in the run. State is held in a temp file reset on each invocation.
 
-7. **Toast content.** Title `EV alert (N new, M total)`; body is the top new prop
-   (`<player> <market> <line> <side> +<ev_pct>%`), with `(+K more)` appended when several are new.
+7. **Toast content.** Title `EV alert (N new, M total)`; body is the top new prop as
+   `<player> <side> <line> <market>` with underscores in `market` turned into spaces
+   (e.g. `Shohei Ohtani over 0.5 home runs`), with `(+K more)` appended when several are new.
 
 8. **OS-agnostic notification backend.** The delivery backend is detected once at startup and the
    rest of the loop is platform-independent:
@@ -55,19 +56,27 @@ time a prop crosses the `--min-ev` threshold within that run.
      (`ToastText02` template) under a registered AppId, so it reliably surfaces with no module
      install. WSL is Linux with a Microsoft kernel, so it is detected before the generic-Linux
      branch.
-   - **macOS** — `osascript` `display notification` (built in).
+   - **macOS** — prefer `terminal-notifier` when on `PATH` (own Notification Center identity;
+     `brew install terminal-notifier`). Fall back to `osascript` `display notification` via
+     `on run argv` + Glass sound. Sequoia often drops bare `osascript` toasts (exit 0) when
+     Script Editor lacks Notifications permission; stderr matching `notification center invalid`
+     is treated as failure, with a one-time install/permission hint.
    - **native Linux** — `notify-send` (libnotify) when present.
    - **none found** — the loop still prints the table and warns once.
 
-   The script targets bash 3.2 for macOS compatibility (no `mapfile`; portable two-line read for
-   toast content).
+   Prop keys are appended to the per-run notified set only after a successful toast (or when
+   there is no backend), so a silent macOS drop can retry on the next iteration.
+
+   The script targets bash 3.2 for macOS compatibility (no `mapfile`; portable read for toast
+   title/body/keys).
 
 ## Non-goals
 
 - No changes to the pipeline runner, EV pipeline, display formatter, or any scraper/parser/engine.
-- No sound / persistent / actionable toasts.
+- No persistent / actionable toasts (macOS path may play Glass via terminal-notifier / osascript).
 - Not scheduled or daemonized — a foreground command the user starts manually.
 - No reconciliation of `>=` vs `>` beyond reusing the pipeline's existing `--min-ev` semantics.
+- Bundling `terminal-notifier` — optional host install only.
 
 ## Files / modules
 
@@ -88,3 +97,5 @@ time a prop crosses the `--min-ev` threshold within that run.
 - Against a live slate: clean tables with no log noise; new-prop rows highlighted; re-appearing
   props are not re-notified within the same run; exits at the wall-clock cap.
 - A qualifying prop fires exactly one desktop toast on the host's detected backend.
+- On macOS without `terminal-notifier`, a silent `osascript` NC failure does not mark the prop
+  notified (retries next iteration) and prints the one-time hint once.

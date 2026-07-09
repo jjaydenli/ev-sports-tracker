@@ -77,6 +77,7 @@ ev-sports-tracker/
 ├── docs/design/                        # architecture decision records
 ├── .github/workflows/ci.yml
 ├── ev                                    # → backend pipeline_runner
+├── loop                                  # timed ./ev loop + desktop toast (WSL/macOS/Linux) on new --min-ev matches
 └── backend/
     ├── config/                         # headers, market_maps, sharp_books, team_abbrev, settings, *_{subcategories,markets,competitions,queries}, pipeline_sources
     ├── scripts/                        # probe_dk_*, probe_fd_*, probe_espn_*

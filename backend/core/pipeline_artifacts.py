@@ -2,15 +2,21 @@
 
 from __future__ import annotations
 
+import fcntl
 import json
+import os
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
+
+from loguru import logger
 
 from config.pipeline_sources import BOOK_SOURCES, DFS_SOURCES, PIPELINE_LEAGUES
 from core.ev_run_diff import EV_DIFF_FILENAME, EV_PREVIOUS_FILENAME
 
 SCRAPE_COVERAGE_FILENAME = "scrape_coverage.json"
+PIPELINE_RUN_LOCK_FILENAME = ".pipeline_run.lock"
 
 EV_OUTPUT_FILENAME = "ev_opportunities.json"
 MATCH_REPORT_FILENAME = "match_report.json"
@@ -21,8 +27,6 @@ DK_NORMALIZED = "dk_normalized.json"
 FD_NORMALIZED = "fd_normalized.json"
 ESPN_NORMALIZED = "espn_normalized.json"
 UNIFIED_OUTPUT_FILENAME = "unified_master_board.json"
-
-SCRAPE_COVERAGE_FILENAME = "scrape_coverage.json"
 
 MASTER_BOARD_BY_SOURCE: dict[str, str] = {
     "betr": "betr_master_board.json",
@@ -98,15 +102,48 @@ def save_wrapped_board(
     run_id: str,
     props: list[dict],
 ) -> None:
-    """Write master or normalized board with run metadata."""
+    """Write master or normalized board with run metadata (atomic replace)."""
+    path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "run_id": run_id,
         "generated_at": utc_now_iso(),
         "props": props,
     }
-    with path.open("w", encoding="utf-8") as file:
-        json.dump(payload, file, indent=4)
+    tmp_path = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+    try:
+        with tmp_path.open("w", encoding="utf-8") as file:
+            json.dump(payload, file, indent=4)
+            file.flush()
+            os.fsync(file.fileno())
+        os.replace(tmp_path, path)
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+
+
+@contextmanager
+def pipeline_run_lock(data_dir: Path) -> Iterator[None]:
+    """Exclusive lock so only one ``./ev`` mutates ``data/processed`` at a time.
+
+    Overlapping writers race wipe/persist/load and raise ``run_id`` mismatches.
+    Callers block until the prior run releases the lock.
+    """
+    data_dir = Path(data_dir)
+    data_dir.mkdir(parents=True, exist_ok=True)
+    lock_path = data_dir / PIPELINE_RUN_LOCK_FILENAME
+    with lock_path.open("a+", encoding="utf-8") as lock_file:
+        try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            logger.warning(
+                "another ./ev holds the processed-dir lock; waiting..."
+            )
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
 def load_wrapped_board(path: Path) -> tuple[str | None, list[dict]]:

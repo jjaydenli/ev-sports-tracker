@@ -8,6 +8,7 @@ import os
 import time
 import uuid
 import warnings
+from contextlib import ExitStack
 from pathlib import Path
 
 from loguru import logger
@@ -31,6 +32,7 @@ from core.pipeline_artifacts import (
     all_pipeline_artifacts,
     artifacts_for_sources,
     load_wrapped_board,
+    pipeline_run_lock,
     write_scrape_coverage,
     wipe_files,
 )
@@ -270,6 +272,8 @@ def run_refresh(
     full_run = _is_full_run(dfs_sources, book_sources, league_list)
     mode = "skip_scrape" if skip_scrape else ("scrape_only" if scrape_only else "full")
 
+    lock_stack = ExitStack()
+    lock_stack.enter_context(pipeline_run_lock(data_path))
     try:
         if skip_scrape:
             logger.info("skipping scrape — normalizing from master boards on disk")
@@ -442,6 +446,7 @@ def run_refresh(
         return 0
     finally:
         timer.log_summary()
+        lock_stack.close()
 
 
 def build_parser() -> argparse.ArgumentParser:

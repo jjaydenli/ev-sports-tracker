@@ -398,3 +398,42 @@ def test_run_refresh_continues_when_one_league_empty(mock_preflight, mock_scrape
     assert code == 0
     _, betr = load_wrapped_board(tmp_path / BETR_NORMALIZED)
     assert len(betr) == 2
+
+
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
+@patch("core.pipeline_runner._preflight_betr_auth")
+def test_run_refresh_serializes_overlapping_writers(mock_preflight, mock_scrape, tmp_path):
+    """Two concurrent run_refresh calls must not race wipe/persist/load."""
+    import threading
+
+    async def fake_scrape(source: str, league: str) -> ScrapeResult:
+        if source in {"betr", "dk"} and league == "MLB":
+            return _ok_result(source, league, 2)
+        return _no_events(source, league)
+
+    mock_scrape.side_effect = fake_scrape
+
+    from core.pipeline_runner import run_refresh
+
+    results: dict[str, object] = {}
+
+    def _run(label: str) -> None:
+        try:
+            results[label] = run_refresh(
+                data_dir=tmp_path, books=("dk",), leagues=("MLB",)
+            )
+        except Exception as exc:  # noqa: BLE001 — capture for assertion
+            results[label] = exc
+
+    t1 = threading.Thread(target=_run, args=("a",))
+    t2 = threading.Thread(target=_run, args=("b",))
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+
+    assert results["a"] == 0
+    assert results["b"] == 0
+    run_id, betr = load_wrapped_board(tmp_path / BETR_NORMALIZED)
+    assert run_id
+    assert betr

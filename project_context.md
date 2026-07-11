@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-06-30
+**Last verified:** 2026-07-11
 
 ## 1. Project Overview
 
@@ -90,13 +90,13 @@ ev-sports-tracker/
     │   ├── models.py, engine.py, line_adjustment.py, ladder_index.py, resolution_math.py, multi_book_resolver.py, flat_line.py
     │   ├── ev_pipeline.py, ev_display.py, ev_run_diff.py
     │   ├── pipeline_scrape.py, pipeline_artifacts.py, scrape_result.py
-    │   ├── pipeline_timing.py, pipeline_runner.py
+    │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
-    ├── data/raw|processed/             # gitignored
-    └── tests/                          # fixtures, integration, unit; 552 tests
+    ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
+    └── tests/                          # fixtures, integration, unit; 553 tests
 ```
 
-**EV data flow:** `./ev` → league loop × sources (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, `ev_run_diff.json`, `scrape_coverage.json`) → per-Betr match-context filter → per-book sharp resolve → multi-book consensus → ranked output.
+**EV data flow:** `./ev` (exclusive lock on `data/processed`) → league loop × sources (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, `ev_run_diff.json`, `scrape_coverage.json`) → per-Betr match-context filter → per-book sharp resolve → multi-book consensus → ranked output.
 
 ## 6. Roadmap
 

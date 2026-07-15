@@ -245,7 +245,7 @@ def test_find_ev_opportunities_skips_extrapolated_line_mismatch():
         }
     ]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
 
     assert results == []
 
@@ -294,8 +294,7 @@ def test_fox_points_extrapolated_resolves_but_not_ev_eligible():
         },
     ]
     assert find_ev_opportunities(
-        [{"sportsbook": "Betr", **betr}], dk_rows, min_ev=0.0
-    ) == []
+        [{"sportsbook": "Betr", **betr}], dk_rows    ) == []
 
 
 def test_extrapolate_lower_line_increases_fair_over():
@@ -338,7 +337,7 @@ def test_find_ev_opportunities_skips_non_admitted_milestone_quote():
         }
     ]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
 
     assert results == []
 

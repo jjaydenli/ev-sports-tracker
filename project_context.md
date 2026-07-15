@@ -67,7 +67,7 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 - **De-vig (O/U):** American odds → implied probs; multiplicative removal in `utils/math_utils.py`.
 - **De-vig (milestone):** `devig_milestone_fair_over` in `core/resolution_math.py` (ladder-normalize else hold-shrink; `MILESTONE_MIN_FAIR_OVER` gate).
 - **o0.5 equivalence:** `_filter_sharp_props_by_match_context` may borrow `hits`↔`total_bases` at line 0.5 per book (`O05_EQUIVALENT_MARKETS`).
-- **EV resolution:** `config/sharp_books.py` registry drives `resolve_book_sharp_quote` in `core/line_adjustment.py`; multi-book assembly in `core/multi_book_resolver.py`. Ladder indexing in `core/ladder_index.py`. `ResolvedSharpQuote` stores `ev_line_kind` + `per_book` (`BookQuote` per book); output JSON flat keys derived via `book_quote()`. Multi-book consensus when 2+ exact O/U (`SHARP_BOOK_WEIGHTS_*`). `DFSSide` / `BETR` in `engine.py` for DFS-side config. One EV row per Betr side. `filter_min_ev` / `--plus-ev-only` / `--min-ev`.
+- **EV resolution:** `config/sharp_books.py` registry drives `resolve_book_sharp_quote` in `core/line_adjustment.py`; multi-book assembly in `core/multi_book_resolver.py`. Ladder indexing in `core/ladder_index.py`. `ResolvedSharpQuote` stores `ev_line_kind` + `per_book` (`BookQuote` per book); output JSON flat keys derived via `book_quote()`. Multi-book consensus when 2+ exact O/U (`SHARP_BOOK_WEIGHTS_*`). `DFSSide` / `BETR` in `engine.py` for DFS-side config. One EV row per Betr side. `plus_ev` when `ev > 0`; optional `--min-ev` filters output (`ev >=` threshold, default none).
 
 ## 5. Architecture & File Structure
 

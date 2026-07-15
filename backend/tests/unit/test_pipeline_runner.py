@@ -121,6 +121,14 @@ def _basketball_league(league: str) -> bool:
     return league in {"NBA", "WNBA"}
 
 
+def test_build_parser_min_ev_default_and_values():
+    parser = build_parser()
+    assert parser.parse_args([]).min_ev is None
+    assert parser.parse_args(["--min-ev", "-0.05"]).min_ev == -0.05
+    assert parser.parse_args(["--min-ev", "0"]).min_ev == 0.0
+    assert parser.parse_args(["--min-ev", "0.02"]).min_ev == 0.02
+
+
 def test_build_parser_has_shorthand_flag_per_pipeline_league():
     parser = build_parser()
     for league in PIPELINE_LEAGUES:

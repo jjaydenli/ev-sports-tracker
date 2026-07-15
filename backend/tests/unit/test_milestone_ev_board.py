@@ -264,7 +264,7 @@ def test_find_ev_opportunities_admits_sharp_milestone(milestone_fixture):
         }
         for row in milestone_fixture["milestone_ladder"]
     ]
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
     over_rows = [row for row in results if row["side"] == "over"]
     assert over_rows
     row = over_rows[0]
@@ -297,7 +297,7 @@ def test_find_ev_opportunities_skips_non_admitted_milestone():
             "over_odds": 110,
         }
     ]
-    assert find_ev_opportunities(betr, dk, min_ev=0.0) == []
+    assert find_ev_opportunities(betr, dk) == []
 
 
 def test_non_dk_milestone_sets_sharp_books():
@@ -380,7 +380,7 @@ def test_fd_milestone_admitted_on_ev_board():
             "event_start": event_start,
         }
     ]
-    results = find_ev_opportunities(betr, [], fanduel_props=fd_props, min_ev=0.0)
+    results = find_ev_opportunities(betr, [], fanduel_props=fd_props)
     over_rows = [row for row in results if row["side"] == "over"]
     assert over_rows
     row = over_rows[0]
@@ -480,7 +480,7 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
             "event_start": event_start,
         }
     ]
-    results = find_ev_opportunities(betr, dk, fanduel_props=fd, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk, fanduel_props=fd)
     over_rows = [row for row in results if row["side"] == "over"]
     assert len(over_rows) == 1
     row = over_rows[0]

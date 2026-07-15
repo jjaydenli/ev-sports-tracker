@@ -257,11 +257,10 @@ def persist_match_diagnostics(
 def run_ev_scan(
     data_dir: str | Path = "data/processed",
     *,
-    min_ev: float = 0.0,
+    min_ev: float | None = None,
     top_n: int = 15,
     normalize_first: bool = True,
     include_flat_lines: bool = False,
-    filter_min_ev: bool = False,
     expected_run_id: str | None = None,
     active_sources: tuple[str, ...] | None = None,
     previous_run_id: str | None = None,
@@ -300,7 +299,6 @@ def run_ev_scan(
         min_ev=min_ev,
         top_n=top_n,
         include_flat_lines=include_flat_lines,
-        filter_min_ev=filter_min_ev,
     )
     plus_ev_count = sum(1 for row in opportunities if row.get("plus_ev"))
 

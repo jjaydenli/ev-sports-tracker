@@ -84,7 +84,7 @@ def test_find_ev_opportunities_includes_league_from_dfs_prop():
     dk = [_dk_prop("Aaron Judge", "hits", 1.5, -115, -110)]
     dk[0]["league"] = "MLB"
 
-    results = find_ev_opportunities([betr], dk, min_ev=0.0)
+    results = find_ev_opportunities([betr], dk)
 
     assert results
     assert all(row["league"] == "MLB" for row in results)
@@ -94,7 +94,7 @@ def test_find_ev_opportunities_finds_positive_ev_over():
     betr = [_betr_prop("Test Player", "points", 20.5)]
     dk = [_dk_prop("Test Player", "points", 20.5, -140, 120)]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
 
     over_plays = [row for row in results if row["side"] == "over"]
     assert over_plays
@@ -112,28 +112,44 @@ def test_find_ev_opportunities_respects_min_ev_threshold():
     betr = [_betr_prop("Test Player", "points", 20.5)]
     dk = [_dk_prop("Test Player", "points", 20.5, -140, 120)]
 
-    all_results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    all_results = find_ev_opportunities(betr, dk)
     assert all_results
     over_rows = [row for row in all_results if row["side"] == "over"]
     assert over_rows and over_rows[0]["plus_ev"]
 
-    flagged_only = find_ev_opportunities(betr, dk, min_ev=0.5)
-    assert flagged_only
-    assert all(not row["plus_ev"] for row in flagged_only)
+    filtered_high = find_ev_opportunities(betr, dk, min_ev=0.5)
+    assert filtered_high == []
 
-    filtered = find_ev_opportunities(betr, dk, min_ev=0.5, filter_min_ev=True)
-    assert filtered == []
+    filtered_low = find_ev_opportunities(betr, dk, min_ev=0.01)
+    assert filtered_low
+    assert all(row["ev"] >= 0.01 for row in filtered_low)
+    assert all(row["plus_ev"] for row in filtered_low)
 
 
-def test_filter_min_ev_keeps_plus_ev_rows():
+def test_min_ev_threshold_filters_output():
     betr = [_betr_prop("Test Player", "points", 20.5)]
     dk = [_dk_prop("Test Player", "points", 20.5, -140, 120)]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.01, filter_min_ev=True, top_n=15)
+    results = find_ev_opportunities(betr, dk, min_ev=0.01, top_n=15)
 
     assert results
     assert all(row["plus_ev"] for row in results)
-    assert all(row["ev"] > 0.01 for row in results)
+    assert all(row["ev"] >= 0.01 for row in results)
+
+
+def test_find_ev_opportunities_filters_at_negative_min_ev_threshold():
+    betr = [_betr_prop("Test Player", "points", 20.5)]
+    dk = [_dk_prop("Test Player", "points", 20.5, -110, -110)]
+
+    unfiltered = find_ev_opportunities(betr, dk)
+    assert len(unfiltered) == 2
+    assert all(row["ev"] == pytest.approx(-0.0455, abs=1e-4) for row in unfiltered)
+
+    filtered = find_ev_opportunities(betr, dk, min_ev=-0.05)
+    assert len(filtered) == 2
+
+    filtered_tighter = find_ev_opportunities(betr, dk, min_ev=-0.04)
+    assert filtered_tighter == []
 
 
 def test_even_sharp_line_negative_ev_at_minus_120_breakeven():
@@ -141,7 +157,7 @@ def test_even_sharp_line_negative_ev_at_minus_120_breakeven():
     betr = [_betr_prop("Test Player", "points", 20.5)]
     dk = [_dk_prop("Test Player", "points", 20.5, -110, -110)]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
     assert len(results) == 2
     assert all(row["ev"] == pytest.approx(-0.0455, abs=1e-4) for row in results)
     assert all(not row["plus_ev"] for row in results)
@@ -169,7 +185,7 @@ def test_negative_ev_row_included_with_plus_ev_false():
     betr = [_betr_prop("Test Player", "points", 20.5)]
     dk = [_dk_prop("Test Player", "points", 20.5, 120, -140)]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0, top_n=15)
+    results = find_ev_opportunities(betr, dk, top_n=15)
 
     assert results
     assert any(row["ev"] < 0 and not row["plus_ev"] for row in results)
@@ -203,7 +219,7 @@ def test_find_ev_opportunities_skips_blocked_under_side():
     betr = [_betr_prop("Dean Wade", "rebounds", 3.5, over_odds=-120, under_odds=None)]
     dk = [_dk_prop("Dean Wade", "rebounds", 3.5, 111, -147)]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
 
     assert results, "over-side opportunity should still be produced when under_odds=None"
     assert all(row["side"] != "under" for row in results)
@@ -267,7 +283,6 @@ def test_live_betr_ignores_pregame_sharp_same_matchup():
         [betr_live],
         [dk_pregame],
         fanduel_props=[fd_pregame_milestone],
-        min_ev=0.0,
     )
 
     assert results == []
@@ -285,7 +300,7 @@ def test_pregame_betr_matches_pregame_sharp_with_game_scope():
         "game": "CIN@NYY",
     }
 
-    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
+    results = find_ev_opportunities([betr], [dk])
 
     assert results
     assert results[0]["dk_over_odds"] == -176
@@ -297,7 +312,7 @@ def test_find_ev_opportunities_filters_mismatched_event_start_hour():
     dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
     dk["event_start"] = "2026-06-20T23:00:00.000Z"
 
-    assert find_ev_opportunities([betr], [dk], min_ev=0.0) == []
+    assert find_ev_opportunities([betr], [dk]) == []
 
 
 def test_find_ev_opportunities_passes_matching_event_start_hour():
@@ -306,7 +321,7 @@ def test_find_ev_opportunities_passes_matching_event_start_hour():
     dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
     dk["event_start"] = "2026-06-19T23:10:00.000Z"
 
-    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
+    results = find_ev_opportunities([betr], [dk])
     assert results
 
 
@@ -317,7 +332,7 @@ def test_find_ev_opportunities_passes_doubleheader_game_one_same_hour():
     dk = _dk_prop("Test Player", "hits", 1.5, -110, -110)
     dk["event_start"] = "2026-06-19T17:40:00.000Z"
 
-    results = find_ev_opportunities([betr], [dk], min_ev=0.0)
+    results = find_ev_opportunities([betr], [dk])
     assert results
 
 
@@ -328,7 +343,7 @@ def test_find_ev_opportunities_missing_event_start_pregame_fail_closed():
     dk = _dk_prop("Test Player", "points", 20.5, -140, 120)
     dk["event_start"] = "2026-06-20T23:00:00.000Z"
 
-    assert find_ev_opportunities([betr], [dk], min_ev=0.0) == []
+    assert find_ev_opportunities([betr], [dk]) == []
 
 
 def test_find_ev_opportunities_filters_doubleheader_game_two_block():
@@ -340,7 +355,7 @@ def test_find_ev_opportunities_filters_doubleheader_game_two_block():
     dk["event_start"] = "2026-06-19T23:10:00.000Z"
     dk["game"] = "CIN@NYY"
 
-    assert find_ev_opportunities([betr], [dk], min_ev=0.0) == []
+    assert find_ev_opportunities([betr], [dk]) == []
 
 
 def test_find_ev_opportunities_freeman_series_uses_matching_day_only():
@@ -355,7 +370,7 @@ def test_find_ev_opportunities_freeman_series_uses_matching_day_only():
     dk_tomorrow["game"] = "BAL@LAD"
     dk_tomorrow["event_start"] = "2026-06-21T02:10:00.000Z"
 
-    results = find_ev_opportunities([betr], [dk_today, dk_tomorrow], min_ev=0.0)
+    results = find_ev_opportunities([betr], [dk_today, dk_tomorrow])
     assert results
     assert results[0]["dk_over_odds"] == -106
 
@@ -369,7 +384,7 @@ def test_find_ev_opportunities_freeman_series_blocks_tomorrow_only():
     dk_tomorrow["game"] = "BAL@LAD"
     dk_tomorrow["event_start"] = "2026-06-21T02:10:00.000Z"
 
-    assert find_ev_opportunities([betr], [dk_tomorrow], min_ev=0.0) == []
+    assert find_ev_opportunities([betr], [dk_tomorrow]) == []
 
 
 def test_find_ev_opportunities_multi_book_filters_mismatched_event_hour():
@@ -388,7 +403,7 @@ def test_find_ev_opportunities_multi_book_filters_mismatched_event_hour():
         "event_start": "2026-06-20T23:10:00.000Z",
     }
 
-    results = find_ev_opportunities([betr], [dk], fanduel_props=[fd], min_ev=0.0)
+    results = find_ev_opportunities([betr], [dk], fanduel_props=[fd])
     assert results
     assert results[0]["dk_over_odds"] == -140
     assert results[0]["fd_over_odds"] is None
@@ -406,6 +421,6 @@ def test_find_ev_opportunities_filters_series_duplicate_game_different_start():
     dk_tomorrow["game"] = "BAL@LAD"
     dk_tomorrow["event_start"] = "2026-06-21T02:10:00.000Z"
 
-    results = find_ev_opportunities([betr], [dk_today, dk_tomorrow], min_ev=0.0)
+    results = find_ev_opportunities([betr], [dk_today, dk_tomorrow])
     assert results
     assert results[0]["dk_over_odds"] == -106

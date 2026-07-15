@@ -96,7 +96,7 @@ def test_borrow_forward_hits_from_total_bases():
     betr = [_betr("Freddie Freeman", "hits", 0.5)]
     dk = [_dk("Freddie Freeman", "total_bases", 0.5, -140, 120)]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
 
     assert results
     assert results[0]["market"] == "hits"
@@ -108,7 +108,7 @@ def test_borrow_reverse_total_bases_from_hits():
     betr = [_betr("Freddie Freeman", "total_bases", 0.5)]
     dk = [_dk("Freddie Freeman", "hits", 0.5, -135, 115)]
 
-    results = find_ev_opportunities(betr, dk, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk)
 
     assert results
     assert results[0]["market"] == "total_bases"
@@ -129,7 +129,7 @@ def test_prefer_native_skips_borrow_when_both_markets_present():
     assert filtered[0]["market"] == "hits"
     assert filtered[0]["over_odds"] == -110
 
-    results = find_ev_opportunities([betr], dk_props, min_ev=0.0)
+    results = find_ev_opportunities([betr], dk_props)
     assert results
     assert results[0]["dk_over_odds"] == -110
 
@@ -140,7 +140,7 @@ def test_cross_book_corroboration_dk_hits_fd_total_bases():
     dk = [_dk("Freddie Freeman", "hits", 0.5, -130, 110)]
     fd = [_fd("Freddie Freeman", "total_bases", 0.5, -120, -110)]
 
-    results = find_ev_opportunities(betr, dk, fanduel_props=fd, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk, fanduel_props=fd)
 
     assert results
     assert results[0]["line_source"] == "multi_book_consensus"
@@ -154,7 +154,7 @@ def test_line_gating_no_borrow_at_non_half_line():
     betr = [_betr("Freddie Freeman", "hits", 1.5)]
     dk = [_dk("Freddie Freeman", "total_bases", 1.5, -110, -110)]
 
-    assert find_ev_opportunities(betr, dk, min_ev=0.0) == []
+    assert find_ev_opportunities(betr, dk) == []
 
 
 def test_no_milestone_borrow_for_o05():
@@ -172,7 +172,7 @@ def test_no_milestone_borrow_for_o05():
         )
     ]
 
-    assert find_ev_opportunities(betr, dk, min_ev=0.0) == []
+    assert find_ev_opportunities(betr, dk) == []
 
 
 def test_context_required_no_borrow_on_event_hour_mismatch():
@@ -188,7 +188,7 @@ def test_context_required_no_borrow_on_event_hour_mismatch():
         )
     ]
 
-    assert find_ev_opportunities(betr, dk, min_ev=0.0) == []
+    assert find_ev_opportunities(betr, dk) == []
 
 
 def test_context_required_no_borrow_on_event_hour_mismatch():

@@ -16,8 +16,9 @@ Usage: ./loop [--loop-seconds N] [--min-ev X] [<any ./ev args>]
   --loop-seconds N   wall-clock cap in seconds (default 300). Loop-owned; the
                      in-flight ./ev run always finishes, the cap is checked
                      between runs. NOT forwarded to ./ev.
-  --min-ev X         forwarded to ./ev; a fraction (default 0.02 = 2%). It both
-                     filters the table and defines the toast threshold.
+  --min-ev X         forwarded to ./ev; a fraction (e.g. 0.02 = 2%). Filters the
+                     opportunities table; omit on ./ev for no filter. Toast uses rows
+                     present in the filtered file.
   --nba|--mlb|--wnba|--leagues …   forwarded; if no league flag is given, --mlb
                      is injected.
   -h, --help         show this help and exit.
@@ -40,7 +41,6 @@ LOOP_SECONDS=300
 MIN_INTERVAL=2
 EV_ARGS=()
 HAS_LEAGUE=0
-HAS_MIN_EV=0
 
 die() { printf 'loop: %s\n' "$1" >&2; exit 1; }
 
@@ -58,7 +58,6 @@ while [[ $# -gt 0 ]]; do
       ;;
     --min-ev)
       [[ $# -ge 2 ]] || die "--min-ev needs a value"
-      HAS_MIN_EV=1
       EV_ARGS+=("$1" "$2")
       shift 2
       ;;
@@ -86,7 +85,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ $HAS_LEAGUE -eq 0 ]] && EV_ARGS+=("--mlb")
-[[ $HAS_MIN_EV -eq 0 ]] && EV_ARGS=("--min-ev" "0.02" "${EV_ARGS[@]}")
 
 NOTIFIED_FILE=$(mktemp)
 TOAST_FILE=$(mktemp)

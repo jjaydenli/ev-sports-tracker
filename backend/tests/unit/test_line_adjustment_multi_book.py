@@ -313,7 +313,7 @@ def test_fd_only_exact_unlocks_ev_when_dk_missing():
     dk = [_dk("Other Player", "points", 22.5, -110, -110)]
     fd = [_fd("Test Player", "points", 22.5, -140, 120, main=False)]
 
-    results = find_ev_opportunities(betr, dk, fanduel_props=fd, min_ev=0.0)
+    results = find_ev_opportunities(betr, dk, fanduel_props=fd)
 
     assert results
     assert results[0]["line_source"] == "fd_alt"
@@ -416,7 +416,6 @@ def test_dfs_side_name_in_output():
     results = find_ev_opportunities(
         betr,
         dk,
-        min_ev=0.0,
         dfs_side=DFSSide("PrizePicks", -120),
     )
     assert results

@@ -29,11 +29,13 @@ time a prop crosses the `--min-ev` threshold within that run.
 
 3. **Argument forwarding + default slate.** Every non-loop argument forwards to `./ev` unchanged.
    `--loop-seconds` is the only loop-owned flag. If the forwarded arguments contain no league flag,
-   `--mlb` is injected. If `--min-ev` is omitted, `--min-ev 0.02` is injected.
+   `--mlb` is injected. `--min-ev` is forwarded only when the user supplies it; otherwise `./ev` runs
+   with no EV filter (all ranked rows).
 
-4. **`--min-ev` is a single source of truth.** It is a pass-through to `./ev` (a fraction; `0.02`
-   = 2%). It both filters the opportunities file and defines the notify threshold — the loop adds
-   no separate threshold logic.
+4. **`--min-ev` is a pass-through filter.** When supplied, it is forwarded to `./ev` (a fraction;
+   `0.02` = 2%) and filters the opportunities file to rows with `ev >=` the threshold. The loop
+   toasts on new props in that filtered file — no separate threshold logic. `plus_ev` on each row
+   remains `ev > 0` regardless of `--min-ev`.
 
 5. **Table-only display.** `./ev`'s stderr is redirected to a temporary log (surfaced only on
    failure) so log noise never reaches the table view. After each run the ranked table is
@@ -75,7 +77,6 @@ time a prop crosses the `--min-ev` threshold within that run.
 - No changes to the pipeline runner, EV pipeline, display formatter, or any scraper/parser/engine.
 - No persistent / actionable toasts (macOS path may play Glass via terminal-notifier / osascript).
 - Not scheduled or daemonized — a foreground command the user starts manually.
-- No reconciliation of `>=` vs `>` beyond reusing the pipeline's existing `--min-ev` semantics.
 - Bundling `terminal-notifier` — optional host install only.
 
 ## Files / modules

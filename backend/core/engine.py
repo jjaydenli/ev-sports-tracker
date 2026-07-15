@@ -224,14 +224,13 @@ def _append_side_opportunity(
     breakeven_prob: float,
     fair_over: float,
     fair_under: float,
-    min_ev: float,
     dfs_sportsbook: str,
 ) -> None:
     ev = calculate_ev(fair_prob, breakeven_prob)
     no_vig_side, no_vig_prob = _favored_no_vig(fair_over, fair_under)
     ev_from_milestone = resolved.adjustment_method == "dk_milestone_exact"
     undisclosed_vig_caveat = ev_from_milestone
-    plus_ev = ev > min_ev
+    plus_ev = ev > 0
     dk_over, dk_under, fd_over, fd_under, espn_over, espn_under = (
         _book_odds_from_resolved(resolved)
     )
@@ -307,10 +306,9 @@ def find_ev_opportunities(
     espn_props: list[dict] | None = None,
     dfs_side: DFSSide = BETR,
     dfs_breakeven_odds: int | None = None,
-    min_ev: float = 0.0,
+    min_ev: float | None = None,
     top_n: int | None = None,
     include_flat_lines: bool = False,
-    filter_min_ev: bool = False,
 ) -> list[dict]:
     """
     Match DFS props to sharp sportsbook lines and return ranked plays.
@@ -433,7 +431,6 @@ def find_ev_opportunities(
                     breakeven_prob=breakeven_prob,
                     fair_over=fair_over,
                     fair_under=fair_under,
-                    min_ev=min_ev,
                     dfs_sportsbook=dfs_side.name,
                 )
             if dfs_prop.get("under_odds") is not None:
@@ -446,13 +443,12 @@ def find_ev_opportunities(
                     breakeven_prob=breakeven_prob,
                     fair_over=fair_over,
                     fair_under=fair_under,
-                    min_ev=min_ev,
                     dfs_sportsbook=dfs_side.name,
                 )
 
     opportunities.sort(key=lambda row: row["ev"], reverse=True)
-    if filter_min_ev:
-        opportunities = [row for row in opportunities if row["plus_ev"]]
+    if min_ev is not None:
+        opportunities = [row for row in opportunities if row["ev"] >= min_ev]
     if top_n is not None:
         return opportunities[:top_n]
     return opportunities
@@ -465,11 +461,10 @@ def compare_betr_vs_draftkings(
     fanduel_props: list[dict] | None = None,
     espn_props: list[dict] | None = None,
     dfs_side: DFSSide = BETR,
-    min_ev: float = 0.0,
+    min_ev: float | None = None,
     dfs_breakeven_odds: int | None = None,
     top_n: int | None = None,
     include_flat_lines: bool = False,
-    filter_min_ev: bool = False,
 ) -> list[dict]:
     """Compare normalized Betr props against sharp books and return ranked plays."""
     return find_ev_opportunities(
@@ -482,7 +477,6 @@ def compare_betr_vs_draftkings(
         min_ev=min_ev,
         top_n=top_n,
         include_flat_lines=include_flat_lines,
-        filter_min_ev=filter_min_ev,
     )
 
 

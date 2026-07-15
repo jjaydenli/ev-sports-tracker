@@ -102,7 +102,7 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 ```bash
 ./ev --mlb                      # MLB only
 ./ev --books dk,espn            # subset of sharp books
-./ev --top-n 25 --min-ev 0.02   # show top 25, mark edge > 2% as +EV
+./ev --top-n 25 --min-ev 0.02   # top 25 with ev >= 2%; plus_ev when ev > 0
 ./ev --scrape-only              # scrape + normalize, skip EV
 ./ev --timing                   # wall-clock summary per pipeline stage
 ```

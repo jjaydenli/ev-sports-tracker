@@ -248,11 +248,10 @@ def run_refresh(
     dfs: tuple[str, ...] | None = None,
     books: tuple[str, ...] | None = None,
     leagues: tuple[str, ...] | None = None,
-    min_ev: float = 0.0,
+    min_ev: float | None = None,
     top_n: int = 15,
     skip_expiry_check: bool = False,
     include_flat_lines: bool = False,
-    plus_ev_only: bool = False,
     timing: bool = False,
 ) -> int:
     """
@@ -382,8 +381,6 @@ def run_refresh(
         if scrape_only:
             return 0
 
-        filter_min_ev = plus_ev_only or min_ev > 0
-
         betr_path = data_path / BETR_NORMALIZED
         dk_path = data_path / DK_NORMALIZED
         if not betr_path.exists() and not dk_path.exists():
@@ -428,7 +425,6 @@ def run_refresh(
                 min_ev=min_ev,
                 top_n=top_n,
                 include_flat_lines=include_flat_lines,
-                filter_min_ev=filter_min_ev,
                 expected_run_id=expected_run_id,
                 active_sources=active_sources,
             )
@@ -488,13 +484,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--min-ev",
         type=float,
-        default=0.0,
-        help="Edge threshold: plus_ev when ev > value; also filters output when > 0",
-    )
-    parser.add_argument(
-        "--plus-ev-only",
-        action="store_true",
-        help="Only include rows with ev > --min-ev in output",
+        default=None,
+        help="Filter output to rows with ev >= value (fraction; omit for no filter)",
     )
     parser.add_argument(
         "--top-n",
@@ -567,7 +558,6 @@ def main(argv: list[str] | None = None) -> None:
         top_n=args.top_n,
         skip_expiry_check=args.skip_expiry_check,
         include_flat_lines=args.include_flat_lines,
-        plus_ev_only=args.plus_ev_only,
         timing=args.timing,
     )
     raise SystemExit(code)

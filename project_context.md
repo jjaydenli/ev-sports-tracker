@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-07-11
+**Last verified:** 2026-07-15
 
 ## 1. Project Overview
 
@@ -53,8 +53,10 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 
 ### League CLI shortcuts
 
-| League | Books | CLI |
-|--------|-------|-----|
+Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` and/or `--leagues mlb,wnba` (shorthand unions with `--leagues`; same on `./loop`).
+
+| League | Books | Filter |
+|--------|-------|--------|
 | MLB | Betr + DK/FD/ESPN (FD pregame only) | `./ev --mlb` |
 | WNBA | Betr + DK (FD skipped) | `./ev --wnba` |
 | NBA | Betr + DK + FD | `./ev --nba` |
@@ -77,7 +79,7 @@ ev-sports-tracker/
 ├── docs/design/                        # architecture decision records
 ├── .github/workflows/ci.yml
 ├── ev                                    # → backend pipeline_runner
-├── loop                                  # timed ./ev loop + desktop toast (WSL/macOS/Linux) on new --min-ev matches
+├── loop                                  # ./ev loop; all leagues + --min-ev 0.02 default; colored table + toast
 └── backend/
     ├── config/                         # headers, market_maps, sharp_books, team_abbrev, settings, *_{subcategories,markets,competitions,queries}, pipeline_sources
     ├── scripts/                        # probe_dk_*, probe_fd_*, probe_espn_*
@@ -88,15 +90,15 @@ ev-sports-tracker/
     ├── parsers/                        # betr, dk, fd, espn parsers + normalize.py
     ├── core/
     │   ├── models.py, engine.py, line_adjustment.py, ladder_index.py, resolution_math.py, multi_book_resolver.py, flat_line.py
-    │   ├── ev_pipeline.py, ev_display.py, ev_run_diff.py
+    │   ├── ev_pipeline.py, ev_display.py  # ranked JSON + console table (EV% tiers, Stack clusters), ev_run_diff.py
     │   ├── pipeline_scrape.py, pipeline_artifacts.py, scrape_result.py
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
-    └── tests/                          # fixtures, integration, unit; 553 tests
+    └── tests/                          # fixtures, integration, unit; 574 tests
 ```
 
-**EV data flow:** `./ev` (exclusive lock on `data/processed`) → league loop × sources (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, `ev_run_diff.json`, `scrape_coverage.json`) → per-Betr match-context filter → per-book sharp resolve → multi-book consensus → ranked output.
+**EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` with default `--min-ev 0.02`, reprints the table with new-row highlight.
 
 ## 6. Roadmap
 

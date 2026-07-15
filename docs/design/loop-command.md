@@ -18,7 +18,7 @@ time a prop crosses the `--min-ev` threshold within that run.
 1. **Duration model.** The loop runs `./ev` back-to-back — the next iteration starts when the
    prior process exits. After each run it checks elapsed wall-clock and stops once
    `>= LOOP_SECONDS` (default 300). An in-flight run always finishes; the cap is only checked
-   between runs. Overridable via the loop-owned `--loop-seconds N` flag, which is validated as a
+   between runs. Overridable via loop-owned `--timeout SECS` (default 300), validated as a
    positive integer and stripped before forwarding.
 
 2. **Fatal-on-failure, not retry.** A non-zero `./ev` exit is treated as fatal: the loop prints
@@ -27,21 +27,23 @@ time a prop crosses the `--min-ev` threshold within that run.
    `MIN_INTERVAL` floor additionally paces the loop so an unexpectedly instant successful run
    (e.g. an offline slate) cannot spin either.
 
-3. **Argument forwarding + default slate.** Every non-loop argument forwards to `./ev` unchanged.
-   `--loop-seconds` is the only loop-owned flag. If the forwarded arguments contain no league flag,
-   `--mlb` is injected. `--min-ev` is forwarded only when the user supplies it; otherwise `./ev` runs
-   with no EV filter (all ranked rows).
+3. **Argument forwarding + defaults.** Every non-loop argument forwards to `./ev` unchanged.
+   `--timeout` is the only loop-owned duration flag. With no league flag, `./ev` runs all configured
+   leagues (NBA, MLB, WNBA). Filter with `--mlb`, `--nba`, `--wnba`, and/or `--leagues mlb,wnba`
+   (shorthand unions with `--leagues`). When `--min-ev` is omitted, `./loop` injects `0.02` (2%)
+   before forwarding; `./ev` alone has no default filter. Override with `--min-ev X` (negative
+   values include near-breakeven rows per the min-ev ADR).
 
-4. **`--min-ev` is a pass-through filter.** When supplied, it is forwarded to `./ev` (a fraction;
-   `0.02` = 2%) and filters the opportunities file to rows with `ev >=` the threshold. The loop
-   toasts on new props in that filtered file — no separate threshold logic. `plus_ev` on each row
-   remains `ev > 0` regardless of `--min-ev`.
+4. **`--min-ev` pass-through.** Filters `ev_opportunities.json` to rows with `ev >=` threshold.
+   Toasts fire on new props in that filtered file. `plus_ev` on each row remains `ev > 0`
+   regardless of `--min-ev`.
 
 5. **Table-only display.** `./ev`'s stderr is redirected to a temporary log (surfaced only on
    failure) so log noise never reaches the table view. After each run the ranked table is
-   re-rendered from the persisted opportunities file, reusing the existing table formatter. Rows
-   for props not yet notified this run are highlighted (bold yellow); everything else prints plain.
-   Only a one-line iteration/elapsed header is added.
+   re-rendered from the persisted opportunities file via `format_ev_opportunities_table` (EV-tier
+   and stack coloring on). Rows for props not yet notified this run are highlighted (bold yellow
+   on non-Stack cells); everything else prints without highlight. Only a one-line iteration/elapsed
+   header is added.
 
 6. **Notify only on new matches.** Because the opportunities file is already filtered by
    `--min-ev`, every prop in it qualifies. A per-run set of prop keys
@@ -74,7 +76,7 @@ time a prop crosses the `--min-ev` threshold within that run.
 
 ## Non-goals
 
-- No changes to the pipeline runner, EV pipeline, display formatter, or any scraper/parser/engine.
+- No changes to the pipeline runner, EV scan math, or any scraper/parser/engine beyond table output wiring.
 - No persistent / actionable toasts (macOS path may play Glass via terminal-notifier / osascript).
 - Not scheduled or daemonized — a foreground command the user starts manually.
 - Bundling `terminal-notifier` — optional host install only.
@@ -91,7 +93,7 @@ time a prop crosses the `--min-ev` threshold within that run.
 ## Test plan
 
 - Backend suite unaffected (no Python changed).
-- Invalid `--loop-seconds` (non-numeric, missing value) exits with a clear message, not a shell
+- Invalid `--timeout` (non-numeric, missing value) exits with a clear message, not a shell
   crash.
 - An unrecognized `./ev` argument aborts after one run with the underlying error, rather than
   spinning the table.

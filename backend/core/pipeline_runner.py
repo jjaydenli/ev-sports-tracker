@@ -46,6 +46,19 @@ from scrapers.dfs.betr.betr_auth import BetrAuthError, ensure_betr_token, valida
 DEFAULT_DATA_DIR = "data/processed"
 
 
+class _HelpFormatter(
+    argparse.ArgumentDefaultsHelpFormatter,
+    argparse.RawDescriptionHelpFormatter,
+):
+    """Show meaningful defaults; preserve epilog line breaks."""
+
+    def _get_help_string(self, action: argparse.Action) -> str:
+        help_text = action.help or ""
+        if action.default in (None, False, argparse.SUPPRESS):
+            return help_text
+        return f"{help_text} (default: {action.default})"
+
+
 def _backend_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
@@ -448,70 +461,111 @@ def run_refresh(
 def build_parser() -> argparse.ArgumentParser:
     """CLI argument parser for run_refresh."""
     parser = argparse.ArgumentParser(
-        description="Refresh dfs/books boards (all leagues), normalize, and run EV scan."
+        prog="./ev",
+        description=(
+            "Scrape DFS and sportsbook boards, normalize, and run the +EV scan."
+        ),
+        formatter_class=_HelpFormatter,
+        add_help=False,
+        epilog=(
+            "Examples:\n"
+            "  ./ev                          all leagues, full scrape + EV\n"
+            "  ./ev --skip-scrape --wnba       reuse boards, WNBA only\n"
+            "  ./ev --mlb --min-ev 0.02        MLB with EV >= 2%\n"
+            "\n"
+            "See also: ./loop --help  (timed re-runs with desktop toasts)"
+        ),
     )
-    parser.add_argument(
+
+    mode = parser.add_argument_group("Run mode")
+    mode.add_argument(
+        "-h",
+        "--help",
+        action="help",
+        help="show this help message and exit",
+    )
+    mode.add_argument(
         "--skip-scrape",
         action="store_true",
-        help="Reuse existing master boards; normalize and EV scan only",
+        help="reuse boards on disk; normalize and run EV scan only",
     )
-    parser.add_argument(
+    mode.add_argument(
         "--scrape-only",
         action="store_true",
-        help="Scrape and normalize only (no EV scan)",
+        help="scrape and normalize only; skip EV scan",
     )
-    parser.add_argument(
+
+    scope = parser.add_argument_group("Scope")
+    scope.add_argument(
         "--dfs",
         type=str,
         default=None,
-        help=(
-            "Comma-separated dfs apps to scrape (default: all). "
-            "On EV runs all dfs are always refreshed; use with --scrape-only to limit."
-        ),
+        metavar="APPS",
+        help="comma-separated DFS apps (betr, …); default: all configured",
     )
-    parser.add_argument(
+    scope.add_argument(
         "--books",
         type=str,
         default=None,
-        help="Comma-separated sportsbooks to scrape (default: all). EV runs always refresh all dfs.",
+        metavar="BOOKS",
+        help="comma-separated sportsbooks (dk, fd, espn); default: all configured",
     )
-    parser.add_argument(
+
+    leagues = parser.add_argument_group("Leagues")
+    leagues.add_argument(
         "--leagues",
         type=str,
         default=None,
-        help=f"Comma-separated leagues (default: {','.join(PIPELINE_LEAGUES)})",
+        metavar="LIST",
+        help=(
+            "comma-separated leagues; unions with --mlb, --nba, --wnba; "
+            "default: all configured"
+        ),
     )
-    parser.add_argument(
+    for league in PIPELINE_LEAGUES:
+        leagues.add_argument(
+            f"--{league.lower()}",
+            action="store_true",
+            help=f"include {league} (shorthand for --leagues {league.lower()})",
+        )
+
+    ev_out = parser.add_argument_group("EV output")
+    ev_out.add_argument(
         "--min-ev",
         type=float,
         default=None,
-        help="Filter output to rows with ev >= value (fraction; omit for no filter)",
+        metavar="FRAC",
+        help="keep rows with EV >= FRAC (e.g. 0.02 for 2%%); omit for no filter",
     )
-    parser.add_argument(
+    ev_out.add_argument(
         "--top-n",
         type=int,
         default=15,
-        help="Maximum ranked plays written to ev_opportunities.json (default: 15)",
+        metavar="N",
+        help="max ranked rows written to ev_opportunities.json",
     )
-    parser.add_argument(
-        "--data-dir",
-        default=DEFAULT_DATA_DIR,
-        help="Processed data directory (default: data/processed)",
-    )
-    parser.add_argument(
-        "--skip-expiry-check",
-        action="store_true",
-        help="Skip JWT expiry pre-flight (not recommended)",
-    )
-    parser.add_argument(
+    ev_out.add_argument(
         "--include-flat-lines",
         action="store_true",
-        help="Include Betr integer lines (push risk) in EV scan",
+        help="include Betr integer lines (push risk) in the EV scan",
     )
-    parser.add_argument(
+
+    advanced = parser.add_argument_group("Advanced")
+    advanced.add_argument(
+        "--data-dir",
+        default=DEFAULT_DATA_DIR,
+        metavar="DIR",
+        help="processed data directory",
+    )
+    advanced.add_argument(
+        "--skip-expiry-check",
+        action="store_true",
+        help="skip Betr JWT expiry check before scrape (not recommended)",
+    )
+    advanced.add_argument(
         "--timing",
         action="store_true",
-        help="Print wall-clock timing for each pipeline stage at the end",
+        help="print wall-clock timing per pipeline stage",
     )
     parser.add_argument("--betr-only", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--dk-only", action="store_true", help=argparse.SUPPRESS)
@@ -519,12 +573,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--skip-dk", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--skip-fd", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--league", type=str, default=None, help=argparse.SUPPRESS)
-    for league in PIPELINE_LEAGUES:
-        parser.add_argument(
-            f"--{league.lower()}",
-            action="store_true",
-            help=f"Include {league} in this run (shorthand for --leagues {league.lower()})",
-        )
     return parser
 
 

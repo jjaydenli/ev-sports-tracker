@@ -328,7 +328,10 @@ def run_ev_scan(
     )
 
     if opportunities:
-        logger.info("ranked plays:\n" + format_ev_opportunities_table(opportunities))
+        logger.info(
+            "ranked plays:\n"
+            + format_ev_opportunities_table(opportunities, color_ev=True)
+        )
     if diff is not None:
         summary = format_run_diff_summary(diff)
         if summary:

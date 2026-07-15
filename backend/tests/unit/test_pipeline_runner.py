@@ -121,6 +121,18 @@ def _basketball_league(league: str) -> bool:
     return league in {"NBA", "WNBA"}
 
 
+def test_build_parser_help_follows_cli_conventions():
+    help_text = build_parser().format_help()
+    assert help_text.startswith("usage: ./ev")
+    assert "show this help message and exit" in help_text
+    assert "Run mode:" in help_text
+    assert "Examples:" in help_text
+    assert "(default: False)" not in help_text
+    assert "(default: None)" not in help_text
+    assert "(default: 15)" in help_text
+    assert "(default: data/processed)" in help_text
+
+
 def test_build_parser_min_ev_default_and_values():
     parser = build_parser()
     assert parser.parse_args([]).min_ev is None

@@ -1,11 +1,25 @@
+import re
+
 from core.ev_display import (
     EV_TABLE_WIDTHS,
+    _TEAM_CLUSTER_COLOR_BANK,
     _display_width,
+    _ev_tier_color_code,
     _format_game,
     format_ev_opportunity_row,
     format_ev_opportunities_table,
+    format_ev_table_header,
     format_ou_odds,
 )
+
+_EV_CELL_INDEX = 7
+_STACK_CELL_INDEX = 13
+
+
+def _stack_cell_ansi_code(line: str) -> int | None:
+    cell = line.split(" | ")[_STACK_CELL_INDEX]
+    match = re.search(r"\033\[38;5;(\d+)m", cell)
+    return int(match.group(1)) if match else None
 
 
 def test_format_ou_odds():
@@ -129,6 +143,56 @@ def test_format_ev_opportunities_table_includes_header():
     assert "ESPN" in table
     assert "Src" in table
     assert "Live" in table
+    assert "Stack" in table
+
+
+def test_format_ev_opportunities_table_default_matches_plain_rows():
+    """ev_pipeline call site: no highlight kwarg → byte-for-byte identical to plain rows."""
+    row = {
+        "player": "Aaron Judge",
+        "league": "MLB",
+        "game": "NYY@BOS",
+        "team": "NYY",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+        "side_hit_pct": 55.0,
+        "ev_pct": 2.1,
+        "dk_over_odds": -115,
+        "dk_under_odds": -110,
+    }
+    plain = format_ev_opportunities_table([row])
+    assert plain == format_ev_table_header() + "\n" + "-" * len(format_ev_table_header()) + "\n" + format_ev_opportunity_row(row)
+
+
+def test_format_ev_opportunities_table_highlight_per_cell():
+    row = {
+        "player": "Aaron Judge",
+        "league": "MLB",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+        "ev_pct": 2.1,
+    }
+    table = format_ev_opportunities_table([row], highlight=lambda r: True)
+    body_line = table.splitlines()[2]
+    for cell in body_line.split(" | "):
+        assert cell.startswith("\033[1;33m")
+        assert cell.endswith("\033[0m")
+
+
+def test_format_ev_opportunities_table_highlight_skips_when_false():
+    row = {
+        "player": "Aaron Judge",
+        "league": "MLB",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+        "ev_pct": 2.1,
+    }
+    table = format_ev_opportunities_table([row], highlight=lambda r: False)
+    body_line = table.splitlines()[2]
+    assert "\033[" not in body_line
 
 
 def test_format_ev_opportunity_row_live_marker():
@@ -161,7 +225,7 @@ def test_format_ev_opportunity_row_not_live_shows_dash():
     }
     line = format_ev_opportunity_row(row)
     cells = [c.strip() for c in line.split("|")]
-    live_cell = cells[-1]
+    live_cell = cells[-2]
     assert live_cell == "—"
 
 
@@ -176,3 +240,232 @@ def test_format_ev_opportunity_row_missing_league_shows_dash():
     cells = [c.strip() for c in line.split("|")]
     assert cells[1] == "—"
     assert cells[2] == "—"
+
+
+def _row(player, *, team, league="MLB", market="hits", line=1.5, ev=0.05, ev_pct=5.0):
+    return {
+        "player": player,
+        "league": league,
+        "team": team,
+        "side": "over",
+        "market": market,
+        "line": line,
+        "ev": ev,
+        "ev_pct": ev_pct,
+    }
+
+
+def test_team_cluster_marker_best_prop_per_player():
+    rows = [
+        _row("Player A", team="NYY", market="hits", ev=0.08, ev_pct=8.0),
+        _row("Player A", team="NYY", market="runs", line=0.5, ev=0.03, ev_pct=3.0),
+        _row("Player B", team="NYY", market="hits", ev=0.06, ev_pct=6.0),
+        _row("Player B", team="NYY", market="rbis", line=0.5, ev=0.04, ev_pct=4.0),
+    ]
+    table = format_ev_opportunities_table(rows)
+    body = table.splitlines()[2:]
+    assert "▌" in body[0]
+    assert "▌" not in body[1]
+    assert "▌" in body[2]
+    assert "▌" not in body[3]
+
+
+def test_team_cluster_marker_lone_player_multiple_props_unmarked():
+    rows = [
+        _row("Solo Star", team="NYY", market="hits", ev=0.08),
+        _row("Solo Star", team="NYY", market="runs", line=0.5, ev=0.03),
+    ]
+    table = format_ev_opportunities_table(rows)
+    for line in table.splitlines()[2:]:
+        assert "▌" not in line
+
+
+def test_team_cluster_marker_cross_league_abbrev_no_false_positive():
+    rows = [
+        _row("Twins Player", team="MIN", league="MLB", ev=0.05),
+        _row("Lynx Player", team="MIN", league="WNBA", ev=0.04),
+    ]
+    table = format_ev_opportunities_table(rows)
+    for line in table.splitlines()[2:]:
+        assert "▌" not in line
+
+
+def test_team_cluster_marker_ev_tie_first_row_wins():
+    rows = [
+        _row("Player A", team="NYY", market="hits", ev=0.05),
+        _row("Player A", team="NYY", market="runs", line=0.5, ev=0.05),
+        _row("Player B", team="NYY", market="hits", ev=0.04),
+    ]
+    table = format_ev_opportunities_table(rows)
+    body = table.splitlines()[2:]
+    assert "▌" in body[0]
+    assert "▌" not in body[1]
+    assert "▌" in body[2]
+
+
+def test_ev_tier_color_code_boundaries():
+    cases = [
+        (5.0, 46),
+        (4.99, 40),
+        (3.0, 40),
+        (2.99, 34),
+        (1.5, 34),
+        (1.49, 28),
+        (0.0, 28),
+        (-0.01, 217),
+        (-1.0, 217),
+        (-1.01, 210),
+        (-2.0, 210),
+        (-2.01, 196),
+    ]
+    for ev_pct, expected in cases:
+        assert _ev_tier_color_code(ev_pct) == expected
+
+
+def test_format_ev_opportunity_row_color_ev_tier_ansi():
+    row = {
+        "player": "Test",
+        "league": "MLB",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+        "ev_pct": 4.99,
+    }
+    line = format_ev_opportunity_row(row, color_ev=True)
+    ev_cell = line.split(" | ")[_EV_CELL_INDEX]
+    assert ev_cell.startswith("\033[38;5;40m")
+    assert ev_cell.endswith("\033[0m")
+
+
+def test_format_ev_opportunity_row_color_ev_skips_missing_ev_pct():
+    row = {
+        "player": "Test",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+    }
+    line = format_ev_opportunity_row(row, color_ev=True)
+    assert "\033[38;5;" not in line
+
+
+def test_highlight_and_color_ev_combined_preserves_row_highlight():
+    row = {
+        "player": "Aaron Judge",
+        "league": "MLB",
+        "side": "over",
+        "market": "hits",
+        "line": 1.5,
+        "ev_pct": 3.2,
+        "dk_over_odds": -115,
+        "dk_under_odds": -110,
+    }
+    table = format_ev_opportunities_table(
+        [row],
+        highlight=lambda r: True,
+        color_ev=True,
+    )
+    cells = table.splitlines()[2].split(" | ")
+    assert cells[_EV_CELL_INDEX].startswith("\033[1;38;5;40m")
+    assert cells[_EV_CELL_INDEX - 1].startswith("\033[1;33m")
+    assert cells[_EV_CELL_INDEX + 1].startswith("\033[1;33m")
+
+
+def test_team_cluster_colors_distinct_teams():
+    rows = [
+        _row("Player A", team="NYY", ev=0.10),
+        _row("Player B", team="NYY", ev=0.09),
+        _row("Player C", team="LAD", ev=0.08),
+        _row("Player D", team="LAD", ev=0.07),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    codes = {_stack_cell_ansi_code(line) for line in table.splitlines()[2:] if "▌" in line}
+    assert codes == {_TEAM_CLUSTER_COLOR_BANK[0], _TEAM_CLUSTER_COLOR_BANK[1]}
+
+
+def test_team_cluster_colors_same_team_shares_color():
+    rows = [
+        _row("Player A", team="NYY", market="hits", ev=0.08),
+        _row("Player A", team="NYY", market="runs", line=0.5, ev=0.03),
+        _row("Player B", team="NYY", ev=0.06),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    codes = [_stack_cell_ansi_code(line) for line in table.splitlines()[2:] if "▌" in line]
+    assert len(codes) == 2
+    assert codes[0] == codes[1] == _TEAM_CLUSTER_COLOR_BANK[0]
+
+
+def test_team_cluster_colors_first_appearance_order():
+    rows = [
+        _row("LAD-1", team="LAD", ev=0.10),
+        _row("LAD-2", team="LAD", ev=0.09),
+        _row("NYY-1", team="NYY", ev=0.08),
+        _row("NYY-2", team="NYY", ev=0.07),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    by_team: dict[str, int] = {}
+    for line in table.splitlines()[2:]:
+        if "▌" not in line:
+            continue
+        if "LAD" in line.split(" | ")[0]:
+            by_team.setdefault("LAD", _stack_cell_ansi_code(line))
+        elif "NYY" in line.split(" | ")[0]:
+            by_team.setdefault("NYY", _stack_cell_ansi_code(line))
+    assert by_team["LAD"] == _TEAM_CLUSTER_COLOR_BANK[0]
+    assert by_team["NYY"] == _TEAM_CLUSTER_COLOR_BANK[1]
+
+
+def test_team_cluster_colors_cycle_beyond_bank():
+    teams = ["NYY", "LAD", "BOS", "HOU", "SF", "ATL", "CHC"]
+    rows = []
+    for team in teams:
+        rows.append(_row(f"P1-{team}", team=team, ev=0.10))
+        rows.append(_row(f"P2-{team}", team=team, ev=0.09))
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    first_color_by_team: dict[str, int] = {}
+    for line in table.splitlines()[2:]:
+        if "▌" not in line:
+            continue
+        player = line.split(" | ")[0].strip()
+        team = player.split("-", 1)[1]
+        code = _stack_cell_ansi_code(line)
+        assert code is not None
+        first_color_by_team.setdefault(team, code)
+    ordered = [first_color_by_team[t] for t in teams]
+    bank = list(_TEAM_CLUSTER_COLOR_BANK)
+    assert ordered == bank + [bank[0]]
+
+
+def test_team_cluster_color_highlight_exempt_on_stack_cell():
+    rows = [
+        _row("Player A", team="NYY", ev=0.08),
+        _row("Player B", team="NYY", ev=0.06),
+    ]
+    table = format_ev_opportunities_table(rows, highlight=lambda r: True, color_ev=True)
+    for line in table.splitlines()[2:]:
+        if "▌" not in line:
+            continue
+        stack = line.split(" | ")[_STACK_CELL_INDEX]
+        assert stack.startswith("\033[38;5;")
+        assert "\033[1;33m" not in stack
+
+
+def test_team_cluster_marker_cross_league_no_color():
+    rows = [
+        _row("Twins Player", team="MIN", league="MLB", ev=0.05),
+        _row("Lynx Player", team="MIN", league="WNBA", ev=0.04),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    for line in table.splitlines()[2:]:
+        assert "▌" not in line
+        assert _stack_cell_ansi_code(line) is None
+
+
+def test_team_cluster_marker_plain_path_no_ansi():
+    rows = [
+        _row("Player A", team="NYY", ev=0.08),
+        _row("Player B", team="NYY", ev=0.06),
+    ]
+    table = format_ev_opportunities_table(rows)
+    assert "Stack" in table.splitlines()[0]
+    for line in table.splitlines()[2:]:
+        assert "\033[" not in line

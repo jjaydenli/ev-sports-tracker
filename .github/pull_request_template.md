@@ -1,11 +1,12 @@
 ## Summary
 
-<!-- Bullets from commit bodies. Run ./scripts/open_pr.sh for a prefilled create page. -->
+<!-- What changed and why (2–4 bullets). The PR title becomes the one-line squash commit on main. -->
 
 ## Test plan
 
 - [ ] `cd backend && pytest -q`
+- [ ] Smoke: `./ev` and/or `./loop` if CLI or display output changed
 
-## Commits
+## Design
 
-<!-- Conventional commit subjects on this branch. Filled by scripts/open_pr.sh or --create. -->
+<!-- Link `docs/design/<adr>.md` when applicable; remove this section if none. -->

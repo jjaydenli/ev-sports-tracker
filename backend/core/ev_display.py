@@ -8,9 +8,16 @@ from collections import defaultdict
 from collections.abc import Callable
 
 # Column order for pipeline_runner / run_ev_scan console table.
+# The stack column is a colour swatch, not a word. Its header is an uncoloured marker: it keeps
+# the column at marker width and previews the glyph in the neutral "no cluster" colour, so the
+# column self-describes without a header word. Deliberately plain — format_ev_table_header() must
+# stay ANSI-free for non-terminal consumers.
+_STACK_HEADER = "▌"
+
 EV_TABLE_HEADERS: tuple[str, ...] = (
     "Player",
     "Lg",
+    _STACK_HEADER,
     "Game",
     "Side",
     "Stat",
@@ -22,18 +29,17 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
     "ESPN",
     "Src",
     "Live",
-    "Stack",
 )
 
 # Minimum column widths (excluding separator spaces). Stat fits the longest MARKET_ABBREV
-# ("H+R+RBI"), Src the longest label ("exact·N"); both are 7.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 7, 4, 5, 5, 10, 10, 10, 7, 4, 5)
+# ("H+R+RBI"), Src the longest label ("exact·N"); both are 7. Stack is marker-width.
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 1, 9, 4, 7, 4, 5, 5, 10, 10, 10, 7, 4)
 
 _TEAM_CLUSTER_MARKER = "▌"
 _TEAM_CLUSTER_COLOR_BANK: tuple[int, ...] = (33, 208, 51, 201, 99, 30)
 
-_EV_CELL_INDEX = 7
-_STACK_CELL_INDEX = 13
+_EV_CELL_INDEX = 8
+_STACK_CELL_INDEX = 2
 _HIGHLIGHT_START = "\033[1;33m"
 _RESET = "\033[0m"
 
@@ -225,6 +231,7 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
     return (
         str(row.get("player", "")),
         _format_league(row.get("league")),
+        marker,
         _format_game(row.get("game"), row.get("team")),
         _format_side(row.get("side")),
         _format_market(row.get("market")),
@@ -248,7 +255,6 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
         ),
         _format_src(row),
         live_text,
-        marker,
     )
 
 
@@ -394,7 +400,8 @@ def format_ev_opportunities_table(
     """Header + body lines for ranked EV opportunities."""
     cluster_markers = _compute_team_cluster_markers(rows)
     cluster_colors = _compute_team_cluster_colors(rows, cluster_markers)
-    lines = [format_ev_table_header(), "-" * len(format_ev_table_header())]
+    header = format_ev_table_header()
+    lines = [header, "-" * _display_width(header)]
     for index, row in enumerate(rows):
         is_highlighted = highlight(row) if highlight is not None else False
         lines.append(

@@ -206,7 +206,14 @@ def test_format_ev_opportunities_table_includes_header():
     assert "ESPN" in table
     assert "Src" in table
     assert "Live" in table
-    assert "Stack" in table
+    # The stack column's header is the marker itself: it holds the column at marker width
+    # and previews the glyph, so no header word is needed.
+    assert table.splitlines()[0].split(" | ")[_STACK_CELL_INDEX] == "▌"
+
+
+def test_table_header_is_ansi_free():
+    """Non-terminal consumers read this verbatim; the header must carry no colour."""
+    assert "\033[" not in format_ev_table_header()
 
 
 def test_format_ev_opportunities_table_default_matches_plain_rows():
@@ -287,9 +294,7 @@ def test_format_ev_opportunity_row_not_live_shows_dash():
         "is_live": False,
     }
     line = format_ev_opportunity_row(row)
-    cells = [c.strip() for c in line.split("|")]
-    live_cell = cells[-2]
-    assert live_cell == "—"
+    assert _cell_by_header(line, "Live") == "—"
 
 
 def test_format_ev_opportunity_row_missing_league_shows_dash():
@@ -300,9 +305,8 @@ def test_format_ev_opportunity_row_missing_league_shows_dash():
         "line": 10.5,
     }
     line = format_ev_opportunity_row(row)
-    cells = [c.strip() for c in line.split("|")]
-    assert cells[1] == "—"
-    assert cells[2] == "—"
+    assert _cell_by_header(line, "Lg") == "—"
+    assert _cell_by_header(line, "Game") == "—"
 
 
 def _row(player, *, team, league="MLB", market="hits", line=1.5, ev=0.05, ev_pct=5.0):
@@ -529,6 +533,6 @@ def test_team_cluster_marker_plain_path_no_ansi():
         _row("Player B", team="NYY", ev=0.06),
     ]
     table = format_ev_opportunities_table(rows)
-    assert "Stack" in table.splitlines()[0]
+    assert "▌" in table
     for line in table.splitlines()[2:]:
         assert "\033[" not in line

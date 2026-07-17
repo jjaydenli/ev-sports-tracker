@@ -24,7 +24,8 @@ band — tier boundaries are denser on the low-positive end so the best plays st
    row. `./ev` passes no `highlight` kwarg; `./loop` passes
    `highlight=lambda p: prop_key(p) not in seen` (notified-set state stays in the loop).
 
-2. **Same-team parlay cluster marker (`Stack` column).** Appended as the last column. Computed once
+2. **Same-team parlay cluster marker (`Stack` column).** Sits between `Lg` and `Game`, so the
+   per-team tint reads adjacent to the player name it groups. Computed once
    per `format_ev_opportunities_table` call over its `rows` argument (already the displayed,
    top-`n`-truncated board upstream). Algorithm:
    - Group rows by `(league, team)`; skip rows with no `team`.

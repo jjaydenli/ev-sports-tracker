@@ -1,7 +1,10 @@
 import re
 
 from core.ev_display import (
+    EV_TABLE_HEADERS,
     EV_TABLE_WIDTHS,
+    _EV_CELL_INDEX,
+    _STACK_CELL_INDEX,
     _TEAM_CLUSTER_COLOR_BANK,
     _display_width,
     _ev_tier_color_code,
@@ -12,8 +15,10 @@ from core.ev_display import (
     format_ou_odds,
 )
 
-_EV_CELL_INDEX = 7
-_STACK_CELL_INDEX = 13
+
+def _cell_by_header(line: str, header: str) -> str:
+    """Column value by header name, so tests survive a column reorder."""
+    return line.split(" | ")[EV_TABLE_HEADERS.index(header)].strip()
 
 
 def _stack_cell_ansi_code(line: str) -> int | None:
@@ -36,7 +41,7 @@ def _assert_row_column_widths(line: str) -> None:
         assert _display_width(cell) == width
 
 
-def test_format_ev_opportunity_row_ou_ms_combo_src():
+def test_format_ev_opportunity_row_milestone_reference_odds():
     row = {
         "player": "Junior Perez",
         "league": "MLB",
@@ -51,13 +56,47 @@ def test_format_ev_opportunity_row_ou_ms_combo_src():
         "fd_over_odds": -165,
         "fd_under_odds": None,
         "fd_milestone_one_sided": True,
-        "line_source": "ou_ms_combo",
+        "line_source": "fd_exact",
     }
     line = format_ev_opportunity_row(row)
-    assert "ou+ms🔶" in line
+    assert _cell_by_header(line, "Src") == "exact"
     assert "-165/🔶" in line
     assert "[CIN]@NYY" in line
     _assert_row_column_widths(line)
+
+
+def _src_for(line_source: str, **extra) -> str:
+    row = {"player": "P", "league": "MLB", "side": "over", "market": "hits",
+           "line": 1.5, "line_source": line_source, **extra}
+    return _cell_by_header(format_ev_opportunity_row(row), "Src")
+
+
+def test_src_exact_family_collapses_book_and_alt_identity():
+    # Book identity and main-vs-alt are trust-neutral; they live in board.json.
+    for method in ("exact", "dk_alt", "fd_exact", "fd_alt", "espn_exact", "espn_alt"):
+        assert _src_for(method) == "exact"
+
+
+def test_src_adjusted_family_collapses_to_quiet_umbrella():
+    for method in (
+        "dk_interpolated",
+        "dk_extrapolated",
+        "dk_milestone_interpolated",
+        "dk_milestone_extrapolated",
+    ):
+        assert _src_for(method) == "adj"
+
+
+def test_src_milestone_only_is_marked_inferred():
+    assert _src_for("dk_milestone_exact") == "ms🔶"
+
+
+def test_src_never_leaks_a_raw_method_string():
+    assert _src_for("some_future_method") == "?"
+
+
+def test_src_consensus_of_one_reads_as_exact():
+    assert _src_for("multi_book_consensus", sharp_books=["DraftKings"]) == "exact"
 
 
 def test_format_game_brackets_player_team():
@@ -86,6 +125,7 @@ def test_format_ev_opportunity_row_columns():
         "espn_over_odds": -140,
         "espn_under_odds": 105,
         "line_source": "multi_book_consensus",
+        "sharp_books": ["DraftKings", "FanDuel", "ESPN"],
     }
     line = format_ev_opportunity_row(row)
     assert "Shai Gilgeous-A" in line
@@ -99,7 +139,7 @@ def test_format_ev_opportunity_row_columns():
     assert "-130/+110" in line
     assert "-125/+105" in line
     assert "-140/+105" in line
-    assert "mb_cons" in line
+    assert _cell_by_header(line, "Src") == "exact·3"
     _assert_row_column_widths(line)
 
 
@@ -121,7 +161,7 @@ def test_format_ev_opportunity_row_fd_only_shows_dk_dash():
     assert "WNBA" in line
     assert "—" in line
     assert "+100/-132" in line
-    assert "fd_alt" in line
+    assert _cell_by_header(line, "Src") == "exact"
 
 
 def test_format_ev_table_header_column_widths():

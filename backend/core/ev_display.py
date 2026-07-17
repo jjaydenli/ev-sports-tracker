@@ -26,7 +26,8 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
 )
 
 # Minimum column widths (excluding separator spaces). Stat widened for longer markets.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 10, 4, 5, 5, 10, 10, 10, 9, 4, 5)
+# Src fits the longest label ("exact·N").
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 10, 4, 5, 5, 10, 10, 10, 7, 4, 5)
 
 _TEAM_CLUSTER_MARKER = "▌"
 _TEAM_CLUSTER_COLOR_BANK: tuple[int, ...] = (33, 208, 51, 201, 99, 30)
@@ -38,12 +39,23 @@ _RESET = "\033[0m"
 
 _ANSI_ESCAPE = re.compile(r"\033\[[0-9;]*m")
 
-# Shorter labels for console table (raw values still in JSON output).
-_LINE_SOURCE_DISPLAY: dict[str, str] = {
-    "multi_book_consensus": "mb_cons",
-    "dk_milestone_exact": "ms🔶",
-    "ou_ms_combo": "ou+ms🔶",
-}
+# Src taxonomy: two roots (a real quote, or an inferred one) — never a raw method string.
+# Book identity and main-vs-alt are trust-neutral and stay in board.json's sharp_by_book.
+_SRC_EXACT_METHODS: frozenset[str] = frozenset(
+    {"exact", "dk_alt", "fd_exact", "fd_alt", "espn_exact", "espn_alt"}
+)
+# Adjusted lines keep their full adjustment_method in JSON; the terminal shows one quiet
+# umbrella, never the verbose interp/extrap strings. Only dk_interpolated can actually reach
+# the board (is_ev_eligible_quote, line_adjustment.py:78); the rest are defensive.
+_SRC_ADJ_METHODS: frozenset[str] = frozenset(
+    {
+        "dk_interpolated",
+        "dk_extrapolated",
+        "dk_milestone_interpolated",
+        "dk_milestone_extrapolated",
+    }
+)
+_SRC_UNKNOWN = "?"
 
 
 def format_american_odds(value: int | None) -> str:
@@ -66,8 +78,19 @@ def format_ou_odds(
     return f"{format_american_odds(over)}/{under_text}"
 
 
-def _format_line_source(value: str) -> str:
-    return _LINE_SOURCE_DISPLAY.get(value, value)
+def _format_src(row: dict) -> str:
+    """Src label for a row: a real quote (exact / exact·N), or an inferred one (ms🔶 / adj)."""
+    method = str(row.get("line_source", ""))
+    if method == "multi_book_consensus":
+        books = row.get("sharp_books") or ()
+        return f"exact·{len(books)}" if len(books) > 1 else "exact"
+    if method in _SRC_EXACT_METHODS:
+        return "exact"
+    if method == "dk_milestone_exact":
+        return "ms🔶"
+    if method in _SRC_ADJ_METHODS:
+        return "adj"
+    return _SRC_UNKNOWN
 
 
 def _strip_ansi(text: str) -> str:
@@ -163,7 +186,7 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
             row.get("espn_under_odds"),
             milestone_one_sided=bool(row.get("espn_milestone_one_sided")),
         ),
-        _format_line_source(str(row.get("line_source", ""))),
+        _format_src(row),
         live_text,
         marker,
     )

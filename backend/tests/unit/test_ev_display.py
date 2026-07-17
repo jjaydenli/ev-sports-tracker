@@ -1,9 +1,15 @@
 import re
 
+import pytest
+
+from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
 from core.ev_display import (
     EV_TABLE_HEADERS,
     EV_TABLE_WIDTHS,
+    MARKET_ABBREV,
     _EV_CELL_INDEX,
+    _SRC_ADJ_METHODS,
+    _SRC_EXACT_METHODS,
     _STACK_CELL_INDEX,
     _TEAM_CLUSTER_COLOR_BANK,
     _display_width,
@@ -14,6 +20,7 @@ from core.ev_display import (
     format_ev_table_header,
     format_ou_odds,
 )
+from core.line_adjustment import EV_ELIGIBLE_ADJUSTMENT_METHODS
 
 
 def _cell_by_header(line: str, header: str) -> str:
@@ -41,29 +48,49 @@ def _assert_row_column_widths(line: str) -> None:
         assert _display_width(cell) == width
 
 
-def test_market_abbrev_fits_and_is_unambiguous():
-    from core.ev_display import MARKET_ABBREV
+def test_headers_and_widths_stay_in_lockstep():
+    assert len(EV_TABLE_HEADERS) == len(EV_TABLE_WIDTHS)
 
+
+def test_every_column_header_fits_its_own_width():
+    """A header wider than its column ellipsizes into meaninglessness (e.g. 'Stac…')."""
+    for header, width in zip(EV_TABLE_HEADERS, EV_TABLE_WIDTHS, strict=True):
+        assert _display_width(header) <= width, f"header {header!r} overflows width {width}"
+
+
+@pytest.mark.parametrize("market,abbrev", sorted(MARKET_ABBREV.items()))
+def test_market_abbrev_fits_the_stat_column(market, abbrev):
     stat_width = EV_TABLE_WIDTHS[EV_TABLE_HEADERS.index("Stat")]
+    assert _display_width(abbrev) <= stat_width, f"{market}->{abbrev} overflows Stat"
+
+
+def test_market_abbrev_labels_are_unique():
+    """Two markets sharing a label are indistinguishable on the board."""
+    seen: dict[str, str] = {}
     for market, abbrev in MARKET_ABBREV.items():
-        assert _display_width(abbrev) <= stat_width, f"{market}->{abbrev} overflows Stat"
-    # Two markets rendering the same label would be indistinguishable on the board.
-    assert len(set(MARKET_ABBREV.values())) == len(MARKET_ABBREV)
+        assert abbrev not in seen, f"{market} and {seen[abbrev]} both render {abbrev!r}"
+        seen[abbrev] = market
+
+
+# A Stat label equal to a team code is ambiguous against the Game column — "[TB]@NYY | ▲ | TB".
+# Allowlisted only when the stat and the team can never share a row, i.e. different sports.
+_BENIGN_TEAM_CODE_COLLISIONS = {
+    "steals": "basketball-only stat; STL is the MLB Cardinals",
+}
 
 
 def test_market_abbrev_does_not_collide_with_team_codes():
-    """A Stat label equal to a team code is ambiguous against the Game column."""
-    from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
-    from core.ev_display import MARKET_ABBREV
-
     teams = set(TEAM_FULL_NAME_TO_ABBR.values()) | set(TEAM_ABBR_ALIASES)
-    collisions = {m: a for m, a in MARKET_ABBREV.items() if a in teams}
-    # steals->STL is benign: a basketball-only stat vs an MLB-only team code, so a row can
-    # never carry both. total_bases->TB was NOT benign (both MLB) and is now BASES.
-    assert collisions == {"steals": "STL"}, collisions
+    collisions = {m for m, a in MARKET_ABBREV.items() if a in teams}
+    unexpected = collisions - set(_BENIGN_TEAM_CODE_COLLISIONS)
+    assert not unexpected, (
+        f"{unexpected} render as team codes; spell them out (as total_bases->BASES) "
+        f"or allowlist with a reason if the stat and team cannot share a row"
+    )
 
 
-def test_format_ev_opportunity_row_milestone_reference_odds():
+def test_milestone_reference_odds_render_beside_a_two_sided_src():
+    """A book's one-sided milestone shows 🔶 in its own column without claiming the Src."""
     row = {
         "player": "Junior Perez",
         "league": "MLB",
@@ -72,18 +99,14 @@ def test_format_ev_opportunity_row_milestone_reference_odds():
         "side": "over",
         "market": "h+r+rbi",
         "line": 0.5,
-        "side_hit_pct": 55.0,
-        "dk_over_odds": -114,
-        "dk_under_odds": -117,
         "fd_over_odds": -165,
         "fd_under_odds": None,
         "fd_milestone_one_sided": True,
         "line_source": "fd_exact",
     }
     line = format_ev_opportunity_row(row)
+    assert _cell_by_header(line, "FD") == "-165/🔶"
     assert _cell_by_header(line, "Src") == "exact"
-    assert "-165/🔶" in line
-    assert "[CIN]@NYY" in line
     _assert_row_column_widths(line)
 
 
@@ -93,20 +116,32 @@ def _src_for(line_source: str, **extra) -> str:
     return _cell_by_header(format_ev_opportunity_row(row), "Src")
 
 
-def test_src_exact_family_collapses_book_and_alt_identity():
-    # Book identity and main-vs-alt are trust-neutral; they live in board.json.
-    for method in ("exact", "dk_alt", "fd_exact", "fd_alt", "espn_exact", "espn_alt"):
-        assert _src_for(method) == "exact"
+# The complete Src vocabulary. Anything outside this is a leak of engine internals.
+_SRC_LABEL_RE = re.compile(r"^(exact(·\d+)?|ms🔶|adj|\?)$")
+
+# Methods the engine can rank. Derived from the engine's own constant rather than restated
+# here, so a newly-eligible method is covered the moment it is added — the point of the tests
+# below is to fail until it is deliberately given a Src label.
+_RANKABLE_METHODS = sorted(EV_ELIGIBLE_ADJUSTMENT_METHODS | {"dk_milestone_exact"})
 
 
-def test_src_adjusted_family_collapses_to_quiet_umbrella():
-    for method in (
-        "dk_interpolated",
-        "dk_extrapolated",
-        "dk_milestone_interpolated",
-        "dk_milestone_extrapolated",
-    ):
-        assert _src_for(method) == "adj"
+@pytest.mark.parametrize("method", _RANKABLE_METHODS)
+def test_src_maps_every_rankable_method_to_a_real_label(method):
+    """A method the engine can rank must never fall through to the unknown placeholder."""
+    label = _src_for(method, sharp_books=["DraftKings", "FanDuel"])
+    assert label != "?", f"{method} is EV-eligible but has no Src mapping"
+    assert _SRC_LABEL_RE.match(label), f"{method} rendered {label!r}, not a known Src label"
+
+
+@pytest.mark.parametrize("method", sorted(_SRC_EXACT_METHODS))
+def test_src_exact_family_collapses_book_and_alt_identity(method):
+    """Book identity and main-vs-alt are trust-neutral; they live in board.json."""
+    assert _src_for(method) == "exact"
+
+
+@pytest.mark.parametrize("method", sorted(_SRC_ADJ_METHODS))
+def test_src_adjusted_family_collapses_to_quiet_umbrella(method):
+    assert _src_for(method) == "adj"
 
 
 def test_src_milestone_only_is_marked_inferred():
@@ -117,8 +152,24 @@ def test_src_never_leaks_a_raw_method_string():
     assert _src_for("some_future_method") == "?"
 
 
+@pytest.mark.parametrize("n", [2, 3, 5])
+def test_src_consensus_counts_corroborating_books(n):
+    books = [f"Book{i}" for i in range(n)]
+    assert _src_for("multi_book_consensus", sharp_books=books) == f"exact·{n}"
+
+
 def test_src_consensus_of_one_reads_as_exact():
+    """'cons·1' would be awkward; a lone book is just an exact quote."""
     assert _src_for("multi_book_consensus", sharp_books=["DraftKings"]) == "exact"
+
+
+def test_src_labels_all_fit_the_column():
+    """Src is sized to the longest label; a wider one would ellipsize."""
+    src_width = EV_TABLE_WIDTHS[EV_TABLE_HEADERS.index("Src")]
+    labels = [_src_for(m, sharp_books=["a", "b", "c"]) for m in _RANKABLE_METHODS]
+    labels.append(_src_for("unmapped"))
+    for label in labels:
+        assert _display_width(label) <= src_width, f"{label!r} overflows Src"
 
 
 def test_format_game_brackets_player_team():

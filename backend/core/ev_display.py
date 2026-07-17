@@ -25,9 +25,9 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
     "Stack",
 )
 
-# Minimum column widths (excluding separator spaces). Stat widened for longer markets.
-# Src fits the longest label ("exact·N").
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 10, 4, 5, 5, 10, 10, 10, 7, 4, 5)
+# Minimum column widths (excluding separator spaces). Stat fits the longest MARKET_ABBREV
+# ("H+R+RBI"), Src the longest label ("exact·N"); both are 7.
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 7, 4, 5, 5, 10, 10, 10, 7, 4, 5)
 
 _TEAM_CLUSTER_MARKER = "▌"
 _TEAM_CLUSTER_COLOR_BANK: tuple[int, ...] = (33, 208, 51, 201, 99, 30)
@@ -56,6 +56,54 @@ _SRC_ADJ_METHODS: frozenset[str] = frozenset(
     }
 )
 _SRC_UNKNOWN = "?"
+
+# Betting-idiomatic market abbreviations, keyed on canonical markets (config/market_maps.py).
+# Extend alongside any new canonical market; unmapped markets fall through to the raw name.
+# Bare single letters and team-code collisions are spelled out; established multi-letter
+# notation is kept as-is.
+MARKET_ABBREV: dict[str, str] = {
+    # MLB — batting
+    "hits": "HITS",
+    # "TB" is standard notation but collides with the Tampa Bay Rays team code, which
+    # renders a few columns away in Game (e.g. "[TB]@NYY | ▲ | TB").
+    "total_bases": "BASES",
+    "home_runs": "HR",
+    "h+r+rbi": "H+R+RBI",
+    "rbi": "RBI",
+    "runs": "RUNS",
+    "singles": "1B",
+    "doubles": "2B",
+    "walks": "BB",
+    # MLB — pitching ("_A" = allowed, to stay distinct from the batting markets; box scores
+    # reuse H/BB for both because batting and pitching live in separate tables — ours do not).
+    "strikeouts": "K",
+    "earned_runs": "ER",
+    "total_outs": "OUTS",
+    "hits_allowed": "HITS_A",
+    "pitching_walks": "BB_A",
+    # NBA / WNBA — official NBA/WNBA glossary notation
+    "points": "PTS",
+    "rebounds": "REB",
+    "assists": "AST",
+    "threes": "3PM",
+    "steals": "STL",
+    "blocks": "BLK",
+    "turnovers": "TOV",
+    "fouls": "PF",
+    "fg_made": "FGM",
+    "fg_attempted": "FGA",
+    "ft_made": "FTM",
+    "ft_attempted": "FTA",
+    "3pt_att": "3PA",
+    "fantasy_pts": "FPTS",
+    "stl+blk": "STL+BLK",
+    "pra": "PRA",
+    "pts+reb": "PTS+REB",
+    "pts+ast": "PTS+AST",
+    "reb+ast": "REB+AST",
+}
+
+_SIDE_GLYPH: dict[str, str] = {"over": "▲", "under": "▼"}
 
 
 def format_american_odds(value: int | None) -> str:
@@ -91,6 +139,18 @@ def _format_src(row: dict) -> str:
     if method in _SRC_ADJ_METHODS:
         return "adj"
     return _SRC_UNKNOWN
+
+
+def _format_market(value: str) -> str:
+    """Betting-idiomatic abbreviation; unmapped markets fall through to the raw name."""
+    market = str(value or "")
+    return MARKET_ABBREV.get(market, market)
+
+
+def _format_side(value: str) -> str:
+    """▲/▼ for over/under; any other side (e.g. an O/U collapse) renders as its own label."""
+    side = str(value or "").strip().lower()
+    return _SIDE_GLYPH.get(side, str(value or "").upper())
 
 
 def _strip_ansi(text: str) -> str:
@@ -166,8 +226,8 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
         str(row.get("player", "")),
         _format_league(row.get("league")),
         _format_game(row.get("game"), row.get("team")),
-        str(row.get("side", "")).upper(),
-        str(row.get("market", "")),
+        _format_side(row.get("side")),
+        _format_market(row.get("market")),
         line_text,
         hit_text,
         ev_text,

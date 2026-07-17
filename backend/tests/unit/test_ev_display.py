@@ -41,6 +41,28 @@ def _assert_row_column_widths(line: str) -> None:
         assert _display_width(cell) == width
 
 
+def test_market_abbrev_fits_and_is_unambiguous():
+    from core.ev_display import MARKET_ABBREV
+
+    stat_width = EV_TABLE_WIDTHS[EV_TABLE_HEADERS.index("Stat")]
+    for market, abbrev in MARKET_ABBREV.items():
+        assert _display_width(abbrev) <= stat_width, f"{market}->{abbrev} overflows Stat"
+    # Two markets rendering the same label would be indistinguishable on the board.
+    assert len(set(MARKET_ABBREV.values())) == len(MARKET_ABBREV)
+
+
+def test_market_abbrev_does_not_collide_with_team_codes():
+    """A Stat label equal to a team code is ambiguous against the Game column."""
+    from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
+    from core.ev_display import MARKET_ABBREV
+
+    teams = set(TEAM_FULL_NAME_TO_ABBR.values()) | set(TEAM_ABBR_ALIASES)
+    collisions = {m: a for m, a in MARKET_ABBREV.items() if a in teams}
+    # steals->STL is benign: a basketball-only stat vs an MLB-only team code, so a row can
+    # never carry both. total_bases->TB was NOT benign (both MLB) and is now BASES.
+    assert collisions == {"steals": "STL"}, collisions
+
+
 def test_format_ev_opportunity_row_milestone_reference_odds():
     row = {
         "player": "Junior Perez",
@@ -130,8 +152,8 @@ def test_format_ev_opportunity_row_columns():
     line = format_ev_opportunity_row(row)
     assert "Shai Gilgeous-A" in line
     assert "NBA" in line
-    assert "OVER" in line
-    assert "points" in line
+    assert _cell_by_header(line, "Side") == "▲"
+    assert _cell_by_header(line, "Stat") == "PTS"
     assert "29.5" in line
     assert "52.4%" in line
     assert "+3.2" in line
@@ -162,6 +184,7 @@ def test_format_ev_opportunity_row_fd_only_shows_dk_dash():
     assert "—" in line
     assert "+100/-132" in line
     assert _cell_by_header(line, "Src") == "exact"
+    assert _cell_by_header(line, "Side") == "▼"
 
 
 def test_format_ev_table_header_column_widths():

@@ -1,7 +1,16 @@
 import re
 
+import pytest
+
+from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
 from core.ev_display import (
+    EV_TABLE_HEADERS,
     EV_TABLE_WIDTHS,
+    MARKET_ABBREV,
+    _EV_CELL_INDEX,
+    _SRC_ADJ_METHODS,
+    _SRC_EXACT_METHODS,
+    _STACK_CELL_INDEX,
     _TEAM_CLUSTER_COLOR_BANK,
     _display_width,
     _ev_tier_color_code,
@@ -11,9 +20,12 @@ from core.ev_display import (
     format_ev_table_header,
     format_ou_odds,
 )
+from core.line_adjustment import EV_ELIGIBLE_ADJUSTMENT_METHODS
 
-_EV_CELL_INDEX = 7
-_STACK_CELL_INDEX = 13
+
+def _cell_by_header(line: str, header: str) -> str:
+    """Column value by header name, so tests survive a column reorder."""
+    return line.split(" | ")[EV_TABLE_HEADERS.index(header)].strip()
 
 
 def _stack_cell_ansi_code(line: str) -> int | None:
@@ -36,7 +48,49 @@ def _assert_row_column_widths(line: str) -> None:
         assert _display_width(cell) == width
 
 
-def test_format_ev_opportunity_row_ou_ms_combo_src():
+def test_headers_and_widths_stay_in_lockstep():
+    assert len(EV_TABLE_HEADERS) == len(EV_TABLE_WIDTHS)
+
+
+def test_every_column_header_fits_its_own_width():
+    """A header wider than its column ellipsizes into meaninglessness (e.g. 'Stac…')."""
+    for header, width in zip(EV_TABLE_HEADERS, EV_TABLE_WIDTHS, strict=True):
+        assert _display_width(header) <= width, f"header {header!r} overflows width {width}"
+
+
+@pytest.mark.parametrize("market,abbrev", sorted(MARKET_ABBREV.items()))
+def test_market_abbrev_fits_the_stat_column(market, abbrev):
+    stat_width = EV_TABLE_WIDTHS[EV_TABLE_HEADERS.index("Stat")]
+    assert _display_width(abbrev) <= stat_width, f"{market}->{abbrev} overflows Stat"
+
+
+def test_market_abbrev_labels_are_unique():
+    """Two markets sharing a label are indistinguishable on the board."""
+    seen: dict[str, str] = {}
+    for market, abbrev in MARKET_ABBREV.items():
+        assert abbrev not in seen, f"{market} and {seen[abbrev]} both render {abbrev!r}"
+        seen[abbrev] = market
+
+
+# A Stat label equal to a team code is ambiguous against the Game column — "[TB]@NYY | ▲ | TB".
+# Allowlisted only when the stat and the team can never share a row, i.e. different sports.
+_BENIGN_TEAM_CODE_COLLISIONS = {
+    "steals": "basketball-only stat; STL is the MLB Cardinals",
+}
+
+
+def test_market_abbrev_does_not_collide_with_team_codes():
+    teams = set(TEAM_FULL_NAME_TO_ABBR.values()) | set(TEAM_ABBR_ALIASES)
+    collisions = {m for m, a in MARKET_ABBREV.items() if a in teams}
+    unexpected = collisions - set(_BENIGN_TEAM_CODE_COLLISIONS)
+    assert not unexpected, (
+        f"{unexpected} render as team codes; spell them out (as total_bases->BASES) "
+        f"or allowlist with a reason if the stat and team cannot share a row"
+    )
+
+
+def test_milestone_reference_odds_render_beside_a_two_sided_src():
+    """A book's one-sided milestone shows 🔶 in its own column without claiming the Src."""
     row = {
         "player": "Junior Perez",
         "league": "MLB",
@@ -45,19 +99,77 @@ def test_format_ev_opportunity_row_ou_ms_combo_src():
         "side": "over",
         "market": "h+r+rbi",
         "line": 0.5,
-        "side_hit_pct": 55.0,
-        "dk_over_odds": -114,
-        "dk_under_odds": -117,
         "fd_over_odds": -165,
         "fd_under_odds": None,
         "fd_milestone_one_sided": True,
-        "line_source": "ou_ms_combo",
+        "line_source": "fd_exact",
     }
     line = format_ev_opportunity_row(row)
-    assert "ou+ms🔶" in line
-    assert "-165/🔶" in line
-    assert "[CIN]@NYY" in line
+    assert _cell_by_header(line, "FD") == "-165/🔶"
+    assert _cell_by_header(line, "Src") == "exact"
     _assert_row_column_widths(line)
+
+
+def _src_for(line_source: str, **extra) -> str:
+    row = {"player": "P", "league": "MLB", "side": "over", "market": "hits",
+           "line": 1.5, "line_source": line_source, **extra}
+    return _cell_by_header(format_ev_opportunity_row(row), "Src")
+
+
+# The complete Src vocabulary. Anything outside this is a leak of engine internals.
+_SRC_LABEL_RE = re.compile(r"^(exact(·\d+)?|ms🔶|adj|\?)$")
+
+# Methods the engine can rank. Derived from the engine's own constant rather than restated
+# here, so a newly-eligible method is covered the moment it is added — the point of the tests
+# below is to fail until it is deliberately given a Src label.
+_RANKABLE_METHODS = sorted(EV_ELIGIBLE_ADJUSTMENT_METHODS | {"dk_milestone_exact"})
+
+
+@pytest.mark.parametrize("method", _RANKABLE_METHODS)
+def test_src_maps_every_rankable_method_to_a_real_label(method):
+    """A method the engine can rank must never fall through to the unknown placeholder."""
+    label = _src_for(method, sharp_books=["DraftKings", "FanDuel"])
+    assert label != "?", f"{method} is EV-eligible but has no Src mapping"
+    assert _SRC_LABEL_RE.match(label), f"{method} rendered {label!r}, not a known Src label"
+
+
+@pytest.mark.parametrize("method", sorted(_SRC_EXACT_METHODS))
+def test_src_exact_family_collapses_book_and_alt_identity(method):
+    """Book identity and main-vs-alt are trust-neutral; they live in board.json."""
+    assert _src_for(method) == "exact"
+
+
+@pytest.mark.parametrize("method", sorted(_SRC_ADJ_METHODS))
+def test_src_adjusted_family_collapses_to_quiet_umbrella(method):
+    assert _src_for(method) == "adj"
+
+
+def test_src_milestone_only_is_marked_inferred():
+    assert _src_for("dk_milestone_exact") == "ms🔶"
+
+
+def test_src_never_leaks_a_raw_method_string():
+    assert _src_for("some_future_method") == "?"
+
+
+@pytest.mark.parametrize("n", [2, 3, 5])
+def test_src_consensus_counts_corroborating_books(n):
+    books = [f"Book{i}" for i in range(n)]
+    assert _src_for("multi_book_consensus", sharp_books=books) == f"exact·{n}"
+
+
+def test_src_consensus_of_one_reads_as_exact():
+    """'cons·1' would be awkward; a lone book is just an exact quote."""
+    assert _src_for("multi_book_consensus", sharp_books=["DraftKings"]) == "exact"
+
+
+def test_src_labels_all_fit_the_column():
+    """Src is sized to the longest label; a wider one would ellipsize."""
+    src_width = EV_TABLE_WIDTHS[EV_TABLE_HEADERS.index("Src")]
+    labels = [_src_for(m, sharp_books=["a", "b", "c"]) for m in _RANKABLE_METHODS]
+    labels.append(_src_for("unmapped"))
+    for label in labels:
+        assert _display_width(label) <= src_width, f"{label!r} overflows Src"
 
 
 def test_format_game_brackets_player_team():
@@ -86,12 +198,13 @@ def test_format_ev_opportunity_row_columns():
         "espn_over_odds": -140,
         "espn_under_odds": 105,
         "line_source": "multi_book_consensus",
+        "sharp_books": ["DraftKings", "FanDuel", "ESPN"],
     }
     line = format_ev_opportunity_row(row)
     assert "Shai Gilgeous-A" in line
     assert "NBA" in line
-    assert "OVER" in line
-    assert "points" in line
+    assert _cell_by_header(line, "Side") == "▲"
+    assert _cell_by_header(line, "Stat") == "PTS"
     assert "29.5" in line
     assert "52.4%" in line
     assert "+3.2" in line
@@ -99,7 +212,7 @@ def test_format_ev_opportunity_row_columns():
     assert "-130/+110" in line
     assert "-125/+105" in line
     assert "-140/+105" in line
-    assert "mb_cons" in line
+    assert _cell_by_header(line, "Src") == "exact·3"
     _assert_row_column_widths(line)
 
 
@@ -121,7 +234,8 @@ def test_format_ev_opportunity_row_fd_only_shows_dk_dash():
     assert "WNBA" in line
     assert "—" in line
     assert "+100/-132" in line
-    assert "fd_alt" in line
+    assert _cell_by_header(line, "Src") == "exact"
+    assert _cell_by_header(line, "Side") == "▼"
 
 
 def test_format_ev_table_header_column_widths():
@@ -143,7 +257,14 @@ def test_format_ev_opportunities_table_includes_header():
     assert "ESPN" in table
     assert "Src" in table
     assert "Live" in table
-    assert "Stack" in table
+    # The stack column's header is the marker itself: it holds the column at marker width
+    # and previews the glyph, so no header word is needed.
+    assert table.splitlines()[0].split(" | ")[_STACK_CELL_INDEX] == "▌"
+
+
+def test_table_header_is_ansi_free():
+    """Non-terminal consumers read this verbatim; the header must carry no colour."""
+    assert "\033[" not in format_ev_table_header()
 
 
 def test_format_ev_opportunities_table_default_matches_plain_rows():
@@ -224,9 +345,7 @@ def test_format_ev_opportunity_row_not_live_shows_dash():
         "is_live": False,
     }
     line = format_ev_opportunity_row(row)
-    cells = [c.strip() for c in line.split("|")]
-    live_cell = cells[-2]
-    assert live_cell == "—"
+    assert _cell_by_header(line, "Live") == "—"
 
 
 def test_format_ev_opportunity_row_missing_league_shows_dash():
@@ -237,9 +356,8 @@ def test_format_ev_opportunity_row_missing_league_shows_dash():
         "line": 10.5,
     }
     line = format_ev_opportunity_row(row)
-    cells = [c.strip() for c in line.split("|")]
-    assert cells[1] == "—"
-    assert cells[2] == "—"
+    assert _cell_by_header(line, "Lg") == "—"
+    assert _cell_by_header(line, "Game") == "—"
 
 
 def _row(player, *, team, league="MLB", market="hits", line=1.5, ev=0.05, ev_pct=5.0):
@@ -466,6 +584,6 @@ def test_team_cluster_marker_plain_path_no_ansi():
         _row("Player B", team="NYY", ev=0.06),
     ]
     table = format_ev_opportunities_table(rows)
-    assert "Stack" in table.splitlines()[0]
+    assert "▌" in table
     for line in table.splitlines()[2:]:
         assert "\033[" not in line

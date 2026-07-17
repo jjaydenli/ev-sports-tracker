@@ -8,9 +8,16 @@ from collections import defaultdict
 from collections.abc import Callable
 
 # Column order for pipeline_runner / run_ev_scan console table.
+# The stack column is a colour swatch, not a word. Its header is an uncoloured marker: it keeps
+# the column at marker width and previews the glyph in the neutral "no cluster" colour, so the
+# column self-describes without a header word. Deliberately plain — format_ev_table_header() must
+# stay ANSI-free for non-terminal consumers.
+_STACK_HEADER = "▌"
+
 EV_TABLE_HEADERS: tuple[str, ...] = (
     "Player",
     "Lg",
+    _STACK_HEADER,
     "Game",
     "Side",
     "Stat",
@@ -22,28 +29,87 @@ EV_TABLE_HEADERS: tuple[str, ...] = (
     "ESPN",
     "Src",
     "Live",
-    "Stack",
 )
 
-# Minimum column widths (excluding separator spaces). Stat widened for longer markets.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 9, 4, 10, 4, 5, 5, 10, 10, 10, 9, 4, 5)
+# Minimum column widths (excluding separator spaces). Stat fits the longest MARKET_ABBREV
+# ("H+R+RBI"), Src the longest label ("exact·N"); both are 7. Stack is marker-width.
+EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 1, 9, 4, 7, 4, 5, 5, 10, 10, 10, 7, 4)
 
 _TEAM_CLUSTER_MARKER = "▌"
 _TEAM_CLUSTER_COLOR_BANK: tuple[int, ...] = (33, 208, 51, 201, 99, 30)
 
-_EV_CELL_INDEX = 7
-_STACK_CELL_INDEX = 13
+_EV_CELL_INDEX = 8
+_STACK_CELL_INDEX = 2
 _HIGHLIGHT_START = "\033[1;33m"
 _RESET = "\033[0m"
 
 _ANSI_ESCAPE = re.compile(r"\033\[[0-9;]*m")
 
-# Shorter labels for console table (raw values still in JSON output).
-_LINE_SOURCE_DISPLAY: dict[str, str] = {
-    "multi_book_consensus": "mb_cons",
-    "dk_milestone_exact": "ms🔶",
-    "ou_ms_combo": "ou+ms🔶",
+# Src taxonomy: two roots (a real quote, or an inferred one) — never a raw method string.
+# Book identity and main-vs-alt are trust-neutral and stay in board.json's sharp_by_book.
+_SRC_EXACT_METHODS: frozenset[str] = frozenset(
+    {"exact", "dk_alt", "fd_exact", "fd_alt", "espn_exact", "espn_alt"}
+)
+# Adjusted lines keep their full adjustment_method in JSON; the terminal shows one quiet
+# umbrella, never the verbose interp/extrap strings. Only dk_interpolated can actually reach
+# the board (is_ev_eligible_quote, line_adjustment.py:78); the rest are defensive.
+_SRC_ADJ_METHODS: frozenset[str] = frozenset(
+    {
+        "dk_interpolated",
+        "dk_extrapolated",
+        "dk_milestone_interpolated",
+        "dk_milestone_extrapolated",
+    }
+)
+_SRC_UNKNOWN = "?"
+
+# Betting-idiomatic market abbreviations, keyed on canonical markets (config/market_maps.py).
+# Extend alongside any new canonical market; unmapped markets fall through to the raw name.
+# Bare single letters and team-code collisions are spelled out; established multi-letter
+# notation is kept as-is.
+MARKET_ABBREV: dict[str, str] = {
+    # MLB — batting
+    "hits": "HITS",
+    # "TB" is standard notation but collides with the Tampa Bay Rays team code, which
+    # renders a few columns away in Game (e.g. "[TB]@NYY | ▲ | TB").
+    "total_bases": "BASES",
+    "home_runs": "HR",
+    "h+r+rbi": "H+R+RBI",
+    "rbi": "RBI",
+    "runs": "RUNS",
+    "singles": "1B",
+    "doubles": "2B",
+    "walks": "BB",
+    # MLB — pitching ("_A" = allowed, to stay distinct from the batting markets; box scores
+    # reuse H/BB for both because batting and pitching live in separate tables — ours do not).
+    "strikeouts": "K",
+    "earned_runs": "ER",
+    "total_outs": "OUTS",
+    "hits_allowed": "HITS_A",
+    "pitching_walks": "BB_A",
+    # NBA / WNBA — official NBA/WNBA glossary notation
+    "points": "PTS",
+    "rebounds": "REB",
+    "assists": "AST",
+    "threes": "3PM",
+    "steals": "STL",
+    "blocks": "BLK",
+    "turnovers": "TOV",
+    "fouls": "PF",
+    "fg_made": "FGM",
+    "fg_attempted": "FGA",
+    "ft_made": "FTM",
+    "ft_attempted": "FTA",
+    "3pt_att": "3PA",
+    "fantasy_pts": "FPTS",
+    "stl+blk": "STL+BLK",
+    "pra": "PRA",
+    "pts+reb": "PTS+REB",
+    "pts+ast": "PTS+AST",
+    "reb+ast": "REB+AST",
 }
+
+_SIDE_GLYPH: dict[str, str] = {"over": "▲", "under": "▼"}
 
 
 def format_american_odds(value: int | None) -> str:
@@ -66,8 +132,31 @@ def format_ou_odds(
     return f"{format_american_odds(over)}/{under_text}"
 
 
-def _format_line_source(value: str) -> str:
-    return _LINE_SOURCE_DISPLAY.get(value, value)
+def _format_src(row: dict) -> str:
+    """Src label for a row: a real quote (exact / exact·N), or an inferred one (ms🔶 / adj)."""
+    method = str(row.get("line_source", ""))
+    if method == "multi_book_consensus":
+        books = row.get("sharp_books") or ()
+        return f"exact·{len(books)}" if len(books) > 1 else "exact"
+    if method in _SRC_EXACT_METHODS:
+        return "exact"
+    if method == "dk_milestone_exact":
+        return "ms🔶"
+    if method in _SRC_ADJ_METHODS:
+        return "adj"
+    return _SRC_UNKNOWN
+
+
+def _format_market(value: str) -> str:
+    """Betting-idiomatic abbreviation; unmapped markets fall through to the raw name."""
+    market = str(value or "")
+    return MARKET_ABBREV.get(market, market)
+
+
+def _format_side(value: str) -> str:
+    """▲/▼ for over/under; any other side (e.g. an O/U collapse) renders as its own label."""
+    side = str(value or "").strip().lower()
+    return _SIDE_GLYPH.get(side, str(value or "").upper())
 
 
 def _strip_ansi(text: str) -> str:
@@ -142,9 +231,10 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
     return (
         str(row.get("player", "")),
         _format_league(row.get("league")),
+        marker,
         _format_game(row.get("game"), row.get("team")),
-        str(row.get("side", "")).upper(),
-        str(row.get("market", "")),
+        _format_side(row.get("side")),
+        _format_market(row.get("market")),
         line_text,
         hit_text,
         ev_text,
@@ -163,9 +253,8 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
             row.get("espn_under_odds"),
             milestone_one_sided=bool(row.get("espn_milestone_one_sided")),
         ),
-        _format_line_source(str(row.get("line_source", ""))),
+        _format_src(row),
         live_text,
-        marker,
     )
 
 
@@ -311,7 +400,8 @@ def format_ev_opportunities_table(
     """Header + body lines for ranked EV opportunities."""
     cluster_markers = _compute_team_cluster_markers(rows)
     cluster_colors = _compute_team_cluster_colors(rows, cluster_markers)
-    lines = [format_ev_table_header(), "-" * len(format_ev_table_header())]
+    header = format_ev_table_header()
+    lines = [header, "-" * _display_width(header)]
     for index, row in enumerate(rows):
         is_highlighted = highlight(row) if highlight is not None else False
         lines.append(

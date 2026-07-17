@@ -90,15 +90,17 @@ ev-sports-tracker/
     ├── parsers/                        # betr, dk, fd, espn parsers + normalize.py
     ├── core/
     │   ├── models.py, engine.py, line_adjustment.py, ladder_index.py, resolution_math.py, multi_book_resolver.py, flat_line.py
-    │   ├── ev_pipeline.py, ev_display.py  # ranked JSON + console table (EV% tiers, Stack clusters), ev_run_diff.py
+    │   ├── ev_pipeline.py, ev_display.py  # ranked JSON + console table (EV% tiers, Stack clusters, MARKET_ABBREV), ev_run_diff.py
     │   ├── pipeline_scrape.py, pipeline_artifacts.py, scrape_result.py
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
-    └── tests/                          # fixtures, integration, unit; 574 tests
+    └── tests/                          # fixtures, integration, unit; 638 tests
 ```
 
 **EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` with default `--min-ev 0.02`, reprints the table with new-row highlight.
+
+**Console table vocabulary** (`ev_display.py`): raw `adjustment_method` never renders — `Src` collapses to a real quote (`exact`, `exact·N` = N books corroborating) or an inferred one (`ms🔶` one-sided milestone, `adj` line adjusted off the ladder), unknown → `?`. `Stat` renders `MARKET_ABBREV` (betting notation, keyed on canonical markets); `Side` renders `▲`/`▼`. Book identity and main-vs-alt stay in `board.json`'s `sharp_by_book`, not the terminal.
 
 ## 6. Roadmap
 

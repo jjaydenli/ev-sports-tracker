@@ -79,7 +79,7 @@ ev-sports-tracker/
 ├── docs/design/                        # architecture decision records
 ├── .github/workflows/ci.yml
 ├── ev                                    # → backend pipeline_runner
-├── loop                                  # ./ev loop; all leagues + --min-ev 0.02 default; colored table + toast
+├── loop                                  # ./ev loop; all leagues, no default --min-ev; colored table + toast
 └── backend/
     ├── config/                         # headers, market_maps, sharp_books, team_abbrev, settings, *_{subcategories,markets,competitions,queries}, pipeline_sources
     ├── scripts/                        # probe_dk_*, probe_fd_*, probe_espn_*
@@ -98,7 +98,7 @@ ev-sports-tracker/
     └── tests/                          # fixtures, integration, unit; 638 tests
 ```
 
-**EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` with default `--min-ev 0.02`, reprints the table with new-row highlight.
+**EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).
 
 **Console table vocabulary** (`ev_display.py`): raw `adjustment_method` never renders — `Src` collapses to a real quote (`exact`, `exact·N` = N books corroborating) or an inferred one (`ms🔶` one-sided milestone, `adj` line adjusted off the ladder), unknown → `?`. `Stat` renders `MARKET_ABBREV` (betting notation, keyed on canonical markets); `Side` renders `▲`/`▼`. Book identity and main-vs-alt stay in `board.json`'s `sharp_by_book`, not the terminal.
 

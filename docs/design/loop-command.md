@@ -30,13 +30,15 @@ time a prop crosses the `--min-ev` threshold within that run.
 3. **Argument forwarding + defaults.** Every non-loop argument forwards to `./ev` unchanged.
    `--timeout` is the only loop-owned duration flag. With no league flag, `./ev` runs all configured
    leagues (NBA, MLB, WNBA). Filter with `--mlb`, `--nba`, `--wnba`, and/or `--leagues mlb,wnba`
-   (shorthand unions with `--leagues`). When `--min-ev` is omitted, `./loop` injects `0.02` (2%)
-   before forwarding; `./ev` alone has no default filter. Override with `--min-ev X` (negative
-   values include near-breakeven rows per the min-ev ADR).
+   (shorthand unions with `--leagues`). When `--min-ev` is omitted, `./loop` forwards no threshold
+   (full board, still `--top-n`-capped), matching `./ev`'s own behavior. Pass `--min-ev X` to
+   filter (negative values include near-breakeven rows per the min-ev ADR).
 
-4. **`--min-ev` pass-through.** Filters `ev_opportunities.json` to rows with `ev >=` threshold.
-   Toasts fire on new props in that filtered file. `plus_ev` on each row remains `ev > 0`
-   regardless of `--min-ev`.
+4. **`--min-ev` pass-through.** When set, forwarded to `./ev`, which filters
+   `ev_opportunities.json` to rows with `ev >=` threshold. When omitted, the file is unfiltered
+   (still `--top-n`-capped). `./loop` applies its own toast eligibility on top: `plus_ev`
+   (`ev > 0`) and, when `--min-ev` was passed, `ev >=` that threshold — the JSON is not assumed
+   pre-filtered by a default.
 
 5. **Table-only display.** `./ev`'s stderr is redirected to a temporary log (surfaced only on
    failure) so log noise never reaches the table view. After each run the ranked table is
@@ -45,10 +47,12 @@ time a prop crosses the `--min-ev` threshold within that run.
    on non-Stack cells); everything else prints without highlight. Only a one-line iteration/elapsed
    header is added.
 
-6. **Notify only on new matches.** Because the opportunities file is already filtered by
-   `--min-ev`, every prop in it qualifies. A per-run set of prop keys
+6. **Notify only on new matches.** Toast iff `new ∧ plus_ev ∧ (min_ev is None ∨ ev >= min_ev)`.
+   `min_ev` comes from the `--min-ev` value captured at parse time (`MIN_EV_VALUE` env var,
+   empty when omitted → `None` in the embedded python). A per-run set of prop keys
    (`player|market|line|side|league`) tracks what has already been notified; a toast fires only for
-   keys not seen earlier in the run. State is held in a temp file reset on each invocation.
+   keys not seen earlier in the run that also pass the rule above. State is held in a temp file
+   reset on each invocation.
 
 7. **Toast content.** Title `EV alert (N new, M total)`; body is the top new prop as
    `<player> <side> <line> <market>` with underscores in `market` turned into spaces

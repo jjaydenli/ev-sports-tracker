@@ -18,7 +18,7 @@ Loop options:
   --timeout SECS        wall-clock run cap in seconds (default: 300)
 
 Options forwarded to ./ev:
-  --min-ev FRAC         minimum EV fraction (default: 0.02 when omitted)
+  --min-ev FRAC         minimum EV fraction (no default; omit for unfiltered board)
   --mlb, --nba, --wnba  league filter shorthand (union)
   --leagues LIST        comma-separated leagues (union with shorthand)
 
@@ -44,7 +44,7 @@ LOOP_SECONDS=300
 # slate) so the loop paces itself instead of busy-spinning.
 MIN_INTERVAL=2
 EV_ARGS=()
-HAS_MIN_EV=0
+MIN_EV_VALUE=""
 
 die() { printf 'loop: %s\n' "$1" >&2; exit 1; }
 
@@ -62,7 +62,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     --min-ev)
       [[ $# -ge 2 ]] || die "--min-ev needs a value"
-      HAS_MIN_EV=1
+      MIN_EV_VALUE="$2"
       EV_ARGS+=("$1" "$2")
       shift 2
       ;;
@@ -86,13 +86,11 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-[[ $HAS_MIN_EV -eq 0 ]] && EV_ARGS=("--min-ev" "0.02" "${EV_ARGS[@]}")
-
 NOTIFIED_FILE=$(mktemp)
 TOAST_FILE=$(mktemp)
 EV_LOG=$(mktemp)
 trap 'rm -f "$NOTIFIED_FILE" "$TOAST_FILE" "$TOAST_FILE.keys" "$EV_LOG"' EXIT
-export NOTIFIED_FILE TOAST_FILE
+export NOTIFIED_FILE TOAST_FILE MIN_EV_VALUE
 
 # --- OS-agnostic notification backend ---------------------------------------
 # Detected once. WSL is Linux + a Microsoft kernel, so it must be checked before
@@ -242,6 +240,8 @@ from core.ev_display import format_ev_opportunities_table
 
 notified_path = os.environ['NOTIFIED_FILE']
 toast_path    = os.environ['TOAST_FILE']
+min_ev_raw    = os.environ.get('MIN_EV_VALUE', '')
+min_ev        = float(min_ev_raw) if min_ev_raw else None
 
 try:
     with open('data/processed/ev_opportunities.json') as f:
@@ -268,7 +268,18 @@ if props:
 else:
     print('(no props)')
 
-new_props = [(prop_key(p), p) for p in props if prop_key(p) not in seen]
+def toast_eligible(p):
+    ev = p.get('ev')
+    if ev is None or not (float(ev) > 0):
+        return False
+    if min_ev is not None and float(ev) < min_ev:
+        return False
+    return True
+
+new_props = [
+    (prop_key(p), p) for p in props
+    if prop_key(p) not in seen and toast_eligible(p)
+]
 
 if not new_props:
     sys.exit(0)

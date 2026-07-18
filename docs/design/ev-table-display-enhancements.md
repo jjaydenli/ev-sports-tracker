@@ -79,7 +79,7 @@ band — tier boundaries are denser on the low-positive end so the best plays st
 - `backend/core/ev_display.py` — `format_ev_opportunities_table`, `format_ev_opportunity_row`,
   `EV_TABLE_HEADERS`, `EV_TABLE_WIDTHS`, cluster-marker and tier-color helpers.
 - `backend/core/ev_pipeline.py` — ranked table log uses `color_ev=True`.
-- `loop` — all leagues + `--min-ev 0.02` default; `format_ev_opportunities_table` with
+- `loop` — all leagues, no default `--min-ev`; `format_ev_opportunities_table` with
   highlight + `color_ev=True`.
 - `backend/tests/unit/test_ev_display.py` — highlight, marker algorithm, tier boundaries, combined
   ANSI composition.

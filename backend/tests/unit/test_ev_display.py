@@ -122,7 +122,7 @@ _SRC_LABEL_RE = re.compile(r"^(exact(·\d+)?|ms🔶|adj|\?)$")
 # Methods the engine can rank. Derived from the engine's own constant rather than restated
 # here, so a newly-eligible method is covered the moment it is added — the point of the tests
 # below is to fail until it is deliberately given a Src label.
-_RANKABLE_METHODS = sorted(EV_ELIGIBLE_ADJUSTMENT_METHODS | {"dk_milestone_exact"})
+_RANKABLE_METHODS = sorted(EV_ELIGIBLE_ADJUSTMENT_METHODS | {"milestone_exact"})
 
 
 @pytest.mark.parametrize("method", _RANKABLE_METHODS)
@@ -145,7 +145,7 @@ def test_src_adjusted_family_collapses_to_quiet_umbrella(method):
 
 
 def test_src_milestone_only_is_marked_inferred():
-    assert _src_for("dk_milestone_exact") == "ms🔶"
+    assert _src_for("milestone_exact") == "ms🔶"
 
 
 def test_src_never_leaks_a_raw_method_string():

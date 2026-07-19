@@ -1,5 +1,3 @@
-import pytest
-
 from core.engine import (
     DFSSide,
     _book_odds_from_resolved,
@@ -11,6 +9,7 @@ from core.line_adjustment import BookQuote, ResolvedSharpQuote
 from core.multi_book_resolver import (
     _assemble_multi_book_quote,
     _consensus_sharp_quote,
+    _display_for_book,
     load_sharp_book_weights,
     resolve_multi_book_sharp_quote,
 )
@@ -461,3 +460,90 @@ def test_book_odds_from_resolved_preserves_output_keys():
     assert fd_over == -120
     assert espn_over is None
     assert resolved.book_quote("DraftKings").line_kind == "ou"
+
+
+def test_display_for_book_suppresses_synthetic_milestones():
+    quote = ResolvedSharpQuote(
+        over_odds=180,
+        under_odds=None,
+        dk_line=0.5,
+        betr_line=0.5,
+        adjustment_method="milestone_interpolated",
+        corroborated=False,
+        dk_main_line=1.5,
+        ev_line_kind="milestone",
+        per_book=(
+            (
+                "FanDuel",
+                BookQuote(
+                    over_odds=180,
+                    under_odds=None,
+                    line_kind="milestone",
+                    line_source="milestone_interpolated",
+                    milestone_one_sided=True,
+                ),
+            ),
+        ),
+        sharp_books=("FanDuel",),
+        # Real quotes never reach milestone_admitted=True except via the
+        # milestone_exact branch (_resolve_milestone_ladder) — False here matches
+        # what production actually produces for interpolated quotes.
+        milestone_admitted=False,
+    )
+    assert _display_for_book(quote, "FanDuel") is None
+
+
+def test_display_for_book_allows_exact_milestone_without_admission():
+    quote = ResolvedSharpQuote(
+        over_odds=110,
+        under_odds=None,
+        dk_line=0.5,
+        betr_line=0.5,
+        adjustment_method="milestone_exact",
+        corroborated=False,
+        dk_main_line=0.5,
+        ev_line_kind="milestone",
+        per_book=(
+            (
+                "FanDuel",
+                BookQuote(
+                    over_odds=110,
+                    under_odds=None,
+                    line_kind="milestone",
+                    line_source="milestone_exact",
+                    milestone_one_sided=True,
+                ),
+            ),
+        ),
+        sharp_books=("FanDuel",),
+        milestone_admitted=False,
+    )
+    displayed = _display_for_book(quote, "FanDuel")
+    assert displayed is not None
+    assert displayed.over_odds == 110
+
+
+def test_display_for_book_allows_dk_interpolated_ou():
+    """A real DK O/U resolved by interpolation between two bracketing prices displays."""
+    bq = BookQuote(
+        over_odds=127,
+        under_odds=-127,
+        line_kind="ou",
+        line_source="dk_interpolated",
+    )
+    quote = ResolvedSharpQuote(
+        over_odds=127,
+        under_odds=-127,
+        dk_line=24.5,
+        betr_line=24.5,
+        adjustment_method="dk_interpolated",
+        corroborated=True,
+        dk_main_line=22.5,
+        ev_line_kind="ou",
+        per_book=(("DraftKings", bq),),
+        sharp_books=("DraftKings",),
+    )
+    displayed = _display_for_book(quote, "DraftKings")
+    assert displayed is not None
+    assert displayed.over_odds == 127
+    assert displayed.under_odds == -127

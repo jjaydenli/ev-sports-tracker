@@ -74,18 +74,7 @@ def _book_odds_from_resolved(
     espn_over = _book_field("ESPN", "over_odds", resolved)
     espn_under = _book_field("ESPN", "under_odds", resolved)
 
-    dk_kind = _book_field("DraftKings", "line_kind", resolved)
-    if dk_kind == "milestone":
-        if "DraftKings" not in books:
-            dk_over = None
-            dk_under = None
-        if "FanDuel" not in books:
-            fd_over = None
-            fd_under = None
-        if "ESPN" not in books:
-            espn_over = None
-            espn_under = None
-    elif dk_over is None and books == ("DraftKings",):
+    if dk_over is None and books == ("DraftKings",):
         dk_over = resolved.over_odds
         dk_under = resolved.under_odds
     elif fd_over is None and books == ("FanDuel",):
@@ -140,10 +129,7 @@ def _filter_sharp_props_by_match_context(
     if betr_market not in O05_EQUIVALENT_MARKETS or float(betr_prop["line"]) != 0.5:
         return native
 
-    has_native_05 = any(
-        float(prop["line"]) == 0.5 and prop.get("line_kind", "ou") != "milestone"
-        for prop in native
-    )
+    has_native_05 = any(float(prop["line"]) == 0.5 for prop in native)
     if has_native_05:
         return native
 
@@ -153,7 +139,6 @@ def _filter_sharp_props_by_match_context(
             prop.get("market") in O05_EQUIVALENT_MARKETS
             and prop.get("market") != betr_market
             and float(prop.get("line", -1)) == 0.5
-            and prop.get("line_kind", "ou") != "milestone"
         ):
             swapped = {**prop, "market": betr_market}
             if (
@@ -228,7 +213,7 @@ def _append_side_opportunity(
 ) -> None:
     ev = calculate_ev(fair_prob, breakeven_prob)
     no_vig_side, no_vig_prob = _favored_no_vig(fair_over, fair_under)
-    ev_from_milestone = resolved.adjustment_method == "dk_milestone_exact"
+    ev_from_milestone = resolved.adjustment_method == "milestone_exact"
     undisclosed_vig_caveat = ev_from_milestone
     plus_ev = ev > 0
     dk_over, dk_under, fd_over, fd_under, espn_over, espn_under = (

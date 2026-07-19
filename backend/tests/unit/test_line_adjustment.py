@@ -115,7 +115,7 @@ def test_resolve_milestone_exact_at_betr_line():
 
     assert reason is None
     assert quote is not None
-    assert quote.adjustment_method == "dk_milestone_exact"
+    assert quote.adjustment_method == "milestone_exact"
     assert quote.ev_line_kind == "milestone"
     assert quote.under_odds is not None  # under-admitted: fair_over < 0.5 → devigged_under populated
     assert quote.book_quote("DraftKings").over_odds == 110
@@ -215,7 +215,7 @@ def test_milestone_fallback_when_no_ou_bracket():
     )
 
     assert quote is not None
-    assert quote.adjustment_method == "dk_milestone_exact"
+    assert quote.adjustment_method == "milestone_exact"
     assert quote.ev_line_kind == "milestone"
 
 
@@ -449,7 +449,7 @@ def test_is_ev_eligible_ou_ev_with_espn_milestone_display_only():
                     over_odds=-200,
                     under_odds=None,
                     line_kind="milestone",
-                    line_source="dk_milestone_exact",
+                    line_source="milestone_exact",
                     milestone_one_sided=True,
                 ),
             ),
@@ -486,7 +486,7 @@ def test_ou_ms_combo_eliminated_dk_ou_fd_milestone_still_eligible():
         under_odds=None,
         dk_line=0.5,
         betr_line=0.5,
-        adjustment_method="dk_milestone_exact",
+        adjustment_method="milestone_exact",
         corroborated=False,
         dk_main_line=0.5,
         ev_line_kind="milestone",
@@ -497,7 +497,7 @@ def test_ou_ms_combo_eliminated_dk_ou_fd_milestone_still_eligible():
                     over_odds=-165,
                     under_odds=None,
                     line_kind="milestone",
-                    line_source="dk_milestone_exact",
+                    line_source="milestone_exact",
                     milestone_one_sided=True,
                 ),
             ),

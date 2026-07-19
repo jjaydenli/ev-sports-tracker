@@ -19,8 +19,8 @@ Two gaps motivated this change:
 
 ### Book coverage
 
-DraftKings is currently the only sharp book that emits milestones — FanDuel deliberately skips
-them. The de-vig and gate logic lives in the **book-agnostic** layer (`core/line_adjustment.py` /
+DraftKings and FanDuel both emit MLB milestones (one-sided `N+` and two-sided Yes/No
+runners). The de-vig and gate logic lives in the **book-agnostic** layer (`core/line_adjustment.py` /
 `core/engine.py`, keyed off `line_kind`/`line`/`milestone_threshold`, not DK-specific fields) so
 any future book that starts emitting `line_kind == "milestone"` props flows through automatically.
 Three concrete places to avoid DK-only coupling:
@@ -37,7 +37,7 @@ Three concrete places to avoid DK-only coupling:
 1. **De-vig method:** ladder-normalization when a contiguous `N+` ladder exists; hold-shrink
    fallback for a lone threshold.
 
-2. **Eligible resolutions:** only `dk_milestone_exact` (threshold sits exactly at the Betr line).
+2. **Eligible resolutions:** only `milestone_exact` (threshold sits exactly at the Betr line).
    Interpolated/extrapolated milestones stay off the board.
 
 3. **Price gate:** dynamic — strip vig using the **observed O/U hold** for the same

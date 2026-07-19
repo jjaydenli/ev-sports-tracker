@@ -77,7 +77,7 @@ def is_ev_eligible_quote(quote: ResolvedSharpQuote) -> bool:
     """True when the sharp quote is eligible for +EV ranking."""
     if quote.ev_line_kind == "milestone":
         return (
-            quote.adjustment_method == "dk_milestone_exact"
+            quote.adjustment_method == "milestone_exact"
             and quote.milestone_admitted
         )
     return quote.adjustment_method in EV_ELIGIBLE_ADJUSTMENT_METHODS
@@ -252,7 +252,7 @@ def _resolve_milestone_ladder(
             over_odds=raw_over,
             under_odds=None,
             line_kind="milestone",
-            line_source="dk_milestone_exact",
+            line_source="milestone_exact",
             milestone_one_sided=True,
         )
         return (
@@ -261,7 +261,7 @@ def _resolve_milestone_ladder(
                 under_odds=devigged_under if admitted_under else None,
                 dk_line=target_line,
                 betr_line=target_line,
-                adjustment_method="dk_milestone_exact",
+                adjustment_method="milestone_exact",
                 corroborated=False,
                 dk_main_line=dk_main_line,
                 ev_line_kind="milestone",
@@ -291,7 +291,7 @@ def _resolve_milestone_ladder(
             over_odds=over_odds,
             under_odds=None,
             line_kind="milestone",
-            line_source="dk_milestone_interpolated",
+            line_source="milestone_interpolated",
             milestone_one_sided=True,
         )
         return (
@@ -300,7 +300,7 @@ def _resolve_milestone_ladder(
                 under_odds=None,
                 dk_line=target_line,
                 betr_line=target_line,
-                adjustment_method="dk_milestone_interpolated",
+                adjustment_method="milestone_interpolated",
                 corroborated=False,
                 dk_main_line=dk_main_line,
                 ev_line_kind="milestone",

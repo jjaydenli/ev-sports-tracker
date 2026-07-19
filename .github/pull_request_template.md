@@ -1,6 +1,11 @@
+<!--
+Title: Conventional Commits, e.g. `fix(pricing): drop single-anchor extrapolation`.
+Keep it under ~72 chars. This becomes the squash-merge commit on main.
+-->
+
 ## Summary
 
-<!-- What changed and why (2–4 bullets). The PR title becomes the one-line squash commit on main. -->
+<!-- What changed and why. 2–4 bullets. -->
 
 ## Test plan
 

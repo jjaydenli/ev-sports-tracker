@@ -92,7 +92,8 @@ def test_list_unmatched_dk_flags_no_betr_line():
     assert unmatched[0]["reason"] == "no_betr_line"
 
 
-def test_compute_match_stats_extrapolated_only_counts_no_exact_sharp_line():
+def test_compute_match_stats_no_bracket_counts_as_no_dk_bracket():
+    """A single-sided anchor (no bracketing pair) can't interpolate — counts as unbracketed, not matched."""
     betr = [
         {
             "player": "Shai Gilgeous-Alexander",
@@ -117,7 +118,8 @@ def test_compute_match_stats_extrapolated_only_counts_no_exact_sharp_line():
 
     assert stats["matched_keys"] == 0
     assert stats["unmatched_betr"] == 1
-    assert stats["unmatched_betr_no_exact_sharp_line"] == 1
+    assert stats["unmatched_betr_no_dk_bracket"] == 1
+    assert stats["unmatched_betr_no_exact_sharp_line"] == 0
 
 
 def test_compute_match_stats_interpolated_line_counts_as_matched():

@@ -13,8 +13,8 @@ class SharpBookConfig:
     name: str
     ev_priority: int  # lower = preferred EV source
     ou_resolution: OuResolution
-    # "full"       = DK  (exact + interpolate + extrapolate + milestone fallback)
-    # "exact_only" = FD/ESPN (exact O/U only + milestone fallback; no interp/extrap)
+    # "full"       = DK  (exact + interpolate + milestone fallback)
+    # "exact_only" = FD/ESPN (exact O/U only + milestone fallback; no interpolation)
     milestone_fallback: bool
     hold_own_book_only: bool
     # True  = use only own-book O/U hold for milestone devig (DK, FD)

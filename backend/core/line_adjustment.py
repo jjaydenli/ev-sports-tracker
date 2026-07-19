@@ -1,4 +1,4 @@
-"""Align Sportsbook prices to Betr lines via exact alt, interpolation, or extrapolation."""
+"""Align Sportsbook prices to Betr lines via exact alt or interpolation."""
 
 from __future__ import annotations
 
@@ -11,8 +11,6 @@ from core.ladder_index import (
     build_player_market_key,
 )
 from core.resolution_math import (
-    _extrapolate_fair_probs,
-    _extrapolate_milestone_fair_over,
     _fair_over_from_milestone,
     _fair_probs_from_odds,
     _interp_logit,
@@ -114,7 +112,6 @@ def _resolve_ou_ladder(
     normalize_player_name,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
     """Resolve using true O/U DK lines only."""
-    market = betr_prop["market"]
     target_line = float(betr_prop["line"])
     pm_key = build_player_market_key(
         betr_prop, normalize_player_name=normalize_player_name
@@ -196,41 +193,10 @@ def _resolve_ou_ladder(
             None,
         )
 
-    anchor_line = dk_main_line if dk_main_line is not None else sorted_lines[0]
-    anchor = lines[anchor_line]
-    fair_over, fair_under = _fair_probs_from_odds(
-        anchor["over_odds"], anchor["under_odds"]
-    )
-    fair_over, fair_under = _extrapolate_fair_probs(
-        fair_over,
-        fair_under,
-        anchor_line=anchor_line,
-        target_line=target_line,
-        market=market,
-    )
-    over_odds, under_odds = _odds_from_fair_probs(fair_over, fair_under)
-    bq = BookQuote(
-        over_odds=over_odds,
-        under_odds=under_odds,
-        line_kind="ou",
-        line_source="dk_extrapolated",
-    )
-    return (
-        ResolvedSharpQuote(
-            over_odds=over_odds,
-            under_odds=under_odds,
-            dk_line=anchor_line,
-            betr_line=target_line,
-            adjustment_method="dk_extrapolated",
-            corroborated=False,
-            dk_main_line=dk_main_line,
-            ev_line_kind="ou",
-            per_book=(("DraftKings", bq),),
-            sharp_books=("DraftKings",),
-            sharp_event_start=_event_start_from_row(anchor),
-        ),
-        None,
-    )
+    # No bracketing pair — only a single-sided anchor. Extrapolating from one point
+    # with no real second price to fit a slope to produced unvalidated, sometimes
+    # backwards prices; refuse to guess.
+    return None, "no_dk_bracket_for_interp"
 
 
 def _resolve_milestone_ladder(
@@ -345,39 +311,10 @@ def _resolve_milestone_ladder(
             None,
         )
 
-    anchor_line = dk_main_line if dk_main_line is not None else sorted_lines[0]
-    anchor = lines[anchor_line]
-    fair_over = _extrapolate_milestone_fair_over(
-        _fair_over_from_milestone(anchor["over_odds"]),
-        anchor_line=anchor_line,
-        target_line=target_line,
-        market=market,
-    )
-    over_odds, _ = _odds_from_fair_probs(fair_over, 1 - fair_over)
-    ms_book = anchor.get("sportsbook", "DraftKings")
-    bq = BookQuote(
-        over_odds=over_odds,
-        under_odds=None,
-        line_kind="milestone",
-        line_source="dk_milestone_extrapolated",
-        milestone_one_sided=True,
-    )
-    return (
-        ResolvedSharpQuote(
-            over_odds=over_odds,
-            under_odds=None,
-            dk_line=anchor_line,
-            betr_line=target_line,
-            adjustment_method="dk_milestone_extrapolated",
-            corroborated=False,
-            dk_main_line=dk_main_line,
-            ev_line_kind="milestone",
-            per_book=((ms_book, bq),),
-            sharp_books=(ms_book,),
-            sharp_event_start=_event_start_from_row(anchor),
-        ),
-        None,
-    )
+    # No bracketing pair — only a single-sided anchor. Milestone thresholds decay as
+    # a survival curve, not linearly; extrapolating one rung from a single anchor with
+    # no slope estimate is unvalidated guessing.
+    return None, "no_milestone_bracket"
 
 
 def resolve_admitted_milestone_quote(
@@ -412,17 +349,13 @@ def resolve_sharp_quote(
     """
     Resolve DK prices for a Betr prop.
 
-    Prefers true O/U lines; falls back to milestone (N+) when O/U is missing
-    or only extrapolated from a single O/U anchor.
+    Prefers true O/U lines; falls back to milestone (N+) when O/U is missing.
     """
     ou_quote, ou_reason = _resolve_ou_ladder(
         betr_prop, ou_ladder, normalize_player_name=normalize_player_name
     )
 
-    use_milestone = milestone_ladder and (
-        ou_quote is None
-        or ou_quote.adjustment_method == "dk_extrapolated"
-    )
+    use_milestone = milestone_ladder and ou_quote is None
     if use_milestone:
         milestone_ou_ladders = ou_ladders or {"DraftKings": ou_ladder}
         milestone_quote, milestone_reason = _resolve_milestone_ladder(
@@ -498,7 +431,7 @@ def resolve_book_sharp_quote(
     normalize_player_name,
     ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]] | None = None,
 ) -> tuple[ResolvedSharpQuote | None, str | None]:
-    """Resolve one sharp book: O/U first, milestone when O/U missing or extrapolated only."""
+    """Resolve one sharp book: O/U first, milestone when O/U is missing."""
     cfg = SHARP_BOOK_BY_NAME.get(book)
     if cfg is None:
         return None, f"unknown_book_{book}"
@@ -515,10 +448,7 @@ def resolve_book_sharp_quote(
             normalize_player_name=normalize_player_name,
         )
 
-    use_milestone = cfg.milestone_fallback and milestone_ladder and (
-        ou_quote is None
-        or (cfg.ou_resolution == "full" and ou_quote.adjustment_method == "dk_extrapolated")
-    )
+    use_milestone = cfg.milestone_fallback and milestone_ladder and ou_quote is None
     if use_milestone:
         milestone_ou_ladders = ou_ladders or {book: ou_ladder}
         hold_for_milestone = (

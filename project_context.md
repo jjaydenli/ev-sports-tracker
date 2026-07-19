@@ -69,6 +69,7 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 - **De-vig (O/U):** American odds → implied probs; multiplicative removal in `utils/math_utils.py`.
 - **De-vig (milestone):** `devig_milestone_fair_over` in `core/resolution_math.py` (ladder-normalize else hold-shrink; `MILESTONE_MIN_FAIR_OVER` gate).
 - **o0.5 equivalence:** `_filter_sharp_props_by_match_context` may borrow `hits`↔`total_bases` at line 0.5 per book (`O05_EQUIVALENT_MARKETS`).
+- **No line extrapolation:** a Betr line with no bracketing pair of real prices on a sharp book simply does not resolve against that book, rather than projecting an unvalidated price from a single anchor. Interpolation between two real, bracketing prices is supported and has been spot-checked against live odds to within a few percentage points.
 - **EV resolution:** `config/sharp_books.py` registry drives `resolve_book_sharp_quote` in `core/line_adjustment.py`; multi-book assembly in `core/multi_book_resolver.py`. Ladder indexing in `core/ladder_index.py`. `ResolvedSharpQuote` stores `ev_line_kind` + `per_book` (`BookQuote` per book); output JSON flat keys derived via `book_quote()`. Multi-book consensus when 2+ exact O/U (`SHARP_BOOK_WEIGHTS_*`). `DFSSide` / `BETR` in `engine.py` for DFS-side config. One EV row per Betr side. `plus_ev` when `ev > 0`; optional `--min-ev` filters output (`ev >=` threshold, default none).
 
 ## 5. Architecture & File Structure
@@ -100,8 +101,6 @@ ev-sports-tracker/
 
 **EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).
 
-**Console table vocabulary** (`ev_display.py`): raw `adjustment_method` never renders — `Src` collapses to a real quote (`exact`, `exact·N` = N books corroborating) or an inferred one (`ms🔶` one-sided milestone, `adj` line adjusted off the ladder), unknown → `?`. `Stat` renders `MARKET_ABBREV` (betting notation, keyed on canonical markets); `Side` renders `▲`/`▼`. Book identity and main-vs-alt stay in `board.json`'s `sharp_by_book`, not the terminal.
-
 ## 6. Roadmap
 
 ### Next up
@@ -123,3 +122,5 @@ ev-sports-tracker/
 - **FD NBA/WNBA milestones:** `TO_SCORE_*` / made-threes / double-double.
 - **Same-name player disambiguation:** Book player IDs / team context vs key-drop.
 - **FD 1+ hit milestone → o0.5 total_bases:** Map one-sided hit milestones as o0.5 TB source.
+
+**Console table vocabulary** (`ev_display.py`): raw `adjustment_method` never renders — `Src` collapses to a real quote (`exact`, `exact·N` = N books corroborating) or an inferred one (`ms🔶` one-sided milestone, `adj` line adjusted off the ladder), unknown → `?`. `Stat` renders `MARKET_ABBREV` (betting notation, keyed on canonical markets); `Side` renders `▲`/`▼`. Book identity and main-vs-alt stay in `board.json`'s `sharp_by_book`, not the terminal.

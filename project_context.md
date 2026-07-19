@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-07-15
+**Last verified:** 2026-07-18
 
 ## 1. Project Overview
 
@@ -97,31 +97,9 @@ ev-sports-tracker/
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
-    └── tests/                          # fixtures, integration, unit; 638 tests
+    └── tests/                          # fixtures, integration, unit; 641 tests
 ```
 
 **EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).
-
-## 6. Roadmap
-
-### Next up
-
-1. **Live MLB — FanDuel:** Enable in-play handling in `fd_api.py` (skip today at `:439-440`); emit `is_live` rows; confirm live tab ladders.
-2. **New sharp book — Caesars:** `*_api`/`*_engine`/`*_parser` + config + `pipeline_sources.py` (mirror DK/FD/ESPN layout).
-
-### Open
-
-- **Betr live fixture refresh:** Replace synthetic `tests/fixtures/betr_mlb_live.json` with DevTools capture.
-- **MLB props (pregame v2):** `HITTER_STRIKEOUTS` milestone-only on DK; pitching K flat/push — [mlb.md](docs/betting_odds/mlb.md).
-- **MLB milestone-only tabs:** `HITTER_STRIKEOUTS` (`17849`); pitching K push pairing (`15221` + `17323`).
-- **Additional sharp books:** Extend weighted consensus beyond DK/FD/ESPN.
-- **Granular Betr promos:** `MINI_BOOSTED`, `BOOSTED`, `EDGE`, etc.; alternate breakevens.
-- **Race-to-place parlay checker:** DK/FD parlay vs Betr promo multipliers.
-- **Open-parlay live checker (`./check`):** Betr open parlays vs live odds (needs bet-history API).
-- **Promo prop scanner (`./promos`):** Back out per-prop multiplier via 2-leg construction.
-- **FD two-sided MLB milestones:** Yes/No runners → true O/U at `N-0.5`.
-- **FD NBA/WNBA milestones:** `TO_SCORE_*` / made-threes / double-double.
-- **Same-name player disambiguation:** Book player IDs / team context vs key-drop.
-- **FD 1+ hit milestone → o0.5 total_bases:** Map one-sided hit milestones as o0.5 TB source.
 
 **Console table vocabulary** (`ev_display.py`): raw `adjustment_method` never renders — `Src` collapses to a real quote (`exact`, `exact·N` = N books corroborating) or an inferred one (`ms🔶` one-sided milestone, `adj` line adjusted off the ladder), unknown → `?`. `Stat` renders `MARKET_ABBREV` (betting notation, keyed on canonical markets); `Side` renders `▲`/`▼`. Book identity and main-vs-alt stay in `board.json`'s `sharp_by_book`, not the terminal.

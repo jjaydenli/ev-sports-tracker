@@ -87,10 +87,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 NOTIFIED_FILE=$(mktemp)
+SEEN_FILE=$(mktemp)
 TOAST_FILE=$(mktemp)
 EV_LOG=$(mktemp)
-trap 'rm -f "$NOTIFIED_FILE" "$TOAST_FILE" "$TOAST_FILE.keys" "$EV_LOG"' EXIT
-export NOTIFIED_FILE TOAST_FILE MIN_EV_VALUE
+trap 'rm -f "$NOTIFIED_FILE" "$SEEN_FILE" "$TOAST_FILE" "$TOAST_FILE.keys" "$EV_LOG"' EXIT
+export NOTIFIED_FILE SEEN_FILE TOAST_FILE MIN_EV_VALUE
 
 # --- OS-agnostic notification backend ---------------------------------------
 # Detected once. WSL is Linux + a Microsoft kernel, so it must be checked before
@@ -239,6 +240,7 @@ sys.path.insert(0, '.')
 from core.ev_display import format_ev_opportunities_table
 
 notified_path = os.environ['NOTIFIED_FILE']
+seen_path     = os.environ['SEEN_FILE']
 toast_path    = os.environ['TOAST_FILE']
 min_ev_raw    = os.environ.get('MIN_EV_VALUE', '')
 min_ev        = float(min_ev_raw) if min_ev_raw else None
@@ -252,6 +254,18 @@ except (FileNotFoundError, json.JSONDecodeError):
 
 try:
     with open(notified_path) as f:
+        notified = set(f.read().splitlines())
+except FileNotFoundError:
+    notified = set()
+
+# "seen" tracks every prop shown in a prior run this session, independent of
+# toast eligibility — it drives table highlighting only. "notified" (above)
+# tracks props that already fired a toast and is scoped by --min-ev/EV>0, so
+# it must stay separate: a prop that's ineligible for a toast (e.g. negative
+# EV under a negative --min-ev) would otherwise never leave "new" and would
+# highlight on every run instead of just its first appearance.
+try:
+    with open(seen_path) as f:
         seen = set(f.read().splitlines())
 except FileNotFoundError:
     seen = set()
@@ -268,6 +282,13 @@ if props:
 else:
     print('(no props)')
 
+with open(seen_path, 'a') as f:
+    for p in props:
+        key = prop_key(p)
+        if key not in seen:
+            f.write(key + "\n")
+            seen.add(key)
+
 def toast_eligible(p):
     ev = p.get('ev')
     if ev is None or not (float(ev) > 0):
@@ -278,7 +299,7 @@ def toast_eligible(p):
 
 new_props = [
     (prop_key(p), p) for p in props
-    if prop_key(p) not in seen and toast_eligible(p)
+    if prop_key(p) not in notified and toast_eligible(p)
 ]
 
 if not new_props:

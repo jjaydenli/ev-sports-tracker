@@ -5,7 +5,6 @@ from typing import Any
 import httpx
 from loguru import logger
 
-from config.settings import BETR_BEARER_TOKEN
 from scrapers.base_scraper import BaseScraper
 from scrapers.dfs.betr.betr_api import fetch_league_upcoming_events
 from scrapers.dfs.betr.betr_auth import BetrAuthError, ensure_betr_token
@@ -220,22 +219,25 @@ class BetrEngine(BaseScraper):
     default_league = "NBA"
 
     def __init__(self, bearer_token: str | None = None, league: str | None = None):
-        self.bearer_token = bearer_token or BETR_BEARER_TOKEN
+        self._explicit_bearer_token = bearer_token
+        self.bearer_token = bearer_token
         self.league = (league or self.default_league).upper()
 
     async def authenticate(self) -> str | None:
-        if self.bearer_token:
-            return self.bearer_token
+        if self._explicit_bearer_token is not None:
+            return self._explicit_bearer_token
         try:
-            return await ensure_betr_token()
+            token = await ensure_betr_token()
+            self.bearer_token = token
+            return token
         except BetrAuthError as exc:
             logger.error(str(exc))
             return None
 
     async def scrape(self) -> list[dict]:
-        token = await self.authenticate()
+        token = self.bearer_token or await self.authenticate()
         if not token:
-            logger.error("aborting: missing BETR_BEARER_TOKEN")
+            logger.error("aborting: missing Betr bearer token")
             return []
 
         async with httpx.AsyncClient() as client:

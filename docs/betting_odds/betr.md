@@ -165,6 +165,30 @@ cd backend && python -m scrapers.dfs.betr.betr_api MLB
 
 Expect `statuses` to include `IN_PROGRESS` and `live_projections>0` when games are in progress.
 
+## Transient failure retry
+
+`graphql_request` retries a failed request instead of returning `None` on the first error. A single dropped connection previously emptied the Betr slate for the whole run, which surfaced downstream as an empty slate rather than as a network fault.
+
+| Constant | Value | Meaning |
+|----------|-------|---------|
+| `BETR_GRAPHQL_MAX_ATTEMPTS` | `3` | Total attempts, not retries after the first |
+| `BETR_GRAPHQL_RETRY_DELAYS_SEC` | `(1.0, 2.0)` | Backoff before attempts 2 and 3 |
+| `BETR_GRAPHQL_RETRY_STATUS` | `429, 502, 503, 504` | Rate limit, bad gateway, unavailable, gateway timeout |
+
+Retried conditions:
+
+- Any status in `BETR_GRAPHQL_RETRY_STATUS`.
+- `httpx.RequestError` (connect failures, read timeouts, DNS errors).
+
+Not retried, since a repeat request cannot change the outcome:
+
+- `401` / `403`. These mean the token is stale, which is the auth layer's job. See [Token resolution order](#token-resolution-order-ensure_betr_token).
+- Any other `4xx`, including a malformed query.
+
+After the budget is exhausted the function logs the final failure and returns `None`. Callers treat `None` as a failed source rather than an empty slate, so the pipeline reports the failure instead of silently pricing a slate with no Betr props.
+
+Retry constants and loop structure mirror `dk_api.py`. DraftKings carries a longer budget (5 attempts) and retries `403`, because its Akamai layer returns `403 Access Denied` on request bursts. Betr shows no equivalent block, so its status set covers only the standard transient codes; the failure that motivated the retry was a connection-level `RequestError` carrying no HTTP status at all.
+
 ## API
 
 | Operation | Purpose |

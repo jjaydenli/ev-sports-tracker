@@ -1,11 +1,16 @@
 """Betr GraphQL client for LeagueUpcomingEvents requests."""
 
+import asyncio
 from typing import Any
 
 import httpx
 from loguru import logger
 
 from config.api_headers import BETR_BASE_HEADERS, BETR_GRAPHQL_URL
+
+BETR_GRAPHQL_MAX_ATTEMPTS = 3
+BETR_GRAPHQL_RETRY_DELAYS_SEC = (1.0, 2.0)
+BETR_GRAPHQL_RETRY_STATUS = frozenset({429, 502, 503, 504})
 
 LEAGUE_UPCOMING_EVENTS_QUERY = """
 query LeagueUpcomingEvents($league: League!) {
@@ -111,24 +116,66 @@ async def graphql_request(
         "variables": variables or {},
     }
 
-    try:
-        response = await client.post(
-            BETR_GRAPHQL_URL,
-            json=payload,
-            headers=build_betr_headers(bearer_token),
-            timeout=10.0,
-        )
-        response.raise_for_status()
-        return response.json()
-    except httpx.HTTPStatusError as exc:
-        body = exc.response.text[:500]
-        logger.error(
-            f"betr api blocked request: {exc.response.status_code} — {body}"
-        )
-        return None
-    except httpx.RequestError as exc:
-        logger.error(f"betr api request failed: {exc}")
-        return None
+    last_request_error: httpx.RequestError | None = None
+    for attempt in range(1, BETR_GRAPHQL_MAX_ATTEMPTS + 1):
+        try:
+            response = await client.post(
+                BETR_GRAPHQL_URL,
+                json=payload,
+                headers=build_betr_headers(bearer_token),
+                timeout=10.0,
+            )
+            if response.status_code in BETR_GRAPHQL_RETRY_STATUS:
+                if attempt < BETR_GRAPHQL_MAX_ATTEMPTS:
+                    delay = BETR_GRAPHQL_RETRY_DELAYS_SEC[attempt - 1]
+                    logger.warning(
+                        f"betr api transient {response.status_code} for "
+                        f"{operation_name} (attempt {attempt}/{BETR_GRAPHQL_MAX_ATTEMPTS}); "
+                        f"retrying in {delay}s"
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+                logger.error(
+                    f"betr api blocked request after {BETR_GRAPHQL_MAX_ATTEMPTS} "
+                    f"attempts: {response.status_code} — {operation_name}"
+                )
+                return None
+
+            response.raise_for_status()
+            return response.json()
+        except httpx.HTTPStatusError as exc:
+            body = exc.response.text[:500]
+            if exc.response.status_code in BETR_GRAPHQL_RETRY_STATUS:
+                if attempt < BETR_GRAPHQL_MAX_ATTEMPTS:
+                    delay = BETR_GRAPHQL_RETRY_DELAYS_SEC[attempt - 1]
+                    logger.warning(
+                        f"betr api transient {exc.response.status_code} for "
+                        f"{operation_name} (attempt {attempt}/{BETR_GRAPHQL_MAX_ATTEMPTS}); "
+                        f"retrying in {delay}s"
+                    )
+                    await asyncio.sleep(delay)
+                    continue
+            logger.error(
+                f"betr api blocked request: {exc.response.status_code} — {body}"
+            )
+            return None
+        except httpx.RequestError as exc:
+            last_request_error = exc
+            if attempt < BETR_GRAPHQL_MAX_ATTEMPTS:
+                delay = BETR_GRAPHQL_RETRY_DELAYS_SEC[attempt - 1]
+                logger.warning(
+                    f"betr api request failed ({type(exc).__name__}) for "
+                    f"{operation_name} (attempt {attempt}/{BETR_GRAPHQL_MAX_ATTEMPTS}); "
+                    f"retrying in {delay}s"
+                )
+                await asyncio.sleep(delay)
+                continue
+
+    logger.error(
+        f"betr api request failed after {BETR_GRAPHQL_MAX_ATTEMPTS} attempts "
+        f"({type(last_request_error).__name__}): {last_request_error}"
+    )
+    return None
 
 
 async def fetch_league_upcoming_events(
@@ -156,7 +203,6 @@ async def fetch_league_upcoming_events(
 
 async def main(league: str = "NBA") -> None:
     """Fetch and print a summary of LeagueUpcomingEvents (standalone debug entrypoint)."""
-    import asyncio
     import json
     from pathlib import Path
 

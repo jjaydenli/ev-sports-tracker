@@ -7,7 +7,6 @@ from core.line_adjustment import (
     ResolvedSharpQuote,
 )
 from core.multi_book_resolver import _assemble_multi_book_quote
-from core.resolution_math import _extrapolate_fair_probs, _fair_probs_from_odds
 
 
 def test_resolve_exact_line_on_alternate():
@@ -52,7 +51,8 @@ def test_resolve_exact_line_on_alternate():
     assert quote.ev_line_kind == "ou"
 
 
-def test_resolve_extrapolates_when_only_main_line():
+def test_resolve_no_bracket_returns_none():
+    """A single-sided anchor (no bracketing pair) can't interpolate — refuse rather than guess."""
     ladder = build_player_market_ladder(
         [
             {
@@ -78,12 +78,8 @@ def test_resolve_extrapolates_when_only_main_line():
         betr, ladder, normalize_player_name=normalize_player_name
     )
 
-    assert reason is None
-    assert quote is not None
-    assert quote.adjustment_method == "dk_extrapolated"
-    assert quote.corroborated is False
-    assert quote.dk_line == 29.5
-    assert quote.betr_line == 28.5
+    assert quote is None
+    assert reason == "no_dk_bracket_for_interp"
 
 
 def test_resolve_milestone_exact_at_betr_line():
@@ -119,7 +115,7 @@ def test_resolve_milestone_exact_at_betr_line():
 
     assert reason is None
     assert quote is not None
-    assert quote.adjustment_method == "dk_milestone_exact"
+    assert quote.adjustment_method == "milestone_exact"
     assert quote.ev_line_kind == "milestone"
     assert quote.under_odds is not None  # under-admitted: fair_over < 0.5 → devigged_under populated
     assert quote.book_quote("DraftKings").over_odds == 110
@@ -174,7 +170,8 @@ def test_ou_preferred_over_milestone_when_exact_ou_exists():
     assert quote.ev_line_kind == "ou"
 
 
-def test_milestone_fallback_when_ou_extrapolated():
+def test_milestone_fallback_when_no_ou_bracket():
+    """A single-sided OU anchor resolves to None, so milestone fallback still fires."""
     ou_ladder = build_player_market_ladder(
         [
             {
@@ -218,11 +215,11 @@ def test_milestone_fallback_when_ou_extrapolated():
     )
 
     assert quote is not None
-    assert quote.adjustment_method == "dk_milestone_exact"
+    assert quote.adjustment_method == "milestone_exact"
     assert quote.ev_line_kind == "milestone"
 
 
-def test_find_ev_opportunities_skips_extrapolated_line_mismatch():
+def test_find_ev_opportunities_skips_unbracketed_line_mismatch():
     betr = [
         {
             "sportsbook": "Betr",
@@ -250,8 +247,8 @@ def test_find_ev_opportunities_skips_extrapolated_line_mismatch():
     assert results == []
 
 
-def test_fox_points_extrapolated_resolves_but_not_ev_eligible():
-    """De'Aaron Fox 13.5 under: DK scrape had 14.5 only (May 2026 audit)."""
+def test_fox_points_no_bracket_resolves_to_none():
+    """De'Aaron Fox 13.5 under: DK scrape had 14.5 only (May 2026 audit) — no bracket, no quote."""
     betr = {
         "player": "De'Aaron Fox",
         "market": "points",
@@ -277,10 +274,8 @@ def test_fox_points_extrapolated_resolves_but_not_ev_eligible():
         betr, ladder, normalize_player_name=normalize_player_name
     )
 
-    assert reason is None
-    assert quote is not None
-    assert quote.adjustment_method == "dk_extrapolated"
-    assert not is_ev_eligible_quote(quote)
+    assert quote is None
+    assert reason == "no_dk_bracket_for_interp"
 
     dk_rows = [
         {
@@ -295,19 +290,6 @@ def test_fox_points_extrapolated_resolves_but_not_ev_eligible():
     ]
     assert find_ev_opportunities(
         [{"sportsbook": "Betr", **betr}], dk_rows    ) == []
-
-
-def test_extrapolate_lower_line_increases_fair_over():
-    fair_over, fair_under = _fair_probs_from_odds(-102, -124)
-    lower_over, lower_under = _extrapolate_fair_probs(
-        fair_over,
-        fair_under,
-        anchor_line=14.5,
-        target_line=13.5,
-        market="points",
-    )
-    assert lower_over > fair_over
-    assert lower_under < fair_under
 
 
 def test_find_ev_opportunities_skips_non_admitted_milestone_quote():
@@ -467,7 +449,7 @@ def test_is_ev_eligible_ou_ev_with_espn_milestone_display_only():
                     over_odds=-200,
                     under_odds=None,
                     line_kind="milestone",
-                    line_source="dk_milestone_exact",
+                    line_source="milestone_exact",
                     milestone_one_sided=True,
                 ),
             ),
@@ -504,7 +486,7 @@ def test_ou_ms_combo_eliminated_dk_ou_fd_milestone_still_eligible():
         under_odds=None,
         dk_line=0.5,
         betr_line=0.5,
-        adjustment_method="dk_milestone_exact",
+        adjustment_method="milestone_exact",
         corroborated=False,
         dk_main_line=0.5,
         ev_line_kind="milestone",
@@ -515,7 +497,7 @@ def test_ou_ms_combo_eliminated_dk_ou_fd_milestone_still_eligible():
                     over_odds=-165,
                     under_odds=None,
                     line_kind="milestone",
-                    line_source="dk_milestone_exact",
+                    line_source="milestone_exact",
                     milestone_one_sided=True,
                 ),
             ),

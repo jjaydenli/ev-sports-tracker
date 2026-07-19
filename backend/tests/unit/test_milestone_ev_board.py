@@ -168,7 +168,7 @@ def test_is_ev_eligible_milestone_exact_admitted():
         under_odds=None,
         dk_line=0.5,
         betr_line=0.5,
-        adjustment_method="dk_milestone_exact",
+        adjustment_method="milestone_exact",
         corroborated=False,
         dk_main_line=0.5,
         ev_line_kind="milestone",
@@ -182,7 +182,7 @@ def test_is_ev_eligible_milestone_exact_admitted():
         under_odds=None,
         dk_line=0.5,
         betr_line=0.5,
-        adjustment_method="dk_milestone_exact",
+        adjustment_method="milestone_exact",
         corroborated=False,
         dk_main_line=0.5,
         ev_line_kind="milestone",
@@ -195,7 +195,7 @@ def test_is_ev_eligible_milestone_exact_admitted():
         under_odds=None,
         dk_line=1.0,
         betr_line=1.0,
-        adjustment_method="dk_milestone_interpolated",
+        adjustment_method="milestone_interpolated",
         corroborated=False,
         dk_main_line=0.5,
         ev_line_kind="milestone",
@@ -345,7 +345,7 @@ def test_cli_renders_milestone_src_badge():
         "ev_pct": 4.5,
         "dk_over_odds": -200,
         "dk_under_odds": None,
-        "line_source": "dk_milestone_exact",
+        "line_source": "milestone_exact",
     }
     line = format_ev_opportunity_row(row)
     assert "ms🔶" in line
@@ -597,7 +597,7 @@ def test_junior_perez_dk_milestone_used_when_ou_only_at_15():
         milestone_ladder=milestone_ladder,
     )
     assert quote is not None
-    assert quote.adjustment_method == "dk_milestone_exact"
+    assert quote.adjustment_method == "milestone_exact"
     assert quote.sharp_books == ("DraftKings",)
     assert quote.book_quote("DraftKings").over_odds == -114
     assert quote.book_quote("FanDuel") is None

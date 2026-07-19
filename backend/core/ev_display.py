@@ -51,14 +51,13 @@ _SRC_EXACT_METHODS: frozenset[str] = frozenset(
     {"exact", "dk_alt", "fd_exact", "fd_alt", "espn_exact", "espn_alt"}
 )
 # Adjusted lines keep their full adjustment_method in JSON; the terminal shows one quiet
-# umbrella, never the verbose interp/extrap strings. Only dk_interpolated can actually reach
-# the board (is_ev_eligible_quote, line_adjustment.py:78); the rest are defensive.
+# umbrella, never the verbose interp string. Only dk_interpolated can actually reach
+# the board (is_ev_eligible_quote, line_adjustment.py:78); milestone_interpolated is defensive
+# (display-only, never EV-eligible).
 _SRC_ADJ_METHODS: frozenset[str] = frozenset(
     {
         "dk_interpolated",
-        "dk_extrapolated",
-        "dk_milestone_interpolated",
-        "dk_milestone_extrapolated",
+        "milestone_interpolated",
     }
 )
 _SRC_UNKNOWN = "?"
@@ -140,7 +139,7 @@ def _format_src(row: dict) -> str:
         return f"exact·{len(books)}" if len(books) > 1 else "exact"
     if method in _SRC_EXACT_METHODS:
         return "exact"
-    if method == "dk_milestone_exact":
+    if method == "milestone_exact":
         return "ms🔶"
     if method in _SRC_ADJ_METHODS:
         return "adj"

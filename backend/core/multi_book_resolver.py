@@ -34,25 +34,32 @@ def load_sharp_book_weights() -> dict[str, float]:
         "FanDuel": SHARP_BOOK_WEIGHTS_FD,
         "ESPN": SHARP_BOOK_WEIGHTS_ESPN,
     }
+def _is_displayable_quote(quote: ResolvedSharpQuote) -> bool:
+    """True when a per-book quote is real enough to show, even if not EV-source eligible.
+
+    O/U quotes are always shown once resolved: exact/alt is a real posted price, and
+    dk_interpolated is anchored to two real posted prices, so both are legitimate to
+    display even when interpolation makes them ineligible for EV ranking. Milestone
+    quotes are only shown when exact — milestone_interpolated is a ladder-derived
+    synthetic price the book never actually posted, and admission status doesn't
+    change that: even an unadmitted exact price is real, unlike an interpolated one.
+    """
+    if quote.ev_line_kind == "milestone":
+        return quote.adjustment_method == "milestone_exact"
+    return True
+
+
 def _display_for_book(
     quote: ResolvedSharpQuote | None,
     book: str,
 ) -> BookQuote | None:
     if quote is None:
         return None
-    existing = quote.book_quote(book)
-    if existing is not None:
-        return existing
-    if not quote.sharp_books or book in quote.sharp_books:
-        return BookQuote(
-            over_odds=quote.over_odds,
-            under_odds=quote.under_odds,
-            line_kind=quote.ev_line_kind,
-            line_source=quote.adjustment_method,
-            milestone_one_sided=quote.ev_line_kind == "milestone"
-            and quote.under_odds is None,
-        )
-    return None
+    if not _is_displayable_quote(quote):
+        return None
+    return quote.book_quote(book)
+
+
 def _is_eligible_ou_quote(quote: ResolvedSharpQuote) -> bool:
     """True when the book quote is eligible O/U for EV (not milestone)."""
     return (
@@ -131,7 +138,7 @@ def _assemble_multi_book_quote(
                 and quote.ev_line_kind == "milestone"
             ):
                 ev_quote = quote
-                line_source = "dk_milestone_exact"
+                line_source = "milestone_exact"
                 break
         if ev_quote is None:
             return None
@@ -246,7 +253,7 @@ def resolve_multi_book_sharp_quote(
     Resolve DK + FanDuel (+ optional ESPN) sharp prices independently per book.
 
     Each book prefers O/U (exact/alt/interpolated for DK; exact/alt for FD/ESPN), else
-    milestone when O/U is missing or DK-extrapolated only. EV from consensus when
+    milestone when O/U is missing. EV from consensus when
     two or more books have exact O/U, else best eligible O/U (DK preferred), else
     admitted milestone. Cross-book milestone is display-only when another book supplies EV O/U.
     """

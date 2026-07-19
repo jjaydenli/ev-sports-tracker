@@ -1,4 +1,4 @@
-"""Pure probability math for line adjustment (logit, devig, extrapolation)."""
+"""Pure probability math for line adjustment (logit, devig, interpolation)."""
 
 from __future__ import annotations
 
@@ -7,25 +7,6 @@ from typing import Any
 
 from utils.math_utils import american_to_implied, multiplicative_devig
 
-# Logit shift applied per 1.0 point of line gap (target - anchor) by market.
-EXTRAPOLATION_LOGIT_SHIFT_PER_POINT: dict[str, float] = {
-    "points": 0.12,
-    "rebounds": 0.10,
-    "assists": 0.10,
-    "threes": 0.11,
-    "steals": 0.11,
-    "blocks": 0.11,
-    "stl+blk": 0.10,
-    "pra": 0.09,
-    "pts+reb": 0.09,
-    "pts+ast": 0.09,
-    "reb+ast": 0.09,
-    "hits": 0.08,
-    "total_bases": 0.08,
-    "h+r+rbi": 0.08,
-    "singles": 0.08,
-    "default": 0.08,
-}
 
 def _logit(probability: float) -> float:
     clamped = min(max(probability, 1e-6), 1 - 1e-6)
@@ -44,10 +25,6 @@ def _interp_logit(p_low: float, p_high: float, weight_high: float) -> float:
     return _inv_logit((1 - weight_high) * low + weight_high * high)
 
 
-def _shift_per_point(market: str) -> float:
-    return EXTRAPOLATION_LOGIT_SHIFT_PER_POINT.get(
-        market, EXTRAPOLATION_LOGIT_SHIFT_PER_POINT["default"]
-    )
 def estimate_ou_hold(
     ou_ladders: dict[str, dict[str, dict[float, dict[str, Any]]]],
     pm_key: str,
@@ -165,39 +142,4 @@ def _odds_from_fair_probs(fair_over: float, fair_under: float) -> tuple[int, int
     from utils.math_utils import implied_to_american
 
     return implied_to_american(fair_over), implied_to_american(fair_under)
-
-
-def _extrapolate_fair_probs(
-    fair_over: float,
-    fair_under: float,
-    *,
-    anchor_line: float,
-    target_line: float,
-    market: str,
-) -> tuple[float, float]:
-    """
-    Shift fair probs from anchor_line to target_line.
-
-    Lower target vs anchor -> higher over / lower under probability.
-    """
-    gap = anchor_line - target_line
-    shift = _shift_per_point(market) * gap
-    fair_over = _inv_logit(_logit(fair_over) + shift)
-    fair_under = _inv_logit(_logit(fair_under) - shift)
-    total = fair_over + fair_under
-    if total <= 0:
-        return fair_over, fair_under
-    return fair_over / total, fair_under / total
-
-
-def _extrapolate_milestone_fair_over(
-    fair_over: float,
-    *,
-    anchor_line: float,
-    target_line: float,
-    market: str,
-) -> float:
-    gap = anchor_line - target_line
-    shift = _shift_per_point(market) * gap
-    return _inv_logit(_logit(fair_over) + shift)
 

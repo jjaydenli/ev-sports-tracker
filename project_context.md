@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-07-18
+**Last verified:** 2026-07-19
 
 ## 1. Project Overview
 
@@ -22,9 +22,9 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 ### Betr (primary DFS)
 
 - **Role:** Fixed-payout DFS props; primary DFS source.
-- **Code:** `backend/scrapers/dfs/betr/`, `backend/parsers/betr_parser.py`
+- **Code:** `backend/scrapers/dfs/betr/` (`ensure_betr_token`, GraphQL retry), `betr_parser.py`
 - **Live:** `IN_PROGRESS` events + `isLive`/`marketStatus` gates; stamps `is_live`, `game`, `event_start`.
-- **Probe:** `python -m scrapers.dfs.betr.betr_api [LEAGUE]` (default `NBA`)
+- **Probe:** `python -m scrapers.dfs.betr.betr_auth [--try-grant]` · `betr_api [LEAGUE]`
 - **Detail:** [docs/betting_odds/betr.md](docs/betting_odds/betr.md)
 
 ### DraftKings (sharp sportsbook)
@@ -97,7 +97,7 @@ ev-sports-tracker/
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
-    └── tests/                          # fixtures, integration, unit; 641 tests
+    └── tests/                          # fixtures, integration, unit; 656 tests
 ```
 
 **EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).

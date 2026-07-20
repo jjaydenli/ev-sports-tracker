@@ -389,23 +389,10 @@ async def fetch_event_subcategory_markets(
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as exc:
+            # Retry statuses are handled above, before raise_for_status(), so
+            # anything reaching here is non-transient and must not be retried.
             last_status = exc.response.status_code
             body = exc.response.text[:500]
-            if exc.response.status_code in DK_MARKETS_RETRY_STATUS:
-                if attempt < DK_MARKETS_MAX_ATTEMPTS:
-                    delay = DK_MARKETS_RETRY_DELAYS_SEC[attempt - 1]
-                    logger.warning(
-                        f"draftkings api transient {exc.response.status_code} for "
-                        f"{market_label or prop_subcategory_id} (attempt {attempt}/"
-                        f"{DK_MARKETS_MAX_ATTEMPTS}); retrying in {delay}s"
-                    )
-                    await asyncio.sleep(delay)
-                    continue
-                logger.error(
-                    f"draftkings api blocked request after {DK_MARKETS_MAX_ATTEMPTS} "
-                    f"attempts: {exc.response.status_code} — {body[:200]}"
-                )
-                return None
             logger.error(
                 f"draftkings api blocked request: {exc.response.status_code} — {body}"
             )

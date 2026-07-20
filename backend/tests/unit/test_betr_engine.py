@@ -1,8 +1,12 @@
 import json
 from pathlib import Path
 
+import pytest
+
+from scrapers.dfs.betr import betr_engine
 from scrapers.dfs.betr.betr_engine import (
     BETR_LIVE_EVENT_STATUSES,
+    BetrEngine,
     extract_raw_props,
     iter_live_events,
     iter_projections,
@@ -368,6 +372,78 @@ def test_extract_raw_props_live_projection_in_scheduled_event_excluded():
     )
     result = extract_raw_props(payload)
     assert result == []
+
+
+@pytest.mark.asyncio
+async def test_authenticate_refreshes_instead_of_reusing_env_token(monkeypatch):
+    """A stale BETR_BEARER_TOKEN in the environment must not bypass the refresh path.
+
+    Short-circuiting on the env token shipped an expired JWT to GraphQL, which
+    surfaced as an empty slate rather than an auth error.
+    """
+    monkeypatch.setenv("BETR_BEARER_TOKEN", "stale-env-token")
+
+    async def fake_ensure_betr_token():
+        return "refreshed-token"
+
+    monkeypatch.setattr(betr_engine, "ensure_betr_token", fake_ensure_betr_token)
+
+    engine = BetrEngine(league="MLB")
+
+    assert await engine.authenticate() == "refreshed-token"
+    assert engine.bearer_token == "refreshed-token"
+
+
+@pytest.mark.asyncio
+async def test_authenticate_honors_explicit_constructor_token(monkeypatch):
+    """An explicitly injected token wins and never triggers a network refresh."""
+
+    async def unreachable_ensure_betr_token():
+        raise AssertionError("ensure_betr_token must not run for an explicit token")
+
+    monkeypatch.setattr(betr_engine, "ensure_betr_token", unreachable_ensure_betr_token)
+
+    engine = BetrEngine(bearer_token="injected-token", league="MLB")
+
+    assert await engine.authenticate() == "injected-token"
+
+
+@pytest.mark.asyncio
+async def test_authenticate_returns_none_when_no_token_available(monkeypatch):
+    """An auth failure returns None so the caller reports failed, not an empty slate."""
+
+    async def failing_ensure_betr_token():
+        raise betr_engine.BetrAuthError("no valid Betr token")
+
+    monkeypatch.setattr(betr_engine, "ensure_betr_token", failing_ensure_betr_token)
+
+    engine = BetrEngine(league="MLB")
+
+    assert await engine.authenticate() is None
+
+
+@pytest.mark.asyncio
+async def test_scrape_reuses_token_from_prior_authenticate(monkeypatch):
+    """scrape() after authenticate() must not trigger a second token acquisition."""
+    calls = {"count": 0}
+
+    async def counting_ensure_betr_token():
+        calls["count"] += 1
+        return "refreshed-token"
+
+    async def fake_fetch(league, token, client=None):
+        assert token == "refreshed-token"
+        return _league_payload(_scheduled_event())
+
+    monkeypatch.setattr(betr_engine, "ensure_betr_token", counting_ensure_betr_token)
+    monkeypatch.setattr(betr_engine, "fetch_league_upcoming_events", fake_fetch)
+
+    engine = BetrEngine(league="NBA")
+    await engine.authenticate()
+    props = await engine.scrape()
+
+    assert calls["count"] == 1
+    assert len(props) == 1
 
 
 def test_extract_raw_props_betr_wnba_pregame_fixture():

@@ -21,8 +21,7 @@ async def scrape_betr_league(league: str) -> ScrapeResult:
     league_key = normalize_league(league)
     try:
         engine = BetrEngine(league=league_key)
-        token = await engine.authenticate()
-        if not token:
+        if not await engine.authenticate():
             return ScrapeResult(
                 source="betr",
                 league=league_key,

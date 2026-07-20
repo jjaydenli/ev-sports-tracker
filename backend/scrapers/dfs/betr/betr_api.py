@@ -144,17 +144,9 @@ async def graphql_request(
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as exc:
+            # Retry statuses are handled above, before raise_for_status(), so
+            # anything reaching here is non-transient and must not be retried.
             body = exc.response.text[:500]
-            if exc.response.status_code in BETR_GRAPHQL_RETRY_STATUS:
-                if attempt < BETR_GRAPHQL_MAX_ATTEMPTS:
-                    delay = BETR_GRAPHQL_RETRY_DELAYS_SEC[attempt - 1]
-                    logger.warning(
-                        f"betr api transient {exc.response.status_code} for "
-                        f"{operation_name} (attempt {attempt}/{BETR_GRAPHQL_MAX_ATTEMPTS}); "
-                        f"retrying in {delay}s"
-                    )
-                    await asyncio.sleep(delay)
-                    continue
             logger.error(
                 f"betr api blocked request: {exc.response.status_code} — {body}"
             )

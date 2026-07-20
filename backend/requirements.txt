@@ -55,3 +55,5 @@ uvicorn==0.46.0
 uvloop==0.22.1
 watchfiles==1.1.1
 websockets==16.0
+ruff==0.15.22
+mypy==2.3.0

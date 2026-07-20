@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock
 import pytest
 
 from scrapers.dfs.betr.betr_auth import (
-    BetrAuthError,
     DEFAULT_KEYCLOAK_CLIENT_ID,
+    BetrAuthError,
     decode_jwt_payload,
     ensure_betr_token,
     fetch_keycloak_tokens,
@@ -15,7 +15,6 @@ from scrapers.dfs.betr.betr_auth import (
     keycloak_token_url_from_issuer,
     load_token_cache,
     resolve_keycloak_client_id,
-    resolve_keycloak_token_url,
     resolve_keycloak_token_url_source,
     run_auth_probe,
     save_token_cache,

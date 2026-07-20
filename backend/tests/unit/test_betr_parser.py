@@ -1,5 +1,6 @@
 from parsers.betr_parser import parse_betr_prop, parse_betr_props
 
+
 def _both_sides_options():
     return [
         {"market_option_id": "opt-over", "outcome": "OVER"},

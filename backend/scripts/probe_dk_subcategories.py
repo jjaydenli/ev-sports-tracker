@@ -207,11 +207,11 @@ async def main() -> None:
             await _probe(args.event_id, market, prop_subcategory_id)
         return
 
-    ou_categories = stat_categories_for_league(args.league)
+    pregame_categories = stat_categories_for_league(args.league)
     milestone_categories = milestone_categories_for_league(args.league)
 
     print(f"Event {args.event_id}  league={args.league}  mode=pregame\n")
-    for market, prop_subcategory_id in sorted(ou_categories.items()):
+    for market, prop_subcategory_id in sorted(pregame_categories.items()):
         if prop_subcategory_id == "TBD":
             print(f"{market:16} {'TBD':8}  (pending — no id)")
             continue

@@ -7,7 +7,7 @@ not necessarily dropped from the Betr board.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -218,7 +218,7 @@ def format_run_diff_summary(diff: dict[str, Any]) -> str:
 def write_run_diff_json(diff: dict[str, Any], path: Path) -> None:
     """Persist diff buckets under data/processed."""
     payload = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         **diff,
     }
     path.parent.mkdir(parents=True, exist_ok=True)

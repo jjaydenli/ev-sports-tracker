@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from parsers.espn_parser import _line_entries, parse_espn_prop, parse_espn_props
 
-
 # ---------------------------------------------------------------------------
 # _line_entries
 # ---------------------------------------------------------------------------

@@ -6,9 +6,9 @@ from typing import Any
 
 from config.sharp_books import SHARP_BOOKS
 from core.line_adjustment import (
-    BookQuote,
     EV_ELIGIBLE_ADJUSTMENT_METHODS,
     EXACT_AT_TARGET_METHODS,
+    BookQuote,
     ResolvedSharpQuote,
     is_ev_eligible_quote,
     resolve_book_sharp_quote,
@@ -94,16 +94,16 @@ def _assemble_multi_book_quote(
     active_exact = [item for item in exact_books if item[1] is not None]
     if len(active_exact) >= 2:
         consensus = _consensus_sharp_quote(betr_line=betr_line, quotes=active_exact)
-        sharp_books = tuple(book for book, _ in active_exact)
-        sharp_by_book = tuple(
-            (book, (display[book].line_source if display[book] else "exact"))
+        consensus_sharp_books = tuple(book for book, _ in active_exact)
+        consensus_sharp_by_book = tuple(
+            (book, (bq.line_source or "exact") if (bq := display[book]) else "exact")
             for book, _ in active_exact
         )
         ref_quote = active_exact[0][1]
-        per_book = tuple(
-            (book, display[book])
+        consensus_per_book = tuple(
+            (book, bq)
             for book, _ in active_exact
-            if display[book] is not None
+            if (bq := display[book]) is not None
         )
         return ResolvedSharpQuote(
             over_odds=consensus.over_odds,
@@ -114,9 +114,9 @@ def _assemble_multi_book_quote(
             corroborated=True,
             dk_main_line=ref_quote.dk_main_line,
             ev_line_kind="ou",
-            per_book=per_book,
-            sharp_books=sharp_books,
-            sharp_by_book=sharp_by_book,
+            per_book=consensus_per_book,
+            sharp_books=consensus_sharp_books,
+            sharp_by_book=consensus_sharp_by_book,
             sharp_event_start=consensus.sharp_event_start,
         )
 
@@ -143,15 +143,15 @@ def _assemble_multi_book_quote(
         if ev_quote is None:
             return None
 
-    sharp_books: list[str] = []
-    sharp_by_book: list[tuple[str, str]] = []
+    ev_sharp_books: list[str] = []
+    ev_sharp_by_book: list[tuple[str, str]] = []
     for cfg in SHARP_BOOKS:
         book = cfg.name
         bq = display.get(book)
         if bq and (bq.over_odds is not None or bq.under_odds is not None):
-            sharp_books.append(book)
+            ev_sharp_books.append(book)
             if bq.line_source:
-                sharp_by_book.append((book, bq.line_source))
+                ev_sharp_by_book.append((book, bq.line_source or "exact"))
 
     per_book = tuple(
         (book, bq)
@@ -172,10 +172,10 @@ def _assemble_multi_book_quote(
         dk_main_line=ev_quote.dk_main_line,
         ev_line_kind=ev_quote.ev_line_kind,
         per_book=per_book,
-        sharp_books=tuple(sharp_books),
+        sharp_books=tuple(ev_sharp_books),
         milestone_admitted=ev_quote.milestone_admitted,
         milestone_devig_method=ev_quote.milestone_devig_method,
-        sharp_by_book=tuple(sharp_by_book),
+        sharp_by_book=tuple(ev_sharp_by_book),
         sharp_event_start=ev_quote.sharp_event_start,
     )
 def _consensus_sharp_quote(

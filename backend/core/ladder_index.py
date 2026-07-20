@@ -6,6 +6,7 @@ from typing import Any
 
 from loguru import logger
 
+
 def _hour_floor(iso: str) -> str:
     """Hour-precision prefix of an ISO UTC timestamp (e.g. 2026-06-19T17)."""
     return iso[:13] if iso else ""

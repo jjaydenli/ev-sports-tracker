@@ -7,13 +7,13 @@ import pytest
 from config.fd_markets import parse_player_ou_market_type
 from scrapers.sportsbooks.fd_api import (
     count_fd_line_rows,
+    fetch_and_flatten_event_page,
     flatten_event_page_response,
     flatten_player_ou_market,
     group_fd_line_rows,
     merge_prop_rows,
     parse_fd_american_odds,
 )
-from scrapers.sportsbooks.fd_api import fetch_and_flatten_event_page
 
 EVENT_PAGE_FIXTURE_PATH = Path("tests/fixtures/fd_event_35639109_player_points.json")
 EVENT_ID = "35639109"
@@ -312,7 +312,6 @@ def test_flatten_mlb_milestone_fixture():
 
 
 def test_milestone_and_ou_group_separately():
-    payload = json.loads(MILESTONE_FIXTURE_PATH.read_text(encoding="utf-8"))
     # Inject a synthetic O/U hits row at the same line as the 1+ hit milestone.
     line_rows = [
         {

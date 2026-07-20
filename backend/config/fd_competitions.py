@@ -132,9 +132,8 @@ def extract_event_ids(
         if event_id in seen:
             continue
 
-        if competition_id is not None:
-            if str(event.get("competitionId")) != str(competition_id):
-                continue
+        if competition_id is not None and str(event.get("competitionId")) != str(competition_id):
+            continue
 
         name = str(event.get("name") or "")
         if require_matchup and not MATCHUP_EVENT_NAME_RE.search(name):

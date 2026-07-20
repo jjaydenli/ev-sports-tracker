@@ -7,7 +7,7 @@ from core.engine import (
     find_ev_opportunities,
     normalize_player_name,
 )
-from utils.math_utils import american_to_implied, BETR_STANDARD_BREAKEVEN_ODDS
+from utils.math_utils import BETR_STANDARD_BREAKEVEN_ODDS, american_to_implied
 
 
 def _betr_prop(

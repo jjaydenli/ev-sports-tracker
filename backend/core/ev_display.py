@@ -146,13 +146,13 @@ def _format_src(row: dict) -> str:
     return _SRC_UNKNOWN
 
 
-def _format_market(value: str) -> str:
+def _format_market(value: str | None) -> str:
     """Betting-idiomatic abbreviation; unmapped markets fall through to the raw name."""
     market = str(value or "")
     return MARKET_ABBREV.get(market, market)
 
 
-def _format_side(value: str) -> str:
+def _format_side(value: str | None) -> str:
     """▲/▼ for over/under; any other side (e.g. an O/U collapse) renders as its own label."""
     side = str(value or "").strip().lower()
     return _SIDE_GLYPH.get(side, str(value or "").upper())

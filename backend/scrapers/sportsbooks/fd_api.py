@@ -260,11 +260,11 @@ def flatten_player_ou_market(
             )
         return props
 
-    player = _player_from_market_name(market_name)
-    if not player:
+    parsed_player = _player_from_market_name(market_name)
+    if not parsed_player:
         return []
 
-    for line, sides in _group_main_line_runners(runners, player=player).items():
+    for line, sides in _group_main_line_runners(runners, player=parsed_player).items():
         over_runner = sides.get("over")
         under_runner = sides.get("under")
         if not over_runner or not under_runner:
@@ -276,7 +276,7 @@ def flatten_player_ou_market(
             tab=tab,
             market_id=market_id,
             market_type=market_type,
-            player=player,
+            player=parsed_player,
             canonical_market=canonical_market,
             line=line,
             over_runner=over_runner,
@@ -478,11 +478,11 @@ def flatten_event_page_response(
                     )
                 )
     else:
-        canonical_market = canonical_market_for_tab(tab, league=league)
-        if not canonical_market:
+        tab_market = canonical_market_for_tab(tab, league=league)
+        if not tab_market:
             logger.error(f"unknown fanduel tab for flatten: {tab}")
             return []
-        if markets is not None and canonical_market not in markets:
+        if markets is not None and tab_market not in markets:
             return []
 
         for fd_market in fd_markets.values():
@@ -494,7 +494,7 @@ def flatten_event_page_response(
                     fd_market,
                     event_id=event_id,
                     tab=tab,
-                    canonical_market=canonical_market,
+                    canonical_market=tab_market,
                     league=league,
                 )
             )

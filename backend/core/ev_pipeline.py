@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from loguru import logger
@@ -26,9 +26,9 @@ from core.ev_run_diff import (
 from core.pipeline_artifacts import (
     BETR_NORMALIZED,
     DK_NORMALIZED,
+    ESPN_NORMALIZED,
     EV_OUTPUT_FILENAME,
     FD_NORMALIZED,
-    ESPN_NORMALIZED,
     MATCH_REPORT_FILENAME,
     UNMATCHED_BETR_FILENAME,
     UNMATCHED_DK_FILENAME,
@@ -193,7 +193,7 @@ def persist_match_diagnostics(
     fd_props: list[dict] | None = None,
     espn_props: list[dict] | None = None,
     include_flat_lines: bool = False,
-) -> dict[str, int | float | dict]:
+) -> dict[str, int | float]:
     """Write match stats and unmatched prop lists for scrape/match efficacy checks."""
     data_path = Path(data_dir)
     stats = compute_match_stats(
@@ -211,7 +211,7 @@ def persist_match_diagnostics(
         include_flat_lines=include_flat_lines,
     )
     report: dict[str, int | float | dict | str] = {
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         **stats,
         "by_league": by_league,
     }

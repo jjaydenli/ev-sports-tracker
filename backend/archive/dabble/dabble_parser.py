@@ -15,6 +15,8 @@ def parse_dabble_prop(raw_prop: dict) -> dict | None:
     raw_market = raw_prop.get("market", "")
     line = raw_prop.get("line")
 
+    assert line is not None  # REQUIRED_FIELDS guard above already ensures this
+
     return {
         "sportsbook": raw_prop.get("sportsbook", DABBLE_SPORTSBOOK),
         "player": player,

@@ -355,8 +355,8 @@ def resolve_sharp_quote(
         betr_prop, ou_ladder, normalize_player_name=normalize_player_name
     )
 
-    use_milestone = milestone_ladder and ou_quote is None
-    if use_milestone:
+    if milestone_ladder and ou_quote is None:
+        assert milestone_ladder is not None
         milestone_ou_ladders = ou_ladders or {"DraftKings": ou_ladder}
         milestone_quote, milestone_reason = _resolve_milestone_ladder(
             betr_prop,
@@ -448,8 +448,12 @@ def resolve_book_sharp_quote(
             normalize_player_name=normalize_player_name,
         )
 
-    use_milestone = cfg.milestone_fallback and milestone_ladder and ou_quote is None
-    if use_milestone:
+    if (
+        cfg.milestone_fallback
+        and milestone_ladder
+        and ou_quote is None
+    ):
+        assert milestone_ladder is not None
         milestone_ou_ladders = ou_ladders or {book: ou_ladder}
         hold_for_milestone = (
             cfg.hold_own_book_only

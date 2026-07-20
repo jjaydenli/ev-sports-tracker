@@ -33,15 +33,22 @@ from core.pipeline_artifacts import (
     artifacts_for_sources,
     load_wrapped_board,
     pipeline_run_lock,
-    write_scrape_coverage,
     wipe_files,
+    write_scrape_coverage,
 )
 from core.pipeline_scrape import scrape_source_league
 from core.pipeline_timing import PipelineTimer
 from core.scrape_result import ScrapeResult
-from parsers.normalize import normalize_all, persist_source_boards, persist_unified_board
-from scrapers.dfs.betr.betr_auth import BetrAuthError, ensure_betr_token, validate_betr_token_or_raise
-
+from parsers.normalize import (
+    normalize_all,
+    persist_source_boards,
+    persist_unified_board,
+)
+from scrapers.dfs.betr.betr_auth import (
+    BetrAuthError,
+    ensure_betr_token,
+    validate_betr_token_or_raise,
+)
 
 DEFAULT_DATA_DIR = "data/processed"
 
@@ -293,7 +300,7 @@ def run_refresh(
                 normalize_all(data_path)
         else:
             prior_ev_path = data_path / "ev_opportunities.json"
-            _, prior_run_id = load_wrapped_board(prior_ev_path)
+            prior_run_id, _ = load_wrapped_board(prior_ev_path)
 
             if full_run:
                 wipe_files(data_path, list(all_pipeline_artifacts()))

@@ -1,6 +1,9 @@
+import pytest
+
 from core.engine import (
     DFSSide,
     _book_odds_from_resolved,
+    _fair_probs_from_resolved,
     find_ev_opportunities,
     normalize_player_name,
 )
@@ -12,6 +15,7 @@ from core.multi_book_resolver import (
     load_sharp_book_weights,
     resolve_multi_book_sharp_quote,
 )
+from utils.math_utils import american_to_implied
 
 _EVENT_START = "2026-06-19T23:00:00.000Z"
 
@@ -545,3 +549,80 @@ def test_display_for_book_allows_dk_interpolated_ou():
     assert displayed is not None
     assert displayed.over_odds == 127
     assert displayed.under_odds == -127
+
+
+def _exact_ou_book_quote(
+    book: str,
+    over: int,
+    under: int,
+    *,
+    method: str,
+    line: float = 3.5,
+) -> ResolvedSharpQuote:
+    return ResolvedSharpQuote(
+        over_odds=over,
+        under_odds=under,
+        dk_line=line,
+        betr_line=line,
+        adjustment_method=method,
+        corroborated=True,
+        dk_main_line=line,
+        ev_line_kind="ou",
+        per_book=(
+            (
+                book,
+                BookQuote(
+                    over_odds=over,
+                    under_odds=under,
+                    line_kind="ou",
+                    line_source=method,
+                ),
+            ),
+        ),
+    )
+
+
+def _mlb_bases_consensus(*, dk_over: int, dk_under: int) -> ResolvedSharpQuote:
+    """DK + ESPN exact O/U at 3.5 bases — Sullivan/Carrigg bug repro odds."""
+    return _consensus_sharp_quote(
+        betr_line=3.5,
+        quotes=[
+            (
+                "DraftKings",
+                _exact_ou_book_quote(
+                    "DraftKings", dk_over, dk_under, method="exact"
+                ),
+            ),
+            (
+                "ESPN",
+                _exact_ou_book_quote(
+                    "ESPN", -165, 130, method="espn_exact"
+                ),
+            ),
+        ],
+    )
+
+
+def test_consensus_preserves_distinct_fair_over_for_different_dk_odds():
+    """Regression: Sullivan vs Carrigg DK prices must not collapse to one fair_over."""
+    sullivan = _mlb_bases_consensus(dk_over=-165, dk_under=125)
+    carrigg = _mlb_bases_consensus(dk_over=-170, dk_under=125)
+    assert sullivan.fair_over is not None
+    assert carrigg.fair_over is not None
+    assert abs(sullivan.fair_over - carrigg.fair_over) > 1e-6
+
+
+@pytest.mark.parametrize(
+    "row_name,dk_over,dk_under",
+    [
+        ("sullivan", -165, 125),
+        ("carrigg", -170, 125),
+    ],
+)
+def test_consensus_fair_over_not_equal_to_round_tripped_odds(
+    row_name: str, dk_over: int, dk_under: int
+) -> None:
+    """Carried float must differ from american_to_implied(whole-cent consensus odds)."""
+    consensus = _mlb_bases_consensus(dk_over=dk_over, dk_under=dk_under)
+    assert consensus.fair_over is not None
+    assert consensus.fair_over != american_to_implied(consensus.over_odds)

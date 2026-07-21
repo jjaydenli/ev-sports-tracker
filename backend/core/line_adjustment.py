@@ -68,6 +68,8 @@ class ResolvedSharpQuote:
     milestone_devig_method: str | None = None
     sharp_by_book: tuple[tuple[str, str], ...] = ()
     sharp_event_start: str | None = None
+    fair_over: float | None = None
+    fair_under: float | None = None
 
     def book_quote(self, book: str) -> BookQuote | None:
         return next((bq for b, bq in self.per_book if b == book), None)

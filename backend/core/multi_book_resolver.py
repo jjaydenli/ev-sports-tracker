@@ -118,6 +118,8 @@ def _assemble_multi_book_quote(
             sharp_books=consensus_sharp_books,
             sharp_by_book=consensus_sharp_by_book,
             sharp_event_start=consensus.sharp_event_start,
+            fair_over=consensus.fair_over,
+            fair_under=consensus.fair_under,
         )
 
     ev_quote: ResolvedSharpQuote | None = None
@@ -234,6 +236,8 @@ def _consensus_sharp_quote(
         per_book=per_book,
         sharp_books=sharp_books,
         sharp_event_start=event_start,
+        fair_over=fair_over,
+        fair_under=fair_under,
     )
 
 

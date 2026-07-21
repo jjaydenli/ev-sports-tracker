@@ -2,11 +2,13 @@ import pytest
 
 from core.engine import (
     _favored_no_vig,
+    _fair_probs_from_resolved,
     build_prop_key,
     compare_betr_vs_draftkings,
     find_ev_opportunities,
     normalize_player_name,
 )
+from core.line_adjustment import ResolvedSharpQuote
 from utils.math_utils import BETR_STANDARD_BREAKEVEN_ODDS, american_to_implied
 
 
@@ -424,3 +426,24 @@ def test_find_ev_opportunities_filters_series_duplicate_game_different_start():
     results = find_ev_opportunities([betr], [dk_today, dk_tomorrow])
     assert results
     assert results[0]["dk_over_odds"] == -106
+
+
+def test_fair_probs_from_resolved_consensus_returns_carried_floats():
+    """Consensus branch returns stored floats verbatim, not odds-derived recompute."""
+    fair_over, fair_under = 0.587123, 0.412877
+    resolved = ResolvedSharpQuote(
+        over_odds=-142,
+        under_odds=142,
+        dk_line=3.5,
+        betr_line=3.5,
+        adjustment_method="multi_book_consensus",
+        corroborated=True,
+        dk_main_line=3.5,
+        ev_line_kind="ou",
+        fair_over=fair_over,
+        fair_under=fair_under,
+    )
+    result_over, result_under = _fair_probs_from_resolved(resolved)
+    assert result_over == fair_over
+    assert result_under == fair_under
+    assert fair_over != american_to_implied(resolved.over_odds)

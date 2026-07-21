@@ -77,7 +77,7 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 
 ```text
 ev-sports-tracker/
-├── scripts/                            # check_arch_sync.sh, open_pr.sh
+├── scripts/                            # check_arch_sync.sh
 ├── docs/design/                        # architecture decision records
 ├── .github/workflows/ci.yml
 ├── ev                                    # → backend pipeline_runner

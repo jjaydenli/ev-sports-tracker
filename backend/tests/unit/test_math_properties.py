@@ -5,10 +5,12 @@ Invariants only — no engine behaviour changes implied.
 
 from __future__ import annotations
 
-from hypothesis import given, settings
+from hypothesis import assume, given, settings
 from hypothesis import strategies as st
 
 from core.flat_line import adjusted_breakeven_probability
+from core.line_adjustment import BookQuote, ResolvedSharpQuote
+from core.multi_book_resolver import _consensus_sharp_quote
 from core.resolution_math import (
     _interp_logit,
     _inv_logit,
@@ -222,3 +224,91 @@ def test_devig_milestone_fair_over_two_rung_result_in_unit_interval(
     }
     fair_over, _ = devig_milestone_fair_over(lines, 0.5, market="hits", ou_hold=None)
     assert 0.0 <= fair_over <= 1.0
+
+
+# ---------------------------------------------------------------------------
+# consensus fair_over precision (multi-book)
+# ---------------------------------------------------------------------------
+
+
+def _consensus_two_book_quote(
+    book1_over: int,
+    book1_under: int,
+    book2_over: int,
+    book2_under: int,
+) -> ResolvedSharpQuote:
+    line = 22.5
+    return _consensus_sharp_quote(
+        betr_line=line,
+        quotes=[
+            (
+                "DraftKings",
+                ResolvedSharpQuote(
+                    over_odds=book1_over,
+                    under_odds=book1_under,
+                    dk_line=line,
+                    betr_line=line,
+                    adjustment_method="exact",
+                    corroborated=True,
+                    dk_main_line=line,
+                    ev_line_kind="ou",
+                    per_book=(
+                        (
+                            "DraftKings",
+                            BookQuote(
+                                over_odds=book1_over,
+                                under_odds=book1_under,
+                                line_kind="ou",
+                                line_source="exact",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            (
+                "ESPN",
+                ResolvedSharpQuote(
+                    over_odds=book2_over,
+                    under_odds=book2_under,
+                    dk_line=line,
+                    betr_line=line,
+                    adjustment_method="espn_exact",
+                    corroborated=True,
+                    dk_main_line=line,
+                    ev_line_kind="ou",
+                    per_book=(
+                        (
+                            "ESPN",
+                            BookQuote(
+                                over_odds=book2_over,
+                                under_odds=book2_under,
+                                line_kind="ou",
+                                line_source="espn_exact",
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ],
+    )
+
+
+@given(_american_odds, _american_odds, _american_odds, _american_odds)
+@settings(max_examples=300)
+def test_consensus_fair_over_injective_across_dk_books(
+    dk1_over: int,
+    dk1_under: int,
+    dk2_over: int,
+    dk2_under: int,
+) -> None:
+    """Distinct DK de-vigged fair probs → distinct consensus fair_over floats."""
+    fair_dk1, _ = multiplicative_devig(dk1_over, dk1_under)
+    fair_dk2, _ = multiplicative_devig(dk2_over, dk2_under)
+    assume(abs(fair_dk1 - fair_dk2) > 1e-9)
+
+    espn_over, espn_under = -115, -115
+    c1 = _consensus_two_book_quote(dk1_over, dk1_under, espn_over, espn_under)
+    c2 = _consensus_two_book_quote(dk2_over, dk2_under, espn_over, espn_under)
+    assert c1.fair_over is not None
+    assert c2.fair_over is not None
+    assert abs(c1.fair_over - c2.fair_over) > 1e-9

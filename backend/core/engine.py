@@ -181,12 +181,8 @@ def _breakeven_probability(
 def _fair_probs_from_resolved(resolved: ResolvedSharpQuote) -> tuple[float, float]:
     """De-vig O/U quotes; milestone uses over implied only for under estimate."""
     if resolved.adjustment_method == "multi_book_consensus":
-        fair_over = american_to_implied(resolved.over_odds)
-        fair_under = american_to_implied(resolved.under_odds or 0)
-        total = fair_over + fair_under
-        if total > 0:
-            return fair_over / total, fair_under / total
-        return fair_over, fair_under
+        assert resolved.fair_over is not None and resolved.fair_under is not None
+        return resolved.fair_over, resolved.fair_under
     if resolved.ev_line_kind == "milestone" or resolved.under_odds is None:
         fair_over = american_to_implied(resolved.over_odds)
         return fair_over, 1.0 - fair_over

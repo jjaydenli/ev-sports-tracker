@@ -12,7 +12,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 from syrupy.assertion import SnapshotAssertion
 
 from parsers.betr_parser import parse_betr_props

@@ -201,6 +201,8 @@ def _selections_by_market_line(
             {"Over": None, "Under": None, "is_main_line": False},
         )
         outcome = selection.get("outcomeType") or selection.get("label")
+        if not outcome:
+            continue
         entry[outcome] = selection
         if MAIN_POINT_LINE_TAG in (selection.get("tags") or []):
             entry["is_main_line"] = True
@@ -638,5 +640,6 @@ async def fetch_event_all_markets(
         if isinstance(result, Exception):
             logger.error(f"draftkings market fetch failed for {event_id}: {result}")
             continue
-        props.extend(result)
+        if isinstance(result, list):
+            props.extend(result)
     return props

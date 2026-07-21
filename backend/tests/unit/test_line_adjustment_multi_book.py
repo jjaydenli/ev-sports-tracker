@@ -7,13 +7,11 @@ from core.engine import (
 from core.ladder_index import build_milestone_ladders, build_player_market_ladder
 from core.line_adjustment import BookQuote, ResolvedSharpQuote
 from core.multi_book_resolver import (
-    _assemble_multi_book_quote,
     _consensus_sharp_quote,
     _display_for_book,
     load_sharp_book_weights,
     resolve_multi_book_sharp_quote,
 )
-
 
 _EVENT_START = "2026-06-19T23:00:00.000Z"
 

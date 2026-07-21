@@ -12,11 +12,12 @@ from core.flat_line import (
 )
 from core.ladder_index import (
     build_match_context_key,
-    build_milestone_ladder,
     build_milestone_ladders,
-    build_player_market_key as build_scoped_player_market_key,
     build_player_market_ladder,
     merge_milestone_ladders,
+)
+from core.ladder_index import (
+    build_player_market_key as build_scoped_player_market_key,
 )
 from core.line_adjustment import (
     ResolvedSharpQuote,
@@ -602,7 +603,7 @@ def compute_match_stats(
         "flat_line_skipped": "unmatched_betr_flat_line_skipped",
         "dk_missing_odds": "unmatched_betr_dk_missing_odds",
     }
-    counts = {value: 0 for value in _REASON_COUNT_KEYS.values()}
+    counts = dict.fromkeys(_REASON_COUNT_KEYS.values(), 0)
 
     for betr_prop in betr_props:
         reason = betr_unmatched_reason(

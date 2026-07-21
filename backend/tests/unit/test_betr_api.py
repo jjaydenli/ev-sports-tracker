@@ -1,5 +1,5 @@
-import pytest
 import httpx
+import pytest
 
 from scrapers.dfs.betr.betr_api import (
     BETR_GRAPHQL_MAX_ATTEMPTS,

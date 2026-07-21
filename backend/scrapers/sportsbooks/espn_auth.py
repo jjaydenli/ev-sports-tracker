@@ -176,12 +176,15 @@ async def ensure_espn_token(
     if owns_client:
         from config.api_headers import ESPN_CLIENT_HEADERS
 
-        client = httpx.AsyncClient(headers=ESPN_CLIENT_HEADERS, follow_redirects=True)
+        http_client = httpx.AsyncClient(headers=ESPN_CLIENT_HEADERS, follow_redirects=True)
+    else:
+        assert client is not None
+        http_client = client
     try:
-        token = await mint_anonymous_token(install_id, client=client)
+        token = await mint_anonymous_token(install_id, client=http_client)
     finally:
         if owns_client:
-            await client.aclose()
+            await http_client.aclose()
 
     save_token_cache(install_id, token, data_dir=data_dir)
     logger.success("minted fresh ESPN anonymous token via Startup")

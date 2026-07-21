@@ -1,8 +1,8 @@
+from core.engine import normalize_player_name
 from core.ladder_index import (
     build_match_context_key,
     build_player_market_key,
 )
-from core.engine import normalize_player_name
 
 
 def test_dk_deviating_abbrev_props_match_via_event_hour():

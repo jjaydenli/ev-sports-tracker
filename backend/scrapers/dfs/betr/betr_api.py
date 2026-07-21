@@ -178,11 +178,14 @@ async def fetch_league_upcoming_events(
     """Fetch scheduled team events and player projections for one league."""
     owns_client = client is None
     if owns_client:
-        client = httpx.AsyncClient()
+        http_client = httpx.AsyncClient()
+    else:
+        assert client is not None
+        http_client = client
 
     try:
         return await graphql_request(
-            client,
+            http_client,
             operation_name="LeagueUpcomingEvents",
             query=LEAGUE_UPCOMING_EVENTS_QUERY,
             variables={"league": league},
@@ -190,7 +193,7 @@ async def fetch_league_upcoming_events(
         )
     finally:
         if owns_client:
-            await client.aclose()
+            await http_client.aclose()
 
 
 async def main(league: str = "NBA") -> None:

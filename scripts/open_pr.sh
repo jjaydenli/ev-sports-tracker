@@ -21,7 +21,7 @@ Usage: ./scripts/open_pr.sh [options] [base-branch]
   Default: push + open GitHub compare page (title + body prefilled).
 
 Options:
-  --create           gh pr create/edit, then open PR page
+  --create           gh pr create (or title-only edit if the PR exists), then open PR page
   --manual           Print title, body, and compare URL (no push/browser)
   --push             Push branch (with --manual, skip opening PR)
   --skip-arch-check  Skip architecture-sync guard
@@ -63,7 +63,7 @@ if [[ "$BASE_BRANCH" == "main" || "$BASE_BRANCH" == "master" ]] \
   remote_sha="$(git rev-parse "origin/${BASE_BRANCH}")"
   if [[ "$local_sha" != "$remote_sha" ]] \
     && git merge-base --is-ancestor "$local_sha" "$remote_sha"; then
-    echo "→ note: local $BASE_BRANCH is behind origin/$BASE_BRANCH; using origin for PR range" >&2
+    echo "note: local $BASE_BRANCH is behind origin/$BASE_BRANCH; using origin for PR range" >&2
     LOG_BASE="origin/${BASE_BRANCH}"
   fi
 fi
@@ -120,7 +120,7 @@ build_compare_url() {
 copy_body() {
   command -v pbcopy >/dev/null 2>&1 || return 0
   printf '%s\n' "$BODY" | pbcopy
-  echo "→ description copied to clipboard"
+  echo "description copied to clipboard"
 }
 
 require_gh() {
@@ -150,20 +150,23 @@ if [[ "$MODE" == "auto" ]]; then
 fi
 
 if [[ "$MODE" == "create" || "$MODE" == "browser" || "$DO_PUSH" == 1 ]]; then
-  echo "→ pushing $CURRENT to origin..."
+  echo "pushing $CURRENT to origin..."
   git push -u origin HEAD
 fi
 
 if [[ "$MODE" == "create" ]]; then
   require_gh
-  body_file="$(mktemp)"
-  trap 'rm -f "$body_file"' EXIT
-  printf '%s\n' "$BODY" >"$body_file"
   if gh pr view --json number >/dev/null 2>&1; then
-    echo "→ updating existing PR..."
-    gh pr edit --title "$TITLE" --body-file "$body_file"
+    # Never overwrite a PR's body here: it may have been hand-written since creation, and
+    # this script's generated body (a bare commit-subject list) is strictly weaker. Update
+    # the title only; use `gh pr edit --body-file <file>` directly to change the body.
+    echo "PR exists; updating title only (body left as-is)..."
+    gh pr edit --title "$TITLE"
   else
-    echo "→ creating PR: $TITLE"
+    body_file="$(mktemp)"
+    trap 'rm -f "$body_file"' EXIT
+    printf '%s\n' "$BODY" >"$body_file"
+    echo "creating PR: $TITLE"
     gh pr create --base "$BASE_BRANCH" --title "$TITLE" --body-file "$body_file"
   fi
   gh pr view --web 2>/dev/null || gh pr view
@@ -173,13 +176,13 @@ fi
 if [[ "$MODE" == "browser" ]]; then
   if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1 \
     && gh pr view --json number >/dev/null 2>&1; then
-    echo "→ PR already exists; opening..."
+    echo "PR already exists; opening..."
     gh pr view --web 2>/dev/null || gh pr view
     exit 0
   fi
   copy_body
   compare_url="$(build_compare_url)"
-  echo "→ opening create-PR page..."
+  echo "opening create-PR page..."
   if command -v open >/dev/null 2>&1; then
     open "$compare_url"
   else

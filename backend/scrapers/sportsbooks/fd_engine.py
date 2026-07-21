@@ -17,7 +17,6 @@ from config.fd_competitions import (
 from config.fd_markets import (
     FD_SGP_TAB,
     default_scrape_markets_for_league,
-    extended_ou_markets_for_league,
     is_core_ou_market,
     is_extended_ou_market,
     known_markets_for_league,
@@ -49,10 +48,10 @@ def parse_event_ids(
             resolved.append(event_id)
 
     for url in game_urls or []:
-        event_id = parse_event_id_from_url(url)
-        if event_id and event_id not in seen:
-            seen.add(event_id)
-            resolved.append(event_id)
+        parsed_id = parse_event_id_from_url(url)
+        if parsed_id and parsed_id not in seen:
+            seen.add(parsed_id)
+            resolved.append(parsed_id)
 
     return resolved
 
@@ -79,9 +78,7 @@ def scrape_targets_for_markets(
         elif is_extended_ou_market(market, league=league):
             extended.add(market)
 
-    targets: list[tuple[str, set[str] | None]] = [
-        (tab, markets_set) for tab, markets_set in tab_markets.items()
-    ]
+    targets: list[tuple[str, set[str] | None]] = list(tab_markets.items())
     if extended:
         targets.append((FD_SGP_TAB, extended))
     return targets
@@ -192,6 +189,8 @@ class FanDuelEngine(BaseScraper):
         for result in results:
             if isinstance(result, Exception):
                 logger.error(f"fanduel fetch failed: {result}")
+                continue
+            if not isinstance(result, list):
                 continue
             for row in result:
                 row["league"] = self.league.upper()

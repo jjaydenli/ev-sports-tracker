@@ -4,19 +4,19 @@ import pytest
 
 from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
 from core.ev_display import (
-    EV_TABLE_HEADERS,
-    EV_TABLE_WIDTHS,
-    MARKET_ABBREV,
     _EV_CELL_INDEX,
     _SRC_ADJ_METHODS,
     _SRC_EXACT_METHODS,
     _STACK_CELL_INDEX,
     _TEAM_CLUSTER_COLOR_BANK,
+    EV_TABLE_HEADERS,
+    EV_TABLE_WIDTHS,
+    MARKET_ABBREV,
     _display_width,
     _ev_tier_color_code,
     _format_game,
-    format_ev_opportunity_row,
     format_ev_opportunities_table,
+    format_ev_opportunity_row,
     format_ev_table_header,
     format_ou_odds,
 )

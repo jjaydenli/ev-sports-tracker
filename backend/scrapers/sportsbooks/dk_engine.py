@@ -53,10 +53,10 @@ def parse_event_ids(
             resolved.append(event_id)
 
     for url in game_urls or []:
-        event_id = extract_event_id_from_url(url)
-        if event_id and event_id not in seen:
-            seen.add(event_id)
-            resolved.append(event_id)
+        parsed_id = extract_event_id_from_url(url)
+        if parsed_id and parsed_id not in seen:
+            seen.add(parsed_id)
+            resolved.append(parsed_id)
 
     return resolved
 
@@ -179,9 +179,11 @@ class DraftKingsEngine(BaseScraper):
 
             results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        for (event_id, is_live), result in zip(task_meta, results):
+        for (event_id, is_live), result in zip(task_meta, results, strict=True):
             if isinstance(result, Exception):
                 logger.error(f"draftkings fetch failed for {event_id}: {result}")
+                continue
+            if not isinstance(result, list):
                 continue
             for row in result:
                 row["league"] = self.league.upper()

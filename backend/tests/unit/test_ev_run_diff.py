@@ -3,7 +3,6 @@ import json
 import pytest
 
 from core.ev_pipeline import run_ev_scan
-from core.pipeline_artifacts import load_wrapped_board
 from core.ev_run_diff import (
     EV_DIFF_FILENAME,
     EV_PREVIOUS_FILENAME,
@@ -12,6 +11,7 @@ from core.ev_run_diff import (
     format_run_diff_summary,
     rotate_ev_opportunities_file,
 )
+from core.pipeline_artifacts import load_wrapped_board
 
 
 def _opp(

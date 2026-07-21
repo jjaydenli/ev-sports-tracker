@@ -10,7 +10,7 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -18,7 +18,6 @@ import httpx
 from loguru import logger
 
 from scrapers.dfs.betr.betr_api import normalize_bearer_token
-
 
 DEFAULT_KEYCLOAK_CLIENT_ID = "betr-web"
 
@@ -241,10 +240,13 @@ async def fetch_keycloak_tokens(
 
     owns_client = client is None
     if owns_client:
-        client = httpx.AsyncClient()
+        http_client = httpx.AsyncClient()
+    else:
+        assert client is not None
+        http_client = client
 
     try:
-        response = await client.post(
+        response = await http_client.post(
             token_url,
             data=data,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -261,7 +263,7 @@ async def fetch_keycloak_tokens(
         raise BetrAuthError(f"keycloak token request failed: {exc}") from exc
     finally:
         if owns_client:
-            await client.aclose()
+            await http_client.aclose()
 
     if not isinstance(body, dict) or not body.get("access_token"):
         raise BetrAuthError("keycloak response missing access_token")
@@ -389,7 +391,7 @@ async def ensure_betr_token(
 def _format_expiry(expires_at: int | None) -> str:
     if expires_at is None:
         return "unknown (no exp claim)"
-    dt = datetime.fromtimestamp(expires_at, tz=timezone.utc)
+    dt = datetime.fromtimestamp(expires_at, tz=UTC)
     return f"{dt.isoformat()} (unix {expires_at})"
 
 

@@ -28,8 +28,8 @@ from scrapers.sportsbooks.espn_api import (
     ESPNGraphQLClient,
     count_espn_line_rows,
     fetch_drawer_content,
-    fetch_games,
     fetch_event_prop_sections,
+    fetch_games,
     fetch_lines_section_id,
     fetch_section_drawers,
     flatten_drawer_content,
@@ -184,7 +184,8 @@ class ESPNEngine(BaseScraper):
             if isinstance(result, Exception):
                 logger.error(f"espn drawer fetch failed: {result}")
                 continue
-            rows.extend(result)
+            if isinstance(result, list):
+                rows.extend(result)
         return rows
 
     async def scrape(self) -> list[dict[str, Any]]:
@@ -215,6 +216,8 @@ class ESPNEngine(BaseScraper):
         for result in results:
             if isinstance(result, Exception):
                 logger.error(f"espn event scrape failed: {result}")
+                continue
+            if not isinstance(result, list):
                 continue
             for row in result:
                 row["league"] = self.league.upper()

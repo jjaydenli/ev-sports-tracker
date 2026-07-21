@@ -9,8 +9,17 @@ from hypothesis import given, settings
 from hypothesis import strategies as st
 
 from core.flat_line import adjusted_breakeven_probability
-from core.resolution_math import _interp_logit, _inv_logit, _logit, devig_milestone_fair_over
-from utils.math_utils import american_to_implied, implied_to_american, multiplicative_devig
+from core.resolution_math import (
+    _interp_logit,
+    _inv_logit,
+    _logit,
+    devig_milestone_fair_over,
+)
+from utils.math_utils import (
+    american_to_implied,
+    implied_to_american,
+    multiplicative_devig,
+)
 
 # ---------------------------------------------------------------------------
 # Strategies

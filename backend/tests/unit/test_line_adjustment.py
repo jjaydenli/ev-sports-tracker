@@ -2,9 +2,9 @@ from core.engine import find_ev_opportunities, normalize_player_name
 from core.ladder_index import build_milestone_ladder, build_player_market_ladder
 from core.line_adjustment import (
     BookQuote,
+    ResolvedSharpQuote,
     is_ev_eligible_quote,
     resolve_sharp_quote,
-    ResolvedSharpQuote,
 )
 from core.multi_book_resolver import _assemble_multi_book_quote
 

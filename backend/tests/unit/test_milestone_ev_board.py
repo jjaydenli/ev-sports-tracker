@@ -161,7 +161,7 @@ def test_milestone_admitted_gate_boundary():
 
 
 def test_is_ev_eligible_milestone_exact_admitted():
-    from core.line_adjustment import BookQuote, ResolvedSharpQuote
+    from core.line_adjustment import ResolvedSharpQuote
 
     admitted = ResolvedSharpQuote(
         over_odds=-200,

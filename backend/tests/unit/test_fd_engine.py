@@ -1,11 +1,9 @@
 import json
 from pathlib import Path
 
-import httpx
 import pytest
 
 from config.fd_markets import (
-    FD_DEFAULT_SCRAPE_MARKETS,
     FD_EXTENDED_OU_MARKETS,
     default_scrape_markets_for_league,
 )

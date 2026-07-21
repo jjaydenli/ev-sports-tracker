@@ -1,4 +1,5 @@
 import asyncio
+
 import httpx
 from loguru import logger
 
@@ -80,7 +81,7 @@ def parse_game_props(sport_fixture_detail):
             active_markets[market["id"]] = market.get("resultingType", "")
 
     price_map = {}
-    market_price_counts = {}
+    market_price_counts: dict[str, int] = {}
     for price in prices:
         selection_id = price.get("selectionId")
         market_id = price.get("marketId")
@@ -107,10 +108,7 @@ def parse_game_props(sport_fixture_detail):
         raw_price = price_map.get(selection_id)
         market_occurrences = market_price_counts.get(market_id, 0)
 
-        if raw_price:
-            american_odds = decimal_to_american(raw_price)
-        else:
-            american_odds = None
+        american_odds = decimal_to_american(raw_price) if raw_price else None
 
         if market_occurrences == 1:
             prop_type = "lightning" if raw_price and raw_price >= 2.0 else "shield"

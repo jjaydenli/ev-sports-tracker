@@ -19,11 +19,13 @@ from config.fd_competitions import (  # noqa: E402
     FD_LEAGUE_SLATES,
     build_event_page_url,
     count_event_page_markets,
-    event_tab_labels_for_league,
     extract_event_summaries,
     parse_event_id_from_url,
 )
-from scrapers.sportsbooks.fd_api import fetch_event_page, fetch_league_events  # noqa: E402
+from scrapers.sportsbooks.fd_api import (  # noqa: E402
+    fetch_event_page,
+    fetch_league_events,
+)
 
 
 async def _run(

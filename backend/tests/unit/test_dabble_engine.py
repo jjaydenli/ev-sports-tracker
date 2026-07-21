@@ -3,9 +3,10 @@ Integration tests for the Dabble data ingestion layer.
 Verifies coordination between raw API responses and the relational parser.
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import httpx
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from scrapers.dfs.dabble_engine import fetch_game_props
 

@@ -4,7 +4,6 @@ from config.market_maps import O05_EQUIVALENT_MARKETS, equivalent_o05_markets
 from core.engine import (
     _filter_sharp_props_by_match_context,
     find_ev_opportunities,
-    normalize_player_name,
 )
 
 _EVENT_START = "2026-06-19T23:00:00.000Z"

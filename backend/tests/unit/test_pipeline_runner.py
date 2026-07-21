@@ -2,9 +2,18 @@ import json
 from unittest.mock import AsyncMock, patch
 
 from config.pipeline_sources import PIPELINE_LEAGUES
-from core.ev_pipeline import BETR_NORMALIZED, DK_NORMALIZED, FD_NORMALIZED, load_comparison_inputs
+from core.ev_pipeline import (
+    BETR_NORMALIZED,
+    DK_NORMALIZED,
+    FD_NORMALIZED,
+    load_comparison_inputs,
+)
 from core.pipeline_artifacts import load_wrapped_board, save_wrapped_board
-from core.pipeline_runner import build_parser, merge_leagues_from_args, normalize_league_flag_argv
+from core.pipeline_runner import (
+    build_parser,
+    merge_leagues_from_args,
+    normalize_league_flag_argv,
+)
 from core.scrape_result import ScrapeResult
 
 

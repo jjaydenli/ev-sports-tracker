@@ -83,6 +83,7 @@ ev-sports-tracker/
 ├── ev                                    # → backend pipeline_runner
 ├── loop                                  # ./ev loop; all leagues, no default --min-ev; colored table + toast
 └── backend/
+    ├── pyproject.toml                  # pytest, ruff, mypy config; lint/type CI gate
     ├── config/                         # headers, market_maps, sharp_books, team_abbrev, settings, *_{subcategories,markets,competitions,queries}, pipeline_sources
     ├── scripts/                        # probe_dk_*, probe_fd_*, probe_espn_*
     ├── utils/                          # math_utils, formatting

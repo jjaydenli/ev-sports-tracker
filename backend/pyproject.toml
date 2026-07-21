@@ -1,0 +1,17 @@
+[project]
+requires-python = ">=3.13"
+
+[tool.ruff]
+lint.extend-select = ["B", "C4", "UP", "SIM", "I"]
+
+[tool.mypy]
+ignore_missing_imports = true
+check_untyped_defs = true
+python_version = "3.13"
+exclude = "(?x)(^tests/)"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "--cov=core --cov=parsers --cov=config --cov=utils"

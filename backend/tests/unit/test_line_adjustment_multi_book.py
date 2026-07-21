@@ -3,7 +3,6 @@ import pytest
 from core.engine import (
     DFSSide,
     _book_odds_from_resolved,
-    _fair_probs_from_resolved,
     find_ev_opportunities,
     normalize_player_name,
 )

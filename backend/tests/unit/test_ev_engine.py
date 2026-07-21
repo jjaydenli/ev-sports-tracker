@@ -1,8 +1,8 @@
 import pytest
 
 from core.engine import (
-    _favored_no_vig,
     _fair_probs_from_resolved,
+    _favored_no_vig,
     build_prop_key,
     compare_betr_vs_draftkings,
     find_ev_opportunities,

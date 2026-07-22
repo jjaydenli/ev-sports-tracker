@@ -5,36 +5,28 @@ from config.dk_subcategories import (
     DK_MLB_LIVE_STAT_CATEGORIES,
     DK_MLB_STAT_CATEGORIES,
     DK_NBA_MILESTONE_STAT_CATEGORIES,
-    DK_NBA_OU_EXTENDED_STAT_CATEGORIES,
     DK_NBA_PENDING_STAT_CATEGORIES,
     DK_NBA_STAT_CATEGORIES,
     DK_WNBA_MILESTONE_STAT_CATEGORIES,
     DK_WNBA_STAT_CATEGORIES,
+    PropTabs,
     build_league_events_query,
     build_league_events_url,
     build_markets_query,
     build_markets_url,
-    configured_live_stat_categories_for_league,
-    configured_stat_categories_for_league,
-    live_stat_categories_for_league,
-    milestone_categories_for_league,
-    stat_categories_for_league,
+    subcategories_for_league,
 )
 
 
-def test_dk_nba_stat_categories_contains_core_extended():
+def test_dk_nba_stat_categories_merged_ou_ids():
     assert len(DK_NBA_STAT_CATEGORIES) == 11
     assert DK_NBA_STAT_CATEGORIES["points"] == "12488"
     assert DK_NBA_STAT_CATEGORIES["threes"] == "12497"
     assert DK_NBA_STAT_CATEGORIES["assists"] == "12495"
     assert DK_NBA_STAT_CATEGORIES["pra"] == "5001"
-
-
-def test_dk_nba_ou_extended_steals_blocks_stl_blk():
-    assert DK_NBA_OU_EXTENDED_STAT_CATEGORIES["steals"] == "2713508"
-    assert DK_NBA_OU_EXTENDED_STAT_CATEGORIES["blocks"] == "2713780"
-    assert DK_NBA_OU_EXTENDED_STAT_CATEGORIES["stl+blk"] == "2713781"
     assert DK_NBA_STAT_CATEGORIES["steals"] == "2713508"
+    assert DK_NBA_STAT_CATEGORIES["blocks"] == "2713780"
+    assert DK_NBA_STAT_CATEGORIES["stl+blk"] == "2713781"
 
 
 def test_dk_nba_stat_categories_uses_canonical_combo_names():
@@ -124,22 +116,26 @@ def test_dk_league_slates_contains_wnba():
     assert DK_LEAGUE_SLATES["wnba"]["slate_subcategory_id"] == "4511"
 
 
-def test_stat_categories_for_league_wnba_matches_nba():
-    assert stat_categories_for_league("wnba") == DK_NBA_STAT_CATEGORIES
-    assert stat_categories_for_league("wnba") is DK_WNBA_STAT_CATEGORIES
+def test_subcategories_for_league_wnba_aliases_nba():
+    wnba = subcategories_for_league("wnba")
+    assert wnba.pregame.ou is DK_WNBA_STAT_CATEGORIES
+    assert wnba.pregame.ou == DK_NBA_STAT_CATEGORIES
+    assert wnba.pregame.milestone is DK_WNBA_MILESTONE_STAT_CATEGORIES
+    assert wnba.pregame.milestone == DK_NBA_MILESTONE_STAT_CATEGORIES
 
 
-def test_milestone_categories_for_league_wnba_matches_nba():
-    assert milestone_categories_for_league("wnba") == DK_NBA_MILESTONE_STAT_CATEGORIES
-    assert milestone_categories_for_league("wnba") is DK_WNBA_MILESTONE_STAT_CATEGORIES
+def test_subcategories_for_league_unknown_falls_back_to_nba():
+    assert subcategories_for_league("xfl") is subcategories_for_league("nba")
 
 
-def test_live_stat_categories_for_league_wnba_returns_empty():
-    assert live_stat_categories_for_league("wnba") == {}
+def test_subcategories_for_league_is_case_insensitive():
+    assert subcategories_for_league("MLB").pregame.ou is DK_MLB_STAT_CATEGORIES
 
 
-def test_stat_categories_for_league_mlb():
-    assert len(stat_categories_for_league("mlb")) == 13
+def test_subcategories_for_league_mlb_pregame_ou():
+    mlb = subcategories_for_league("mlb")
+    assert mlb.pregame.ou is DK_MLB_STAT_CATEGORIES
+    assert len(mlb.pregame.ou) == 13
     assert DK_MLB_STAT_CATEGORIES["hits"] == "6719"
     assert DK_MLB_STAT_CATEGORIES["total_bases"] == "6607"
     assert DK_MLB_STAT_CATEGORIES["singles"] == "17409"
@@ -148,9 +144,9 @@ def test_stat_categories_for_league_mlb():
     assert DK_MLB_STAT_CATEGORIES["rbi"] == "8025"
 
 
-def test_configured_stat_categories_for_league_mlb():
-    assert len(configured_stat_categories_for_league("mlb")) == 13
-    assert configured_stat_categories_for_league("mlb") == DK_MLB_STAT_CATEGORIES
+def test_mlb_pregame_configured_ou_matches_full_map():
+    # No pregame O/U id is pending, so configured == the raw map.
+    assert subcategories_for_league("mlb").pregame.configured_ou == DK_MLB_STAT_CATEGORIES
 
 
 def test_build_league_events_query_matches_captured_filter():
@@ -198,17 +194,29 @@ def test_dk_mlb_live_stat_categories_batter_only():
         assert pitcher not in DK_MLB_LIVE_STAT_CATEGORIES
 
 
-def test_live_stat_categories_for_league_mlb_returns_live_map():
-    live = live_stat_categories_for_league("mlb")
-    assert live is DK_MLB_LIVE_STAT_CATEGORIES
+def test_subcategories_for_league_mlb_live_ou_is_live_map():
+    assert subcategories_for_league("mlb").live.ou is DK_MLB_LIVE_STAT_CATEGORIES
 
 
-def test_live_stat_categories_for_league_nba_returns_empty():
-    assert live_stat_categories_for_league("nba") == {}
+def test_nba_and_wnba_live_ids_not_probed_yet():
+    # Live NBA/WNBA props exist on DK; the maps are empty only until a live
+    # DevTools capture fills them (same pending state as MLB milestone).
+    for league in ("nba", "wnba"):
+        live = subcategories_for_league(league).live
+        assert live.ou == {}
+        assert live.milestone == {}
 
 
-def test_configured_live_stat_categories_mlb_all_batter_ids_set():
-    result = configured_live_stat_categories_for_league("mlb")
+def test_mlb_milestone_slots_pending_probe():
+    # Both MLB milestone maps await a DevTools probe; the grid slot exists so
+    # captured ids have somewhere to land (pregame + live milestone).
+    mlb = subcategories_for_league("mlb")
+    assert mlb.pregame.milestone == {}
+    assert mlb.live.milestone == {}
+
+
+def test_mlb_live_configured_ou_all_batter_ids_set():
+    result = subcategories_for_league("mlb").live.configured_ou
     assert result["hits"] == "9502"
     assert result["total_bases"] == "9506"
     assert result["doubles"] == "17472"
@@ -216,21 +224,16 @@ def test_configured_live_stat_categories_mlb_all_batter_ids_set():
     assert len(result) == len(DK_MLB_LIVE_STAT_CATEGORIES)
 
 
-def test_configured_live_stat_categories_empty_when_all_tbd(monkeypatch):
-    # With all-None map, configured_live returns nothing (live scrape is a no-op)
-    import config.dk_subcategories as subs
-
-    monkeypatch.setattr(
-        subs,
-        "DK_MLB_LIVE_STAT_CATEGORIES",
-        dict.fromkeys(DK_MLB_LIVE_STAT_CATEGORIES, None),
+def test_prop_tabs_configured_drops_none_and_tbd():
+    tabs = PropTabs(
+        ou={"a": "1", "b": None, "c": "TBD", "d": "2"},
+        milestone={"x": None, "y": "9"},
     )
-    assert configured_live_stat_categories_for_league("mlb") == {}
+    assert tabs.configured_ou == {"a": "1", "d": "2"}
+    assert tabs.configured_milestone == {"y": "9"}
 
 
-def test_configured_live_stat_categories_returns_filled_ids(monkeypatch):
-    filled = {"hits": "9999", "total_bases": None, "runs": "8888"}
-    import config.dk_subcategories as subs
-    monkeypatch.setattr(subs, "DK_MLB_LIVE_STAT_CATEGORIES", filled)
-    result = configured_live_stat_categories_for_league("mlb")
-    assert result == {"hits": "9999", "runs": "8888"}
+def test_prop_tabs_configured_empty_when_all_placeholders():
+    tabs = PropTabs(ou=dict.fromkeys(DK_MLB_LIVE_STAT_CATEGORIES, None), milestone={})
+    assert tabs.configured_ou == {}
+    assert tabs.configured_milestone == {}

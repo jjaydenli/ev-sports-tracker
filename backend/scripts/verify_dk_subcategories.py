@@ -34,12 +34,7 @@ if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 from config.api_headers import DK_BASE_HEADERS  # noqa: E402
-from config.dk_subcategories import (  # noqa: E402
-    DK_NBA_PENDING_STAT_CATEGORIES,
-    live_stat_categories_for_league,
-    milestone_categories_for_league,
-    stat_categories_for_league,
-)
+from config.dk_subcategories import subcategories_for_league  # noqa: E402
 from scrapers.sportsbooks.dk_api import (  # noqa: E402
     fetch_event_subcategory_markets,
     infer_canonical_market_from_dk_payload,
@@ -74,43 +69,44 @@ async def _verify_ids(event_id: str, ids: list[str]) -> None:
             await _probe(client, event_id, "candidate", prop_subcategory_id)
 
 
+async def _probe_tab(
+    client: httpx.AsyncClient, event_id: str, label: str, prop_subcategory_id: str | None
+) -> None:
+    """Probe one tab, or report it as pending when no id is mapped."""
+    if not prop_subcategory_id or prop_subcategory_id == "TBD":
+        print(f"{label:16} {'—':8}  (pending — no id, capture via DevTools)")
+        return
+    await _probe(client, event_id, label, prop_subcategory_id)
+
+
 async def _verify_live(event_id: str, league: str) -> None:
-    ou_categories = live_stat_categories_for_league(league)
+    live = subcategories_for_league(league).live
     print(f"Event {event_id}  league={league}  mode=live\n")
-    pregame = stat_categories_for_league(league)
     async with httpx.AsyncClient(headers=DK_BASE_HEADERS, timeout=15.0) as client:
-        for market in sorted(ou_categories):
-            prop_subcategory_id = ou_categories[market]
-            if not prop_subcategory_id:
-                pregame_id = pregame.get(market, "—")
-                print(
-                    f"{market:16} {'—':8}  (no live id, capture via DevTools; "
-                    f"pregame={pregame_id})"
-                )
-                continue
-            await _probe(client, event_id, market, prop_subcategory_id)
+        for market in sorted(live.ou):
+            await _probe_tab(client, event_id, market, live.ou[market])
+        if live.milestone:
+            print()
+            for market in sorted(live.milestone):
+                await _probe_tab(client, event_id, f"{market}+", live.milestone[market])
 
 
 async def _verify_configured(event_id: str, league: str) -> None:
-    pregame_categories = stat_categories_for_league(league)
-    milestone_categories = milestone_categories_for_league(league)
+    subs = subcategories_for_league(league)
+    pregame = subs.pregame
 
     print(f"Event {event_id}  league={league}  mode=pregame\n")
     async with httpx.AsyncClient(headers=DK_BASE_HEADERS, timeout=15.0) as client:
-        for market, prop_subcategory_id in sorted(pregame_categories.items()):
-            if prop_subcategory_id == "TBD":
-                print(f"{market:16} {'TBD':8}  (pending — no id)")
-                continue
-            await _probe(client, event_id, market, prop_subcategory_id)
+        for market in sorted(pregame.ou):
+            await _probe_tab(client, event_id, market, pregame.ou[market])
 
-        if milestone_categories:
+        if pregame.milestone:
             print()
-            for market, prop_subcategory_id in sorted(milestone_categories.items()):
-                await _probe(client, event_id, f"{market}+", prop_subcategory_id)
+            for market in sorted(pregame.milestone):
+                await _probe_tab(client, event_id, f"{market}+", pregame.milestone[market])
 
-    if league == "nba":
-        for market in sorted(DK_NBA_PENDING_STAT_CATEGORIES):
-            print(f"{market:16} {'—':8}  (pending — no id)")
+    for market in sorted(subs.pending):
+        print(f"{market:16} {'—':8}  (pending — no id)")
 
     if league == "mlb":
         print(
@@ -141,9 +137,8 @@ async def main() -> None:
         "--live",
         action="store_true",
         help=(
-            "Verify live-event ids (live_stat_categories_for_league) instead of "
-            "pregame. Pregame ids are wrong for in-game events. Ignored if "
-            "--verify is given."
+            "Verify the league's live-event ids instead of pregame. Pregame ids "
+            "are wrong for in-game events. Ignored if --verify is given."
         ),
     )
     parser.add_argument(
@@ -166,7 +161,8 @@ async def main() -> None:
         parser.error("--league is required unless --verify is given")
 
     if args.live:
-        if not live_stat_categories_for_league(args.league):
+        live = subcategories_for_league(args.league).live
+        if not live.ou and not live.milestone:
             parser.error(f"no live subCategoryIds configured for --league {args.league}")
         await _verify_live(args.event_id, args.league)
         return

@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import httpx
@@ -8,6 +9,7 @@ from config.dk_subcategories import (
     DK_MLB_LIVE_STAT_CATEGORIES,
     DK_MLB_STAT_CATEGORIES,
     DK_NBA_STAT_CATEGORIES,
+    DK_SUBCATEGORIES,
 )
 from scrapers.sportsbooks.dk_api import flatten_markets_response
 from scrapers.sportsbooks.dk_engine import (
@@ -15,6 +17,13 @@ from scrapers.sportsbooks.dk_engine import (
     extract_event_id_from_url,
     parse_event_ids,
 )
+
+
+def _patch_mlb_live_ou(monkeypatch, live_ou):
+    """Swap the MLB live O/U map in the registry (frozen record -> full replace)."""
+    base = DK_SUBCATEGORIES["mlb"]
+    patched = replace(base, live=replace(base.live, ou=live_ou))
+    monkeypatch.setitem(DK_SUBCATEGORIES, "mlb", patched)
 
 FIXTURE_PATH = Path("tests/fixtures/dk_markets_points_34183767.json")
 MLB_HITS_FIXTURE_PATH = Path("tests/fixtures/dk_markets_mlb_hits.json")
@@ -232,13 +241,7 @@ async def test_scrape_mlb_discovers_pregame_and_live_from_slate(
         "scrapers.sportsbooks.dk_engine.fetch_event_all_markets",
         mock_event_markets,
     )
-    import config.dk_subcategories as subs
-
-    monkeypatch.setattr(
-        subs,
-        "DK_MLB_LIVE_STAT_CATEGORIES",
-        dict.fromkeys(DK_MLB_LIVE_STAT_CATEGORIES, None),
-    )
+    _patch_mlb_live_ou(monkeypatch, dict.fromkeys(DK_MLB_LIVE_STAT_CATEGORIES, None))
 
     engine = DraftKingsEngine(markets=["hits"], league="mlb")
     props = await engine.scrape()
@@ -288,11 +291,8 @@ async def test_scrape_mlb_live_tags_is_live_when_categories_configured(
             )
         return []
 
-    import config.dk_subcategories as subs
-
-    monkeypatch.setattr(
-        subs,
-        "DK_MLB_LIVE_STAT_CATEGORIES",
+    _patch_mlb_live_ou(
+        monkeypatch,
         {**DK_MLB_LIVE_STAT_CATEGORIES, "hits": DK_MLB_STAT_CATEGORIES["hits"]},
     )
     monkeypatch.setattr(

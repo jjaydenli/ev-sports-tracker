@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
-    configured_stat_categories_for_league,
+    subcategories_for_league,
 )
 from config.espn_competitions import ESPN_LEAGUE_SLATES
 from config.fd_competitions import FD_LEAGUE_SLATES
@@ -63,7 +63,7 @@ async def scrape_dk_league(league: str) -> ScrapeResult:
             status="skipped",
             reason="not_configured",
         )
-    if not configured_stat_categories_for_league(dk_slate):
+    if not subcategories_for_league(dk_slate).pregame.configured_ou:
         return ScrapeResult(
             source="dk",
             league=league_key,

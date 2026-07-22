@@ -78,19 +78,22 @@ cd backend
 
 ```bash
 # Pregame event — verify DK_MLB_STAT_CATEGORIES
-python -m scripts.probe_dk_subcategories <event_id> --league mlb
+python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb
 
 # Live (in-game) event — DK uses different subCategoryIds on many tabs
-python -m scripts.probe_dk_subcategories <live_event_id> --league mlb --live --discover
+python -m scripts.verify_dk_subcategories --event-id <live_event_id> --league mlb --live
+
+# Confirm ids read off DevTools before adding them to config
+python -m scripts.verify_dk_subcategories --event-id <event_id> --verify <id> [<id> ...]
 ```
 
-`--discover` scans live ID ranges and prints a pregame vs live comparison table. To verify configured live IDs: `--live` without `--discover`. DevTools Network on `event/eventSubcategory/v1/markets` → `clientMetadata/subCategoryId` also works.
+To discover unknown ids, read `clientMetadata/subCategoryId` off the DevTools Network request for `event/eventSubcategory/v1/markets`, then confirm each with `--verify` above.
 
 ## Capture checklist (new markets)
 
 Manifest: `backend/config/discovery/mlb.yaml`.
 
 1. **DK event id** — game URL or league slate.
-2. **DK prop subCategoryIds** — DevTools per stat tab; verify with `probe_dk_subcategories`.
+2. **DK prop subCategoryIds** — DevTools per stat tab; verify with `verify_dk_subcategories`.
 3. **Betr keys** — `LeagueUpcomingEvents` fixture → `tests/fixtures/betr_mlb_pregame.json` (pregame) or `tests/fixtures/betr_mlb_live.json` (live).
 4. **Fixtures** — `tests/fixtures/dk_markets_mlb_*.json`; slate with live event → `tests/fixtures/dk_league_mlb_events_with_live.json`.

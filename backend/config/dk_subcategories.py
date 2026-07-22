@@ -15,7 +15,7 @@ from urllib.parse import quote
 from config.api_headers import DK_LEAGUE_EVENTS_URL, DK_MARKETS_URL
 
 # Canonical market -> DK prop subCategoryId (per-event O/U tabs, NBA).
-# Probe: python -m scripts.probe_dk_subcategories <event_id> --league nba
+# Verify: python -m scripts.verify_dk_subcategories --event-id <event_id> --league nba
 DK_NBA_CORE_STAT_CATEGORIES: dict[str, str] = {
     "points": "12488",
     "rebounds": "12492",
@@ -37,8 +37,9 @@ DK_NBA_OU_EXTENDED_STAT_CATEGORIES: dict[str, str] = {
 # Backward-compatible alias for extended O/U stats (NBA).
 DK_NBA_EXTENDED_STAT_CATEGORIES: dict[str, str] = DK_NBA_OU_EXTENDED_STAT_CATEGORIES
 
-# Over-only milestone prop tabs (1+, 2+, 3+, NBA). Verify with:
-#   python -m scripts.probe_dk_subcategories <event_id> --discover-milestones
+# Over-only milestone prop tabs (1+, 2+, 3+, NBA). Read ids off DevTools, then
+# confirm each:
+#   python -m scripts.verify_dk_subcategories --event-id <event_id> --verify <id> [<id> ...]
 # Only include IDs confirmed against DK market names (not sequential guesses).
 # stl+blk: O/U only on DK — no milestone tab observed.
 DK_NBA_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
@@ -78,7 +79,7 @@ DK_WNBA_STAT_CATEGORIES: dict[str, str] = DK_NBA_STAT_CATEGORIES
 DK_WNBA_MILESTONE_STAT_CATEGORIES: dict[str, str] = DK_NBA_MILESTONE_STAT_CATEGORIES
 
 # MLB player-prop O/U (pregame). Verify:
-#   python -m scripts.probe_dk_subcategories <event_id> --league mlb
+#   python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb
 DK_MLB_STAT_CATEGORIES: dict[str, str] = {
     "hits": "6719",
     "total_bases": "6607",
@@ -97,8 +98,8 @@ DK_MLB_STAT_CATEGORIES: dict[str, str] = {
 
 # MLB batter O/U props for live events (subCategoryIds differ from pregame on many tabs).
 # Leave None to skip that market for live scrape.
-# Probe pregame: python -m scripts.probe_dk_subcategories <event_id> --league mlb
-# Probe live (in-game): ... --league mlb --live --discover  (pregame IDs are wrong for live)
+# Verify pregame: python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb
+# Verify live (in-game): ... --league mlb --live  (pregame IDs are wrong for live)
 DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "hits": "9502",
     "total_bases": "9506",

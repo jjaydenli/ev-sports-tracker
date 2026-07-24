@@ -140,7 +140,7 @@ def test_subcategories_for_league_mlb_pregame_ou():
     assert DK_MLB_STAT_CATEGORIES["total_bases"] == "6607"
     assert DK_MLB_STAT_CATEGORIES["singles"] == "17409"
     assert DK_MLB_STAT_CATEGORIES["doubles"] == "17410"
-    assert DK_MLB_STAT_CATEGORIES["strikeouts"] == "15221"
+    assert DK_MLB_STAT_CATEGORIES["pitching_strikeouts"] == "15221"
     assert DK_MLB_STAT_CATEGORIES["rbi"] == "8025"
 
 
@@ -180,12 +180,12 @@ def test_dk_mlb_live_stat_categories_batter_only():
         "runs",
         "singles",
         "doubles",
-        "walks",
+        "batting_walks",
         "rbi",
     }
     assert required.issubset(DK_MLB_LIVE_STAT_CATEGORIES.keys())
     for pitcher in (
-        "strikeouts",
+        "pitching_strikeouts",
         "earned_runs",
         "total_outs",
         "pitching_walks",
@@ -220,7 +220,7 @@ def test_mlb_live_configured_ou_all_batter_ids_set():
     assert result["hits"] == "9502"
     assert result["total_bases"] == "9506"
     assert result["doubles"] == "17472"
-    assert result["walks"] == "9536"
+    assert result["batting_walks"] == "9536"
     assert len(result) == len(DK_MLB_LIVE_STAT_CATEGORIES)
 
 

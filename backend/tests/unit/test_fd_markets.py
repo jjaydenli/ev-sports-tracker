@@ -32,10 +32,10 @@ def test_nba_parse_player_ou_market_type():
 def test_mlb_parse_pitcher_strikeouts_market_type():
     assert parse_player_ou_market_type(
         "PITCHER_C_TOTAL_STRIKEOUTS", league="mlb"
-    ) == ("strikeouts", False)
+    ) == ("pitching_strikeouts", False)
     assert parse_player_ou_market_type(
         "PITCHER_E_TOTAL_STRIKEOUTS", league="mlb"
-    ) == ("strikeouts", False)
+    ) == ("pitching_strikeouts", False)
     assert parse_player_ou_market_type("PITCHER_C_STRIKEOUTS", league="mlb") is None
     assert parse_player_ou_market_type("TO_RECORD_2+_HITS", league="mlb") is None
 
@@ -84,21 +84,21 @@ def test_mlb_milestone_markets_registry():
 
 
 def test_mlb_tab_for_strikeouts():
-    assert tab_for_canonical_market("strikeouts", league="mlb") == "pitcher-props"
+    assert tab_for_canonical_market("pitching_strikeouts", league="mlb") == "pitcher-props"
     assert tab_for_canonical_market("hits", league="mlb") == "batter-props"
 
 
 def test_mlb_default_scrape_includes_all_configured_markets():
-    assert "strikeouts" in FD_MLB_DEFAULT_SCRAPE_MARKETS
+    assert "pitching_strikeouts" in FD_MLB_DEFAULT_SCRAPE_MARKETS
     assert "hits" in FD_MLB_DEFAULT_SCRAPE_MARKETS
     assert len(FD_MLB_DEFAULT_SCRAPE_MARKETS) == 13
 
 
 def test_mlb_scrape_targets_groups_pitcher_markets_on_one_tab():
     targets = scrape_targets_for_markets(
-        ["strikeouts", "hits_allowed", "earned_runs"], league="mlb"
+        ["pitching_strikeouts", "hits_allowed", "earned_runs"], league="mlb"
     )
-    assert ("pitcher-props", {"strikeouts", "hits_allowed", "earned_runs"}) in targets
+    assert ("pitcher-props", {"pitching_strikeouts", "hits_allowed", "earned_runs"}) in targets
 
 
 def test_nba_scrape_targets_unchanged():
@@ -112,8 +112,8 @@ def test_nba_scrape_targets_unchanged():
 
 def test_is_core_ou_market_per_league():
     assert is_core_ou_market("points", league="nba")
-    assert not is_core_ou_market("strikeouts", league="nba")
-    assert is_core_ou_market("strikeouts", league="mlb")
+    assert not is_core_ou_market("pitching_strikeouts", league="nba")
+    assert is_core_ou_market("pitching_strikeouts", league="mlb")
     assert is_core_ou_market("hits", league="mlb")
 
 

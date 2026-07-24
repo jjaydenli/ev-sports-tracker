@@ -209,7 +209,7 @@ def test_run_ev_scan_structural_invariants(tmp_path: Path) -> None:
         {
             "sportsbook": "Betr",
             "player": "Shohei Ohtani",
-            "market": "strikeouts",
+            "market": "pitching_strikeouts",
             "line": 6.5,
             "league": "MLB",
             "over_odds": -120,
@@ -232,7 +232,7 @@ def test_run_ev_scan_structural_invariants(tmp_path: Path) -> None:
         {
             "sportsbook": "DraftKings",
             "player": "Shohei Ohtani",
-            "market": "strikeouts",
+            "market": "pitching_strikeouts",
             "line": 6.5,
             "league": "MLB",
             "over_odds": -120,

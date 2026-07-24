@@ -50,10 +50,10 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | runs | 17407 |
 | singles | 17409 |
 | doubles | 17410 |
-| walks | 17411 |
+| batting_walks | 17411 |
 | earned_runs | 17412 |
 | total_outs | 17413 |
-| strikeouts | 15221 |
+| pitching_strikeouts | 15221 |
 | pitching_walks | 15219 |
 | hits_allowed | 9886 |
 | rbi | 8025 |
@@ -61,6 +61,8 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 Verify configured or pasted IDs: `python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb`. See [mlb.md](mlb.md).
 
 Betr-only markets awaiting IDs are listed in `DK_NBA_PENDING_STAT_CATEGORIES` (skipped at scrape).
+
+**Naming:** a stat that exists on both sides of the ball gets an explicit `batting_`/`pitching_` prefix on both canonical names (e.g. `batting_strikeouts` vs `pitching_strikeouts`, `batting_walks` vs `pitching_walks`) — see the convention note at the top of `config/market_maps.py`.
 
 ## O/U vs milestone tabs
 

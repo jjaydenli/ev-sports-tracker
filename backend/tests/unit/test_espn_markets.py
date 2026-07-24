@@ -18,7 +18,7 @@ def test_mlb_and_wnba_slates_registered():
 
 def test_mlb_default_scrape_markets():
     assert default_scrape_markets_for_league("mlb") == ESPN_MLB_DEFAULT_SCRAPE_MARKETS
-    assert "strikeouts" in known_markets_for_league("mlb")
+    assert "pitching_strikeouts" in known_markets_for_league("mlb")
 
 
 def test_mlb_prop_section_slugs():
@@ -26,7 +26,7 @@ def test_mlb_prop_section_slugs():
 
 
 def test_ou_group_id_dispatch():
-    assert canonical_market_for_group_id("PitcherStrikeouts(O/U)") == "strikeouts"
+    assert canonical_market_for_group_id("PitcherStrikeouts(O/U)") == "pitching_strikeouts"
     assert canonical_market_for_group_id("Hits(O/U)") == "hits"
     assert canonical_market_for_group_id("TotalBases(O/U)") == "total_bases"
     assert canonical_market_for_group_id("HomeRuns(O/U)") == "home_runs"

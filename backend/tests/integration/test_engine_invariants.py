@@ -63,8 +63,8 @@ def _normalise_results(rows: list[dict]) -> list[dict]:
 
 def test_find_ev_opportunities_idempotent_single_book() -> None:
     """Same input twice → byte-identical rounded output (no dict/set ordering churn)."""
-    betr = [_betr("Aaron Judge", "hits", 1.5), _betr("Shohei Ohtani", "strikeouts", 6.5)]
-    dk = [_dk("Aaron Judge", "hits", 1.5), _dk("Shohei Ohtani", "strikeouts", 6.5)]
+    betr = [_betr("Aaron Judge", "hits", 1.5), _betr("Shohei Ohtani", "pitching_strikeouts", 6.5)]
+    dk = [_dk("Aaron Judge", "hits", 1.5), _dk("Shohei Ohtani", "pitching_strikeouts", 6.5)]
 
     run1 = _normalise_results(find_ev_opportunities(betr, dk))
     run2 = _normalise_results(find_ev_opportunities(betr, dk))
@@ -73,12 +73,12 @@ def test_find_ev_opportunities_idempotent_single_book() -> None:
 
 def test_find_ev_opportunities_idempotent_multi_book() -> None:
     """Multi-book path is also idempotent."""
-    betr = [_betr("Shohei Ohtani", "strikeouts", 6.5)]
-    dk = [_dk("Shohei Ohtani", "strikeouts", 6.5)]
+    betr = [_betr("Shohei Ohtani", "pitching_strikeouts", 6.5)]
+    dk = [_dk("Shohei Ohtani", "pitching_strikeouts", 6.5)]
     fd = [{
         "sportsbook": "FanDuel",
         "player": "Shohei Ohtani",
-        "market": "strikeouts",
+        "market": "pitching_strikeouts",
         "line": 6.5,
         "over_odds": -120,
         "under_odds": -110,

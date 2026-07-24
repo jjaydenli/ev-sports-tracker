@@ -21,16 +21,16 @@ MLB_ENABLED_MARKETS = frozenset(
         "runs",
         "singles",
         "doubles",
-        "walks",
+        "batting_walks",
         "earned_runs",
         "total_outs",
-        "strikeouts",
+        "pitching_strikeouts",
         "pitching_walks",
         "hits_allowed",
         "rbi",
     }
 )
-# Deferred v2: hitter_strikeouts (HITTER_STRIKEOUTS) — DK milestone-only
+# Deferred v2: batting_strikeouts (HITTER_STRIKEOUTS) — DK milestone-only
 
 # TODO: map non-REGULAR types to prop_type and select value vs non_regular_value
 

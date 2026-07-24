@@ -22,6 +22,10 @@ yet live in ``pending`` (not as ``None`` inside an O/U map). Period props
 captured data for them; add a grid dimension only when a probe produces ids.
 
 Master board rows keep ``subcategory_id`` to mirror DK market JSON.
+
+Canonical market keys follow the batting_/pitching_ naming convention in
+``config/market_maps.py`` for any stat that exists on both sides of the ball
+(e.g. ``batting_strikeouts`` vs ``pitching_strikeouts``).
 """
 
 from collections.abc import Mapping
@@ -95,10 +99,10 @@ DK_MLB_STAT_CATEGORIES: dict[str, str] = {
     "runs": "17407",
     "singles": "17409",
     "doubles": "17410",
-    "walks": "17411",
+    "batting_walks": "17411",
     "earned_runs": "17412",
     "total_outs": "17413",
-    "strikeouts": "15221",
+    "pitching_strikeouts": "15221",
     "pitching_walks": "15219",
     "hits_allowed": "9886",
     "rbi": "8025",
@@ -115,7 +119,7 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "runs": "17475",
     "singles": "17471",
     "doubles": "17472",
-    "walks": "9536",
+    "batting_walks": "9536",
     "rbi": "9505",
 }
 

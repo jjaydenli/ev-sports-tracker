@@ -95,7 +95,7 @@ def test_flatten_ou_with_even_odds():
 def test_flatten_pitcher_strikeouts_ou():
     props = flatten_drawer_content(_load(PITCHER_DRAWER), event_id=EVENT_ID, league="mlb")
     assert {p["player"] for p in props} == {"Framber Valdez", "Gerrit Cole"}
-    assert all(p["market"] == "strikeouts" for p in props)
+    assert all(p["market"] == "pitching_strikeouts" for p in props)
     valdez = next(p for p in props if p["player"] == "Framber Valdez")
     line = valdez["lines"][0]
     assert line["line"] == 4.5
@@ -116,7 +116,7 @@ def test_flatten_batter_hits_ou():
 def test_flatten_derives_group_id_from_drawer_id():
     # group_id omitted -> parsed from data.eventDrawer.id "Drawer:<id>:<groupId>:Event:..".
     props = flatten_drawer_content(_load(PITCHER_DRAWER), event_id=EVENT_ID, league="mlb")
-    assert props and props[0]["market"] == "strikeouts"
+    assert props and props[0]["market"] == "pitching_strikeouts"
 
 
 def test_flatten_non_ou_drawer_returns_empty():
@@ -290,7 +290,7 @@ def test_flatten_mixed_status_drawer_keeps_only_fully_open():
     props = flatten_drawer_content(_load(DRAWER_MIXED_STATUS), event_id=LIVE_EVENT_ID, league="mlb")
     assert len(props) == 1
     assert props[0]["player"] == "Gerrit Cole"
-    assert props[0]["market"] == "strikeouts"
+    assert props[0]["market"] == "pitching_strikeouts"
     line = props[0]["lines"][0]
     assert line["over_odds"] == -120
     assert line["under_odds"] == -115

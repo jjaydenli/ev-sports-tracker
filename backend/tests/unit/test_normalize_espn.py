@@ -7,7 +7,7 @@ def test_normalize_platform_dispatches_to_espn_parser():
         {
             "sportsbook": "ESPN",
             "player": "Parker Messick",
-            "market": "strikeouts",
+            "market": "pitching_strikeouts",
             "line": 5.5,
             "over_odds": -114,
             "under_odds": -114,
@@ -18,7 +18,7 @@ def test_normalize_platform_dispatches_to_espn_parser():
     result = normalize_platform("espn", raw_props)
     assert len(result) == 1
     assert result[0]["sportsbook"] == "ESPN"
-    assert result[0]["market"] == "strikeouts"
+    assert result[0]["market"] == "pitching_strikeouts"
     assert result[0]["league"] == "MLB"
 
 
@@ -28,7 +28,7 @@ def test_parse_espn_props_propagates_league_from_grouped_ladder():
             {
                 "sportsbook": "ESPN",
                 "player": "Parker Messick",
-                "market": "strikeouts",
+                "market": "pitching_strikeouts",
                 "league": "MLB",
                 "lines": [
                     {

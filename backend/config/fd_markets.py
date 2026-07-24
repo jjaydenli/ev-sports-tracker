@@ -55,7 +55,7 @@ FD_MLB_PITCHER_TAB = "pitcher-props"
 FD_MLB_BATTER_TAB = "batter-props"
 
 FD_MLB_PITCHER_OU_MARKETS: tuple[str, ...] = (
-    "strikeouts",
+    "pitching_strikeouts",
     "earned_runs",
     "total_outs",
     "pitching_walks",
@@ -70,7 +70,7 @@ FD_MLB_BATTER_OU_MARKETS: tuple[str, ...] = (
     "h+r+rbi",
     "singles",
     "doubles",
-    "walks",
+    "batting_walks",
 )
 
 FD_MLB_DEFAULT_SCRAPE_MARKETS: tuple[str, ...] = (
@@ -87,14 +87,14 @@ _STAT_SUFFIX_TO_CANONICAL_MLB: tuple[tuple[str, str], ...] = (
     ("HITS_+_RUNS_+_RBIS", "h+r+rbi"),
     ("HITS_+_RUNS_+_RBI", "h+r+rbi"),
     ("TOTAL_BASES", "total_bases"),
-    ("STRIKEOUTS", "strikeouts"),
+    ("STRIKEOUTS", "pitching_strikeouts"),
     ("EARNED_RUNS", "earned_runs"),
     ("PITCHING_WALKS", "pitching_walks"),
     ("HITS_ALLOWED", "hits_allowed"),
     ("TOTAL_OUTS", "total_outs"),
     ("SINGLES", "singles"),
     ("DOUBLES", "doubles"),
-    ("WALKS", "walks"),
+    ("WALKS", "batting_walks"),
     ("HITS", "hits"),
     ("RUNS", "runs"),
     ("RBIS", "rbi"),

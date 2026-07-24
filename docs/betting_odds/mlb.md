@@ -14,15 +14,15 @@ All rows below are in `DK_MLB_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS` (Betr pars
 | `runs` | `RUNS` | 17407 | Runs O/U |
 | `singles` | `SINGLES` | 17409 | Singles O/U |
 | `doubles` | `DOUBLES` | 17410 | Doubles O/U |
-| `walks` | `WALKS` | 17411 | Walks (Batter) O/U |
+| `batting_walks` | `WALKS` | 17411 | Walks (Batter) O/U |
 | `earned_runs` | `EARNED_RUNS` | 17412 | Earned Runs Allowed O/U |
 | `total_outs` | `TOTAL_OUTS` | 17413 | Outs O/U |
-| `strikeouts` | `STRIKEOUTS` | 15221 | Strikeouts Thrown O/U |
+| `pitching_strikeouts` | `STRIKEOUTS` | 15221 | Strikeouts Thrown O/U |
 | `pitching_walks` | `PITCHING_WALKS` | 15219 | Walks Allowed O/U |
 | `hits_allowed` | `HITS_ALLOWED` | 9886 | Hits Allowed O/U |
 | `rbi` | `RUNS_BATTED_IN` | 8025 | RBIs O/U |
 
-**Deferred v2:** `HITTER_STRIKEOUTS` (Betr) — DK milestone-only `17849`; enable with milestone EV + over-side penalty.
+**Deferred v2:** `HITTER_STRIKEOUTS` (Betr) → `batting_strikeouts` (canonical) — DK pregame milestone-only `17849`; enable with milestone EV + over-side penalty.
 
 Crosswalk + milestone refs: `backend/config/discovery/mlb.yaml`.
 
@@ -46,7 +46,7 @@ Live scrape uses `DK_MLB_LIVE_STAT_CATEGORIES` in `backend/config/dk_subcategori
 | `runs` | `RUNS` | 17475 | 17407 |
 | `singles` | `SINGLES` | 17471 | 17409 |
 | `doubles` | `DOUBLES` | 17472 | 17410 |
-| `walks` | `WALKS` | 9536 | 17411 |
+| `batting_walks` | `WALKS` | 9536 | 17411 |
 | `rbi` | `RUNS_BATTED_IN` | 9505 | 8025 |
 
 EV rows from live props carry `is_live: true`; the ranked table shows **L** in the Live column.

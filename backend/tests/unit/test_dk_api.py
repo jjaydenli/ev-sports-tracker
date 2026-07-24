@@ -112,7 +112,10 @@ def test_infer_canonical_market_from_dk_label():
     assert infer_canonical_market_from_dk_label("Luis Arraez Hits O/U") == "hits"
     assert infer_canonical_market_from_dk_label("Casey Schmitt Total Bases O/U") == "total_bases"
     assert infer_canonical_market_from_dk_label("Connor Prielipp Hits Allowed O/U") == "hits_allowed"
-    assert infer_canonical_market_from_dk_label("Connor Prielipp Strikeouts Thrown O/U") == "strikeouts"
+    assert (
+        infer_canonical_market_from_dk_label("Connor Prielipp Strikeouts Thrown O/U")
+        == "pitching_strikeouts"
+    )
     assert infer_canonical_market_from_dk_label("Byron Buxton RBIs O/U") == "rbi"
 
 
@@ -225,7 +228,7 @@ def test_infer_canonical_market_from_mlb_hits_fixture():
     ("fixture_name", "market", "subcategory_id"),
     [
         ("dk_markets_mlb_singles.json", "singles", "17409"),
-        ("dk_markets_mlb_strikeouts.json", "strikeouts", "15221"),
+        ("dk_markets_mlb_strikeouts.json", "pitching_strikeouts", "15221"),
         ("dk_markets_mlb_hits_allowed.json", "hits_allowed", "9886"),
         ("dk_markets_mlb_rbi.json", "rbi", "8025"),
     ],

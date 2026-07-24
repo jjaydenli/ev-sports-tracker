@@ -15,10 +15,10 @@ enabled_markets:
   - runs
   - singles
   - doubles
-  - walks
+  - batting_walks
   - earned_runs
   - total_outs
-  - strikeouts
+  - pitching_strikeouts
   - pitching_walks
   - hits_allowed
   - rbi
@@ -54,9 +54,9 @@ discovered_ou:
     canonical: doubles
     dk_prop_subcategory_id: "17410"
     dk_label: Doubles O/U
-  walks:
+  batting_walks:
     betr_key: WALKS
-    canonical: walks
+    canonical: batting_walks
     dk_prop_subcategory_id: "17411"
     dk_label: Walks (Batter) O/U
   earned_runs:
@@ -71,7 +71,7 @@ discovered_ou:
     dk_label: Outs O/U
   strikeouts_pitching:
     betr_key: STRIKEOUTS
-    canonical: strikeouts
+    canonical: pitching_strikeouts
     dk_prop_subcategory_id: "15221"
     dk_label: Strikeouts Thrown O/U
     notes: flat/push integer lines TBD; pair with milestone 17323
@@ -95,7 +95,7 @@ deferred_v2_milestone:
   strikeouts_batter:
     betr_key: HITTER_STRIKEOUTS
     betr_label: Strikeouts
-    canonical: hitter_strikeouts
+    canonical: batting_strikeouts
     dk_prop_subcategory_id: "17849"
     dk_label: Strikeouts (Batter) Milestones
     reason: milestone-only; enable with v2 milestone EV parser

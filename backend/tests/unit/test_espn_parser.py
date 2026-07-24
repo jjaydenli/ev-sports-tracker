@@ -35,7 +35,7 @@ def _base_espn() -> dict:
     return {
         "sportsbook": "ESPN",
         "player": "Shohei Ohtani",
-        "market": "strikeouts",
+        "market": "pitching_strikeouts",
         "line": 6.5,
         "over_odds": -115,
         "under_odds": -115,
@@ -50,7 +50,7 @@ def test_parse_espn_prop_returns_normalized_row() -> None:
     assert prop is not None
     assert prop["sportsbook"] == "ESPN"
     assert prop["player"] == "Shohei Ohtani"
-    assert prop["market"] == "strikeouts"
+    assert prop["market"] == "pitching_strikeouts"
     assert prop["line"] == 6.5
     assert prop["over_odds"] == -115
     assert prop["under_odds"] == -115
@@ -116,7 +116,7 @@ def test_parse_espn_props_expands_grouped_ladder() -> None:
         {
             "sportsbook": "ESPN",
             "player": "Shohei Ohtani",
-            "market": "strikeouts",
+            "market": "pitching_strikeouts",
             "league": "MLB",
             "event_start": "2026-07-01T21:00:00.000Z",
             "lines": [
@@ -188,7 +188,7 @@ def test_parse_espn_props_is_live_passthrough_grouped() -> None:
         {
             "sportsbook": "ESPN",
             "player": "Shohei Ohtani",
-            "market": "strikeouts",
+            "market": "pitching_strikeouts",
             "league": "MLB",
             "is_live": True,
             "lines": [

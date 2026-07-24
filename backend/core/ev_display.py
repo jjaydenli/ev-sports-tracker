@@ -78,10 +78,10 @@ MARKET_ABBREV: dict[str, str] = {
     "runs": "RUNS",
     "singles": "1B",
     "doubles": "2B",
-    "walks": "BB",
+    "batting_walks": "BB",
     # MLB — pitching ("_A" = allowed, to stay distinct from the batting markets; box scores
     # reuse H/BB for both because batting and pitching live in separate tables — ours do not).
-    "strikeouts": "K",
+    "pitching_strikeouts": "K",
     "earned_runs": "ER",
     "total_outs": "OUTS",
     "hits_allowed": "HITS_A",

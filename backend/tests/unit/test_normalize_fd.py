@@ -27,7 +27,7 @@ def test_normalize_platform_mlb_strikeouts():
         {
             "sportsbook": "FanDuel",
             "player": "Parker Messick",
-            "market": "strikeouts",
+            "market": "pitching_strikeouts",
             "line": 5.5,
             "over_odds": -114,
             "under_odds": -114,
@@ -40,7 +40,7 @@ def test_normalize_platform_mlb_strikeouts():
     result = normalize_platform("fanduel", raw_props)
 
     assert len(result) == 1
-    assert result[0]["market"] == "strikeouts"
+    assert result[0]["market"] == "pitching_strikeouts"
     assert result[0]["league"] == "MLB"
     assert result[0]["line_kind"] == "ou"
 
@@ -73,7 +73,7 @@ def test_parse_fd_props_propagates_league_from_grouped_ladder():
             {
                 "sportsbook": "FanDuel",
                 "player": "Parker Messick",
-                "market": "strikeouts",
+                "market": "pitching_strikeouts",
                 "line_kind": "ou",
                 "league": "MLB",
                 "event_id": "35730475",
@@ -101,7 +101,7 @@ def test_parse_fd_props_propagates_game_from_grouped_ladder():
             {
                 "sportsbook": "FanDuel",
                 "player": "Parker Messick",
-                "market": "strikeouts",
+                "market": "pitching_strikeouts",
                 "line_kind": "ou",
                 "league": "MLB",
                 "game": "CLE@MIL",

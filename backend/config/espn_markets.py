@@ -20,7 +20,7 @@ ESPN_PROP_SECTION_SLUGS_BY_LEAGUE: dict[str, tuple[str, ...]] = {
 # Literal O/U drawer groupId -> canonical market key (identity-mapped in market_maps).
 # UUID groupIds are the N+/LIST milestone drawers; those are dispatched via labelText.
 ESPN_OU_GROUP_TO_MARKET: dict[str, str] = {
-    "PitcherStrikeouts(O/U)": "strikeouts",
+    "PitcherStrikeouts(O/U)": "pitching_strikeouts",
     "OutsRecorded(O/U)": "total_outs",
     "HitsAllowed(O/U)": "hits_allowed",
     "WalksAllowed(O/U)": "pitching_walks",
@@ -32,7 +32,7 @@ ESPN_OU_GROUP_TO_MARKET: dict[str, str] = {
 }
 
 ESPN_MLB_PITCHER_OU_MARKETS: tuple[str, ...] = (
-    "strikeouts",
+    "pitching_strikeouts",
     "total_outs",
     "hits_allowed",
     "pitching_walks",

@@ -121,13 +121,35 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "doubles": "17472",
     "batting_walks": "9536",
     "rbi": "9505",
+    # Pitcher live O/U: unprobed. KC@DET (2026-07-23, the only live MLB game
+    # that day) had no pitcher props posted yet; retry on the next live game.
+    "pitching_strikeouts": None,
+    "earned_runs": None,
+    "total_outs": None,
+    "pitching_walks": None,
+    "hits_allowed": None,
 }
 
-# MLB milestone tabs. Pregame is empty pending a DevTools probe (capture every
-# id DK lists, incl. xbh/home_runs). Live is a separate probe on an in-game
-# event; both stay empty (no live milestone scrape) until ids land.
+# MLB milestone tabs. Pregame is empty: DK does not release the full board
+# until closer to game time, so pregame milestone capture is deferred (not
+# just unprobed). Live milestone verified 2026-07-23 on KC@DET (34425631) for
+# batters; pitcher live milestone is unprobed, blocked with the pitcher O/U
+# ids above.
 DK_MLB_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {}
-DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {}
+DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {
+    "batting_strikeouts": "17490",
+    "home_runs": "17482",
+    "hits": "17483",
+    "total_bases": "17480",
+    "rbi": "17479",
+    "h+r+rbi": "18773",
+    "stolen_bases": "18775",
+    "batting_walks": "18774",
+    "runs": "17488",
+    "singles": "17485",
+    "doubles": "17486",
+    "triples": "17487",
+}
 
 
 # --- Registry: per-league view over the state x kind grid -------------------

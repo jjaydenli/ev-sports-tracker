@@ -2,6 +2,7 @@ from urllib.parse import parse_qs, urlparse
 
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
+    DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES,
     DK_MLB_LIVE_STAT_CATEGORIES,
     DK_MLB_STAT_CATEGORIES,
     DK_NBA_MILESTONE_STAT_CATEGORIES,
@@ -172,8 +173,8 @@ def test_build_league_events_url_matches_captured_nba_request():
     )
 
 
-def test_dk_mlb_live_stat_categories_batter_only():
-    required = {
+def test_dk_mlb_live_stat_categories_batter_configured_pitcher_pending():
+    batter_configured = {
         "hits",
         "total_bases",
         "h+r+rbi",
@@ -183,7 +184,10 @@ def test_dk_mlb_live_stat_categories_batter_only():
         "batting_walks",
         "rbi",
     }
-    assert required.issubset(DK_MLB_LIVE_STAT_CATEGORIES.keys())
+    for market in batter_configured:
+        assert DK_MLB_LIVE_STAT_CATEGORIES[market] is not None
+    # Pitcher live O/U slots exist (grid-complete) but stay unconfigured until a
+    # live game with an active pitcher matchup is probed.
     for pitcher in (
         "pitching_strikeouts",
         "earned_runs",
@@ -191,7 +195,7 @@ def test_dk_mlb_live_stat_categories_batter_only():
         "pitching_walks",
         "hits_allowed",
     ):
-        assert pitcher not in DK_MLB_LIVE_STAT_CATEGORIES
+        assert DK_MLB_LIVE_STAT_CATEGORIES[pitcher] is None
 
 
 def test_subcategories_for_league_mlb_live_ou_is_live_map():
@@ -207,12 +211,27 @@ def test_nba_and_wnba_live_ids_not_probed_yet():
         assert live.milestone == {}
 
 
-def test_mlb_milestone_slots_pending_probe():
-    # Both MLB milestone maps await a DevTools probe; the grid slot exists so
-    # captured ids have somewhere to land (pregame + live milestone).
+def test_mlb_pregame_milestone_still_pending_probe():
+    # DK doesn't release the full pregame board until closer to game time, so
+    # pregame milestone capture is deferred (not just unprobed).
+    assert subcategories_for_league("mlb").pregame.milestone == {}
+
+
+def test_mlb_live_milestone_batter_ids_verified():
     mlb = subcategories_for_league("mlb")
-    assert mlb.pregame.milestone == {}
-    assert mlb.live.milestone == {}
+    assert mlb.live.milestone is DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["batting_strikeouts"] == "17490"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["home_runs"] == "17482"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["total_bases"] == "17480"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["rbi"] == "17479"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["h+r+rbi"] == "18773"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["stolen_bases"] == "18775"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["batting_walks"] == "18774"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["runs"] == "17488"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["singles"] == "17485"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["doubles"] == "17486"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["triples"] == "17487"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["hits"] == "17483"
 
 
 def test_mlb_live_configured_ou_all_batter_ids_set():
@@ -221,7 +240,8 @@ def test_mlb_live_configured_ou_all_batter_ids_set():
     assert result["total_bases"] == "9506"
     assert result["doubles"] == "17472"
     assert result["batting_walks"] == "9536"
-    assert len(result) == len(DK_MLB_LIVE_STAT_CATEGORIES)
+    # 8 batter markets configured; the 5 pitcher slots stay None (pending).
+    assert len(result) == 8
 
 
 def test_prop_tabs_configured_drops_none_and_tbd():

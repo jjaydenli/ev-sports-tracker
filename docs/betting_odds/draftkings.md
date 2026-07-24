@@ -58,6 +58,25 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | hits_allowed | 9886 |
 | rbi | 8025 |
 
+**MLB live batter milestone** (verified 2026-07-23 on a KC@DET live game) — `DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES`. Pregame milestone capture is deferred: DK doesn't release the full pregame board until closer to game time.
+
+| Canonical market | subCategoryId (MLB, live) |
+|------------------|---------------------------|
+| batting_strikeouts | 17490 |
+| home_runs | 17482 |
+| total_bases | 17480 |
+| rbi | 17479 |
+| h+r+rbi | 18773 |
+| stolen_bases | 18775 |
+| batting_walks | 18774 |
+| runs | 17488 |
+| singles | 17485 |
+| doubles | 17486 |
+| triples | 17487 |
+| hits | 17483 |
+
+Live pitcher O/U and live pitcher milestone (`pitching_strikeouts`, `earned_runs`, `total_outs`, `pitching_walks`, `hits_allowed`) are unprobed: the only live MLB game on 2026-07-23 (KC@DET) had no pitcher props posted. Retry on the next live game.
+
 Verify configured or pasted IDs: `python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb`. See [mlb.md](mlb.md).
 
 Betr-only markets awaiting IDs are listed in `DK_NBA_PENDING_STAT_CATEGORIES` (skipped at scrape).

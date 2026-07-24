@@ -91,14 +91,15 @@ class DraftKingsEngine(BaseScraper):
 
         game_map = build_event_game_map(payload)
         start_map = build_event_start_map(payload)
-        if self.league.lower() == "mlb":
-            all_ids = extract_event_ids(
-                payload, statuses=SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
-            )
-            live_ids = set(extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES))
-        else:
-            all_ids = extract_event_ids(payload)
-            live_ids = set()
+        # Live detection runs for every league, not just MLB: a league with no
+        # configured live subCategoryIds yet still ends up skipped correctly in
+        # scrape() (`if not live_ou: continue`), so this is behavior-neutral
+        # until a league's live ids land — at which point no engine change is
+        # needed to pick them up.
+        all_ids = extract_event_ids(
+            payload, statuses=SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
+        )
+        live_ids = set(extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES))
 
         logger.info(
             f"discovered {len(all_ids)} {self.league.upper()} events from league slate "

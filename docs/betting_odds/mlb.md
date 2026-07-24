@@ -31,8 +31,12 @@ Crosswalk + milestone refs: `backend/config/discovery/mlb.yaml`.
 | Betr key | DK subCategoryId | Notes |
 |----------|------------------|-------|
 | `STRIKEOUTS` | 17323 | Pair with 15221 for push/flat K lines (TBD) |
-| `HITTER_STRIKEOUTS` | 17849 | Defer v2 |
+| `HITTER_STRIKEOUTS` | 17849 | Pregame, defer v2 |
 | `HITS_ALLOWED` | 19457 | Reference; O/U at 9886 |
+
+### Live batter milestone (verified 2026-07-23)
+
+`DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py` — all 12 batter markets verified on a live KC@DET game. Full id table in [draftkings.md](draftkings.md). Includes `batting_strikeouts` (`17490`, distinct from the pregame `17849` above) plus three markets Betr does not currently offer (`home_runs`, `stolen_bases`, `triples`) — stored for when/if Betr adds them; ESPN already has canonical `home_runs`/`stolen_bases` entries. Live pitcher O/U and pitcher milestone are unprobed (no live pitcher props were posted that day); retry on the next live game.
 
 ## Live batter O/U
 

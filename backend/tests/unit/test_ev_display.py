@@ -4,6 +4,8 @@ import pytest
 
 from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
 from core.ev_display import (
+    _CONFIDENCE_MUTE_GREY,
+    _MILESTONE_GLYPH,
     _SRC_ADJ_METHODS,
     _SRC_EXACT_METHODS,
     _TEAM_CLUSTER_COLOR_BANK,
@@ -13,6 +15,7 @@ from core.ev_display import (
     _display_width,
     _ev_tier_color_code,
     _format_game,
+    _format_src,
     column_index,
     format_ev_opportunities_table,
     format_ev_opportunity_row,
@@ -20,6 +23,10 @@ from core.ev_display import (
     format_ou_odds,
 )
 from core.line_adjustment import EV_ELIGIBLE_ADJUSTMENT_METHODS
+
+# Derive Src / odds soft-price labels from the formatters under test — never restate the glyph.
+_MS_SRC_LABEL = _format_src({"line_source": "milestone_exact"})
+_SOFT_ODDS_SAMPLE = format_ou_odds(-165, None, milestone_one_sided=True)
 
 
 def _cell_by_header(line: str, header: str) -> str:
@@ -37,7 +44,9 @@ def test_format_ou_odds():
     assert format_ou_odds(110, -140) == "+110/-140"
     assert format_ou_odds(-110, -110) == "-110/-110"
     assert format_ou_odds(None, None) == "—"
-    assert format_ou_odds(-165, None, milestone_one_sided=True) == "-165/🔶"
+    assert format_ou_odds(-165, None, milestone_one_sided=True) == f"-165/{_MILESTONE_GLYPH}"
+    assert _MILESTONE_GLYPH in _SOFT_ODDS_SAMPLE
+    assert "🔶" not in _SOFT_ODDS_SAMPLE
 
 
 def _assert_row_column_widths(line: str) -> None:
@@ -89,7 +98,7 @@ def test_market_abbrev_does_not_collide_with_team_codes():
 
 
 def test_milestone_reference_odds_render_beside_a_two_sided_src():
-    """A book's one-sided milestone shows 🔶 in its own column without claiming the Src."""
+    """A book's one-sided milestone shows the soft glyph without claiming the Src."""
     row = {
         "player": "Junior Perez",
         "league": "MLB",
@@ -104,7 +113,7 @@ def test_milestone_reference_odds_render_beside_a_two_sided_src():
         "line_source": "fd_exact",
     }
     line = format_ev_opportunity_row(row)
-    assert _cell_by_header(line, "FD") == "-165/🔶"
+    assert _cell_by_header(line, "FD") == _SOFT_ODDS_SAMPLE
     assert _cell_by_header(line, "Src") == "exact"
     _assert_row_column_widths(line)
 
@@ -116,7 +125,10 @@ def _src_for(line_source: str, **extra) -> str:
 
 
 # The complete Src vocabulary. Anything outside this is a leak of engine internals.
-_SRC_LABEL_RE = re.compile(r"^(exact(·\d+)?|ms🔶|adj|\?)$")
+# Glyph derived from _format_src so a swap cannot silently leave this regex asserting the old char.
+_SRC_LABEL_RE = re.compile(
+    rf"^(exact(·\d+)?|{re.escape(_MS_SRC_LABEL)}|adj|\?)$"
+)
 
 # Methods the engine can rank. Derived from the engine's own constant rather than restated
 # here, so a newly-eligible method is covered the moment it is added — the point of the tests
@@ -144,7 +156,9 @@ def test_src_adjusted_family_collapses_to_quiet_umbrella(method):
 
 
 def test_src_milestone_only_is_marked_inferred():
-    assert _src_for("milestone_exact") == "ms🔶"
+    assert _src_for("milestone_exact") == _MS_SRC_LABEL
+    assert "🔶" not in _MS_SRC_LABEL
+    assert _MILESTONE_GLYPH in _MS_SRC_LABEL
 
 
 def test_src_never_leaks_a_raw_method_string():
@@ -375,19 +389,24 @@ def _row(player, *, team, league="MLB", market="hits", line=1.5, ev=0.05, ev_pct
 
 
 def _row_is_dimmed(line: str) -> bool:
-    """True when non-stack cells carry the dim SGR (Stack is exempt by registry)."""
+    """True when non-stack cells carry the dim SGR attribute (Stack is exempt by registry)."""
     cells = line.split(" | ")
     stack_i = column_index("stack")
     for index, cell in enumerate(cells):
         if index == stack_i:
             continue
-        if re.match(r"^\033\[(?:2m|2;)", cell):
+        # Dim may be sole (`\033[2m`) or composed (`\033[2;…` / `\033[1;2;…`).
+        if re.search(r"\033\[[0-9;]*\b2[;m]", cell):
             return True
     return False
 
 
 def _stack_cell(line: str) -> str:
     return line.split(" | ")[column_index("stack")]
+
+
+def _stack_has_dim(line: str) -> bool:
+    return bool(re.search(r"\033\[[0-9;]*\b2[;m]", _stack_cell(line)))
 
 
 def test_team_cluster_marker_marks_every_row_in_cluster():
@@ -493,8 +512,11 @@ def test_highlight_beats_dim():
     )
     body = table.splitlines()[2:]
     assert not _row_is_dimmed(body[1])
-    # Highlighted non-best still carries bold-yellow on a non-stack cell.
-    assert body[1].split(" | ")[column_index("player")].startswith("\033[1;33m")
+    player = body[1].split(" | ")[column_index("player")]
+    assert player.startswith("\033[1;33m")
+    # Must not compose bold+dim (`1;2`) — annotate clears dim before the styler.
+    assert ";2" not in player.split("m", 1)[0]
+    assert not re.search(r"\033\[[0-9;]*\b2[;m]", player)
 
 
 def test_ev_tier_color_code_boundaries():
@@ -639,12 +661,33 @@ def test_team_cluster_color_highlight_and_dim_exempt_on_stack_cell():
         _row("Player A", team="NYY", market="runs", line=0.5, ev=0.03),
         _row("Player B", team="NYY", ev=0.06),
     ]
-    table = format_ev_opportunities_table(rows, highlight=lambda r: True, color_ev=True)
-    for line in table.splitlines()[2:]:
+    # Highlight only A's best row so the non-best row stays dimmed (dim actually fires).
+    table = format_ev_opportunities_table(
+        rows,
+        highlight=lambda r: r.get("player") == "Player A" and r.get("market") == "hits",
+        color_ev=True,
+    )
+    body = table.splitlines()[2:]
+    assert _row_is_dimmed(body[1])
+    for line in body:
         stack = _stack_cell(line)
         assert stack.startswith("\033[38;5;")
         assert "\033[1;33m" not in stack
-        assert not re.match(r"^\033\[(?:2m|2;)", stack)
+        assert not _stack_has_dim(line)
+
+
+def test_blank_stack_cell_exempt_from_dim():
+    """Lone-player dim: blank Stack has no marker colour, so exempt_dim is load-bearing."""
+    rows = [
+        _row("Solo Star", team="NYY", market="hits", ev=0.08),
+        _row("Solo Star", team="NYY", market="runs", line=0.5, ev=0.03),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    dim_line = table.splitlines()[3]
+    assert _row_is_dimmed(dim_line)
+    assert "▌" not in dim_line
+    assert not _stack_has_dim(dim_line)
+    assert "\033[" not in _stack_cell(dim_line)
 
 
 def test_team_cluster_marker_cross_league_no_color():
@@ -678,3 +721,188 @@ def test_dim_composes_with_ev_tier_in_one_escape():
     ev_cell = table.splitlines()[3].split(" | ")[column_index("ev")]
     assert ev_cell.startswith("\033[2;38;5;40m")
     assert "\033[2m\033[38;5;" not in ev_cell
+
+
+def _strip_cell_ansi(cell: str) -> str:
+    return re.sub(r"\033\[[0-9;]*m", "", cell)
+
+
+def _cell_has_grey(cell: str) -> bool:
+    return f"38;5;{_CONFIDENCE_MUTE_GREY}m" in cell
+
+
+def _cell_has_ev_tier(cell: str) -> bool:
+    """True when an EV-tier xterm code (not mute grey) is present."""
+    return bool(re.search(r"38;5;(?!245)(\d+)m", cell))
+
+
+def test_confidence_mute_greys_credibility_cells_on_ms_only():
+    ms = _row(
+        "Ms Player",
+        team="NYY",
+        market="hits",
+        ev=0.05,
+        ev_pct=5.0,
+        line_source="milestone_exact",
+    )
+    ms["side_hit_pct"] = 55.0
+    exact = _row(
+        "Exact Player",
+        team="NYY",
+        market="hits",
+        ev=0.04,
+        ev_pct=4.0,
+        line_source="exact",
+    )
+    exact["side_hit_pct"] = 52.0
+    table = format_ev_opportunities_table([ms, exact], color_ev=True)
+    ms_line, exact_line = table.splitlines()[2], table.splitlines()[3]
+    for header in ("Hit%", "EV%", "Src"):
+        ms_cell = ms_line.split(" | ")[EV_TABLE_HEADERS.index(header)]
+        exact_cell = exact_line.split(" | ")[EV_TABLE_HEADERS.index(header)]
+        assert _cell_has_grey(ms_cell), header
+        assert not _cell_has_grey(exact_cell), header
+    assert not _cell_has_ev_tier(ms_line.split(" | ")[column_index("ev")])
+    assert _cell_has_ev_tier(exact_line.split(" | ")[column_index("ev")])
+    # Identity cells stay bright (no mute grey).
+    assert not _cell_has_grey(ms_line.split(" | ")[column_index("player")])
+    assert not _cell_has_grey(ms_line.split(" | ")[column_index("stat")])
+    assert _strip_cell_ansi(ms_line.split(" | ")[column_index("src")]).strip() == _MS_SRC_LABEL
+
+
+def test_confidence_mute_independent_of_dim():
+    """Dim and mute are separate channels — both detectable on a non-best ms row."""
+    rows = [
+        _row("P", team="NYY", market="hits", ev=0.10, ev_pct=10.0, line_source="milestone_exact"),
+        _row(
+            "P",
+            team="NYY",
+            market="runs",
+            line=0.5,
+            ev=0.02,
+            ev_pct=2.0,
+            line_source="milestone_exact",
+        ),
+        _row("Q", team="NYY", market="hits", ev=0.01, ev_pct=1.0),
+    ]
+    for row in rows:
+        row["side_hit_pct"] = 50.0
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    dim_ms = table.splitlines()[3]
+    assert _row_is_dimmed(dim_ms)
+    ev_cell = dim_ms.split(" | ")[column_index("ev")]
+    assert ev_cell.startswith(f"\033[2;38;5;{_CONFIDENCE_MUTE_GREY}m")
+    assert f"38;5;{_CONFIDENCE_MUTE_GREY}m" in dim_ms.split(" | ")[column_index("hit")]
+    assert f"38;5;{_CONFIDENCE_MUTE_GREY}m" in dim_ms.split(" | ")[column_index("src")]
+
+
+def test_highlighted_ms_gets_bold_grey_never_bold_tier():
+    row = _row("P", team="NYY", market="hits", ev=0.05, ev_pct=5.0, line_source="milestone_exact")
+    row["side_hit_pct"] = 55.0
+    table = format_ev_opportunities_table([row], highlight=lambda r: True, color_ev=True)
+    ev_cell = table.splitlines()[2].split(" | ")[column_index("ev")]
+    assert ev_cell.startswith(f"\033[1;38;5;{_CONFIDENCE_MUTE_GREY}m")
+    assert not _cell_has_ev_tier(ev_cell)
+
+
+def test_glyph_substring_grey_on_exact_row_soft_book():
+    """Case 10: soft ◆ on an otherwise-bright exact row greys only the glyph, not Hit%/EV%/Src."""
+    row = {
+        "player": "Junior Perez",
+        "league": "MLB",
+        "team": "CIN",
+        "side": "over",
+        "market": "h+r+rbi",
+        "line": 0.5,
+        "side_hit_pct": 52.0,
+        "ev": 0.05,
+        "ev_pct": 5.0,
+        "fd_over_odds": -165,
+        "fd_under_odds": None,
+        "fd_milestone_one_sided": True,
+        "line_source": "fd_exact",
+    }
+    table = format_ev_opportunities_table([row], color_ev=True)
+    line = table.splitlines()[2]
+    fd_cell = line.split(" | ")[column_index("fd")]
+    assert _MILESTONE_GLYPH in _strip_cell_ansi(fd_cell)
+    assert f"\033[38;5;{_CONFIDENCE_MUTE_GREY}m{_MILESTONE_GLYPH}" in fd_cell
+    # Odds value beside the glyph is not wrapped in mute grey as a whole-cell style.
+    assert not fd_cell.startswith(f"\033[38;5;{_CONFIDENCE_MUTE_GREY}m")
+    for header in ("Hit%", "EV%", "Src"):
+        cell = line.split(" | ")[EV_TABLE_HEADERS.index(header)]
+        assert not _cell_has_grey(cell), header
+    assert _cell_has_ev_tier(line.split(" | ")[column_index("ev")])
+
+
+@pytest.mark.parametrize(
+    "dim,highlight,cluster,ms",
+    [
+        pytest.param(False, False, False, False, id="plain-exact"),
+        pytest.param(True, False, False, False, id="dim-exact"),
+        pytest.param(False, True, False, False, id="hl-exact"),
+        pytest.param(True, True, False, False, id="dim-hl-exact-hl-wins"),
+        pytest.param(False, False, True, False, id="cluster-exact"),
+        pytest.param(False, False, False, True, id="mute-ms"),
+        pytest.param(True, False, False, True, id="dim-mute-ms"),
+        pytest.param(False, True, False, True, id="hl-mute-ms"),
+        pytest.param(True, False, True, True, id="dim-cluster-mute-ms"),
+    ],
+)
+def test_style_layer_matrix(dim, highlight, cluster, ms):
+    """Layer interactions named by combination; failure names the offender."""
+    line_source = "milestone_exact" if ms else "exact"
+    if cluster:
+        rows = [
+            _row("A", team="NYY", market="hits", ev=0.10, ev_pct=10.0, line_source=line_source),
+            _row(
+                "A",
+                team="NYY",
+                market="runs",
+                line=0.5,
+                ev=0.02,
+                ev_pct=2.0,
+                line_source=line_source,
+            ),
+            _row("B", team="NYY", market="hits", ev=0.01, ev_pct=1.0),
+        ]
+        target = 1 if dim else 0
+    else:
+        rows = [
+            _row("Solo", team="NYY", market="hits", ev=0.10, ev_pct=10.0, line_source=line_source),
+            _row(
+                "Solo",
+                team="NYY",
+                market="runs",
+                line=0.5,
+                ev=0.02,
+                ev_pct=2.0,
+                line_source=line_source,
+            ),
+        ]
+        target = 1 if dim else 0
+    for row in rows:
+        row["side_hit_pct"] = 50.0
+
+    def _hl(r: dict) -> bool:
+        return highlight and r is rows[target]
+
+    table = format_ev_opportunities_table(rows, highlight=_hl, color_ev=True)
+    line = table.splitlines()[2 + target]
+    expect_dim = dim and not highlight
+    assert _row_is_dimmed(line) is expect_dim
+    if cluster:
+        assert "▌" in line
+        assert _stack_cell_ansi_code(line) is not None
+        assert not _stack_has_dim(line)
+    ev_cell = line.split(" | ")[column_index("ev")]
+    if ms:
+        assert _cell_has_grey(ev_cell)
+        assert not _cell_has_ev_tier(ev_cell)
+        if highlight:
+            assert ev_cell.startswith(f"\033[1;38;5;{_CONFIDENCE_MUTE_GREY}m")
+        elif expect_dim:
+            assert ev_cell.startswith(f"\033[2;38;5;{_CONFIDENCE_MUTE_GREY}m")
+    else:
+        assert not _cell_has_grey(ev_cell)
+        assert _cell_has_ev_tier(ev_cell)

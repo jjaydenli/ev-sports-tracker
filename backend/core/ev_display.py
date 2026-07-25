@@ -16,8 +16,9 @@ from dataclasses import dataclass
 _STACK_HEADER = "▌"
 
 # Soft-price milestone glyph in odds / Src cells. Character only — ANSI is applied by the
-# per-cell composer (substring grey), never by value-formatters. Commit 3 swaps 🔶 → ◆.
-_MILESTONE_GLYPH = "🔶"
+# per-cell composer (substring grey), never by value-formatters. Text-presentation ◆ takes
+# foreground colour; the previous emoji 🔶 ignored ANSI on most terminals.
+_MILESTONE_GLYPH = "◆"
 _CONFIDENCE_MUTE_GREY = 245
 
 _TEAM_CLUSTER_MARKER = "▌"
@@ -433,6 +434,30 @@ def _sgr(codes: list[str]) -> str:
     return f"\033[{';'.join(codes)}m" if codes else ""
 
 
+def _compose_soft_glyph_cell(cell: str, base_codes: list[str]) -> str:
+    """Grey only the milestone glyph; rest of the cell keeps ``base_codes``. One reset at end."""
+    before, glyph, after = cell.partition(_MILESTONE_GLYPH)
+    if not glyph:
+        if base_codes:
+            return f"{_sgr(base_codes)}{cell}{_RESET}"
+        return cell
+    glyph_codes = [*base_codes, f"38;5;{_CONFIDENCE_MUTE_GREY}"]
+    parts: list[str] = []
+    if base_codes:
+        parts.append(_sgr(base_codes))
+    parts.append(before)
+    parts.append(_sgr(glyph_codes))
+    parts.append(glyph)
+    if base_codes:
+        parts.append(_sgr(base_codes))
+    else:
+        parts.append(_RESET)
+    parts.append(after)
+    if base_codes:
+        parts.append(_RESET)
+    return "".join(parts)
+
+
 def _apply_cell_styles(
     padded_cells: list[str],
     style: RowStyle,
@@ -451,9 +476,12 @@ def _apply_cell_styles(
             continue
 
         codes: list[str] = []
+        # Intensity codes compose independently. Highlight-beats-dim is resolved in
+        # _annotate_row (dimmed cleared) so the styler never receives both; if it did,
+        # both would appear here — that is intentional so the annotate guard is mutation-sensitive.
         if style.highlight and not col.exempt_highlight:
             codes.append("1")
-        elif style.dimmed and not col.exempt_dim:
+        if style.dimmed and not col.exempt_dim:
             codes.append("2")
 
         # Foreground: confidence-mute grey and EV tier are mutually exclusive (grey wins).
@@ -464,9 +492,10 @@ def _apply_cell_styles(
         elif style.highlight and not col.exempt_highlight:
             codes.append("33")
 
-        # soft_glyph substring grey is intentionally not applied yet — commit 3 activates
-        # it alongside the 🔶→◆ swap. Registry flag is already on DK/FD/ESPN so that commit
-        # only flips the composer path, not the column descriptors.
+        if color_ev and col.soft_glyph and _MILESTONE_GLYPH in cell:
+            styled.append(_compose_soft_glyph_cell(cell, codes))
+            continue
+
         if codes:
             styled.append(f"{_sgr(codes)}{cell}{_RESET}")
         else:
@@ -482,7 +511,6 @@ def _annotate_row(
     cluster_marker: str = "",
     cluster_color: int | None = None,
     dimmed: bool = False,
-    confidence_mute: bool = False,
 ) -> RowStyle:
     """Build RowStyle for one row. Highlight beats dim (resolved here, not in the styler)."""
     if highlight:
@@ -491,6 +519,7 @@ def _annotate_row(
     ev_tier_code = (
         _ev_tier_color_code(ev_pct) if color_ev and ev_pct is not None else None
     )
+    confidence_mute = color_ev and row.get("line_source") == "milestone_exact"
     return RowStyle(
         highlight=highlight,
         dimmed=dimmed,

@@ -359,7 +359,8 @@ def test_format_ev_opportunity_row_missing_league_shows_dash():
     assert _cell_by_header(line, "Game") == "—"
 
 
-def _row(player, *, team, league="MLB", market="hits", line=1.5, ev=0.05, ev_pct=5.0):
+def _row(player, *, team, league="MLB", market="hits", line=1.5, ev=0.05, ev_pct=5.0,
+         line_source="exact"):
     return {
         "player": player,
         "league": league,
@@ -369,32 +370,56 @@ def _row(player, *, team, league="MLB", market="hits", line=1.5, ev=0.05, ev_pct
         "line": line,
         "ev": ev,
         "ev_pct": ev_pct,
+        "line_source": line_source,
     }
 
 
-def test_team_cluster_marker_best_prop_per_player():
+def _row_is_dimmed(line: str) -> bool:
+    """True when non-stack cells carry the dim SGR (Stack is exempt by registry)."""
+    cells = line.split(" | ")
+    stack_i = column_index("stack")
+    for index, cell in enumerate(cells):
+        if index == stack_i:
+            continue
+        if re.match(r"^\033\[(?:2m|2;)", cell):
+            return True
+    return False
+
+
+def _stack_cell(line: str) -> str:
+    return line.split(" | ")[column_index("stack")]
+
+
+def test_team_cluster_marker_marks_every_row_in_cluster():
+    """Marker = team membership; dim carries per-player redundancy."""
     rows = [
         _row("Player A", team="NYY", market="hits", ev=0.08, ev_pct=8.0),
         _row("Player A", team="NYY", market="runs", line=0.5, ev=0.03, ev_pct=3.0),
         _row("Player B", team="NYY", market="hits", ev=0.06, ev_pct=6.0),
         _row("Player B", team="NYY", market="rbis", line=0.5, ev=0.04, ev_pct=4.0),
     ]
-    table = format_ev_opportunities_table(rows)
+    table = format_ev_opportunities_table(rows, color_ev=True)
     body = table.splitlines()[2:]
-    assert "▌" in body[0]
-    assert "▌" not in body[1]
-    assert "▌" in body[2]
-    assert "▌" not in body[3]
+    assert all("▌" in line for line in body)
+    # Best-EV exact per player stays bright; the other dims.
+    assert not _row_is_dimmed(body[0])
+    assert _row_is_dimmed(body[1])
+    assert not _row_is_dimmed(body[2])
+    assert _row_is_dimmed(body[3])
 
 
 def test_team_cluster_marker_lone_player_multiple_props_unmarked():
+    """Lone player: no marker, but non-best rows still dim (dim is not cluster-gated)."""
     rows = [
         _row("Solo Star", team="NYY", market="hits", ev=0.08),
         _row("Solo Star", team="NYY", market="runs", line=0.5, ev=0.03),
     ]
-    table = format_ev_opportunities_table(rows)
-    for line in table.splitlines()[2:]:
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    body = table.splitlines()[2:]
+    for line in body:
         assert "▌" not in line
+    assert not _row_is_dimmed(body[0])
+    assert _row_is_dimmed(body[1])
 
 
 def test_team_cluster_marker_cross_league_abbrev_no_false_positive():
@@ -408,16 +433,68 @@ def test_team_cluster_marker_cross_league_abbrev_no_false_positive():
 
 
 def test_team_cluster_marker_ev_tie_first_row_wins():
+    """Within-tier EV ties: first row stays bright; the rest dim."""
     rows = [
         _row("Player A", team="NYY", market="hits", ev=0.05),
         _row("Player A", team="NYY", market="runs", line=0.5, ev=0.05),
         _row("Player B", team="NYY", market="hits", ev=0.04),
     ]
-    table = format_ev_opportunities_table(rows)
+    table = format_ev_opportunities_table(rows, color_ev=True)
     body = table.splitlines()[2:]
-    assert "▌" in body[0]
-    assert "▌" not in body[1]
-    assert "▌" in body[2]
+    assert all("▌" in line for line in body)
+    assert not _row_is_dimmed(body[0])
+    assert _row_is_dimmed(body[1])
+    assert not _row_is_dimmed(body[2])
+
+
+def test_best_pick_is_per_trust_tier():
+    """A weak exact must not dim a stronger ms — each tier keeps its own champion."""
+    rows = [
+        _row("Mixed", team="NYY", market="hits", ev=0.02, ev_pct=2.0, line_source="exact"),
+        _row(
+            "Mixed",
+            team="NYY",
+            market="runs",
+            line=0.5,
+            ev=0.10,
+            ev_pct=10.0,
+            line_source="milestone_exact",
+        ),
+        _row("Other", team="NYY", market="hits", ev=0.01, ev_pct=1.0),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    body = table.splitlines()[2:]
+    assert not _row_is_dimmed(body[0])
+    assert not _row_is_dimmed(body[1])
+
+
+def test_within_tier_non_champion_dims():
+    """Two exacts (or two ms): only the best-EV row in that tier stays bright."""
+    rows = [
+        _row("A", team="NYY", market="hits", ev=0.08, line_source="exact"),
+        _row("A", team="NYY", market="runs", line=0.5, ev=0.03, line_source="exact"),
+        _row("B", team="NYY", market="hits", ev=0.01, line_source="exact"),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    body = table.splitlines()[2:]
+    assert not _row_is_dimmed(body[0])
+    assert _row_is_dimmed(body[1])
+
+
+def test_highlight_beats_dim():
+    rows = [
+        _row("Solo", team="NYY", market="hits", ev=0.08),
+        _row("Solo", team="NYY", market="runs", line=0.5, ev=0.03),
+    ]
+    table = format_ev_opportunities_table(
+        rows,
+        highlight=lambda r: r.get("market") == "runs",
+        color_ev=True,
+    )
+    body = table.splitlines()[2:]
+    assert not _row_is_dimmed(body[1])
+    # Highlighted non-best still carries bold-yellow on a non-stack cell.
+    assert body[1].split(" | ")[column_index("player")].startswith("\033[1;33m")
 
 
 def test_ev_tier_color_code_boundaries():
@@ -507,9 +584,10 @@ def test_team_cluster_colors_same_team_shares_color():
         _row("Player B", team="NYY", ev=0.06),
     ]
     table = format_ev_opportunities_table(rows, color_ev=True)
-    codes = [_stack_cell_ansi_code(line) for line in table.splitlines()[2:] if "▌" in line]
-    assert len(codes) == 2
-    assert codes[0] == codes[1] == _TEAM_CLUSTER_COLOR_BANK[0]
+    marked = [line for line in table.splitlines()[2:] if "▌" in line]
+    codes = [_stack_cell_ansi_code(line) for line in marked]
+    assert len(codes) == len(marked) == len(rows)
+    assert set(codes) == {_TEAM_CLUSTER_COLOR_BANK[0]}
 
 
 def test_team_cluster_colors_first_appearance_order():
@@ -544,6 +622,8 @@ def test_team_cluster_colors_cycle_beyond_bank():
         if "▌" not in line:
             continue
         player = line.split(" | ")[0].strip()
+        # Strip ANSI before parsing the player token.
+        player = re.sub(r"\033\[[0-9;]*m", "", player).strip()
         team = player.split("-", 1)[1]
         code = _stack_cell_ansi_code(line)
         assert code is not None
@@ -553,18 +633,18 @@ def test_team_cluster_colors_cycle_beyond_bank():
     assert ordered == bank + [bank[0]]
 
 
-def test_team_cluster_color_highlight_exempt_on_stack_cell():
+def test_team_cluster_color_highlight_and_dim_exempt_on_stack_cell():
     rows = [
-        _row("Player A", team="NYY", ev=0.08),
+        _row("Player A", team="NYY", market="hits", ev=0.08),
+        _row("Player A", team="NYY", market="runs", line=0.5, ev=0.03),
         _row("Player B", team="NYY", ev=0.06),
     ]
     table = format_ev_opportunities_table(rows, highlight=lambda r: True, color_ev=True)
     for line in table.splitlines()[2:]:
-        if "▌" not in line:
-            continue
-        stack = line.split(" | ")[column_index("stack")]
+        stack = _stack_cell(line)
         assert stack.startswith("\033[38;5;")
         assert "\033[1;33m" not in stack
+        assert not re.match(r"^\033\[(?:2m|2;)", stack)
 
 
 def test_team_cluster_marker_cross_league_no_color():
@@ -587,3 +667,14 @@ def test_team_cluster_marker_plain_path_no_ansi():
     assert "▌" in table
     for line in table.splitlines()[2:]:
         assert "\033[" not in line
+
+
+def test_dim_composes_with_ev_tier_in_one_escape():
+    rows = [
+        _row("Solo", team="NYY", market="hits", ev=0.08, ev_pct=8.0),
+        _row("Solo", team="NYY", market="runs", line=0.5, ev=0.03, ev_pct=3.0),
+    ]
+    table = format_ev_opportunities_table(rows, color_ev=True)
+    ev_cell = table.splitlines()[3].split(" | ")[column_index("ev")]
+    assert ev_cell.startswith("\033[2;38;5;40m")
+    assert "\033[2m\033[38;5;" not in ev_cell

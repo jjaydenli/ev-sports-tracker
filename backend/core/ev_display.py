@@ -322,7 +322,7 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
 
 
 def _compute_team_cluster_markers(rows: list[dict]) -> list[str]:
-    """Mark each player's best-ev row when ≥2 distinct players share (league, team)."""
+    """Mark every row in a (league, team) group with ≥2 distinct players."""
     markers = [""] * len(rows)
     groups: dict[tuple[str, str], list[int]] = defaultdict(list)
     for index, row in enumerate(rows):
@@ -336,17 +336,53 @@ def _compute_team_cluster_markers(rows: list[dict]) -> list[str]:
         players = {rows[i].get("player") for i in indices}
         if len(players) < 2:
             continue
-        for player in players:
-            player_indices = [i for i in indices if rows[i].get("player") == player]
-            best_index = player_indices[0]
-            best_ev = rows[best_index].get("ev")
-            for i in player_indices[1:]:
-                ev = rows[i].get("ev")
-                if ev is not None and (best_ev is None or ev > best_ev):
-                    best_index = i
-                    best_ev = ev
-            markers[best_index] = _TEAM_CLUSTER_MARKER
+        for i in indices:
+            markers[i] = _TEAM_CLUSTER_MARKER
     return markers
+
+
+def _best_index_by_ev(rows: list[dict], indices: list[int]) -> int:
+    """Highest-ev index; ties break first-row-wins."""
+    best_index = indices[0]
+    best_ev = rows[best_index].get("ev")
+    for i in indices[1:]:
+        ev = rows[i].get("ev")
+        if ev is not None and (best_ev is None or ev > best_ev):
+            best_index = i
+            best_ev = ev
+    return best_index
+
+
+def _compute_dimmed_flags(rows: list[dict]) -> list[bool]:
+    """Dim each player's non-best rows per trust tier over the whole table.
+
+    Grouping key is ``player`` alone (not re-scoped to league/team). Up to two rows
+    stay bright per player: best-EV exact (if any) and best-EV ms (if any).
+    ``is_exact = line_source != "milestone_exact"`` — adj shares the exact bucket.
+    """
+    dimmed = [False] * len(rows)
+    by_player: dict[object, list[int]] = defaultdict(list)
+    for index, row in enumerate(rows):
+        by_player[row.get("player")].append(index)
+
+    for indices in by_player.values():
+        if len(indices) < 2:
+            continue
+        exact_indices = [
+            i for i in indices if rows[i].get("line_source") != "milestone_exact"
+        ]
+        ms_indices = [
+            i for i in indices if rows[i].get("line_source") == "milestone_exact"
+        ]
+        champions: set[int] = set()
+        if exact_indices:
+            champions.add(_best_index_by_ev(rows, exact_indices))
+        if ms_indices:
+            champions.add(_best_index_by_ev(rows, ms_indices))
+        for i in indices:
+            if i not in champions:
+                dimmed[i] = True
+    return dimmed
 
 
 def _compute_team_cluster_colors(
@@ -494,6 +530,8 @@ def format_ev_opportunities_table(
     """Header + body lines for ranked EV opportunities."""
     cluster_markers = _compute_team_cluster_markers(rows)
     cluster_colors = _compute_team_cluster_colors(rows, cluster_markers)
+    # Dim is ANSI; gate on color_ev like cluster colour so the plain path stays escape-free.
+    dim_flags = _compute_dimmed_flags(rows) if color_ev else [False] * len(rows)
     header = format_ev_table_header()
     lines = [header, "-" * _display_width(header)]
     for index, row in enumerate(rows):
@@ -504,6 +542,7 @@ def format_ev_opportunities_table(
             color_ev=color_ev,
             cluster_marker=cluster_markers[index],
             cluster_color=cluster_colors[index],
+            dimmed=dim_flags[index],
         )
         lines.append(" | ".join(_format_ev_row_cells(row, style, color_ev=color_ev)))
     return "\n".join(lines)

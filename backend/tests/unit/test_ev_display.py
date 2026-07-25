@@ -4,10 +4,8 @@ import pytest
 
 from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
 from core.ev_display import (
-    _EV_CELL_INDEX,
     _SRC_ADJ_METHODS,
     _SRC_EXACT_METHODS,
-    _STACK_CELL_INDEX,
     _TEAM_CLUSTER_COLOR_BANK,
     EV_TABLE_HEADERS,
     EV_TABLE_WIDTHS,
@@ -15,6 +13,7 @@ from core.ev_display import (
     _display_width,
     _ev_tier_color_code,
     _format_game,
+    column_index,
     format_ev_opportunities_table,
     format_ev_opportunity_row,
     format_ev_table_header,
@@ -29,7 +28,7 @@ def _cell_by_header(line: str, header: str) -> str:
 
 
 def _stack_cell_ansi_code(line: str) -> int | None:
-    cell = line.split(" | ")[_STACK_CELL_INDEX]
+    cell = line.split(" | ")[column_index("stack")]
     match = re.search(r"\033\[38;5;(\d+)m", cell)
     return int(match.group(1)) if match else None
 
@@ -259,7 +258,7 @@ def test_format_ev_opportunities_table_includes_header():
     assert "Live" in table
     # The stack column's header is the marker itself: it holds the column at marker width
     # and previews the glyph, so no header word is needed.
-    assert table.splitlines()[0].split(" | ")[_STACK_CELL_INDEX] == "▌"
+    assert table.splitlines()[0].split(" | ")[column_index("stack")] == "▌"
 
 
 def test_table_header_is_ansi_free():
@@ -450,7 +449,7 @@ def test_format_ev_opportunity_row_color_ev_tier_ansi():
         "ev_pct": 4.99,
     }
     line = format_ev_opportunity_row(row, color_ev=True)
-    ev_cell = line.split(" | ")[_EV_CELL_INDEX]
+    ev_cell = line.split(" | ")[column_index("ev")]
     assert ev_cell.startswith("\033[38;5;40m")
     assert ev_cell.endswith("\033[0m")
 
@@ -483,9 +482,10 @@ def test_highlight_and_color_ev_combined_preserves_row_highlight():
         color_ev=True,
     )
     cells = table.splitlines()[2].split(" | ")
-    assert cells[_EV_CELL_INDEX].startswith("\033[1;38;5;40m")
-    assert cells[_EV_CELL_INDEX - 1].startswith("\033[1;33m")
-    assert cells[_EV_CELL_INDEX + 1].startswith("\033[1;33m")
+    ev_i = column_index("ev")
+    assert cells[ev_i].startswith("\033[1;38;5;40m")
+    assert cells[ev_i - 1].startswith("\033[1;33m")
+    assert cells[ev_i + 1].startswith("\033[1;33m")
 
 
 def test_team_cluster_colors_distinct_teams():
@@ -562,7 +562,7 @@ def test_team_cluster_color_highlight_exempt_on_stack_cell():
     for line in table.splitlines()[2:]:
         if "▌" not in line:
             continue
-        stack = line.split(" | ")[_STACK_CELL_INDEX]
+        stack = line.split(" | ")[column_index("stack")]
         assert stack.startswith("\033[38;5;")
         assert "\033[1;33m" not in stack
 

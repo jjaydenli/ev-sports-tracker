@@ -6,6 +6,7 @@ import re
 import unicodedata
 from collections import defaultdict
 from collections.abc import Callable
+from dataclasses import dataclass
 
 # Column order for pipeline_runner / run_ev_scan console table.
 # The stack column is a colour swatch, not a word. Its header is an uncoloured marker: it keeps
@@ -14,33 +15,15 @@ from collections.abc import Callable
 # stay ANSI-free for non-terminal consumers.
 _STACK_HEADER = "▌"
 
-EV_TABLE_HEADERS: tuple[str, ...] = (
-    "Player",
-    "Lg",
-    _STACK_HEADER,
-    "Game",
-    "Side",
-    "Stat",
-    "Line",
-    "Hit%",
-    "EV%",
-    "DK",
-    "FD",
-    "ESPN",
-    "Src",
-    "Live",
-)
-
-# Minimum column widths (excluding separator spaces). Stat fits the longest MARKET_ABBREV
-# ("H+R+RBI"), Src the longest label ("exact·N"); both are 7. Stack is marker-width.
-EV_TABLE_WIDTHS: tuple[int, ...] = (16, 4, 1, 9, 4, 7, 4, 5, 5, 10, 10, 10, 7, 4)
+# Soft-price milestone glyph in odds / Src cells. Character only; ANSI is applied by the
+# per-cell styling pass (substring grey), never by value-formatters. Text-presentation ◆ takes
+# foreground colour; the previous emoji 🔶 ignored ANSI on most terminals.
+_MILESTONE_GLYPH = "◆"
+_CONFIDENCE_MUTE_GREY = 245
 
 _TEAM_CLUSTER_MARKER = "▌"
 _TEAM_CLUSTER_COLOR_BANK: tuple[int, ...] = (33, 208, 51, 201, 99, 30)
 
-_EV_CELL_INDEX = 8
-_STACK_CELL_INDEX = 2
-_HIGHLIGHT_START = "\033[1;33m"
 _RESET = "\033[0m"
 
 _ANSI_ESCAPE = re.compile(r"\033\[[0-9;]*m")
@@ -111,6 +94,76 @@ MARKET_ABBREV: dict[str, str] = {
 _SIDE_GLYPH: dict[str, str] = {"over": "▲", "under": "▼"}
 
 
+@dataclass(frozen=True)
+class _Column:
+    """One EV table column. Style roles are declarative so the styler composes, never selects.
+
+    - ``credibility`` → colour-substitute Hit%/EV%/Src with mute grey on ms rows.
+    - ``ev_tier`` + ``credibility`` on EV% → grey wins over the tier ramp (mutually exclusive).
+    - ``soft_glyph`` → substring-level grey on the milestone glyph only.
+    Stack's dim exemption lives here, not as an ``if index ==`` branch in the styler.
+    """
+
+    key: str
+    header: str
+    width: int
+    exempt_dim: bool = False
+    cluster_swatch: bool = False
+    ev_tier: bool = False
+    credibility: bool = False
+    soft_glyph: bool = False
+
+
+# Ordered column registry: single source for headers, widths, render order, and style roles.
+_COLUMNS: tuple[_Column, ...] = (
+    _Column("player", "Player", 16),
+    _Column("league", "Lg", 4),
+    _Column(
+        "stack",
+        _STACK_HEADER,
+        1,
+        exempt_dim=True,
+        cluster_swatch=True,
+    ),
+    _Column("game", "Game", 9),
+    _Column("side", "Side", 4),
+    _Column("stat", "Stat", 7),
+    _Column("line", "Line", 4),
+    _Column("hit", "Hit%", 5, credibility=True),
+    _Column("ev", "EV%", 5, ev_tier=True, credibility=True),
+    _Column("dk", "DK", 10, soft_glyph=True),
+    _Column("fd", "FD", 10, soft_glyph=True),
+    _Column("espn", "ESPN", 10, soft_glyph=True),
+    _Column("src", "Src", 7, credibility=True),
+    _Column("live", "Live", 4),
+)
+
+EV_TABLE_HEADERS: tuple[str, ...] = tuple(col.header for col in _COLUMNS)
+EV_TABLE_WIDTHS: tuple[int, ...] = tuple(col.width for col in _COLUMNS)
+
+_COLUMN_BY_KEY: dict[str, int] = {col.key: index for index, col in enumerate(_COLUMNS)}
+
+
+def column_index(key: str) -> int:
+    """Registry accessor for tests and callers that address a column by key."""
+    try:
+        return _COLUMN_BY_KEY[key]
+    except KeyError as exc:
+        raise KeyError(f"unknown EV table column {key!r}") from exc
+
+
+@dataclass(frozen=True)
+class RowStyle:
+    """Per-row display annotations produced by one annotate pass."""
+
+    highlight: bool = False
+    dimmed: bool = False
+    cluster_marker: str = ""
+    cluster_color: int | None = None
+    ev_tier_code: int | None = None
+    confidence_mute: bool = False
+
+
 def format_american_odds(value: int | None) -> str:
     """Format American odds with explicit sign (+110, -140)."""
     if value is None:
@@ -124,15 +177,19 @@ def format_ou_odds(
     *,
     milestone_one_sided: bool = False,
 ) -> str:
-    """Format paired O/U American odds (+110/-140); milestone one-sided uses 🔶."""
+    """Format paired O/U American odds (+110/-140); milestone one-sided uses the soft glyph."""
     if over is None and under is None:
         return "—"
-    under_text = "🔶" if milestone_one_sided and under is None else format_american_odds(under)
+    under_text = (
+        _MILESTONE_GLYPH
+        if milestone_one_sided and under is None
+        else format_american_odds(under)
+    )
     return f"{format_american_odds(over)}/{under_text}"
 
 
 def _format_src(row: dict) -> str:
-    """Src label for a row: a real quote (exact / exact·N), or an inferred one (ms🔶 / adj)."""
+    """Src label for a row: a real quote (exact / exact·N), or an inferred one (ms… / adj)."""
     method = str(row.get("line_source", ""))
     if method == "multi_book_consensus":
         books = row.get("sharp_books") or ()
@@ -140,7 +197,7 @@ def _format_src(row: dict) -> str:
     if method in _SRC_EXACT_METHODS:
         return "exact"
     if method == "milestone_exact":
-        return "ms🔶"
+        return f"ms{_MILESTONE_GLYPH}"
     if method in _SRC_ADJ_METHODS:
         return "adj"
     return _SRC_UNKNOWN
@@ -218,7 +275,7 @@ def _format_game(game: str | None, team: str | None) -> str:
 
 
 def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
-    """Raw cell text before padding (one per EV_TABLE_HEADERS column)."""
+    """Raw cell text before padding (one per registry column)."""
     line = row.get("line")
     line_text = str(int(line)) if line is not None and float(line) == int(float(line)) else str(line)
     hit_pct = row.get("side_hit_pct")
@@ -227,38 +284,39 @@ def _ev_row_cell_values(row: dict, *, marker: str = "") -> tuple[str, ...]:
     ev_text = f"{ev_pct:+.1f}" if ev_pct is not None else "—"
     live_text = "L" if row.get("is_live") else "—"
 
-    return (
-        str(row.get("player", "")),
-        _format_league(row.get("league")),
-        marker,
-        _format_game(row.get("game"), row.get("team")),
-        _format_side(row.get("side")),
-        _format_market(row.get("market")),
-        line_text,
-        hit_text,
-        ev_text,
-        format_ou_odds(
+    by_key = {
+        "player": str(row.get("player", "")),
+        "league": _format_league(row.get("league")),
+        "stack": marker,
+        "game": _format_game(row.get("game"), row.get("team")),
+        "side": _format_side(row.get("side")),
+        "stat": _format_market(row.get("market")),
+        "line": line_text,
+        "hit": hit_text,
+        "ev": ev_text,
+        "dk": format_ou_odds(
             row.get("dk_over_odds"),
             row.get("dk_under_odds"),
             milestone_one_sided=bool(row.get("dk_milestone_one_sided")),
         ),
-        format_ou_odds(
+        "fd": format_ou_odds(
             row.get("fd_over_odds"),
             row.get("fd_under_odds"),
             milestone_one_sided=bool(row.get("fd_milestone_one_sided")),
         ),
-        format_ou_odds(
+        "espn": format_ou_odds(
             row.get("espn_over_odds"),
             row.get("espn_under_odds"),
             milestone_one_sided=bool(row.get("espn_milestone_one_sided")),
         ),
-        _format_src(row),
-        live_text,
-    )
+        "src": _format_src(row),
+        "live": live_text,
+    }
+    return tuple(by_key[col.key] for col in _COLUMNS)
 
 
 def _compute_team_cluster_markers(rows: list[dict]) -> list[str]:
-    """Mark each player's best-ev row when ≥2 distinct players share (league, team)."""
+    """Mark every row in a (league, team) group with ≥2 distinct players."""
     markers = [""] * len(rows)
     groups: dict[tuple[str, str], list[int]] = defaultdict(list)
     for index, row in enumerate(rows):
@@ -272,17 +330,53 @@ def _compute_team_cluster_markers(rows: list[dict]) -> list[str]:
         players = {rows[i].get("player") for i in indices}
         if len(players) < 2:
             continue
-        for player in players:
-            player_indices = [i for i in indices if rows[i].get("player") == player]
-            best_index = player_indices[0]
-            best_ev = rows[best_index].get("ev")
-            for i in player_indices[1:]:
-                ev = rows[i].get("ev")
-                if ev is not None and (best_ev is None or ev > best_ev):
-                    best_index = i
-                    best_ev = ev
-            markers[best_index] = _TEAM_CLUSTER_MARKER
+        for i in indices:
+            markers[i] = _TEAM_CLUSTER_MARKER
     return markers
+
+
+def _best_index_by_ev(rows: list[dict], indices: list[int]) -> int:
+    """Highest-ev index; ties break first-row-wins."""
+    best_index = indices[0]
+    best_ev = rows[best_index].get("ev")
+    for i in indices[1:]:
+        ev = rows[i].get("ev")
+        if ev is not None and (best_ev is None or ev > best_ev):
+            best_index = i
+            best_ev = ev
+    return best_index
+
+
+def _compute_dimmed_flags(rows: list[dict]) -> list[bool]:
+    """Dim each player's non-best rows per trust tier over the whole table.
+
+    Grouping key is ``player`` alone (not re-scoped to league/team). Up to two rows
+    stay bright per player: best-EV exact (if any) and best-EV ms (if any).
+    ``is_exact = line_source != "milestone_exact"``, so adj shares the exact bucket.
+    """
+    dimmed = [False] * len(rows)
+    by_player: dict[object, list[int]] = defaultdict(list)
+    for index, row in enumerate(rows):
+        by_player[row.get("player")].append(index)
+
+    for indices in by_player.values():
+        if len(indices) < 2:
+            continue
+        exact_indices = [
+            i for i in indices if rows[i].get("line_source") != "milestone_exact"
+        ]
+        ms_indices = [
+            i for i in indices if rows[i].get("line_source") == "milestone_exact"
+        ]
+        champions: set[int] = set()
+        if exact_indices:
+            champions.add(_best_index_by_ev(rows, exact_indices))
+        if ms_indices:
+            champions.add(_best_index_by_ev(rows, ms_indices))
+        for i in indices:
+            if i not in champions:
+                dimmed[i] = True
+    return dimmed
 
 
 def _compute_team_cluster_colors(
@@ -329,65 +423,123 @@ def _ev_tier_color_code(ev_pct: float) -> int:
     return 196
 
 
+def _sgr(codes: list[str]) -> str:
+    return f"\033[{';'.join(codes)}m" if codes else ""
+
+
+def _compose_soft_glyph_cell(cell: str, base_codes: list[str]) -> str:
+    """Grey only the milestone glyph; rest of the cell keeps ``base_codes``. One reset at end."""
+    before, glyph, after = cell.partition(_MILESTONE_GLYPH)
+    if not glyph:
+        if base_codes:
+            return f"{_sgr(base_codes)}{cell}{_RESET}"
+        return cell
+    glyph_codes = [*base_codes, f"38;5;{_CONFIDENCE_MUTE_GREY}"]
+    parts: list[str] = []
+    if base_codes:
+        parts.append(_sgr(base_codes))
+    parts.append(before)
+    parts.append(_sgr(glyph_codes))
+    parts.append(glyph)
+    # SGR is additive: re-applying the base codes alone would leave the glyph's grey
+    # foreground in effect for the rest of the cell. Reset first, then re-open the base.
+    parts.append(f"{_RESET}{_sgr(base_codes)}" if base_codes else _RESET)
+    parts.append(after)
+    if base_codes:
+        parts.append(_RESET)
+    return "".join(parts)
+
+
 def _apply_cell_styles(
     padded_cells: list[str],
+    style: RowStyle,
     *,
-    highlight: bool,
     color_ev: bool,
-    ev_pct: float | None,
-    cluster_color: int | None = None,
 ) -> list[str]:
-    """Per-cell ANSI styling; combined bold+tier escape on EV% when both apply."""
-    if not highlight and not color_ev:
+    """Compose per-cell SGR codes from RowStyle + column registry roles (not if/elif select)."""
+    if not style.highlight and not color_ev and not style.dimmed:
         return padded_cells
 
     styled: list[str] = []
-    for index, cell in enumerate(padded_cells):
-        is_ev_cell = index == _EV_CELL_INDEX
-        is_stack_cell = index == _STACK_CELL_INDEX
-
-        if is_stack_cell and cluster_color is not None and color_ev:
-            styled.append(f"\033[38;5;{cluster_color}m{cell}{_RESET}")
+    for col, cell in zip(_COLUMNS, padded_cells, strict=True):
+        # Layer 0, cluster swatch: full colour, never highlight/dim.
+        if col.cluster_swatch and style.cluster_color is not None and color_ev:
+            styled.append(f"\033[38;5;{style.cluster_color}m{cell}{_RESET}")
             continue
 
-        if is_ev_cell and highlight and color_ev and ev_pct is not None:
-            tier_code = _ev_tier_color_code(ev_pct)
-            styled.append(f"\033[1;38;5;{tier_code}m{cell}{_RESET}")
-        elif is_ev_cell and color_ev and ev_pct is not None:
-            tier_code = _ev_tier_color_code(ev_pct)
-            styled.append(f"\033[38;5;{tier_code}m{cell}{_RESET}")
-        elif highlight:
-            styled.append(f"{_HIGHLIGHT_START}{cell}{_RESET}")
+        codes: list[str] = []
+        # Intensity codes compose independently. Highlight-beats-dim is resolved in
+        # _annotate_row (dimmed cleared) so the styler never receives both; if it did,
+        # both would appear here. That is intentional: it keeps the annotate guard sensitive.
+        if style.highlight:
+            codes.append("1")
+        if style.dimmed and not col.exempt_dim:
+            codes.append("2")
+
+        # Foreground: confidence-mute grey and EV tier are mutually exclusive (grey wins).
+        if color_ev and style.confidence_mute and col.credibility:
+            codes.append(f"38;5;{_CONFIDENCE_MUTE_GREY}")
+        elif color_ev and col.ev_tier and style.ev_tier_code is not None:
+            codes.append(f"38;5;{style.ev_tier_code}")
+        elif style.highlight:
+            codes.append("33")
+
+        if color_ev and col.soft_glyph and _MILESTONE_GLYPH in cell:
+            styled.append(_compose_soft_glyph_cell(cell, codes))
+            continue
+
+        if codes:
+            styled.append(f"{_sgr(codes)}{cell}{_RESET}")
         else:
             styled.append(cell)
     return styled
 
 
-def _format_ev_row_cells(
+def _annotate_row(
     row: dict,
     *,
-    highlight: bool = False,
-    color_ev: bool = False,
-    marker: str = "",
+    highlight: bool,
+    color_ev: bool,
+    cluster_marker: str = "",
     cluster_color: int | None = None,
+    dimmed: bool = False,
+) -> RowStyle:
+    """Build RowStyle for one row. Highlight beats dim (resolved here, not in the styler)."""
+    if highlight:
+        dimmed = False
+    ev_pct = row.get("ev_pct")
+    ev_tier_code = (
+        _ev_tier_color_code(ev_pct) if color_ev and ev_pct is not None else None
+    )
+    confidence_mute = color_ev and row.get("line_source") == "milestone_exact"
+    return RowStyle(
+        highlight=highlight,
+        dimmed=dimmed,
+        cluster_marker=cluster_marker,
+        cluster_color=cluster_color,
+        ev_tier_code=ev_tier_code,
+        confidence_mute=confidence_mute,
+    )
+
+
+def _format_ev_row_cells(
+    row: dict,
+    style: RowStyle,
+    *,
+    color_ev: bool = False,
 ) -> list[str]:
-    values = _ev_row_cell_values(row, marker=marker)
+    values = _ev_row_cell_values(row, marker=style.cluster_marker)
     padded = [
         _cell(value, width)
         for value, width in zip(values, EV_TABLE_WIDTHS, strict=True)
     ]
-    return _apply_cell_styles(
-        padded,
-        highlight=highlight,
-        color_ev=color_ev,
-        ev_pct=row.get("ev_pct"),
-        cluster_color=cluster_color,
-    )
+    return _apply_cell_styles(padded, style, color_ev=color_ev)
 
 
-def format_ev_opportunity_row(row: dict, *, marker: str = "", color_ev: bool = False) -> str:
-    """One pipeline table row with optional same-team cluster marker and EV coloring."""
-    return " | ".join(_format_ev_row_cells(row, marker=marker, color_ev=color_ev))
+def format_ev_opportunity_row(row: dict, *, color_ev: bool = False) -> str:
+    """One pipeline table row with optional EV coloring (no cluster; table path owns that)."""
+    style = _annotate_row(row, highlight=False, color_ev=color_ev)
+    return " | ".join(_format_ev_row_cells(row, style, color_ev=color_ev))
 
 
 def format_ev_opportunities_table(
@@ -399,19 +551,19 @@ def format_ev_opportunities_table(
     """Header + body lines for ranked EV opportunities."""
     cluster_markers = _compute_team_cluster_markers(rows)
     cluster_colors = _compute_team_cluster_colors(rows, cluster_markers)
+    # Dim is ANSI; gate on color_ev like cluster colour so the plain path stays escape-free.
+    dim_flags = _compute_dimmed_flags(rows) if color_ev else [False] * len(rows)
     header = format_ev_table_header()
     lines = [header, "-" * _display_width(header)]
     for index, row in enumerate(rows):
         is_highlighted = highlight(row) if highlight is not None else False
-        lines.append(
-            " | ".join(
-                _format_ev_row_cells(
-                    row,
-                    highlight=is_highlighted,
-                    color_ev=color_ev,
-                    marker=cluster_markers[index],
-                    cluster_color=cluster_colors[index],
-                )
-            )
+        style = _annotate_row(
+            row,
+            highlight=is_highlighted,
+            color_ev=color_ev,
+            cluster_marker=cluster_markers[index],
+            cluster_color=cluster_colors[index],
+            dimmed=dim_flags[index],
         )
+        lines.append(" | ".join(_format_ev_row_cells(row, style, color_ev=color_ev)))
     return "\n".join(lines)

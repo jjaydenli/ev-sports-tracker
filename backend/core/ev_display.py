@@ -15,8 +15,8 @@ from dataclasses import dataclass
 # stay ANSI-free for non-terminal consumers.
 _STACK_HEADER = "▌"
 
-# Soft-price milestone glyph in odds / Src cells. Character only — ANSI is applied by the
-# per-cell composer (substring grey), never by value-formatters. Text-presentation ◆ takes
+# Soft-price milestone glyph in odds / Src cells. Character only; ANSI is applied by the
+# per-cell styling pass (substring grey), never by value-formatters. Text-presentation ◆ takes
 # foreground colour; the previous emoji 🔶 ignored ANSI on most terminals.
 _MILESTONE_GLYPH = "◆"
 _CONFIDENCE_MUTE_GREY = 245
@@ -96,19 +96,17 @@ _SIDE_GLYPH: dict[str, str] = {"over": "▲", "under": "▼"}
 
 @dataclass(frozen=True)
 class _Column:
-    """One EV table column. Style roles are declarative so the composer can compose SGR codes.
+    """One EV table column. Style roles are declarative so the styler composes, never selects.
 
-    Commit-3 fit (sketched before commit 1 lands):
-    - credibility=True → colour-substitute Hit%/Src (and EV%) with mute grey on ms rows.
-    - ev_tier=True + credibility=True on EV% → grey wins over tier ramp (mutually exclusive).
-    - soft_glyph=True on odds cols → substring-level grey on the milestone glyph only.
-    Stack exemptions live here, not as ``if index ==`` branches in the styler.
+    - ``credibility`` → colour-substitute Hit%/EV%/Src with mute grey on ms rows.
+    - ``ev_tier`` + ``credibility`` on EV% → grey wins over the tier ramp (mutually exclusive).
+    - ``soft_glyph`` → substring-level grey on the milestone glyph only.
+    Stack's dim exemption lives here, not as an ``if index ==`` branch in the styler.
     """
 
     key: str
     header: str
     width: int
-    exempt_highlight: bool = False
     exempt_dim: bool = False
     cluster_swatch: bool = False
     ev_tier: bool = False
@@ -116,7 +114,7 @@ class _Column:
     soft_glyph: bool = False
 
 
-# Ordered column registry — single source for headers, widths, render order, and style roles.
+# Ordered column registry: single source for headers, widths, render order, and style roles.
 _COLUMNS: tuple[_Column, ...] = (
     _Column("player", "Player", 16),
     _Column("league", "Lg", 4),
@@ -152,11 +150,6 @@ def column_index(key: str) -> int:
         return _COLUMN_BY_KEY[key]
     except KeyError as exc:
         raise KeyError(f"unknown EV table column {key!r}") from exc
-
-
-# Derived from the registry (not hand-maintained literals).
-_EV_CELL_INDEX = column_index("ev")
-_STACK_CELL_INDEX = column_index("stack")
 
 
 @dataclass(frozen=True)
@@ -359,7 +352,7 @@ def _compute_dimmed_flags(rows: list[dict]) -> list[bool]:
 
     Grouping key is ``player`` alone (not re-scoped to league/team). Up to two rows
     stay bright per player: best-EV exact (if any) and best-EV ms (if any).
-    ``is_exact = line_source != "milestone_exact"`` — adj shares the exact bucket.
+    ``is_exact = line_source != "milestone_exact"``, so adj shares the exact bucket.
     """
     dimmed = [False] * len(rows)
     by_player: dict[object, list[int]] = defaultdict(list)
@@ -448,10 +441,9 @@ def _compose_soft_glyph_cell(cell: str, base_codes: list[str]) -> str:
     parts.append(before)
     parts.append(_sgr(glyph_codes))
     parts.append(glyph)
-    if base_codes:
-        parts.append(_sgr(base_codes))
-    else:
-        parts.append(_RESET)
+    # SGR is additive: re-applying the base codes alone would leave the glyph's grey
+    # foreground in effect for the rest of the cell. Reset first, then re-open the base.
+    parts.append(f"{_RESET}{_sgr(base_codes)}" if base_codes else _RESET)
     parts.append(after)
     if base_codes:
         parts.append(_RESET)
@@ -470,7 +462,7 @@ def _apply_cell_styles(
 
     styled: list[str] = []
     for col, cell in zip(_COLUMNS, padded_cells, strict=True):
-        # Layer 0 — cluster swatch: full colour, never highlight/dim.
+        # Layer 0, cluster swatch: full colour, never highlight/dim.
         if col.cluster_swatch and style.cluster_color is not None and color_ev:
             styled.append(f"\033[38;5;{style.cluster_color}m{cell}{_RESET}")
             continue
@@ -478,8 +470,8 @@ def _apply_cell_styles(
         codes: list[str] = []
         # Intensity codes compose independently. Highlight-beats-dim is resolved in
         # _annotate_row (dimmed cleared) so the styler never receives both; if it did,
-        # both would appear here — that is intentional so the annotate guard is mutation-sensitive.
-        if style.highlight and not col.exempt_highlight:
+        # both would appear here. That is intentional: it keeps the annotate guard sensitive.
+        if style.highlight:
             codes.append("1")
         if style.dimmed and not col.exempt_dim:
             codes.append("2")
@@ -489,7 +481,7 @@ def _apply_cell_styles(
             codes.append(f"38;5;{_CONFIDENCE_MUTE_GREY}")
         elif color_ev and col.ev_tier and style.ev_tier_code is not None:
             codes.append(f"38;5;{style.ev_tier_code}")
-        elif style.highlight and not col.exempt_highlight:
+        elif style.highlight:
             codes.append("33")
 
         if color_ev and col.soft_glyph and _MILESTONE_GLYPH in cell:
@@ -545,7 +537,7 @@ def _format_ev_row_cells(
 
 
 def format_ev_opportunity_row(row: dict, *, color_ev: bool = False) -> str:
-    """One pipeline table row with optional EV coloring (no cluster — table path owns that)."""
+    """One pipeline table row with optional EV coloring (no cluster; table path owns that)."""
     style = _annotate_row(row, highlight=False, color_ev=color_ev)
     return " | ".join(_format_ev_row_cells(row, style, color_ev=color_ev))
 

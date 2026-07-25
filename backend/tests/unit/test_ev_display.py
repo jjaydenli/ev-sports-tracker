@@ -4,6 +4,7 @@ import pytest
 
 from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
 from core.ev_display import (
+    _ANSI_ESCAPE,
     _CONFIDENCE_MUTE_GREY,
     _MILESTONE_GLYPH,
     _SRC_ADJ_METHODS,
@@ -12,6 +13,7 @@ from core.ev_display import (
     EV_TABLE_HEADERS,
     EV_TABLE_WIDTHS,
     MARKET_ABBREV,
+    _compose_soft_glyph_cell,
     _display_width,
     _ev_tier_color_code,
     _format_game,
@@ -24,7 +26,7 @@ from core.ev_display import (
 )
 from core.line_adjustment import EV_ELIGIBLE_ADJUSTMENT_METHODS
 
-# Derive Src / odds soft-price labels from the formatters under test — never restate the glyph.
+# Derive Src / odds soft-price labels from the formatters under test; never restate the glyph.
 _MS_SRC_LABEL = _format_src({"line_source": "milestone_exact"})
 _SOFT_ODDS_SAMPLE = format_ou_odds(-165, None, milestone_one_sided=True)
 
@@ -467,7 +469,7 @@ def test_team_cluster_marker_ev_tie_first_row_wins():
 
 
 def test_best_pick_is_per_trust_tier():
-    """A weak exact must not dim a stronger ms — each tier keeps its own champion."""
+    """A weak exact must not dim a stronger ms: each tier keeps its own champion."""
     rows = [
         _row("Mixed", team="NYY", market="hits", ev=0.02, ev_pct=2.0, line_source="exact"),
         _row(
@@ -514,7 +516,7 @@ def test_highlight_beats_dim():
     assert not _row_is_dimmed(body[1])
     player = body[1].split(" | ")[column_index("player")]
     assert player.startswith("\033[1;33m")
-    # Must not compose bold+dim (`1;2`) — annotate clears dim before the styler.
+    # Must not compose bold+dim (`1;2`): annotate clears dim before the styler.
     assert ";2" not in player.split("m", 1)[0]
     assert not re.search(r"\033\[[0-9;]*\b2[;m]", player)
 
@@ -724,7 +726,33 @@ def test_dim_composes_with_ev_tier_in_one_escape():
 
 
 def _strip_cell_ansi(cell: str) -> str:
-    return re.sub(r"\033\[[0-9;]*m", "", cell)
+    return _ANSI_ESCAPE.sub("", cell)
+
+
+def _resolve_sgr_state(text: str) -> set[str]:
+    """SGR attributes still in effect at the end of ``text``, as a terminal would resolve them.
+
+    Escapes accumulate; only a reset (``0``) clears. Needed because a colour can stay
+    active with no escape of its own in the segment that renders under it.
+    """
+    active: set[str] = set()
+    for escape in _ANSI_ESCAPE.findall(text):
+        params = escape[2:-1].split(";")
+        index = 0
+        while index < len(params):
+            code = params[index]
+            # 256-colour foreground is a three-param unit (38;5;N); keep it whole.
+            if code == "38" and params[index + 1 : index + 2] == ["5"]:
+                active = {c for c in active if not c.startswith("38;5;")}
+                active.add(";".join(params[index : index + 3]))
+                index += 3
+                continue
+            if code in ("", "0"):
+                active.clear()
+            else:
+                active.add(code)
+            index += 1
+    return active
 
 
 def _cell_has_grey(cell: str) -> bool:
@@ -771,7 +799,7 @@ def test_confidence_mute_greys_credibility_cells_on_ms_only():
 
 
 def test_confidence_mute_independent_of_dim():
-    """Dim and mute are separate channels — both detectable on a non-best ms row."""
+    """Dim and mute are separate channels, both detectable on a non-best ms row."""
     rows = [
         _row("P", team="NYY", market="hits", ev=0.10, ev_pct=10.0, line_source="milestone_exact"),
         _row(
@@ -833,6 +861,32 @@ def test_glyph_substring_grey_on_exact_row_soft_book():
         cell = line.split(" | ")[EV_TABLE_HEADERS.index(header)]
         assert not _cell_has_grey(cell), header
     assert _cell_has_ev_tier(line.split(" | ")[column_index("ev")])
+
+
+@pytest.mark.parametrize(
+    "base_codes",
+    [
+        pytest.param([], id="no-base"),
+        pytest.param(["2"], id="dim-base"),
+        pytest.param(["1", "38;5;46"], id="highlight-plus-tier-base"),
+    ],
+)
+def test_soft_glyph_grey_does_not_bleed_past_the_glyph(base_codes):
+    """SGR is additive: the segment after ◆ must not inherit the glyph's mute grey.
+
+    Resolved as a terminal would, accumulating escape state rather than looking for a
+    grey escape in the trailing segment, since the defect is state carried over with no
+    new escape emitted. format_ou_odds can only place the glyph on the under side today,
+    so the trailing segment is padding and a leak is invisible; asserted at the styling-pass
+    so the guard survives a formatter change that puts real content after the glyph.
+    """
+    trailing = "/-165"
+    styled = _compose_soft_glyph_cell(f"{_MILESTONE_GLYPH}{trailing}", list(base_codes))
+    prefix = styled.split(_MILESTONE_GLYPH, 1)[1].split(trailing)[0]
+    active = _resolve_sgr_state(styled.split(_MILESTONE_GLYPH, 1)[0] + prefix)
+    assert f"38;5;{_CONFIDENCE_MUTE_GREY}" not in active
+    # Whatever the row's base styling was, it is still in effect for the trailing segment.
+    assert set(base_codes) <= active
 
 
 @pytest.mark.parametrize(

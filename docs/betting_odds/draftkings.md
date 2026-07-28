@@ -85,7 +85,7 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | batting_strikeouts | 17849 |
 | pitching_strikeouts | 17323 |
 
-**MLB live batter milestone** (verified 2026-07-23 on a KC@DET live game) — `DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES`. Live pitcher milestone capture pending (see live O/U table below).
+**MLB live batter milestone** (verified 2026-07-23 on a KC@DET live game) — `DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES`. Live pitcher milestone `pitching_strikeouts` verified 2026-07-27 (`17481`).
 
 | Canonical market | subCategoryId (MLB, live) |
 |------------------|---------------------------|
@@ -101,6 +101,13 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | doubles | 17486 |
 | triples | 17487 |
 | hits | 17483 |
+| pitching_strikeouts | 17481 |
+
+**MLB live batter O/U** — additional live-only tab in `DK_MLB_LIVE_STAT_CATEGORIES`:
+
+| Canonical market | subCategoryId (MLB, live) |
+|------------------|---------------------------|
+| stolen_bases | 17474 |
 
 **MLB live pitcher O/U** (verified 2026-07-25) — `DK_MLB_LIVE_STAT_CATEGORIES`:
 
@@ -113,9 +120,7 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | total_outs | 17476 |
 | h+bb+er | 19913 |
 
-`h+bb+er` (hits + walks + earned runs) is DK-only — no matching Betr market, so it's captured but excluded from `MLB_ENABLED_MARKETS`.
-
-Live pitcher milestone is unprobed: no live pitcher milestone tab has been confirmed to exist yet.
+`h+bb+er` (hits + walks + earned runs) is DK-only — no matching Betr market, so it's captured but excluded from `MLB_ENABLED_MARKETS`. Live `stolen_bases` O/U (`17474`) is likewise DK-only.
 
 Verify configured or pasted IDs: `python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb`. See [mlb.md](mlb.md).
 

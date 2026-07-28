@@ -66,7 +66,7 @@ Confirmed ids parked on capability — not in any `dk_subcategories.py` map.
 
 ### Live batter milestone (verified 2026-07-23)
 
-`DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py` — all 12 batter markets verified on a live KC@DET game. Full id table in [draftkings.md](draftkings.md). Includes `batting_strikeouts` (`17490`, distinct from the pregame `17849` above) plus three markets Betr does not currently offer (`home_runs`, `stolen_bases`, `triples`) — stored for when/if Betr adds them; ESPN already has canonical `home_runs`/`stolen_bases` entries. Live pitcher milestone is still unprobed — no live pitcher milestone tab has been confirmed to exist yet.
+`DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py` — all 12 batter markets verified on a live KC@DET game, plus live pitcher `pitching_strikeouts` milestone (`17481`, verified 2026-07-27). Full id table in [draftkings.md](draftkings.md). Includes `batting_strikeouts` (`17490`, distinct from the pregame `17849` above) plus three markets Betr does not currently offer (`home_runs`, `stolen_bases`, `triples`) — stored for when/if Betr adds them; ESPN already has canonical `home_runs`/`stolen_bases` entries.
 
 ## Live batter + pitcher O/U
 
@@ -82,6 +82,7 @@ Live scrape uses `DK_MLB_LIVE_STAT_CATEGORIES` in `backend/config/dk_subcategori
 | `doubles` | `DOUBLES` | 17472 | 17410 |
 | `batting_walks` | `WALKS` | 9536 | 17411 |
 | `rbi` | `RUNS_BATTED_IN` | 9505 | 8025 |
+| `stolen_bases` | — (DK-only) | 17474 | 17408 |
 | `pitching_strikeouts` | `STRIKEOUTS` | 12960 | 15221 |
 | `earned_runs` | `EARNED_RUNS` | 19874 | 17412 |
 | `hits_allowed` | `HITS_ALLOWED` | 12962 | 9886 |

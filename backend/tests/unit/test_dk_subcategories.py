@@ -201,6 +201,7 @@ def test_dk_mlb_live_stat_categories_batter_and_pitcher_ids_verified():
         "doubles",
         "batting_walks",
         "rbi",
+        "stolen_bases",
     }
     for market in batter_configured:
         assert DK_MLB_LIVE_STAT_CATEGORIES[market] is not None
@@ -211,6 +212,7 @@ def test_dk_mlb_live_stat_categories_batter_and_pitcher_ids_verified():
     assert DK_MLB_LIVE_STAT_CATEGORIES["pitching_walks"] == "12963"
     assert DK_MLB_LIVE_STAT_CATEGORIES["total_outs"] == "17476"
     assert DK_MLB_LIVE_STAT_CATEGORIES["h+bb+er"] == "19913"
+    assert DK_MLB_LIVE_STAT_CATEGORIES["stolen_bases"] == "17474"
 
 
 def test_subcategories_for_league_mlb_live_ou_is_live_map():
@@ -256,6 +258,7 @@ def test_mlb_live_milestone_batter_ids_verified():
     assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["doubles"] == "17486"
     assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["triples"] == "17487"
     assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["hits"] == "17483"
+    assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["pitching_strikeouts"] == "17481"
 
 
 def test_mlb_live_configured_ou_all_batter_and_pitcher_ids_set():
@@ -266,8 +269,9 @@ def test_mlb_live_configured_ou_all_batter_and_pitcher_ids_set():
     assert result["batting_walks"] == "9536"
     assert result["pitching_strikeouts"] == "12960"
     assert result["h+bb+er"] == "19913"
-    # 8 batter + 6 pitcher markets, all configured.
-    assert len(result) == 14
+    assert result["stolen_bases"] == "17474"
+    # 9 batter + 6 pitcher markets, all configured.
+    assert len(result) == 15
 
 
 def test_prop_tabs_configured_drops_none_and_tbd():

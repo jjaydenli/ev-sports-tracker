@@ -123,6 +123,7 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "doubles": "17472",
     "batting_walks": "9536",
     "rbi": "9505",
+    "stolen_bases": "17474",
     # Pitcher live O/U: verified live 2026-07-25 (order matches DK's tab order).
     "pitching_strikeouts": "12960",
     "earned_runs": "19874",
@@ -167,6 +168,7 @@ DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {
     "singles": "17485",
     "doubles": "17486",
     "triples": "17487",
+    "pitching_strikeouts": "17481",
 }
 
 

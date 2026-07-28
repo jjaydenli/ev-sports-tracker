@@ -173,7 +173,7 @@ def test_build_league_events_url_matches_captured_nba_request():
     )
 
 
-def test_dk_mlb_live_stat_categories_batter_configured_pitcher_pending():
+def test_dk_mlb_live_stat_categories_batter_and_pitcher_ids_verified():
     batter_configured = {
         "hits",
         "total_bases",
@@ -186,16 +186,13 @@ def test_dk_mlb_live_stat_categories_batter_configured_pitcher_pending():
     }
     for market in batter_configured:
         assert DK_MLB_LIVE_STAT_CATEGORIES[market] is not None
-    # Pitcher live O/U slots exist (grid-complete) but stay unconfigured until a
-    # live game with an active pitcher matchup is probed.
-    for pitcher in (
-        "pitching_strikeouts",
-        "earned_runs",
-        "total_outs",
-        "pitching_walks",
-        "hits_allowed",
-    ):
-        assert DK_MLB_LIVE_STAT_CATEGORIES[pitcher] is None
+    # Pitcher live O/U, verified against a live game 2026-07-25.
+    assert DK_MLB_LIVE_STAT_CATEGORIES["pitching_strikeouts"] == "12960"
+    assert DK_MLB_LIVE_STAT_CATEGORIES["earned_runs"] == "19874"
+    assert DK_MLB_LIVE_STAT_CATEGORIES["hits_allowed"] == "12962"
+    assert DK_MLB_LIVE_STAT_CATEGORIES["pitching_walks"] == "12963"
+    assert DK_MLB_LIVE_STAT_CATEGORIES["total_outs"] == "17476"
+    assert DK_MLB_LIVE_STAT_CATEGORIES["h+bb+er"] == "19913"
 
 
 def test_subcategories_for_league_mlb_live_ou_is_live_map():
@@ -234,14 +231,16 @@ def test_mlb_live_milestone_batter_ids_verified():
     assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["hits"] == "17483"
 
 
-def test_mlb_live_configured_ou_all_batter_ids_set():
+def test_mlb_live_configured_ou_all_batter_and_pitcher_ids_set():
     result = subcategories_for_league("mlb").live.configured_ou
     assert result["hits"] == "9502"
     assert result["total_bases"] == "9506"
     assert result["doubles"] == "17472"
     assert result["batting_walks"] == "9536"
-    # 8 batter markets configured; the 5 pitcher slots stay None (pending).
-    assert len(result) == 8
+    assert result["pitching_strikeouts"] == "12960"
+    assert result["h+bb+er"] == "19913"
+    # 8 batter + 6 pitcher markets, all configured.
+    assert len(result) == 14
 
 
 def test_prop_tabs_configured_drops_none_and_tbd():

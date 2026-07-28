@@ -128,6 +128,30 @@ discovered_milestone:
     dk_prop_subcategory_id: "17322"
     dk_label: RBIs Milestones
 
+# Verified live 2026-07-25; distinct ids from the pregame discovered_ou ones
+# above (DK reissues a subCategoryId once a game goes live, same as milestone).
+# Wired into DK_MLB_LIVE_STAT_CATEGORIES. Order matches DK's live tab order.
+discovered_live_ou:
+  pitching_strikeouts:
+    dk_prop_subcategory_id: "12960"
+    dk_label: Strikeouts Thrown O/U
+  earned_runs:
+    dk_prop_subcategory_id: "19874"
+    dk_label: Earned Runs Allowed O/U
+  hits_allowed:
+    dk_prop_subcategory_id: "12962"
+    dk_label: Hits Allowed O/U
+  pitching_walks:
+    dk_prop_subcategory_id: "12963"
+    dk_label: Walks Allowed O/U
+  total_outs:
+    dk_prop_subcategory_id: "17476"
+    dk_label: Outs O/U
+  h+bb+er:
+    dk_prop_subcategory_id: "19913"
+    dk_label: Hits + Walks + Earned Runs O/U
+    notes: DK-only; Betr has no matching combo market, so not in MLB_ENABLED_MARKETS.
+
 # Verified 2026-07-23 on a live KC@DET game; distinct ids from the pregame
 # ones above. Wired into DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES.
 discovered_live_milestone:

@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-07-23
+**Last verified:** 2026-07-25
 
 ## 1. Project Overview
 
@@ -98,7 +98,7 @@ ev-sports-tracker/
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
-    └── tests/                          # fixtures, integration, unit; 660 tests
+    └── tests/                          # fixtures, integration, unit; 661 tests
 ```
 
 **EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).

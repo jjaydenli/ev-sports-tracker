@@ -117,6 +117,12 @@ def test_infer_canonical_market_from_dk_label():
         == "pitching_strikeouts"
     )
     assert infer_canonical_market_from_dk_label("Byron Buxton RBIs O/U") == "rbi"
+    assert (
+        infer_canonical_market_from_dk_label(
+            "Connor Prielipp Hits + Walks + Earned Runs O/U"
+        )
+        == "h+bb+er"
+    )
 
 
 def test_infer_canonical_market_from_steals_milestone_fixture(steals_milestone_payload):

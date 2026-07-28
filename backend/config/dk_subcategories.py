@@ -121,13 +121,13 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "doubles": "17472",
     "batting_walks": "9536",
     "rbi": "9505",
-    # Pitcher live O/U: unprobed. KC@DET (2026-07-23, the only live MLB game
-    # that day) had no pitcher props posted yet; retry on the next live game.
-    "pitching_strikeouts": None,
-    "earned_runs": None,
-    "total_outs": None,
-    "pitching_walks": None,
-    "hits_allowed": None,
+    # Pitcher live O/U: verified live 2026-07-25 (order matches DK's tab order).
+    "pitching_strikeouts": "12960",
+    "earned_runs": "19874",
+    "hits_allowed": "12962",
+    "pitching_walks": "12963",
+    "total_outs": "17476",
+    "h+bb+er": "19913",
 }
 
 # MLB milestone tabs. Pregame is empty: DK does not release the full board

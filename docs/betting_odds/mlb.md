@@ -36,11 +36,11 @@ Crosswalk + milestone refs: `backend/config/discovery/mlb.yaml`.
 
 ### Live batter milestone (verified 2026-07-23)
 
-`DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py` — all 12 batter markets verified on a live KC@DET game. Full id table in [draftkings.md](draftkings.md). Includes `batting_strikeouts` (`17490`, distinct from the pregame `17849` above) plus three markets Betr does not currently offer (`home_runs`, `stolen_bases`, `triples`) — stored for when/if Betr adds them; ESPN already has canonical `home_runs`/`stolen_bases` entries. Live pitcher O/U and pitcher milestone are unprobed (no live pitcher props were posted that day); retry on the next live game.
+`DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py` — all 12 batter markets verified on a live KC@DET game. Full id table in [draftkings.md](draftkings.md). Includes `batting_strikeouts` (`17490`, distinct from the pregame `17849` above) plus three markets Betr does not currently offer (`home_runs`, `stolen_bases`, `triples`) — stored for when/if Betr adds them; ESPN already has canonical `home_runs`/`stolen_bases` entries. Live pitcher milestone is still unprobed — no live pitcher milestone tab has been confirmed to exist yet.
 
-## Live batter O/U
+## Live batter + pitcher O/U
 
-Live scrape uses `DK_MLB_LIVE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py` — batter O/U only (no pitcher live markets). **DK live tabs often use different subCategoryIds than pregame** (e.g. total bases `9506` live vs `6607` pregame). Copy the pregame ID only when DevTools confirms DK reuses it.
+Live scrape uses `DK_MLB_LIVE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py`. **DK live tabs often use different subCategoryIds than pregame** (e.g. total bases `9506` live vs `6607` pregame). Copy the pregame ID only when DevTools confirms DK reuses it.
 
 | Canonical | Betr key | DK live subCategoryId | Pregame ID |
 |-----------|----------|------------------------|------------|
@@ -52,6 +52,14 @@ Live scrape uses `DK_MLB_LIVE_STAT_CATEGORIES` in `backend/config/dk_subcategori
 | `doubles` | `DOUBLES` | 17472 | 17410 |
 | `batting_walks` | `WALKS` | 9536 | 17411 |
 | `rbi` | `RUNS_BATTED_IN` | 9505 | 8025 |
+| `pitching_strikeouts` | `STRIKEOUTS` | 12960 | 15221 |
+| `earned_runs` | `EARNED_RUNS` | 19874 | 17412 |
+| `hits_allowed` | `HITS_ALLOWED` | 12962 | 9886 |
+| `pitching_walks` | `PITCHING_WALKS` | 12963 | 15219 |
+| `total_outs` | `TOTAL_OUTS` | 17476 | 17413 |
+| `h+bb+er` | — (DK-only) | 19913 | — |
+
+Pitcher O/U verified live 2026-07-25. `h+bb+er` (hits + walks + earned runs) has no Betr equivalent, so it is still requested from DK like any other live tab, but is absent from `MLB_ENABLED_MARKETS` (`parsers/betr_parser.py`) and so never produces an EV row until a DFS app offers a matching market. Capture-don't-restrict: leave it wired.
 
 EV rows from live props carry `is_live: true`; the ranked table shows **L** in the Live column.
 

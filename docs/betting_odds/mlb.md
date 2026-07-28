@@ -4,7 +4,7 @@ Pregame and live batter O/U props for the EV pipeline. Live discovery is standin
 
 ## Enabled O/U markets (full pregame slate)
 
-All rows below are in `DK_MLB_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS` (Betr parser), and scraped on `./ev --league MLB`.
+All rows below are in `DK_MLB_PREGAME_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS` (Betr parser), and scraped on `./ev --league MLB`.
 
 | Canonical | Betr key | DK subCategoryId | DK tab label |
 |-----------|----------|------------------|--------------|
@@ -105,11 +105,11 @@ cd backend
 ## DraftKings
 
 - Slate: `DK_LEAGUE_SLATES["mlb"]` — `league_id` **84240**, `slate_subcategory_id` **4519**.
-- Pregame props: `DK_MLB_STAT_CATEGORIES` in `backend/config/dk_subcategories.py`.
+- Pregame props: `DK_MLB_PREGAME_STAT_CATEGORIES` in `backend/config/dk_subcategories.py`.
 - Live props: `DK_MLB_LIVE_STAT_CATEGORIES` (same file); event discovery uses `NOT_STARTED` + `IN_PROGRESS` / `STARTED` (`LIVE_EVENT_STATUSES`).
 
 ```bash
-# Pregame event — verify DK_MLB_STAT_CATEGORIES
+# Pregame event — verify DK_MLB_PREGAME_STAT_CATEGORIES
 python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb
 
 # Live (in-game) event — DK uses different subCategoryIds on many tabs

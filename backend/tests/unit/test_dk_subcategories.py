@@ -4,12 +4,12 @@ from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
     DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES,
     DK_MLB_LIVE_STAT_CATEGORIES,
-    DK_MLB_STAT_CATEGORIES,
-    DK_NBA_MILESTONE_STAT_CATEGORIES,
+    DK_MLB_PREGAME_STAT_CATEGORIES,
     DK_NBA_PENDING_STAT_CATEGORIES,
-    DK_NBA_STAT_CATEGORIES,
-    DK_WNBA_MILESTONE_STAT_CATEGORIES,
-    DK_WNBA_STAT_CATEGORIES,
+    DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
+    DK_NBA_PREGAME_STAT_CATEGORIES,
+    DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES,
+    DK_WNBA_PREGAME_STAT_CATEGORIES,
     PropTabs,
     build_league_events_query,
     build_league_events_url,
@@ -20,39 +20,39 @@ from config.dk_subcategories import (
 
 
 def test_dk_nba_stat_categories_merged_ou_ids():
-    assert len(DK_NBA_STAT_CATEGORIES) == 11
-    assert DK_NBA_STAT_CATEGORIES["points"] == "12488"
-    assert DK_NBA_STAT_CATEGORIES["threes"] == "12497"
-    assert DK_NBA_STAT_CATEGORIES["assists"] == "12495"
-    assert DK_NBA_STAT_CATEGORIES["pra"] == "5001"
-    assert DK_NBA_STAT_CATEGORIES["steals"] == "2713508"
-    assert DK_NBA_STAT_CATEGORIES["blocks"] == "2713780"
-    assert DK_NBA_STAT_CATEGORIES["stl+blk"] == "2713781"
+    assert len(DK_NBA_PREGAME_STAT_CATEGORIES) == 11
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["points"] == "12488"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["threes"] == "12497"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["assists"] == "12495"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["pra"] == "5001"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["steals"] == "2713508"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["blocks"] == "2713780"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["stl+blk"] == "2713781"
 
 
 def test_dk_nba_stat_categories_uses_canonical_combo_names():
-    assert DK_NBA_STAT_CATEGORIES["pts+reb"] == "9976"
-    assert DK_NBA_STAT_CATEGORIES["pts+ast"] == "9973"
-    assert DK_NBA_STAT_CATEGORIES["reb+ast"] == "9974"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["pts+reb"] == "9976"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["pts+ast"] == "9973"
+    assert DK_NBA_PREGAME_STAT_CATEGORIES["reb+ast"] == "9974"
 
 
 def test_dk_nba_milestone_stat_categories_verified_ids():
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["points"] == "2716477"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["rebounds"] == "2716479"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["assists"] == "2716478"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["threes"] == "2716480"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["pts+reb"] == "2716482"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["pts+ast"] == "2716481"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["reb+ast"] == "2719560"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["pra"] == "2716483"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["blocks"] == "2716484"
-    assert DK_NBA_MILESTONE_STAT_CATEGORIES["steals"] == "2716485"
-    assert "stl+blk" not in DK_NBA_MILESTONE_STAT_CATEGORIES
-    assert len(DK_NBA_MILESTONE_STAT_CATEGORIES) == 10
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["points"] == "2716477"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["rebounds"] == "2716479"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["assists"] == "2716478"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["threes"] == "2716480"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["pts+reb"] == "2716482"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["pts+ast"] == "2716481"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["reb+ast"] == "2719560"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["pra"] == "2716483"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["blocks"] == "2716484"
+    assert DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["steals"] == "2716485"
+    assert "stl+blk" not in DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
+    assert len(DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES) == 10
 
 
 def test_build_markets_url_steals_milestone_subcategory():
-    url = build_markets_url("34183767", DK_NBA_MILESTONE_STAT_CATEGORIES["steals"])
+    url = build_markets_url("34183767", DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["steals"])
     params = parse_qs(urlparse(url).query)
     assert params["templateVars"] == ["34183767,2716485"]
 
@@ -73,13 +73,13 @@ def test_build_markets_query_matches_captured_filter():
 
 
 def test_build_markets_url_steals_subcategory():
-    url = build_markets_url("34183767", DK_NBA_STAT_CATEGORIES["steals"])
+    url = build_markets_url("34183767", DK_NBA_PREGAME_STAT_CATEGORIES["steals"])
     params = parse_qs(urlparse(url).query)
     assert params["templateVars"] == ["34183767,2713508"]
 
 
 def test_build_markets_url_matches_captured_points_request():
-    url = build_markets_url("34183767", DK_NBA_STAT_CATEGORIES["points"])
+    url = build_markets_url("34183767", DK_NBA_PREGAME_STAT_CATEGORIES["points"])
     parsed = urlparse(url)
     params = parse_qs(parsed.query)
 
@@ -95,7 +95,7 @@ def test_build_markets_url_matches_captured_points_request():
 
 
 def test_build_markets_url_supports_batchable_flag():
-    url = build_markets_url("34183767", DK_NBA_STAT_CATEGORIES["assists"], batchable=True)
+    url = build_markets_url("34183767", DK_NBA_PREGAME_STAT_CATEGORIES["assists"], batchable=True)
     params = parse_qs(urlparse(url).query)
 
     assert params["isBatchable"] == ["true"]
@@ -119,10 +119,10 @@ def test_dk_league_slates_contains_wnba():
 
 def test_subcategories_for_league_wnba_aliases_nba():
     wnba = subcategories_for_league("wnba")
-    assert wnba.pregame.ou is DK_WNBA_STAT_CATEGORIES
-    assert wnba.pregame.ou == DK_NBA_STAT_CATEGORIES
-    assert wnba.pregame.milestone is DK_WNBA_MILESTONE_STAT_CATEGORIES
-    assert wnba.pregame.milestone == DK_NBA_MILESTONE_STAT_CATEGORIES
+    assert wnba.pregame.ou is DK_WNBA_PREGAME_STAT_CATEGORIES
+    assert wnba.pregame.ou == DK_NBA_PREGAME_STAT_CATEGORIES
+    assert wnba.pregame.milestone is DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES
+    assert wnba.pregame.milestone == DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
 
 
 def test_subcategories_for_league_unknown_falls_back_to_nba():
@@ -130,24 +130,24 @@ def test_subcategories_for_league_unknown_falls_back_to_nba():
 
 
 def test_subcategories_for_league_is_case_insensitive():
-    assert subcategories_for_league("MLB").pregame.ou is DK_MLB_STAT_CATEGORIES
+    assert subcategories_for_league("MLB").pregame.ou is DK_MLB_PREGAME_STAT_CATEGORIES
 
 
 def test_subcategories_for_league_mlb_pregame_ou():
     mlb = subcategories_for_league("mlb")
-    assert mlb.pregame.ou is DK_MLB_STAT_CATEGORIES
+    assert mlb.pregame.ou is DK_MLB_PREGAME_STAT_CATEGORIES
     assert len(mlb.pregame.ou) == 13
-    assert DK_MLB_STAT_CATEGORIES["hits"] == "6719"
-    assert DK_MLB_STAT_CATEGORIES["total_bases"] == "6607"
-    assert DK_MLB_STAT_CATEGORIES["singles"] == "17409"
-    assert DK_MLB_STAT_CATEGORIES["doubles"] == "17410"
-    assert DK_MLB_STAT_CATEGORIES["pitching_strikeouts"] == "15221"
-    assert DK_MLB_STAT_CATEGORIES["rbi"] == "8025"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["hits"] == "6719"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["total_bases"] == "6607"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["singles"] == "17409"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["doubles"] == "17410"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["pitching_strikeouts"] == "15221"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["rbi"] == "8025"
 
 
 def test_mlb_pregame_configured_ou_matches_full_map():
     # No pregame O/U id is pending, so configured == the raw map.
-    assert subcategories_for_league("mlb").pregame.configured_ou == DK_MLB_STAT_CATEGORIES
+    assert subcategories_for_league("mlb").pregame.configured_ou == DK_MLB_PREGAME_STAT_CATEGORIES
 
 
 def test_build_league_events_query_matches_captured_filter():

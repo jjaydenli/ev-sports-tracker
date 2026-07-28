@@ -11,9 +11,9 @@ from loguru import logger
 from config.api_headers import DK_BASE_HEADERS
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
-    DK_MLB_STAT_CATEGORIES,
-    DK_NBA_MILESTONE_STAT_CATEGORIES,
-    DK_NBA_STAT_CATEGORIES,
+    DK_MLB_PREGAME_STAT_CATEGORIES,
+    DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
+    DK_NBA_PREGAME_STAT_CATEGORIES,
     build_league_events_url,
     build_markets_url,
 )
@@ -50,13 +50,13 @@ def _dk_markets_http_sem() -> asyncio.Semaphore:
 
 
 def _prop_subcategory_market_label(prop_subcategory_id: str) -> str | None:
-    for market, sid in DK_NBA_STAT_CATEGORIES.items():
+    for market, sid in DK_NBA_PREGAME_STAT_CATEGORIES.items():
         if sid == prop_subcategory_id:
             return f"ou:{market}"
-    for market, sid in DK_MLB_STAT_CATEGORIES.items():
+    for market, sid in DK_MLB_PREGAME_STAT_CATEGORIES.items():
         if sid == prop_subcategory_id:
             return f"ou:{market}"
-    for market, sid in DK_NBA_MILESTONE_STAT_CATEGORIES.items():
+    for market, sid in DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES.items():
         if sid == prop_subcategory_id:
             return f"milestone:{market}"
     return None
@@ -312,7 +312,7 @@ def flatten_milestone_markets_response(
     if inferred and inferred != market:
         logger.warning(
             f"dk milestone prop subcategory {prop_subcategory_id} labeled as {market!r} "
-            f"but DK market text implies {inferred!r} — fix DK_NBA_MILESTONE_STAT_CATEGORIES"
+            f"but DK market text implies {inferred!r} — fix DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES"
         )
 
     by_market_threshold = _milestone_selections_by_market_threshold(
@@ -553,7 +553,7 @@ async def fetch_and_flatten_markets(
     stat_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch O/U markets for one category and return flattened master-board rows."""
-    categories = stat_categories or DK_NBA_STAT_CATEGORIES
+    categories = stat_categories or DK_NBA_PREGAME_STAT_CATEGORIES
     prop_subcategory_id = categories[market]
     payload = await fetch_event_subcategory_markets(
         client, event_id, prop_subcategory_id
@@ -575,7 +575,7 @@ async def _fetch_and_flatten_milestone_markets(
     *,
     milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
-    milestones = milestone_categories or DK_NBA_MILESTONE_STAT_CATEGORIES
+    milestones = milestone_categories or DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
     milestone_prop_subcategory_id = milestones.get(market)
     if not milestone_prop_subcategory_id:
         return []
@@ -621,8 +621,8 @@ async def fetch_event_all_markets(
     milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch and flatten all configured O/U and milestone tabs for one event in parallel."""
-    categories = stat_categories or DK_NBA_STAT_CATEGORIES
-    milestones = milestone_categories or DK_NBA_MILESTONE_STAT_CATEGORIES
+    categories = stat_categories or DK_NBA_PREGAME_STAT_CATEGORIES
+    milestones = milestone_categories or DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
     market_list = markets or list(categories.keys())
     coros = []
     for market in market_list:

@@ -38,7 +38,7 @@ from config.api_headers import DK_LEAGUE_EVENTS_URL, DK_MARKETS_URL
 
 # Canonical market -> DK prop subCategoryId (per-event O/U tabs, NBA pregame).
 # Verify: python -m scripts.verify_dk_subcategories --event-id <event_id> --league nba
-DK_NBA_STAT_CATEGORIES: dict[str, str] = {
+DK_NBA_PREGAME_STAT_CATEGORIES: dict[str, str] = {
     "points": "12488",
     "rebounds": "12492",
     "assists": "12495",
@@ -57,7 +57,7 @@ DK_NBA_STAT_CATEGORIES: dict[str, str] = {
 #   python -m scripts.verify_dk_subcategories --event-id <event_id> --verify <id> [<id> ...]
 # Only include IDs confirmed against DK market names (not sequential guesses).
 # stl+blk: O/U only on DK — no milestone tab observed.
-DK_NBA_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
+DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
     "points": "2716477",
     "rebounds": "2716479",
     "assists": "2716478",
@@ -87,12 +87,12 @@ DK_NBA_PENDING_STAT_CATEGORIES: dict[str, str | None] = {
 # WNBA per-event prop tabs match NBA subCategoryIds (pregame). Live NBA/WNBA
 # props do exist on DK; their live ids are just unprobed, so the live maps below
 # stay empty until a DevTools capture on an in-progress game fills them.
-DK_WNBA_STAT_CATEGORIES: dict[str, str] = DK_NBA_STAT_CATEGORIES
-DK_WNBA_MILESTONE_STAT_CATEGORIES: dict[str, str] = DK_NBA_MILESTONE_STAT_CATEGORIES
+DK_WNBA_PREGAME_STAT_CATEGORIES: dict[str, str] = DK_NBA_PREGAME_STAT_CATEGORIES
+DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str] = DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
 
 # MLB player-prop O/U (pregame). Verify:
 #   python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb
-DK_MLB_STAT_CATEGORIES: dict[str, str] = {
+DK_MLB_PREGAME_STAT_CATEGORIES: dict[str, str] = {
     "hits": "6719",
     "total_bases": "6607",
     "h+r+rbi": "17406",
@@ -135,7 +135,7 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
 # just unprobed). Live milestone verified 2026-07-23 on KC@DET (34425631) for
 # batters; pitcher live milestone is unprobed, blocked with the pitcher O/U
 # ids above.
-DK_MLB_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {}
+DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {}
 DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {
     "batting_strikeouts": "17490",
     "home_runs": "17482",
@@ -190,7 +190,7 @@ def _configured(tabs: Mapping[str, str | None]) -> dict[str, str]:
 
 
 _NBA = LeagueSubcategories(
-    pregame=PropTabs(ou=DK_NBA_STAT_CATEGORIES, milestone=DK_NBA_MILESTONE_STAT_CATEGORIES),
+    pregame=PropTabs(ou=DK_NBA_PREGAME_STAT_CATEGORIES, milestone=DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES),
     live=PropTabs(ou={}, milestone={}),
     pending=DK_NBA_PENDING_STAT_CATEGORIES,
 )
@@ -199,14 +199,14 @@ DK_SUBCATEGORIES: dict[str, LeagueSubcategories] = {
     "nba": _NBA,
     "wnba": LeagueSubcategories(
         pregame=PropTabs(
-            ou=DK_WNBA_STAT_CATEGORIES, milestone=DK_WNBA_MILESTONE_STAT_CATEGORIES
+            ou=DK_WNBA_PREGAME_STAT_CATEGORIES, milestone=DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES
         ),
         live=PropTabs(ou={}, milestone={}),
         pending={},
     ),
     "mlb": LeagueSubcategories(
         pregame=PropTabs(
-            ou=DK_MLB_STAT_CATEGORIES, milestone=DK_MLB_MILESTONE_STAT_CATEGORIES
+            ou=DK_MLB_PREGAME_STAT_CATEGORIES, milestone=DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES
         ),
         live=PropTabs(
             ou=DK_MLB_LIVE_STAT_CATEGORIES, milestone=DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES

@@ -7,8 +7,8 @@ import pytest
 
 from config.dk_subcategories import (
     DK_MLB_LIVE_STAT_CATEGORIES,
-    DK_MLB_STAT_CATEGORIES,
-    DK_NBA_STAT_CATEGORIES,
+    DK_MLB_PREGAME_STAT_CATEGORIES,
+    DK_NBA_PREGAME_STAT_CATEGORIES,
     DK_SUBCATEGORIES,
 )
 from scrapers.sportsbooks.dk_api import flatten_markets_response
@@ -83,7 +83,7 @@ async def test_scrape_fetches_configured_markets(
             points_payload,
             event_id=event_id,
             market=market,
-            prop_subcategory_id=DK_NBA_STAT_CATEGORIES[market],
+            prop_subcategory_id=DK_NBA_PREGAME_STAT_CATEGORIES[market],
         )
 
     async def mock_event_markets(
@@ -143,7 +143,7 @@ async def test_scrape_discovers_event_ids_from_league_slate(
             points_payload,
             event_id=event_id,
             market=market,
-            prop_subcategory_id=DK_NBA_STAT_CATEGORIES[market],
+            prop_subcategory_id=DK_NBA_PREGAME_STAT_CATEGORIES[market],
         )
 
     monkeypatch.setattr(
@@ -185,7 +185,7 @@ async def test_scrape_mlb_hits(monkeypatch, mock_dk_warm_up):
             hits_payload,
             event_id=event_id,
             market=market,
-            prop_subcategory_id=DK_MLB_STAT_CATEGORIES[market],
+            prop_subcategory_id=DK_MLB_PREGAME_STAT_CATEGORIES[market],
         )
 
     monkeypatch.setattr(
@@ -230,7 +230,7 @@ async def test_scrape_mlb_discovers_pregame_and_live_from_slate(
             hits_payload,
             event_id=event_id,
             market=market,
-            prop_subcategory_id=DK_MLB_STAT_CATEGORIES[market],
+            prop_subcategory_id=DK_MLB_PREGAME_STAT_CATEGORIES[market],
         )
 
     monkeypatch.setattr(
@@ -280,20 +280,20 @@ async def test_scrape_mlb_live_tags_is_live_when_categories_configured(
                 hits_payload,
                 event_id=event_id,
                 market=market,
-                prop_subcategory_id=DK_MLB_STAT_CATEGORIES[market],
+                prop_subcategory_id=DK_MLB_PREGAME_STAT_CATEGORIES[market],
             )
         if event_id == MLB_EVENT_ID:
             return flatten_markets_response(
                 hits_payload,
                 event_id=event_id,
                 market=market,
-                prop_subcategory_id=DK_MLB_STAT_CATEGORIES[market],
+                prop_subcategory_id=DK_MLB_PREGAME_STAT_CATEGORIES[market],
             )
         return []
 
     _patch_mlb_live_ou(
         monkeypatch,
-        {**DK_MLB_LIVE_STAT_CATEGORIES, "hits": DK_MLB_STAT_CATEGORIES["hits"]},
+        {**DK_MLB_LIVE_STAT_CATEGORIES, "hits": DK_MLB_PREGAME_STAT_CATEGORIES["hits"]},
     )
     monkeypatch.setattr(
         "scrapers.sportsbooks.dk_engine.fetch_league_events",

@@ -92,6 +92,11 @@ MARKET_ABBREV: dict[str, str] = {
     "hits_allowed": "HITS_A",
     "pitching_walks": "BB_A",
     "h+bb+er": "H+BB+ER",
+    "xbh": "XBH",
+    "h+r+sb": "H+R+SB",
+    "h+sb": "H+SB",
+    "h+bb+sb": "H+BB+SB",
+    "r+rbi": "R+RBI",
     # NBA / WNBA — official NBA/WNBA glossary notation
     "points": "PTS",
     "rebounds": "REB",

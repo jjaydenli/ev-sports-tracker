@@ -4,6 +4,7 @@ from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
     DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES,
     DK_MLB_LIVE_STAT_CATEGORIES,
+    DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES,
     DK_MLB_PREGAME_STAT_CATEGORIES,
     DK_NBA_PENDING_STAT_CATEGORIES,
     DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
@@ -153,7 +154,7 @@ def test_subcategories_for_league_is_case_insensitive():
 def test_subcategories_for_league_mlb_pregame_ou():
     mlb = subcategories_for_league("mlb")
     assert mlb.pregame.ou is DK_MLB_PREGAME_STAT_CATEGORIES
-    assert len(mlb.pregame.ou) == 13
+    assert len(mlb.pregame.ou) == 15
     assert DK_MLB_PREGAME_STAT_CATEGORIES["hits"] == "6719"
     assert DK_MLB_PREGAME_STAT_CATEGORIES["total_bases"] == "6607"
     assert DK_MLB_PREGAME_STAT_CATEGORIES["singles"] == "17409"
@@ -225,10 +226,19 @@ def test_nba_and_wnba_live_ids_not_probed_yet():
         assert live.milestone == {}
 
 
-def test_mlb_pregame_milestone_still_pending_probe():
-    # DK doesn't release the full pregame board until closer to game time, so
-    # pregame milestone capture is deferred (not just unprobed).
-    assert subcategories_for_league("mlb").pregame.milestone == {}
+def test_mlb_pregame_milestone_ids_verified():
+    milestone = subcategories_for_league("mlb").pregame.milestone
+    assert milestone is DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["home_runs"] == "17319"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["hits"] == "17320"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["total_bases"] == "17321"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["rbi"] == "17322"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["stolen_bases"] == "18726"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["xbh"] == "19451"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["h+r+rbi"] == "17843"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["pitching_strikeouts"] == "17323"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["batting_strikeouts"] == "17849"
+    assert len(subcategories_for_league("mlb").pregame.configured_milestone) == 18
 
 
 def test_mlb_live_milestone_batter_ids_verified():

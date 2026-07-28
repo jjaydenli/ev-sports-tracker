@@ -22,7 +22,18 @@ All rows below are in `DK_MLB_PREGAME_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS` (B
 | `hits_allowed` | `HITS_ALLOWED` | 9886 | Hits Allowed O/U |
 | `rbi` | `RUNS_BATTED_IN` | 8025 | RBIs O/U |
 
-**Deferred v2:** `HITTER_STRIKEOUTS` (Betr) → `batting_strikeouts` (canonical) — DK pregame milestone-only `17849`; enable with milestone EV + over-side penalty.
+**DK-only pregame O/U** (in `DK_MLB_PREGAME_STAT_CATEGORIES`, not `MLB_ENABLED_MARKETS` — scraped from DK but no Betr line to match):
+
+| Canonical | DK subCategoryId | DK tab label |
+|-----------|------------------|--------------|
+| `stolen_bases` | 17408 | Stolen Bases O/U |
+| `h+bb+er` | 19459 | Hits + Walks + Earned Runs O/U |
+
+**Deferred v2:** `HITTER_STRIKEOUTS` (Betr) → `batting_strikeouts` (canonical) — DK pregame milestone `17849` (wired); enable Betr-side with milestone EV + over-side penalty.
+
+### Pregame milestone (verified 2026-07-27)
+
+`DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES` — 17 batter N+ tabs plus `pitching_strikeouts` (`17323`, sole N+ pitcher milestone). Full id table in [draftkings.md](draftkings.md). Combo keys (`xbh`, `h+r+sb`, `h+sb`, `h+bb+sb`, `r+rbi`) are DK-only until Betr offers matching markets.
 
 ### Milestone policy
 
@@ -34,12 +45,11 @@ DK also posts pitcher milestone tabs labeled "X or Fewer" (an under-side thresho
 tabs are **not wired** — the parser only reads `N+` labels (`MILESTONE_THRESHOLD_RE`), so an "X or
 Fewer" tab fetches successfully but contributes zero rows. See the DK-only reference table below.
 
-### Milestone tabs (reference — not scraped in full slate)
+### Milestone tabs (reference — defer v2 or parked)
 
 | Betr key | DK subCategoryId | Notes |
 |----------|------------------|-------|
-| `STRIKEOUTS` | 17323 | Pair with 15221 for push/flat K lines (TBD) |
-| `HITTER_STRIKEOUTS` | 17849 | Pregame, defer v2 |
+| `HITTER_STRIKEOUTS` | 17849 | Wired pregame milestone; Betr enablement deferred v2 |
 | `HITS_ALLOWED` | 19457 | Reference; O/U at 9886 |
 
 ### DK-only, captured, not wired
@@ -77,7 +87,7 @@ Live scrape uses `DK_MLB_LIVE_STAT_CATEGORIES` in `backend/config/dk_subcategori
 | `hits_allowed` | `HITS_ALLOWED` | 12962 | 9886 |
 | `pitching_walks` | `PITCHING_WALKS` | 12963 | 15219 |
 | `total_outs` | `TOTAL_OUTS` | 17476 | 17413 |
-| `h+bb+er` | — (DK-only) | 19913 | — |
+| `h+bb+er` | — (DK-only) | 19913 | 19459 |
 
 Pitcher O/U verified live 2026-07-25. `h+bb+er` (hits + walks + earned runs) has no Betr equivalent, so it is still requested from DK like any other live tab, but is absent from `MLB_ENABLED_MARKETS` (`parsers/betr_parser.py`) and so never produces an EV row until a DFS app offers a matching market. Capture-don't-restrict: leave it wired.
 
@@ -90,7 +100,7 @@ cd backend
 ./ev --league MLB --skip-fd
 ```
 
-- `--league MLB` drives Betr `LeagueUpcomingEvents` and DK slate key `mlb` (13 O/U prop tabs per pregame event; live batter tabs per `DK_MLB_LIVE_STAT_CATEGORIES`).
+- `--league MLB` drives Betr `LeagueUpcomingEvents` and DK slate key `mlb` (15 pregame O/U + 18 pregame milestone tabs per event; live tabs per `DK_MLB_LIVE_STAT_CATEGORIES`).
 - FanDuel is auto-skipped (no comparable MLB props).
 - Pitching K integer/push lines: flat-line policy TBD (`core/flat_line.py`).
 
@@ -105,7 +115,7 @@ cd backend
 ## DraftKings
 
 - Slate: `DK_LEAGUE_SLATES["mlb"]` — `league_id` **84240**, `slate_subcategory_id` **4519**.
-- Pregame props: `DK_MLB_PREGAME_STAT_CATEGORIES` in `backend/config/dk_subcategories.py`.
+- Pregame props: `DK_MLB_PREGAME_STAT_CATEGORIES` and `DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES` in `backend/config/dk_subcategories.py`.
 - Live props: `DK_MLB_LIVE_STAT_CATEGORIES` (same file); event discovery uses `NOT_STARTED` + `IN_PROGRESS` / `STARTED` (`LIVE_EVENT_STATUSES`).
 
 ```bash

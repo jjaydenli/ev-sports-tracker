@@ -57,8 +57,35 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | pitching_walks | 15219 |
 | hits_allowed | 9886 |
 | rbi | 8025 |
+| stolen_bases | 17408 |
+| h+bb+er | 19459 |
 
-**MLB live batter milestone** (verified 2026-07-23 on a KC@DET live game) — `DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES`. Pregame milestone capture is deferred: DK doesn't release the full pregame board until closer to game time.
+`stolen_bases` and `h+bb+er` pregame O/U are DK-only (no Betr market in `MLB_ENABLED_MARKETS`).
+
+**MLB pregame milestone** (verified 2026-07-27) — `DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES`:
+
+| Canonical market | subCategoryId (MLB, pregame) |
+|------------------|------------------------------|
+| home_runs | 17319 |
+| hits | 17320 |
+| total_bases | 17321 |
+| rbi | 17322 |
+| stolen_bases | 18726 |
+| xbh | 19451 |
+| h+r+rbi | 17843 |
+| h+r+sb | 19452 |
+| h+sb | 19454 |
+| h+bb+sb | 19455 |
+| r+rbi | 19453 |
+| runs | 17844 |
+| singles | 17845 |
+| doubles | 17846 |
+| triples | 17847 |
+| batting_walks | 17848 |
+| batting_strikeouts | 17849 |
+| pitching_strikeouts | 17323 |
+
+**MLB live batter milestone** (verified 2026-07-23 on a KC@DET live game) — `DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES`. Live pitcher milestone capture pending (see live O/U table below).
 
 | Canonical market | subCategoryId (MLB, live) |
 |------------------|---------------------------|

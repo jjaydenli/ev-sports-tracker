@@ -123,6 +123,17 @@ def test_infer_canonical_market_from_dk_label():
         )
         == "h+bb+er"
     )
+    assert infer_canonical_market_from_dk_label("Player XBH O/U") == "xbh"
+    assert (
+        infer_canonical_market_from_dk_label("Player Hits + Runs + Stolen Bases O/U")
+        == "h+r+sb"
+    )
+    assert infer_canonical_market_from_dk_label("Player Hits + Stolen Bases O/U") == "h+sb"
+    assert (
+        infer_canonical_market_from_dk_label("Player Hits + Walks + Stolen Bases O/U")
+        == "h+bb+sb"
+    )
+    assert infer_canonical_market_from_dk_label("Player Runs + RBIs O/U") == "r+rbi"
 
 
 def test_infer_canonical_market_from_steals_milestone_fixture(steals_milestone_payload):

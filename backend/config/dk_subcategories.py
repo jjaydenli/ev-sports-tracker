@@ -106,6 +106,8 @@ DK_MLB_PREGAME_STAT_CATEGORIES: dict[str, str] = {
     "pitching_walks": "15219",
     "hits_allowed": "9886",
     "rbi": "8025",
+    "stolen_bases": "17408",
+    "h+bb+er": "19459",
 }
 
 # MLB batter O/U props for live events (subCategoryIds differ from pregame on many tabs).
@@ -130,12 +132,28 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "h+bb+er": "19913",
 }
 
-# MLB milestone tabs. Pregame is empty: DK does not release the full board
-# until closer to game time, so pregame milestone capture is deferred (not
-# just unprobed). Live milestone verified 2026-07-23 on KC@DET (34425631) for
-# batters; pitcher live milestone is unprobed, blocked with the pitcher O/U
-# ids above.
-DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {}
+# MLB milestone tabs (pregame). Live milestone verified 2026-07-23 on KC@DET (34425631)
+# for batters; pitcher live milestone verified 2026-07-27 (pitching_strikeouts only).
+DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {
+    "home_runs": "17319",
+    "hits": "17320",
+    "total_bases": "17321",
+    "rbi": "17322",
+    "stolen_bases": "18726",
+    "xbh": "19451",
+    "h+r+rbi": "17843",
+    "h+r+sb": "19452",
+    "h+sb": "19454",
+    "h+bb+sb": "19455",
+    "r+rbi": "19453",
+    "runs": "17844",
+    "singles": "17845",
+    "doubles": "17846",
+    "triples": "17847",
+    "batting_walks": "17848",
+    "batting_strikeouts": "17849",
+    "pitching_strikeouts": "17323",
+}
 DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {
     "batting_strikeouts": "17490",
     "home_runs": "17482",

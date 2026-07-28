@@ -11,11 +11,11 @@ from loguru import logger
 from config.api_headers import DK_BASE_HEADERS
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
-    DK_MLB_PREGAME_STAT_CATEGORIES,
     DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
     DK_NBA_PREGAME_STAT_CATEGORIES,
     build_league_events_url,
     build_markets_url,
+    subcategory_market_labels,
 )
 from utils.formatting import normalize_odds_string
 
@@ -49,17 +49,14 @@ def _dk_markets_http_sem() -> asyncio.Semaphore:
     return _DK_MARKETS_HTTP_SEM
 
 
+_SUBCATEGORY_MARKET_LABELS: dict[str, str] | None = None
+
+
 def _prop_subcategory_market_label(prop_subcategory_id: str) -> str | None:
-    for market, sid in DK_NBA_PREGAME_STAT_CATEGORIES.items():
-        if sid == prop_subcategory_id:
-            return f"ou:{market}"
-    for market, sid in DK_MLB_PREGAME_STAT_CATEGORIES.items():
-        if sid == prop_subcategory_id:
-            return f"ou:{market}"
-    for market, sid in DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES.items():
-        if sid == prop_subcategory_id:
-            return f"milestone:{market}"
-    return None
+    global _SUBCATEGORY_MARKET_LABELS
+    if _SUBCATEGORY_MARKET_LABELS is None:
+        _SUBCATEGORY_MARKET_LABELS = subcategory_market_labels()
+    return _SUBCATEGORY_MARKET_LABELS.get(prop_subcategory_id)
 
 
 MILESTONE_THRESHOLD_RE = re.compile(r"^(\d+)\+$")
@@ -310,9 +307,10 @@ def flatten_milestone_markets_response(
     """Flatten DK milestone (N+) props into rows comparable to Betr half-point lines."""
     inferred = infer_canonical_market_from_dk_payload(payload)
     if inferred and inferred != market:
+        tab_label = _prop_subcategory_market_label(prop_subcategory_id) or prop_subcategory_id
         logger.warning(
-            f"dk milestone prop subcategory {prop_subcategory_id} labeled as {market!r} "
-            f"but DK market text implies {inferred!r} — fix DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES"
+            f"dk milestone prop subcategory {prop_subcategory_id} ({tab_label}) labeled as "
+            f"{market!r} but DK market text implies {inferred!r} — fix dk_subcategories.py"
         )
 
     by_market_threshold = _milestone_selections_by_market_threshold(

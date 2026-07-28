@@ -218,6 +218,30 @@ DK_SUBCATEGORIES: dict[str, LeagueSubcategories] = {
 DEFAULT_DK_LEAGUE = "nba"
 
 
+def _registry_tabs() -> list[tuple[str, str, str, str]]:
+    """Yield ``(state, kind, market, subcategory_id)`` for every configured prop tab."""
+    tabs: list[tuple[str, str, str, str]] = []
+    for subs in DK_SUBCATEGORIES.values():
+        for state_name, state_tabs in (("pregame", subs.pregame), ("live", subs.live)):
+            for kind, _market_map in (("ou", state_tabs.ou), ("milestone", state_tabs.milestone)):
+                configured = (
+                    state_tabs.configured_ou
+                    if kind == "ou"
+                    else state_tabs.configured_milestone
+                )
+                for market, sid in configured.items():
+                    tabs.append((state_name, kind, market, sid))
+    return tabs
+
+
+def subcategory_market_labels() -> dict[str, str]:
+    """Map prop ``subCategoryId`` to a log label (e.g. ``pregame:ou:hits``)."""
+    labels: dict[str, str] = {}
+    for state, kind, market, sid in _registry_tabs():
+        labels[sid] = f"{state}:{kind}:{market}"
+    return labels
+
+
 def subcategories_for_league(league: str) -> LeagueSubcategories:
     """Return the prop-id grid for a DK slate key (unknown league -> NBA)."""
     return DK_SUBCATEGORIES.get(league.lower(), DK_SUBCATEGORIES[DEFAULT_DK_LEAGUE])

@@ -8,6 +8,7 @@ from config.dk_subcategories import (
     DK_NBA_PENDING_STAT_CATEGORIES,
     DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
     DK_NBA_PREGAME_STAT_CATEGORIES,
+    DK_SUBCATEGORIES,
     DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES,
     DK_WNBA_PREGAME_STAT_CATEGORIES,
     PropTabs,
@@ -17,6 +18,22 @@ from config.dk_subcategories import (
     build_markets_url,
     subcategories_for_league,
 )
+
+
+def _configured_registry_tabs() -> list[tuple[str, str, str, str]]:
+    """Walk DK_SUBCATEGORIES independently of subcategory_market_labels (test oracle)."""
+    tabs: list[tuple[str, str, str, str]] = []
+    for subs in DK_SUBCATEGORIES.values():
+        for state_name, state_tabs in (("pregame", subs.pregame), ("live", subs.live)):
+            for kind, market_map in (("ou", state_tabs.ou), ("milestone", state_tabs.milestone)):
+                configured = (
+                    state_tabs.configured_ou
+                    if kind == "ou"
+                    else state_tabs.configured_milestone
+                )
+                for market, sid in configured.items():
+                    tabs.append((state_name, kind, market, sid))
+    return tabs
 
 
 def test_dk_nba_stat_categories_merged_ou_ids():
@@ -256,3 +273,26 @@ def test_prop_tabs_configured_empty_when_all_placeholders():
     tabs = PropTabs(ou=dict.fromkeys(DK_MLB_LIVE_STAT_CATEGORIES, None), milestone={})
     assert tabs.configured_ou == {}
     assert tabs.configured_milestone == {}
+
+
+def test_every_configured_subcategory_id_is_labelable():
+    from scrapers.sportsbooks.dk_api import _prop_subcategory_market_label
+
+    for _state, _kind, _market, sid in _configured_registry_tabs():
+        assert _prop_subcategory_market_label(sid) is not None
+
+
+def test_subcategory_labels_match_registry_position():
+    from config.dk_subcategories import subcategory_market_labels
+
+    labels = subcategory_market_labels()
+    for state, kind, market, sid in _configured_registry_tabs():
+        assert labels[sid] == f"{state}:{kind}:{market}"
+
+
+def test_no_subcategory_id_maps_to_conflicting_meanings():
+    meanings_by_id: dict[str, set[tuple[str, str, str]]] = {}
+    for state, kind, market, sid in _configured_registry_tabs():
+        meanings_by_id.setdefault(sid, set()).add((state, kind, market))
+    for sid, meanings in meanings_by_id.items():
+        assert len(meanings) == 1, f"{sid} maps to {meanings}"

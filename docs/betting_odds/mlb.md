@@ -24,7 +24,15 @@ All rows below are in `DK_MLB_STAT_CATEGORIES`, `MLB_ENABLED_MARKETS` (Betr pars
 
 **Deferred v2:** `HITTER_STRIKEOUTS` (Betr) → `batting_strikeouts` (canonical) — DK pregame milestone-only `17849`; enable with milestone EV + over-side penalty.
 
-Crosswalk + milestone refs: `backend/config/discovery/mlb.yaml`.
+### Milestone policy
+
+N+ milestone tabs are over-only for de-vig: the v2 parser applies an over-side penalty (example
+-180 → ~-145). Pitching K O/U (`15221`) pairs with Strikeouts Thrown Milestones (`17323`) for
+integer/push lines (flat-line policy TBD in `core/flat_line.py`).
+
+DK also posts pitcher milestone tabs labeled "X or Fewer" (an under-side threshold format). Those
+tabs are **not wired** — the parser only reads `N+` labels (`MILESTONE_THRESHOLD_RE`), so an "X or
+Fewer" tab fetches successfully but contributes zero rows. See the DK-only reference table below.
 
 ### Milestone tabs (reference — not scraped in full slate)
 
@@ -33,6 +41,18 @@ Crosswalk + milestone refs: `backend/config/discovery/mlb.yaml`.
 | `STRIKEOUTS` | 17323 | Pair with 15221 for push/flat K lines (TBD) |
 | `HITTER_STRIKEOUTS` | 17849 | Pregame, defer v2 |
 | `HITS_ALLOWED` | 19457 | Reference; O/U at 9886 |
+
+### DK-only, captured, not wired
+
+Confirmed ids parked on capability — not in any `dk_subcategories.py` map.
+
+| DK tab | Pregame id | Live id | Why not wired |
+|--------|------------|---------|---------------|
+| To Record A Win | 9884 | 12964 | Binary O/U tab with no numeric line; parser and EV engine need a line to match |
+| Hits Allowed (X or Fewer) | 19457 | 17478 | Under-side milestone; parser is `N+` only |
+| Walks Allowed (X or Fewer) | 19456 | 17484 | same |
+| Earned Runs (X or Fewer) | 19458 | 17491 | same |
+| Hits + Walks + Earned Runs (X or Fewer) | 19460 | 19572 | same |
 
 ### Live batter milestone (verified 2026-07-23)
 
@@ -102,8 +122,6 @@ python -m scripts.verify_dk_subcategories --event-id <event_id> --verify <id> [<
 To discover unknown ids, read `clientMetadata/subCategoryId` off the DevTools Network request for `event/eventSubcategory/v1/markets`, then confirm each with `--verify` above.
 
 ## Capture checklist (new markets)
-
-Manifest: `backend/config/discovery/mlb.yaml`.
 
 1. **DK event id** — game URL or league slate.
 2. **DK prop subCategoryIds** — DevTools per stat tab; verify with `verify_dk_subcategories`.

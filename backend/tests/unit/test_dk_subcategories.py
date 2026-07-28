@@ -26,12 +26,10 @@ def _configured_registry_tabs() -> list[tuple[str, str, str, str]]:
     tabs: list[tuple[str, str, str, str]] = []
     for subs in DK_SUBCATEGORIES.values():
         for state_name, state_tabs in (("pregame", subs.pregame), ("live", subs.live)):
-            for kind, market_map in (("ou", state_tabs.ou), ("milestone", state_tabs.milestone)):
-                configured = (
-                    state_tabs.configured_ou
-                    if kind == "ou"
-                    else state_tabs.configured_milestone
-                )
+            for kind, configured in (
+                ("ou", state_tabs.configured_ou),
+                ("milestone", state_tabs.configured_milestone),
+            ):
                 for market, sid in configured.items():
                     tabs.append((state_name, kind, market, sid))
     return tabs
@@ -161,6 +159,8 @@ def test_subcategories_for_league_mlb_pregame_ou():
     assert DK_MLB_PREGAME_STAT_CATEGORIES["doubles"] == "17410"
     assert DK_MLB_PREGAME_STAT_CATEGORIES["pitching_strikeouts"] == "15221"
     assert DK_MLB_PREGAME_STAT_CATEGORIES["rbi"] == "8025"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["stolen_bases"] == "17408"
+    assert DK_MLB_PREGAME_STAT_CATEGORIES["h+bb+er"] == "19459"
 
 
 def test_mlb_pregame_configured_ou_matches_full_map():
@@ -238,9 +238,19 @@ def test_mlb_pregame_milestone_ids_verified():
     assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["stolen_bases"] == "18726"
     assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["xbh"] == "19451"
     assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["h+r+rbi"] == "17843"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["h+r+sb"] == "19452"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["h+sb"] == "19454"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["h+bb+sb"] == "19455"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["r+rbi"] == "19453"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["runs"] == "17844"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["singles"] == "17845"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["doubles"] == "17846"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["triples"] == "17847"
+    assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["batting_walks"] == "17848"
     assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["pitching_strikeouts"] == "17323"
     assert DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES["batting_strikeouts"] == "17849"
-    assert len(subcategories_for_league("mlb").pregame.configured_milestone) == 18
+    assert len(DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES) == 18
+    assert "total_outs" not in DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES
 
 
 def test_mlb_live_milestone_batter_ids_verified():
@@ -259,6 +269,9 @@ def test_mlb_live_milestone_batter_ids_verified():
     assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["triples"] == "17487"
     assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["hits"] == "17483"
     assert DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES["pitching_strikeouts"] == "17481"
+    assert len(DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES) == 13
+    for absent in ("xbh", "h+r+sb", "h+sb", "h+bb+sb", "r+rbi", "total_outs"):
+        assert absent not in DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES
 
 
 def test_mlb_live_configured_ou_all_batter_and_pitcher_ids_set():

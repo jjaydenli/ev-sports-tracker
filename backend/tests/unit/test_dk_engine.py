@@ -6,7 +6,9 @@ import httpx
 import pytest
 
 from config.dk_subcategories import (
+    DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES,
     DK_MLB_LIVE_STAT_CATEGORIES,
+    DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES,
     DK_MLB_PREGAME_STAT_CATEGORIES,
     DK_NBA_PREGAME_STAT_CATEGORIES,
     DK_SUBCATEGORIES,
@@ -259,6 +261,7 @@ async def test_scrape_mlb_live_tags_is_live_when_categories_configured(
     slate = json.loads(MLB_LEAGUE_WITH_LIVE_FIXTURE_PATH.read_text(encoding="utf-8"))
     hits_payload = json.loads(MLB_HITS_FIXTURE_PATH.read_text(encoding="utf-8"))
     fetched: list[tuple[str, list[str] | None]] = []
+    fetched_milestone_categories: dict[str, dict[str, str] | None] = {}
 
     async def mock_league(client, league="nba"):
         if league.lower() == "mlb":
@@ -272,6 +275,7 @@ async def test_scrape_mlb_live_tags_is_live_when_categories_configured(
         **kwargs,
     ) -> list[dict]:
         fetched.append((event_id, markets))
+        fetched_milestone_categories[event_id] = kwargs.get("milestone_categories")
         market = (markets or ["hits"])[0]
         if market != "hits":
             return []
@@ -314,3 +318,20 @@ async def test_scrape_mlb_live_tags_is_live_when_categories_configured(
     assert len(live_props) == 18
     assert len(pregame_props) == 18
     assert live_props[0]["market"] == "hits"
+
+    expected_live_milestone = {
+        market: sid
+        for market, sid in DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES.items()
+        if sid and sid != "TBD"
+    }
+    expected_pregame_milestone = {
+        market: sid
+        for market, sid in DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES.items()
+        if sid and sid != "TBD"
+    }
+    assert fetched_milestone_categories[MLB_LIVE_EVENT_ID] == expected_live_milestone
+    assert fetched_milestone_categories[MLB_EVENT_ID] == expected_pregame_milestone
+    assert (
+        fetched_milestone_categories[MLB_LIVE_EVENT_ID]
+        != fetched_milestone_categories[MLB_EVENT_ID]
+    )

@@ -106,6 +106,8 @@ DK_MLB_PREGAME_STAT_CATEGORIES: dict[str, str] = {
     "pitching_walks": "15219",
     "hits_allowed": "9886",
     "rbi": "8025",
+    # DK-only O/U (no Betr match); stolen_bases confirmed 2026-07-27, h+bb+er closes
+    # the pregame/live grid asymmetry with live 19913.
     "stolen_bases": "17408",
     "h+bb+er": "19459",
 }
@@ -123,7 +125,6 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "doubles": "17472",
     "batting_walks": "9536",
     "rbi": "9505",
-    "stolen_bases": "17474",
     # Pitcher live O/U: verified live 2026-07-25 (order matches DK's tab order).
     "pitching_strikeouts": "12960",
     "earned_runs": "19874",
@@ -131,10 +132,15 @@ DK_MLB_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
     "pitching_walks": "12963",
     "total_outs": "17476",
     "h+bb+er": "19913",
+    # Batter live O/U confirmed 2026-07-27; distinct from pregame 17408 and live
+    # milestone 18775.
+    "stolen_bases": "17474",
 }
 
-# MLB milestone tabs (pregame). Live milestone verified 2026-07-23 on KC@DET (34425631)
-# for batters; pitcher live milestone verified 2026-07-27 (pitching_strikeouts only).
+# MLB milestone tabs. Pregame N+ tabs verified 2026-07-27; pitcher markets other
+# than strikeouts use "X or Fewer" labels the parser drops, so those ids stay in
+# docs/betting_odds/mlb.md (DK-only table), not here. Live batter milestone
+# verified 2026-07-23 on KC@DET (34425631).
 DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {
     "home_runs": "17319",
     "hits": "17320",
@@ -168,6 +174,8 @@ DK_MLB_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str | None] = {
     "singles": "17485",
     "doubles": "17486",
     "triples": "17487",
+    # Sole live N+ pitcher milestone; five combo batter keys and total_outs have
+    # no live milestone tab (confirmed absent 2026-07-27).
     "pitching_strikeouts": "17481",
 }
 
@@ -243,12 +251,10 @@ def _registry_tabs() -> list[tuple[str, str, str, str]]:
     tabs: list[tuple[str, str, str, str]] = []
     for subs in DK_SUBCATEGORIES.values():
         for state_name, state_tabs in (("pregame", subs.pregame), ("live", subs.live)):
-            for kind, _market_map in (("ou", state_tabs.ou), ("milestone", state_tabs.milestone)):
-                configured = (
-                    state_tabs.configured_ou
-                    if kind == "ou"
-                    else state_tabs.configured_milestone
-                )
+            for kind, configured in (
+                ("ou", state_tabs.configured_ou),
+                ("milestone", state_tabs.configured_milestone),
+            ):
                 for market, sid in configured.items():
                     tabs.append((state_name, kind, market, sid))
     return tabs

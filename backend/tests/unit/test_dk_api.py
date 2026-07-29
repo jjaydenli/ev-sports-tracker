@@ -6,9 +6,9 @@ import httpx
 import pytest
 
 from config.dk_subcategories import (
-    DK_MLB_STAT_CATEGORIES,
-    DK_NBA_MILESTONE_STAT_CATEGORIES,
-    DK_NBA_STAT_CATEGORIES,
+    DK_MLB_PREGAME_STAT_CATEGORIES,
+    DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
+    DK_NBA_PREGAME_STAT_CATEGORIES,
     build_markets_url,
 )
 from scrapers.sportsbooks.dk_api import (
@@ -73,7 +73,7 @@ def test_flatten_markets_response_produces_one_row_per_player(points_payload):
         points_payload,
         event_id=EVENT_ID,
         market="points",
-        prop_subcategory_id=DK_NBA_STAT_CATEGORIES["points"],
+        prop_subcategory_id=DK_NBA_PREGAME_STAT_CATEGORIES["points"],
     )
 
     assert len(props) == 16
@@ -84,7 +84,7 @@ def test_flatten_markets_response_produces_one_row_per_player(points_payload):
     assert shai["under_odds"] == -115
     assert shai["is_main_line"] is True
     assert shai["market_id"] == "336952528"
-    assert shai["subcategory_id"] == DK_NBA_STAT_CATEGORIES["points"]
+    assert shai["subcategory_id"] == DK_NBA_PREGAME_STAT_CATEGORIES["points"]
     assert shai["line_kind"] == "ou"
 
 
@@ -93,7 +93,7 @@ def test_flatten_steals_ou_fixture(steals_ou_payload):
         steals_ou_payload,
         event_id=EVENT_ID,
         market="steals",
-        prop_subcategory_id=DK_NBA_STAT_CATEGORIES["steals"],
+        prop_subcategory_id=DK_NBA_PREGAME_STAT_CATEGORIES["steals"],
     )
     assert len(props) == 2
     main = next(p for p in props if p["line"] == 1.5)
@@ -112,8 +112,30 @@ def test_infer_canonical_market_from_dk_label():
     assert infer_canonical_market_from_dk_label("Luis Arraez Hits O/U") == "hits"
     assert infer_canonical_market_from_dk_label("Casey Schmitt Total Bases O/U") == "total_bases"
     assert infer_canonical_market_from_dk_label("Connor Prielipp Hits Allowed O/U") == "hits_allowed"
-    assert infer_canonical_market_from_dk_label("Connor Prielipp Strikeouts Thrown O/U") == "strikeouts"
+    assert (
+        infer_canonical_market_from_dk_label("Connor Prielipp Strikeouts Thrown O/U")
+        == "pitching_strikeouts"
+    )
     assert infer_canonical_market_from_dk_label("Byron Buxton RBIs O/U") == "rbi"
+    assert (
+        infer_canonical_market_from_dk_label(
+            "Connor Prielipp Hits + Walks + Earned Runs O/U"
+        )
+        == "h+bb+er"
+    )
+    assert infer_canonical_market_from_dk_label("XBH Milestones") == "xbh"
+    assert (
+        infer_canonical_market_from_dk_label("Hits, Runs, Stolen Bases Milestones")
+        == "h+r+sb"
+    )
+    assert (
+        infer_canonical_market_from_dk_label("Hits, Stolen Bases Milestones") == "h+sb"
+    )
+    assert (
+        infer_canonical_market_from_dk_label("Hits, Walks, Stolen Bases Milestones")
+        == "h+bb+sb"
+    )
+    assert infer_canonical_market_from_dk_label("Runs + RBIs Milestones") == "r+rbi"
 
 
 def test_infer_canonical_market_from_steals_milestone_fixture(steals_milestone_payload):
@@ -130,7 +152,7 @@ def test_flatten_milestone_steals_fixture(steals_milestone_payload):
         steals_milestone_payload,
         event_id=EVENT_ID,
         market="steals",
-        prop_subcategory_id=DK_NBA_MILESTONE_STAT_CATEGORIES["steals"],
+        prop_subcategory_id=DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["steals"],
     )
     assert len(props) == 3
     two_plus = next(p for p in props if p["milestone_threshold"] == 2)
@@ -145,12 +167,12 @@ def test_flatten_markets_response_uses_market_key_directly(points_payload):
         points_payload,
         event_id=EVENT_ID,
         market="pts+reb",
-        prop_subcategory_id=DK_NBA_STAT_CATEGORIES["pts+reb"],
+        prop_subcategory_id=DK_NBA_PREGAME_STAT_CATEGORIES["pts+reb"],
     )
 
     assert props
     assert props[0]["market"] == "pts+reb"
-    assert props[0]["subcategory_id"] == DK_NBA_STAT_CATEGORIES["pts+reb"]
+    assert props[0]["subcategory_id"] == DK_NBA_PREGAME_STAT_CATEGORIES["pts+reb"]
 
 
 @pytest.mark.asyncio
@@ -161,7 +183,7 @@ async def test_fetch_event_subcategory_markets_returns_none_on_http_error():
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as client:
         result = await fetch_event_subcategory_markets(
-            client, EVENT_ID, DK_NBA_STAT_CATEGORIES["points"]
+            client, EVENT_ID, DK_NBA_PREGAME_STAT_CATEGORIES["points"]
         )
 
     assert result is None
@@ -181,7 +203,7 @@ async def test_fetch_event_subcategory_markets_retries_transient_403(points_payl
     transport = httpx.MockTransport(handler)
     async with httpx.AsyncClient(transport=transport) as client:
         result = await fetch_event_subcategory_markets(
-            client, EVENT_ID, DK_NBA_STAT_CATEGORIES["points"]
+            client, EVENT_ID, DK_NBA_PREGAME_STAT_CATEGORIES["points"]
         )
 
     assert result == points_payload
@@ -194,7 +216,7 @@ def test_flatten_mlb_hits_fixture():
         payload,
         event_id=MLB_EVENT_ID,
         market="hits",
-        prop_subcategory_id=DK_MLB_STAT_CATEGORIES["hits"],
+        prop_subcategory_id=DK_MLB_PREGAME_STAT_CATEGORIES["hits"],
     )
     assert len(props) == 18
     arraez = next(p for p in props if p["player"] == "Luis Arraez")
@@ -209,7 +231,7 @@ def test_flatten_mlb_total_bases_fixture():
         payload,
         event_id=MLB_EVENT_ID,
         market="total_bases",
-        prop_subcategory_id=DK_MLB_STAT_CATEGORIES["total_bases"],
+        prop_subcategory_id=DK_MLB_PREGAME_STAT_CATEGORIES["total_bases"],
     )
     assert props
     assert props[0]["market"] == "total_bases"
@@ -225,7 +247,7 @@ def test_infer_canonical_market_from_mlb_hits_fixture():
     ("fixture_name", "market", "subcategory_id"),
     [
         ("dk_markets_mlb_singles.json", "singles", "17409"),
-        ("dk_markets_mlb_strikeouts.json", "strikeouts", "15221"),
+        ("dk_markets_mlb_strikeouts.json", "pitching_strikeouts", "15221"),
         ("dk_markets_mlb_hits_allowed.json", "hits_allowed", "9886"),
         ("dk_markets_mlb_rbi.json", "rbi", "8025"),
     ],
@@ -302,8 +324,8 @@ async def test_fetch_and_flatten_markets(points_payload):
 async def test_fetch_and_flatten_all_for_market_merges_ou_and_milestone(
     steals_ou_payload, steals_milestone_payload
 ):
-    ou_url = build_markets_url(EVENT_ID, DK_NBA_STAT_CATEGORIES["steals"])
-    ms_url = build_markets_url(EVENT_ID, DK_NBA_MILESTONE_STAT_CATEGORIES["steals"])
+    ou_url = build_markets_url(EVENT_ID, DK_NBA_PREGAME_STAT_CATEGORIES["steals"])
+    ms_url = build_markets_url(EVENT_ID, DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES["steals"])
 
     async def handler(request: httpx.Request) -> httpx.Response:
         if str(request.url) == ou_url:
@@ -397,7 +419,7 @@ def test_fetch_event_subcategory_markets_survives_separate_asyncio_runs(points_p
         transport = httpx.MockTransport(handler)
         async with httpx.AsyncClient(transport=transport) as client:
             return await fetch_event_subcategory_markets(
-                client, EVENT_ID, DK_NBA_STAT_CATEGORIES["points"]
+                client, EVENT_ID, DK_NBA_PREGAME_STAT_CATEGORIES["points"]
             )
 
     first = asyncio.run(fetch_once())

@@ -40,7 +40,7 @@ def test_parse_player_ou_market_type():
         True,
     )
     assert parse_player_ou_market_type("PITCHER_C_TOTAL_STRIKEOUTS", league="mlb") == (
-        "strikeouts",
+        "pitching_strikeouts",
         False,
     )
     assert parse_player_ou_market_type("TO_SCORE_25+_POINTS") is None
@@ -252,14 +252,14 @@ def test_flatten_mlb_pitcher_strikeouts_fixture():
         payload,
         event_id="35730475",
         tab="pitcher-props",
-        markets={"strikeouts"},
+        markets={"pitching_strikeouts"},
         league="mlb",
     )
 
     assert len(props) == 2
     players = {prop["player"] for prop in props}
     assert players == {"Parker Messick", "Shane Drohan"}
-    assert all(prop["market"] == "strikeouts" for prop in props)
+    assert all(prop["market"] == "pitching_strikeouts" for prop in props)
     messick = next(p for p in props if p["player"] == "Parker Messick")
     main = next(line for line in messick["lines"] if line["is_main_line"])
     assert main["line"] == 5.5
@@ -284,7 +284,7 @@ def test_flatten_mlb_milestone_fixture():
         payload,
         event_id=MILESTONE_EVENT_ID,
         tab="pitcher-props",
-        markets={"strikeouts"},
+        markets={"pitching_strikeouts"},
         league="mlb",
     )
 

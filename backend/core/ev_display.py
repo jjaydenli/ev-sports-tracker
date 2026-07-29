@@ -50,7 +50,9 @@ _SRC_UNKNOWN = "?"
 # Bare single letters and team-code collisions are spelled out; established multi-letter
 # notation is kept as-is.
 MARKET_ABBREV: dict[str, str] = {
-    # MLB — batting
+    # MLB — batting (explicit "batting_" prefix where DK offers both sides of a stat,
+    # e.g. strikeouts/walks; box scores reuse K/BB for both because batting and pitching
+    # live in separate tables — ours do not, so the collision needs a name, not a table).
     "hits": "HITS",
     # "TB" is standard notation but collides with the Tampa Bay Rays team code, which
     # renders a few columns away in Game (e.g. "[TB]@NYY | ▲ | TB").
@@ -61,14 +63,23 @@ MARKET_ABBREV: dict[str, str] = {
     "runs": "RUNS",
     "singles": "1B",
     "doubles": "2B",
-    "walks": "BB",
-    # MLB — pitching ("_A" = allowed, to stay distinct from the batting markets; box scores
-    # reuse H/BB for both because batting and pitching live in separate tables — ours do not).
-    "strikeouts": "K",
+    "triples": "3B",
+    "stolen_bases": "SB",
+    "batting_walks": "BB",
+    "batting_strikeouts": "SO",
+    # MLB — pitching ("_A" = allowed, matching the pre-existing hits_allowed/pitching_walks
+    # style)
+    "pitching_strikeouts": "K",
     "earned_runs": "ER",
     "total_outs": "OUTS",
     "hits_allowed": "HITS_A",
     "pitching_walks": "BB_A",
+    "h+bb+er": "H+BB+ER",
+    "xbh": "XBH",
+    "h+r+sb": "H+R+SB",
+    "h+sb": "H+SB",
+    "h+bb+sb": "H+BB+SB",
+    "r+rbi": "R+RBI",
     # NBA / WNBA — official NBA/WNBA glossary notation
     "points": "PTS",
     "rebounds": "REB",

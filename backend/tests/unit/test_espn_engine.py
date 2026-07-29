@@ -17,7 +17,7 @@ FINAL_EVENT_ID = "ffffffff-0000-1111-2222-333333333333"
 
 def test_mlb_default_markets():
     engine = ESPNEngine(league="mlb")
-    assert "strikeouts" in engine.markets
+    assert "pitching_strikeouts" in engine.markets
     assert engine.markets == set(default_scrape_markets_for_league("mlb"))
 
 
@@ -83,10 +83,10 @@ async def test_scrape_pitcher_strikeouts_from_fixture(monkeypatch):
     payload = json.loads(PITCHER_DRAWER.read_text(encoding="utf-8"))
     _patch_chain(monkeypatch, drawer_payload=payload)
 
-    engine = ESPNEngine(markets=["strikeouts"], league="mlb")
+    engine = ESPNEngine(markets=["pitching_strikeouts"], league="mlb")
     props = await engine.scrape()
 
-    assert {p["market"] for p in props} == {"strikeouts"}
+    assert {p["market"] for p in props} == {"pitching_strikeouts"}
     assert {p["player"] for p in props} == {"Framber Valdez", "Gerrit Cole"}
     assert props[0]["league"] == "MLB"
     assert props[0]["event_start"] == "2026-06-22T22:10:00Z"
@@ -234,7 +234,7 @@ async def test_scrape_stamps_is_live_for_in_play(monkeypatch):
     payload = json.loads(PITCHER_DRAWER.read_text(encoding="utf-8"))
     _patch_chain_multi_game(monkeypatch, drawer_payload=payload)
 
-    engine = ESPNEngine(markets=["strikeouts"], league="mlb")
+    engine = ESPNEngine(markets=["pitching_strikeouts"], league="mlb")
     props = await engine.scrape()
 
     pre_game_props = [p for p in props if p.get("event_id") == EVENT_ID]

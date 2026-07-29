@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-07-24
+**Last verified:** 2026-07-27
 
 ## 1. Project Overview
 
@@ -31,7 +31,7 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 
 - **Role:** Primary sharp O/U + milestone (`N+`) ladders; main input to `core/ladder_index.py` and `core/line_adjustment.py`.
 - **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`
-- **Live (MLB):** Pregame + in-play slates; `DK_MLB_LIVE_STAT_CATEGORIES` (live subCategoryIds differ from pregame).
+- **Live (MLB):** Pregame + in-play O/U and N+ milestone tabs via the pregame/live × ou/milestone grid (`subcategories_for_league`, `config/dk_subcategories.py`); DK reissues subCategoryIds per game state. New combo keys (`xbh`, `h+r+sb`, `h+sb`, `h+bb+sb`, `r+rbi`) are DK-captured; under-side "X or Fewer" pitcher tabs stay docs-only.
 - **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md)
 
 ### FanDuel (sharp sportsbook)
@@ -65,7 +65,7 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 
 - **Display vs matching:** `game` (AWAY@HOME) is UI-only; match gate never reads it. `config/team_abbrev.py` canonicalizes DK/ESPN/FD display keys.
 - **Match keys:** `core/ladder_index.py` — `build_match_context_key` → `player|market|league|[event_hour]|[live]`; `build_player_market_key` → `player|market|[event_hour]|[live]`. Pregame: `event_hour` = UTC hour-floor when `event_start` present. Live: omit `event_hour` (`|live` suffix only). Pregame without `event_start` fails closed. Ambiguous same-key+line odds collision drops the `pm_key`.
-- **Market mapping:** `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`.
+- **Market mapping:** `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`; a stat on both sides of the ball gets explicit `batting_`/`pitching_` prefixes on both names, never one bare shared name.
 - **De-vig (O/U):** American odds → implied probs; multiplicative removal in `utils/math_utils.py`.
 - **De-vig (milestone):** `devig_milestone_fair_over` in `core/resolution_math.py` (ladder-normalize else hold-shrink; `MILESTONE_MIN_FAIR_OVER` gate).
 - **o0.5 equivalence:** `_filter_sharp_props_by_match_context` may borrow `hits`↔`total_bases` at line 0.5 per book (`O05_EQUIVALENT_MARKETS`), including one-sided milestone props.
@@ -98,7 +98,7 @@ ev-sports-tracker/
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
-    └── tests/                          # fixtures, integration, unit; 682 tests
+    └── tests/                          # fixtures, integration, unit; 669 tests
 ```
 
 **EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).

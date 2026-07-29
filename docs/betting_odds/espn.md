@@ -70,7 +70,7 @@ group-id → canonical: [`config/espn_markets.py`](../../backend/config/espn_mar
 
 | League | Slate config | Markets |
 |--------|--------------|---------|
-| **MLB** (shipped) | `ESPN_LEAGUE_SLATES["mlb"]` (canonicalUrl + Lines section id) | strikeouts, hits, total_bases, rbi, home_runs (O/U) |
+| **MLB** (shipped) | `ESPN_LEAGUE_SLATES["mlb"]` (canonicalUrl + Lines section id) | pitching_strikeouts, hits, total_bases, rbi, home_runs (O/U) |
 | **WNBA** (registered) | `ESPN_LEAGUE_SLATES["wnba"]` — canonicalUrl/section ids TBD after its own capture | TBD |
 | NBA | Deferred (out of season) | — |
 

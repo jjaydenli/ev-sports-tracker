@@ -83,7 +83,7 @@ def test_parse_betr_prop_mlb_doubles():
     assert result["market"] == "doubles"
 
 
-def test_parse_betr_prop_mlb_skips_deferred_hitter_strikeouts():
+def test_parse_betr_prop_mlb_skips_deferred_batting_strikeouts():
     assert (
         parse_betr_prop(
             _raw_betr_prop(

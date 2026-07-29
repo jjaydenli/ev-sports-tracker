@@ -8,12 +8,7 @@ import httpx
 from loguru import logger
 
 from config.api_headers import DK_BASE_HEADERS
-from config.dk_subcategories import (
-    configured_live_stat_categories_for_league,
-    configured_stat_categories_for_league,
-    milestone_categories_for_league,
-    stat_categories_for_league,
-)
+from config.dk_subcategories import subcategories_for_league
 from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.dk_api import (
     LIVE_EVENT_STATUSES,
@@ -75,8 +70,9 @@ class DraftKingsEngine(BaseScraper):
             event_ids=event_ids, game_urls=game_urls
         )
         self.league = league
-        self.stat_categories = stat_categories_for_league(league)
-        self.milestone_categories = milestone_categories_for_league(league)
+        self.subs = subcategories_for_league(league)
+        self.stat_categories = self.subs.pregame.ou
+        self.milestone_categories = self.subs.pregame.configured_milestone
         self.markets = markets or list(self.stat_categories.keys())
 
     async def authenticate(self) -> str | None:
@@ -95,14 +91,15 @@ class DraftKingsEngine(BaseScraper):
 
         game_map = build_event_game_map(payload)
         start_map = build_event_start_map(payload)
-        if self.league.lower() == "mlb":
-            all_ids = extract_event_ids(
-                payload, statuses=SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
-            )
-            live_ids = set(extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES))
-        else:
-            all_ids = extract_event_ids(payload)
-            live_ids = set()
+        # Live detection runs for every league, not just MLB: a league with no
+        # configured live subCategoryIds yet still ends up skipped correctly in
+        # scrape() (`if not live_ou: continue`), so this is behavior-neutral
+        # until a league's live ids land — at which point no engine change is
+        # needed to pick them up.
+        all_ids = extract_event_ids(
+            payload, statuses=SCRAPABLE_EVENT_STATUSES | LIVE_EVENT_STATUSES
+        )
+        live_ids = set(extract_event_ids(payload, statuses=LIVE_EVENT_STATUSES))
 
         logger.info(
             f"discovered {len(all_ids)} {self.league.upper()} events from league slate "
@@ -111,7 +108,7 @@ class DraftKingsEngine(BaseScraper):
         return all_ids, live_ids, game_map, start_map
 
     async def scrape(self) -> list[dict[str, Any]]:
-        scrape_categories = configured_stat_categories_for_league(self.league)
+        scrape_categories = self.subs.pregame.configured_ou
         if not scrape_categories:
             logger.error(
                 f"no configured DK subCategoryIds for league {self.league!r} "
@@ -129,7 +126,8 @@ class DraftKingsEngine(BaseScraper):
             logger.error(f"no scrapeable DK markets for league {self.league!r}")
             return []
 
-        live_categories = configured_live_stat_categories_for_league(self.league)
+        live_ou = self.subs.live.configured_ou
+        live_milestone = self.subs.live.configured_milestone
         all_props: list[dict[str, Any]] = []
 
         async with httpx.AsyncClient(
@@ -154,15 +152,15 @@ class DraftKingsEngine(BaseScraper):
             for event_id in event_ids:
                 is_live = event_id in live_event_ids
                 if is_live:
-                    if not live_categories:
+                    if not live_ou:
                         continue
                     tasks.append(
                         fetch_event_all_markets(
                             client,
                             event_id,
-                            list(live_categories.keys()),
-                            stat_categories=live_categories,
-                            milestone_categories={},
+                            list(live_ou.keys()),
+                            stat_categories=live_ou,
+                            milestone_categories=live_milestone,
                         )
                     )
                 else:

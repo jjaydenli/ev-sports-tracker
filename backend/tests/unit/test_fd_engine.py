@@ -115,7 +115,7 @@ def test_default_markets_include_core_and_extended_stats():
 
 def test_mlb_default_markets_include_strikeouts():
     engine = FanDuelEngine(league="mlb")
-    assert "strikeouts" in engine.markets
+    assert "pitching_strikeouts" in engine.markets
 
 
 def test_scrape_targets_maps_extended_markets_to_sgp_tab():
@@ -147,12 +147,12 @@ async def test_scrape_mlb_strikeouts_from_fixture(mlb_pitcher_payload, monkeypat
     )
 
     engine = FanDuelEngine(
-        event_ids=[MLB_EVENT_ID], markets=["strikeouts"], league="mlb"
+        event_ids=[MLB_EVENT_ID], markets=["pitching_strikeouts"], league="mlb"
     )
     props = await engine.scrape()
 
     assert len(props) == 2
-    assert {prop["market"] for prop in props} == {"strikeouts"}
+    assert {prop["market"] for prop in props} == {"pitching_strikeouts"}
     assert props[0]["league"] == "MLB"
     assert count_fd_line_rows(props) == 2
 

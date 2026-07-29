@@ -11,11 +11,11 @@ from loguru import logger
 from config.api_headers import DK_BASE_HEADERS
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
-    DK_MLB_STAT_CATEGORIES,
-    DK_NBA_MILESTONE_STAT_CATEGORIES,
-    DK_NBA_STAT_CATEGORIES,
+    DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
+    DK_NBA_PREGAME_STAT_CATEGORIES,
     build_league_events_url,
     build_markets_url,
+    subcategory_market_labels,
 )
 from utils.formatting import normalize_odds_string
 
@@ -49,17 +49,14 @@ def _dk_markets_http_sem() -> asyncio.Semaphore:
     return _DK_MARKETS_HTTP_SEM
 
 
+_SUBCATEGORY_MARKET_LABELS: dict[str, str] | None = None
+
+
 def _prop_subcategory_market_label(prop_subcategory_id: str) -> str | None:
-    for market, sid in DK_NBA_STAT_CATEGORIES.items():
-        if sid == prop_subcategory_id:
-            return f"ou:{market}"
-    for market, sid in DK_MLB_STAT_CATEGORIES.items():
-        if sid == prop_subcategory_id:
-            return f"ou:{market}"
-    for market, sid in DK_NBA_MILESTONE_STAT_CATEGORIES.items():
-        if sid == prop_subcategory_id:
-            return f"milestone:{market}"
-    return None
+    global _SUBCATEGORY_MARKET_LABELS
+    if _SUBCATEGORY_MARKET_LABELS is None:
+        _SUBCATEGORY_MARKET_LABELS = subcategory_market_labels()
+    return _SUBCATEGORY_MARKET_LABELS.get(prop_subcategory_id)
 
 
 MILESTONE_THRESHOLD_RE = re.compile(r"^(\d+)\+$")
@@ -92,13 +89,39 @@ _DK_LABEL_MARKET_PATTERNS: tuple[tuple[str, str], ...] = (
     ("hits + runs + rbis", "h+r+rbi"),
     ("hits runs rbis", "h+r+rbi"),
     ("h+r+rbi", "h+r+rbi"),
+    ("hits + walks + earned runs", "h+bb+er"),
+    ("hits walks earned runs", "h+bb+er"),
+    ("h+bb+er", "h+bb+er"),
+    # Combo keys before single-stat needles they contain (hits/runs/walks/stolen).
+    ("hits + runs + stolen bases", "h+r+sb"),
+    ("hits, runs, stolen bases", "h+r+sb"),
+    ("hits runs stolen bases", "h+r+sb"),
+    ("h+r+sb", "h+r+sb"),
+    ("hits + walks + stolen bases", "h+bb+sb"),
+    ("hits, walks, stolen bases", "h+bb+sb"),
+    ("hits walks stolen bases", "h+bb+sb"),
+    ("h+bb+sb", "h+bb+sb"),
+    ("hits + stolen bases", "h+sb"),
+    ("hits, stolen bases", "h+sb"),
+    ("hits stolen bases", "h+sb"),
+    ("h+sb", "h+sb"),
+    ("runs + rbis", "r+rbi"),
+    ("runs + rbi", "r+rbi"),
+    ("runs rbis", "r+rbi"),
+    ("r+rbi", "r+rbi"),
+    ("extra base hits", "xbh"),
+    ("xbh", "xbh"),
     ("hits allowed", "hits_allowed"),
     ("earned runs allowed", "earned_runs"),
     ("walks allowed", "pitching_walks"),
-    ("strikeouts thrown", "strikeouts"),
-    ("walks (batter)", "walks"),
+    ("strikeouts thrown", "pitching_strikeouts"),
+    ("strikeouts (batter)", "batting_strikeouts"),
+    ("walks (batter)", "batting_walks"),
     ("rbis o/u", "rbi"),
     ("rbis", "rbi"),
+    ("home runs", "home_runs"),
+    ("stolen bases", "stolen_bases"),
+    ("triples", "triples"),
     ("runs o/u", "runs"),
     ("outs o/u", "total_outs"),
     ("hits o/u", "hits"),
@@ -303,9 +326,10 @@ def flatten_milestone_markets_response(
     """Flatten DK milestone (N+) props into rows comparable to Betr half-point lines."""
     inferred = infer_canonical_market_from_dk_payload(payload)
     if inferred and inferred != market:
+        tab_label = _prop_subcategory_market_label(prop_subcategory_id) or prop_subcategory_id
         logger.warning(
-            f"dk milestone prop subcategory {prop_subcategory_id} labeled as {market!r} "
-            f"but DK market text implies {inferred!r} — fix DK_NBA_MILESTONE_STAT_CATEGORIES"
+            f"dk milestone prop subcategory {prop_subcategory_id} ({tab_label}) labeled as "
+            f"{market!r} but DK market text implies {inferred!r} — fix dk_subcategories.py"
         )
 
     by_market_threshold = _milestone_selections_by_market_threshold(
@@ -546,7 +570,7 @@ async def fetch_and_flatten_markets(
     stat_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch O/U markets for one category and return flattened master-board rows."""
-    categories = stat_categories or DK_NBA_STAT_CATEGORIES
+    categories = stat_categories or DK_NBA_PREGAME_STAT_CATEGORIES
     prop_subcategory_id = categories[market]
     payload = await fetch_event_subcategory_markets(
         client, event_id, prop_subcategory_id
@@ -568,7 +592,7 @@ async def _fetch_and_flatten_milestone_markets(
     *,
     milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
-    milestones = milestone_categories or DK_NBA_MILESTONE_STAT_CATEGORIES
+    milestones = milestone_categories or DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
     milestone_prop_subcategory_id = milestones.get(market)
     if not milestone_prop_subcategory_id:
         return []
@@ -614,8 +638,8 @@ async def fetch_event_all_markets(
     milestone_categories: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
     """Fetch and flatten all configured O/U and milestone tabs for one event in parallel."""
-    categories = stat_categories or DK_NBA_STAT_CATEGORIES
-    milestones = milestone_categories or DK_NBA_MILESTONE_STAT_CATEGORIES
+    categories = stat_categories or DK_NBA_PREGAME_STAT_CATEGORIES
+    milestones = milestone_categories or DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
     market_list = markets or list(categories.keys())
     coros = []
     for market in market_list:

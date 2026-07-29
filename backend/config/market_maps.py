@@ -1,4 +1,16 @@
-"""Canonical market translations across DFS and sportsbook platforms."""
+"""Canonical market translations across DFS and sportsbook platforms.
+
+Naming convention for a stat that exists on both sides of the ball (e.g. a
+strikeout is thrown by a pitcher and suffered by a batter): give BOTH
+canonical names an explicit prefix, ``batting_``/``pitching_``, rather than
+leaving one bare. Bare names look unambiguous right up until a book adds the
+other side under the same word — that happened once already (``strikeouts``
+silently meant pitcher-thrown for years; DK's 2026-07-23 batter-strikeouts
+milestone tab exposed it). Established asymmetric names that predate this
+convention and are not actually ambiguous (``hits`` / ``hits_allowed``,
+``earned_runs``, ``total_outs``) are left as-is — the ``_allowed``/``earned_``
+wording is already self-disambiguating and a rename would just be churn.
+"""
 
 DABBLE_MARKET_MAP = {
     "points": "points",
@@ -80,7 +92,7 @@ BETR_MARKET_MAP = {
     "doubles": "doubles",
     "double": "doubles",
     "runs": "runs",
-    "walks": "walks",
+    "walks": "batting_walks",
     "earned runs": "earned_runs",
     "earned_runs": "earned_runs",
     "total outs": "total_outs",
@@ -89,7 +101,7 @@ BETR_MARKET_MAP = {
     "pitching_walks": "pitching_walks",
     "hits allowed": "hits_allowed",
     "hits_allowed": "hits_allowed",
-    "strikeouts": "strikeouts",
+    "strikeouts": "pitching_strikeouts",
     "runs batted in": "rbi",
     "runs_batted_in": "rbi",
     "rbi": "rbi",
@@ -119,11 +131,11 @@ DK_MARKET_MAP = {
     "doubles": "doubles",
     "runs o/u": "runs",
     "runs": "runs",
-    "walks (batter)": "walks",
+    "walks (batter)": "batting_walks",
     "walks allowed": "pitching_walks",
     "earned runs allowed": "earned_runs",
     "outs o/u": "total_outs",
-    "strikeouts thrown": "strikeouts",
+    "strikeouts thrown": "pitching_strikeouts",
     "hits allowed": "hits_allowed",
     "rbis o/u": "rbi",
     "rbis": "rbi",
@@ -152,12 +164,12 @@ PLATFORM_MARKET_MAPPINGS = {
         "runs": "runs",
         "singles": "singles",
         "doubles": "doubles",
-        "walks": "walks",
+        "batting_walks": "batting_walks",
         "earned_runs": "earned_runs",
         "total_outs": "total_outs",
         "pitching_walks": "pitching_walks",
         "hits_allowed": "hits_allowed",
-        "strikeouts": "strikeouts",
+        "pitching_strikeouts": "pitching_strikeouts",
         "rbi": "rbi",
     },
     "espn": {
@@ -176,12 +188,12 @@ PLATFORM_MARKET_MAPPINGS = {
         "runs": "runs",
         "singles": "singles",
         "doubles": "doubles",
-        "walks": "walks",
+        "batting_walks": "batting_walks",
         "earned_runs": "earned_runs",
         "total_outs": "total_outs",
         "pitching_walks": "pitching_walks",
         "hits_allowed": "hits_allowed",
-        "strikeouts": "strikeouts",
+        "pitching_strikeouts": "pitching_strikeouts",
         "rbi": "rbi",
     },
 }

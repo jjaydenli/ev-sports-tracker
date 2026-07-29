@@ -78,7 +78,7 @@ def test_dk_parser_strikeouts_fixture_golden(snapshot: SnapshotAssertion) -> Non
     raw = flatten_markets_response(
         payload,
         event_id=_DK_MLB_EVENT_ID,
-        market="strikeouts",
+        market="pitching_strikeouts",
         prop_subcategory_id="1001",
     )
     props = sorted([_clean_prop(p) for p in parse_dk_props(raw)], key=_sort_key)
@@ -98,7 +98,7 @@ def test_fd_parser_pitcher_strikeouts_golden(snapshot: SnapshotAssertion) -> Non
         payload,
         event_id=_FD_PITCHER_EVENT_ID,
         tab="pitcher-props",
-        markets={"strikeouts"},
+        markets={"pitching_strikeouts"},
         league="mlb",
     )
     props = sorted([_clean_prop(p) for p in parse_fd_props(raw)], key=_sort_key)

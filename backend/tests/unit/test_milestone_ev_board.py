@@ -5,7 +5,12 @@ import pytest
 
 from config.settings import MILESTONE_ASSUMED_HOLD, MILESTONE_MIN_FAIR_OVER
 from core.engine import find_ev_opportunities, normalize_player_name
-from core.ev_display import format_ev_opportunity_row
+from core.ev_display import (
+    _MILESTONE_GLYPH,
+    _format_src,
+    format_ev_opportunity_row,
+    format_ou_odds,
+)
 from core.ladder_index import (
     build_milestone_ladder,
     build_milestone_ladders,
@@ -348,7 +353,7 @@ def test_cli_renders_milestone_src_badge():
         "line_source": "milestone_exact",
     }
     line = format_ev_opportunity_row(row)
-    assert "ms🔶" in line
+    assert _format_src({"line_source": "milestone_exact"}) in line
 
 
 def test_fd_milestone_admitted_on_ev_board():
@@ -389,7 +394,7 @@ def test_fd_milestone_admitted_on_ev_board():
     assert row["sharp_books"] == ["FanDuel"]
     assert row["fd_over_odds"] is not None
     assert row["dk_over_odds"] is None
-    assert "ms🔶" in format_ev_opportunity_row(row)
+    assert _format_src({"line_source": "milestone_exact"}) in format_ev_opportunity_row(row)
 
 
 def test_fd_ou_preferred_over_fd_milestone():
@@ -493,8 +498,10 @@ def test_admitted_milestone_surfaces_when_dk_ou_takes_precedence():
     assert row["not_true_devig"] is False
     assert row["sharp_books"] == ["DraftKings", "FanDuel"]
     line = format_ev_opportunity_row(row)
-    assert "-220/🔶" in line
+    assert format_ou_odds(-220, None, milestone_one_sided=True) in line
     assert "exact" in line
+    assert _MILESTONE_GLYPH in line
+    assert "🔶" not in line
 
 
 def test_dk_milestone_wins_when_fd_collides_at_same_line():

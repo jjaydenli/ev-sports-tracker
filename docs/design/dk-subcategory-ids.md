@@ -66,8 +66,43 @@ not wired.
 
 - The market-first grid and the row-per-id record table (decision 1).
 - Wiring the pitcher win market as a canonical key (decision 8).
-- WNBA and NBA live O/U and milestone capture, blocked on catching those leagues mid-game to read
-  ids off live network traffic; the engine needs no changes since it is already league-generic.
+- NBA live O/U and milestone capture, blocked on catching an NBA game mid-game to read ids off
+  live network traffic (see *WNBA capture addendum* below); the engine needs no changes since it
+  is already league-generic.
+
+## WNBA capture addendum (2026-08-04)
+
+WNBA pregame and live O/U and milestone ids, verified against live WNBA events. The prior identity
+alias (`DK_WNBA_*_STAT_CATEGORIES = DK_NBA_*_STAT_CATEGORIES`) held only by accident, and only for
+one axis:
+
+- **Pregame O/U ids match NBA's exactly** for every market WNBA carries, so the alias is kept
+  (filtered to drop `steals`/`blocks`/`stl+blk`, confirmed absent from the WNBA board rather than
+  merely unprobed. A full alias would have requested tabs WNBA doesn't post and gotten back
+  empty markets, the same failure class as a stale id).
+- **Pregame and live milestone ids do not match NBA's** (e.g. WNBA points milestone `16477` vs
+  NBA's `2716477`), so `DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES` and the new
+  `DK_WNBA_LIVE_MILESTONE_STAT_CATEGORIES` are standalone dicts, not aliases.
+- **Live O/U** (`DK_WNBA_LIVE_STAT_CATEGORIES`) is new and standalone; `reb+ast` wasn't caught live
+  in this capture and stays `None` (pending) until a future game.
+- **Double-double / triple-double** are confirmed for WNBA in both pregame and live, and
+  deliberately **not** wired. DraftKings quotes them as a single `Yes` selection with no numeric
+  threshold, which `_parse_milestone_threshold` cannot read, so the tab fetches cleanly and yields
+  zero rows. The ids are recorded in `docs/betting_odds/draftkings.md` instead, the same handling
+  the "X or Fewer" pitcher tabs get, and a guard fails if one is wired back without the parser and
+  pricing work behind it. NBA's equivalents remain unprobed (`DK_NBA_PENDING_STAT_CATEGORIES`).
+
+  Recording rather than wiring is the deliberate call: a wired id that yields nothing is
+  indistinguishable at runtime from a market the book has not posted yet, so it would read as
+  working coverage. The blocker is also not only parsing. A binary market is one ladder rung, and
+  `devig_milestone_fair_over` normalizes across a segment of at least two, so enabling these means
+  choosing how to de-vig a single-rung longshot that has no over/under rows to estimate a hold
+  from. That is a pricing decision with its own evidence requirements, not a config change.
+
+This settles the open question from the original decision log about whether WNBA needed a
+shared-pool-with-membership structure once market divergence was confirmed: it didn't, because the
+divergence turned out to be per-axis (O/U aliases, milestone doesn't) rather than per-market, so
+each axis just picks the simpler of alias-or-own-dict independently.
 
 ## Files / modules
 
@@ -86,8 +121,9 @@ not wired.
 - A registry-wide guard asserts every configured subcategory id in the registry can be labeled,
   independent of the module's own index-building walk.
 - A guard asserts each label matches the state and kind of the tab it was read from.
-- A guard asserts no id maps to two different (state, kind, market) meanings, with WNBA's
-  intentional aliasing of NBA's pregame maps allowlisted by name.
+- A guard asserts no id maps to two different (state, kind, market) meanings; WNBA's pregame O/U
+  alias to NBA's ids passes this unaided, since an aliased id keeps the same (state, kind, market)
+  meaning in both leagues rather than colliding on a different one.
 - Existing tests for the renamed constants and the previously-empty MLB pregame milestone map were
   updated to match; the milestone map used to assert empty as a statement of capture status, not a
   design invariant.

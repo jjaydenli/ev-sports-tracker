@@ -40,6 +40,58 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 
 `stl+blk` has O/U on DK (`2713781`) but no 1+/2+/3+ milestone tab. `reb+ast` milestone id is outside the default probe scan range (`2716474–2716491`).
 
+**WNBA pregame O/U** (verified 2026-08-04), `DK_WNBA_PREGAME_STAT_CATEGORIES`. Matches NBA's ids exactly for every market WNBA carries; `steals`/`blocks`/`stl+blk` are confirmed absent from the WNBA board, not just unprobed:
+
+| Canonical market | subCategoryId (WNBA, pregame) |
+|------------------|-------------------------------|
+| points | 12488 |
+| rebounds | 12492 |
+| assists | 12495 |
+| threes | 12497 |
+| pra | 5001 |
+| pts+reb | 9976 |
+| pts+ast | 9973 |
+| reb+ast | 9974 |
+
+**WNBA pregame milestone** (verified 2026-08-04), `DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES`. Ids do **not** match NBA's (e.g. `points` `16477` here vs NBA's `2716477`):
+
+| Canonical market | subCategoryId (WNBA, pregame) |
+|------------------|-------------------------------|
+| points | 16477 |
+| threes | 16480 |
+| rebounds | 16479 |
+| assists | 16478 |
+| pra | 16483 |
+| pts+reb | 16482 |
+| pts+ast | 16481 |
+| reb+ast | 19560 |
+
+**WNBA live O/U and milestone** (verified 2026-08-04 on an in-progress game), `DK_WNBA_LIVE_STAT_CATEGORIES` / `DK_WNBA_LIVE_MILESTONE_STAT_CATEGORIES`. `reb+ast` O/U wasn't caught live this capture and stays pending:
+
+| Canonical market | subCategoryId (WNBA, live O/U) | subCategoryId (WNBA, live milestone) |
+|------------------|--------------------------------|---------------------------------------|
+| points | 16413 | 16761 |
+| threes | 16416 | 16764 |
+| rebounds | 16415 | 16763 |
+| assists | 16414 | 16762 |
+| pra | 16417 | 16769 |
+| pts+reb | 16425 | 16768 |
+| pts+ast | 16426 | 16767 |
+| reb+ast | pending | 19574 |
+
+NBA live O/U and milestone remain unprobed (needs an in-progress NBA game; earliest ~October 2026 season start).
+
+**WNBA double-double / triple-double: captured, deliberately not wired.** These four ids are confirmed against live payloads but are recorded here rather than in `dk_subcategories.py`, the same handling MLB's "X or Fewer" pitcher tabs get:
+
+| Canonical market | subCategoryId (pregame) | subCategoryId (live) |
+|------------------|-------------------------|----------------------|
+| double-double | 13762 | 19084 |
+| triple-double | 13759 | 19083 |
+
+DraftKings quotes both as a single Yes selection per market, with `label` and `outcomeType` of `Yes` and no numeric `points` field. `_parse_milestone_threshold` reads an `N+` label or a numeric points value, so it returns `None` for every selection and `_milestone_selections_by_market_threshold` drops them all. The tab fetches cleanly and yields zero rows. Verified 2026-08-04 on event 34473297: id `13762` returns 11 double-double markets carrying real prices, every one discarded.
+
+Wiring them needs two changes, not one. The parser needs an implicit threshold (a binary market is `1+`, giving line 0.5), and the pricing path needs a decision for single-rung ladders: `devig_milestone_fair_over` normalizes across a contiguous ladder segment of at least two rungs, and a binary market has exactly one, so it falls through to the assumed-hold shrink. Those markets also have no over/under rows to estimate a hold from, and they admit on the heavy no side, where an overstated fair probability produces the largest error.
+
 **MLB** (pregame O/U — full slate) — `DK_MLB_PREGAME_STAT_CATEGORIES`; slate `DK_LEAGUE_SLATES["mlb"]` uses `league_id` 84240 and `slate_subcategory_id` 4519:
 
 | Canonical market | subCategoryId (MLB) |

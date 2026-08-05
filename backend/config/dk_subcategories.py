@@ -84,11 +84,67 @@ DK_NBA_PENDING_STAT_CATEGORIES: dict[str, str | None] = {
     "triple-double": None,
 }
 
-# WNBA per-event prop tabs match NBA subCategoryIds (pregame). Live NBA/WNBA
-# props do exist on DK; their live ids are just unprobed, so the live maps below
-# stay empty until a DevTools capture on an in-progress game fills them.
-DK_WNBA_PREGAME_STAT_CATEGORIES: dict[str, str] = DK_NBA_PREGAME_STAT_CATEGORIES
-DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str] = DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
+# WNBA pregame O/U ids verified 2026-08-04 against a live WNBA event to match
+# NBA's exactly for every market WNBA actually carries
+# (points/threes/rebounds/assists/pra/pts+reb/pts+ast/reb+ast). steals/blocks/
+# stl+blk are confirmed absent from the WNBA board (not just unprobed), so they
+# are excluded here even though NBA has ids for them -- a full identity alias
+# would request tabs WNBA doesn't post.
+DK_WNBA_PREGAME_STAT_CATEGORIES: dict[str, str] = {
+    market: sid
+    for market, sid in DK_NBA_PREGAME_STAT_CATEGORIES.items()
+    if market not in {"steals", "blocks", "stl+blk"}
+}
+
+# WNBA pregame milestone ids verified 2026-08-04. These do NOT match NBA's
+# (e.g. points 16477 here vs NBA's 2716477) -- the identity alias does not hold
+# for milestone tabs, only O/U.
+#
+# double-double (13762) and triple-double (13759) are confirmed WNBA ids but are
+# deliberately NOT wired; they are recorded in docs/betting_odds/draftkings.md
+# instead. DK quotes them Yes-only with no numeric threshold, so
+# _parse_milestone_threshold returns None and every selection is dropped: the tab
+# fetches clean and yields zero rows. Wiring them needs implicit-threshold parsing
+# AND a pricing decision for single-rung ladders, since the survival normalization
+# in devig_milestone_fair_over requires two contiguous rungs and these have one.
+# Same handling as DK's "X or Fewer" pitcher tabs.
+DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
+    "points": "16477",
+    "threes": "16480",
+    "rebounds": "16479",
+    "assists": "16478",
+    "pra": "16483",
+    "pts+reb": "16482",
+    "pts+ast": "16481",
+    "reb+ast": "19560",
+}
+
+# WNBA live O/U ids verified 2026-08-04 on an in-progress game (differ from
+# pregame, same pattern as MLB). reb+ast O/U not yet captured live.
+DK_WNBA_LIVE_STAT_CATEGORIES: dict[str, str | None] = {
+    "points": "16413",
+    "threes": "16416",
+    "rebounds": "16415",
+    "assists": "16414",
+    "pra": "16417",
+    "pts+reb": "16425",
+    "pts+ast": "16426",
+    "reb+ast": None,
+}
+
+# WNBA live milestone ids verified 2026-08-04 on an in-progress game. Live
+# double-double (19084) and triple-double (19083) are recorded in
+# docs/betting_odds/draftkings.md rather than wired, for the reason above.
+DK_WNBA_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
+    "points": "16761",
+    "threes": "16764",
+    "rebounds": "16763",
+    "assists": "16762",
+    "pra": "16769",
+    "pts+reb": "16768",
+    "pts+ast": "16767",
+    "reb+ast": "19574",
+}
 
 # MLB player-prop O/U (pregame). Verify:
 #   python -m scripts.verify_dk_subcategories --event-id <event_id> --league mlb
@@ -229,7 +285,7 @@ DK_SUBCATEGORIES: dict[str, LeagueSubcategories] = {
         pregame=PropTabs(
             ou=DK_WNBA_PREGAME_STAT_CATEGORIES, milestone=DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES
         ),
-        live=PropTabs(ou={}, milestone={}),
+        live=PropTabs(ou=DK_WNBA_LIVE_STAT_CATEGORIES, milestone=DK_WNBA_LIVE_MILESTONE_STAT_CATEGORIES),
         pending={},
     ),
     "mlb": LeagueSubcategories(

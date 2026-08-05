@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-07-27
+**Last verified:** 2026-08-04
 
 ## 1. Project Overview
 
@@ -31,7 +31,7 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 
 - **Role:** Primary sharp O/U + milestone (`N+`) ladders; main input to `core/ladder_index.py` and `core/line_adjustment.py`.
 - **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`
-- **Live (MLB):** Pregame + in-play O/U and N+ milestone tabs via the pregame/live × ou/milestone grid (`subcategories_for_league`, `config/dk_subcategories.py`); DK reissues subCategoryIds per game state. New combo keys (`xbh`, `h+r+sb`, `h+sb`, `h+bb+sb`, `r+rbi`) are DK-captured; under-side "X or Fewer" pitcher tabs stay docs-only.
+- **Live (MLB, WNBA):** Pregame + in-play O/U and N+ milestone tabs via the pregame/live × ou/milestone grid (`subcategories_for_league`, `config/dk_subcategories.py`); DK reissues subCategoryIds per game state. MLB: new combo keys (`xbh`, `h+r+sb`, `h+sb`, `h+bb+sb`, `r+rbi`) are DK-captured; under-side "X or Fewer" pitcher tabs stay docs-only. WNBA: O/U ids match NBA's exactly, milestone ids do not (own dict); live `reb+ast` O/U still pending. NBA live remains unprobed.
 - **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md)
 
 ### FanDuel (sharp sportsbook)

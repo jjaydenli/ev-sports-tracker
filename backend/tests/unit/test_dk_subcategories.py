@@ -133,12 +133,45 @@ def test_dk_league_slates_contains_wnba():
     assert DK_LEAGUE_SLATES["wnba"]["slate_subcategory_id"] == "4511"
 
 
-def test_subcategories_for_league_wnba_aliases_nba():
+def test_subcategories_for_league_wnba_pregame_ou_matches_nba_minus_absent_markets():
+    # WNBA pregame O/U ids verified 2026-08-04 to match NBA's exactly for every
+    # market WNBA actually carries; steals/blocks/stl+blk confirmed absent.
     wnba = subcategories_for_league("wnba")
     assert wnba.pregame.ou is DK_WNBA_PREGAME_STAT_CATEGORIES
-    assert wnba.pregame.ou == DK_NBA_PREGAME_STAT_CATEGORIES
+    assert wnba.pregame.ou == {
+        market: sid
+        for market, sid in DK_NBA_PREGAME_STAT_CATEGORIES.items()
+        if market not in {"steals", "blocks", "stl+blk"}
+    }
+
+
+def test_subcategories_for_league_wnba_pregame_milestone_does_not_alias_nba():
+    # Verified 2026-08-04: milestone ids diverge from NBA's even though O/U
+    # ids match (e.g. points 16477 here vs NBA's 2716477).
+    wnba = subcategories_for_league("wnba")
     assert wnba.pregame.milestone is DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES
-    assert wnba.pregame.milestone == DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
+    assert wnba.pregame.milestone != DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES
+    assert DK_WNBA_PREGAME_MILESTONE_STAT_CATEGORIES["points"] == "16477"
+
+
+def test_wnba_binary_milestone_tabs_stay_unwired():
+    """double-double/triple-double ids are confirmed but deliberately not wired.
+
+    DK quotes these Yes-only with no numeric threshold, so
+    ``_parse_milestone_threshold`` returns None for every selection and the tab
+    yields zero rows. Verified live 2026-08-04 on event 34473297: id 13762
+    returns 11 double-double markets with real odds, all of which are dropped.
+    Wiring them needs implicit-threshold parsing plus a pricing decision for
+    single-rung ladders, so this guard fails if an id is added back without it.
+    Ids stay recorded in docs/betting_odds/draftkings.md.
+    """
+    wnba = subcategories_for_league("wnba")
+    for state, tabs in (("pregame", wnba.pregame), ("live", wnba.live)):
+        for market in ("double-double", "triple-double"):
+            assert market not in tabs.milestone, (
+                f"{state} milestone tab {market!r} is wired but DK serves it "
+                "Yes-only; see docs/betting_odds/draftkings.md"
+            )
 
 
 def test_subcategories_for_league_unknown_falls_back_to_nba():
@@ -219,13 +252,38 @@ def test_subcategories_for_league_mlb_live_ou_is_live_map():
     assert subcategories_for_league("mlb").live.ou is DK_MLB_LIVE_STAT_CATEGORIES
 
 
-def test_nba_and_wnba_live_ids_not_probed_yet():
-    # Live NBA/WNBA props exist on DK; the maps are empty only until a live
-    # DevTools capture fills them (same pending state as MLB milestone).
-    for league in ("nba", "wnba"):
-        live = subcategories_for_league(league).live
-        assert live.ou == {}
-        assert live.milestone == {}
+def test_nba_live_ids_not_probed_yet():
+    # NBA live props exist on DK; unprobed until an in-progress NBA game
+    # (earliest ~Oct 2026 season start).
+    live = subcategories_for_league("nba").live
+    assert live.ou == {}
+    assert live.milestone == {}
+
+
+def test_wnba_live_ids_verified_except_reb_ast_ou():
+    # Verified 2026-08-04 on an in-progress WNBA game. reb+ast O/U wasn't
+    # caught live and stays pending (None, dropped by configured_ou).
+    live = subcategories_for_league("wnba").live
+    assert live.ou["reb+ast"] is None
+    assert live.configured_ou == {
+        "points": "16413",
+        "threes": "16416",
+        "rebounds": "16415",
+        "assists": "16414",
+        "pra": "16417",
+        "pts+reb": "16425",
+        "pts+ast": "16426",
+    }
+    assert live.configured_milestone == {
+        "points": "16761",
+        "threes": "16764",
+        "rebounds": "16763",
+        "assists": "16762",
+        "pra": "16769",
+        "pts+reb": "16768",
+        "pts+ast": "16767",
+        "reb+ast": "19574",
+    }
 
 
 def test_mlb_pregame_milestone_ids_verified():

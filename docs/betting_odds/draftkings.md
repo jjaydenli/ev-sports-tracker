@@ -97,6 +97,8 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 
 WNBA `reb+ast` live O/U is likely 18800 too, but stays unwired until a WNBA game confirms it.
 
+**NBA pending markets** (live sweep 2026-11-01, events 34930761 and 34930762). Live ids 16300-16890 and 18700-19800 were swept on both games with `scripts.discover_prop_tabs`. `turnovers`, `fouls`, `fg_attempted`, `fg_made`, `ft_made`, `ft_attempted`, `fantasy_pts` and `3pt_att` did not appear. That rules out those ranges, not every id, and it says nothing about pregame. NBA pregame ids could not be rechecked on the same date: the two events tried had no props posted, so the control tab returned nothing and the run gave no verdict.
+
 Live double-double (19084) and triple-double (19083) resolve on both NBA games and carry the same Yes-only shape as WNBA, so they are captured and unwired for the reasons below. The NBA pregame equivalents of 13762 and 13759 are unconfirmed.
 
 **WNBA double-double / triple-double: captured, deliberately not wired.** These four ids are confirmed against live payloads but are recorded here rather than in `dk_subcategories.py`, the same handling MLB's "X or Fewer" pitcher tabs get:

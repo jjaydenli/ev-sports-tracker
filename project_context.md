@@ -87,7 +87,7 @@ ev-sports-tracker/
 └── backend/
     ├── pyproject.toml                  # pytest, ruff, mypy config; lint/type CI gate
     ├── config/                         # headers, market_maps, sharp_books, team_abbrev, settings, *_{subcategories,markets,competitions,queries}, pipeline_sources
-    ├── scripts/                        # probe_dk_*, probe_fd_*, probe_espn_*
+    ├── scripts/                        # probe_fd_*, probe_espn_*, verify_dk_*, discover_prop_tabs
     ├── utils/                          # math_utils, formatting
     ├── scrapers/
     │   ├── dfs/betr/                   # betr_api, betr_auth, betr_engine, betr_orchestrator

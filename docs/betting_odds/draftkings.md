@@ -79,7 +79,25 @@ Event player props are fetched per prop `subCategoryId` in [`backend/config/dk_s
 | pts+ast | 16426 | 16767 |
 | reb+ast | pending | 19574 |
 
-NBA live O/U and milestone remain unprobed (needs an in-progress NBA game; earliest ~October 2026 season start).
+**NBA live O/U and milestone** (verified 2026-11-01 on two in-progress games), `DK_NBA_LIVE_STAT_CATEGORIES` / `DK_NBA_LIVE_MILESTONE_STAT_CATEGORIES`. The ids WNBA also carries match, except O/U `reb+ast`. Live O/U posts one line per player; the milestone tabs carry the ladder. `steals`, `blocks` and `stl+blk` O/U are thin: 1 to 3 players, and only on one of the two games. `stl+blk` has no live milestone tab, matching pregame.
+
+| Canonical market | subCategoryId (NBA, live O/U) | subCategoryId (NBA, live milestone) |
+|------------------|-------------------------------|--------------------------------------|
+| points | 16413 | 16761 |
+| threes | 16416 | 16764 |
+| rebounds | 16415 | 16763 |
+| assists | 16414 | 16762 |
+| steals | 16419 | 16765 |
+| blocks | 16418 | 16766 |
+| pra | 16417 | 16769 |
+| pts+reb | 16425 | 16768 |
+| pts+ast | 16426 | 16767 |
+| reb+ast | 18800 | 19574 |
+| stl+blk | 16428 | none |
+
+WNBA `reb+ast` live O/U is likely 18800 too, but stays unwired until a WNBA game confirms it.
+
+Live double-double (19084) and triple-double (19083) resolve on both NBA games and carry the same Yes-only shape as WNBA, so they are captured and unwired for the reasons below. The NBA pregame equivalents of 13762 and 13759 are unconfirmed.
 
 **WNBA double-double / triple-double: captured, deliberately not wired.** These four ids are confirmed against live payloads but are recorded here rather than in `dk_subcategories.py`, the same handling MLB's "X or Fewer" pitcher tabs get:
 

@@ -7,8 +7,9 @@ from core import pipeline_scrape
 from core.pipeline_runner import main
 from core.pipeline_scrape import scrape_betr_league
 
+LIVE_PROP = {"player": "A", "is_live": True}
 MIXED_PROPS = [
-    {"player": "A", "is_live": True},
+    LIVE_PROP,
     {"player": "B", "is_live": False},
     {"player": "C"},
 ]
@@ -25,14 +26,14 @@ class _FakeBetrEngine:
         return list(MIXED_PROPS)
 
 
-class _FakeSourceFilteredEngine:
-    """Mirrors the DK and ESPN contract: live_only drops pregame rows at the source."""
+class _FlagReportingEngine:
+    """Shows whether live_only arrived. test_dk_engine and test_espn_engine cover the filtering."""
 
     def __init__(self, league, live_only=False):
         self.live_only = live_only
 
     async def scrape(self):
-        return [p for p in MIXED_PROPS if p.get("is_live") or not self.live_only]
+        return [LIVE_PROP] if self.live_only else list(MIXED_PROPS)
 
 
 def _no_fanduel(*_args, **_kwargs):
@@ -43,8 +44,8 @@ def _no_fanduel(*_args, **_kwargs):
 def test_cli_live_only_reaches_every_source(_mock_preflight, monkeypatch, tmp_path):
     """Drives the flag from argv through the real wrappers; only the engines are faked."""
     monkeypatch.setattr(pipeline_scrape, "BetrEngine", _FakeBetrEngine)
-    monkeypatch.setattr(pipeline_scrape, "DraftKingsEngine", _FakeSourceFilteredEngine)
-    monkeypatch.setattr(pipeline_scrape, "ESPNEngine", _FakeSourceFilteredEngine)
+    monkeypatch.setattr(pipeline_scrape, "DraftKingsEngine", _FlagReportingEngine)
+    monkeypatch.setattr(pipeline_scrape, "ESPNEngine", _FlagReportingEngine)
     monkeypatch.setattr(pipeline_scrape, "FanDuelEngine", _no_fanduel)
 
     with pytest.raises(SystemExit) as exc:
@@ -52,11 +53,10 @@ def test_cli_live_only_reaches_every_source(_mock_preflight, monkeypatch, tmp_pa
 
     assert exc.value.code == 0
     sources = json.loads((tmp_path / "scrape_coverage.json").read_text(encoding="utf-8"))["sources"]
-    live_row_count = sum(1 for prop in MIXED_PROPS if prop.get("is_live"))
     assert {key: sources[f"{key}:MLB"]["prop_count"] for key in ("betr", "dk", "espn")} == {
-        "betr": live_row_count,
-        "dk": live_row_count,
-        "espn": live_row_count,
+        "betr": 1,
+        "dk": 1,
+        "espn": 1,
     }
     assert (sources["fd:MLB"]["status"], sources["fd:MLB"]["reason"]) == (
         "skipped",

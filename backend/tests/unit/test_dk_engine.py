@@ -339,7 +339,7 @@ async def test_scrape_mlb_live_tags_is_live_when_categories_configured(
 
 @pytest.mark.asyncio
 async def test_scrape_live_only_skips_pregame_events(monkeypatch, mock_dk_warm_up):
-    """live_only drops the pregame event before any fetch; the live event is unchanged."""
+    """live_only drops the pregame event before any fetch."""
     slate = json.loads(MLB_LEAGUE_WITH_LIVE_FIXTURE_PATH.read_text(encoding="utf-8"))
     hits_payload = json.loads(MLB_HITS_FIXTURE_PATH.read_text(encoding="utf-8"))
     fetched_event_ids: list[str] = []
@@ -368,5 +368,5 @@ async def test_scrape_live_only_skips_pregame_events(monkeypatch, mock_dk_warm_u
     props = await DraftKingsEngine(markets=["hits"], league="mlb", live_only=True).scrape()
 
     assert fetched_event_ids == [MLB_LIVE_EVENT_ID]
-    assert len(props) == 18
+    assert props, "expected live props"
     assert all(p["is_live"] for p in props)

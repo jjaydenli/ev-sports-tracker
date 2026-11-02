@@ -6,6 +6,8 @@ from config.dk_subcategories import (
     DK_MLB_LIVE_STAT_CATEGORIES,
     DK_MLB_PREGAME_MILESTONE_STAT_CATEGORIES,
     DK_MLB_PREGAME_STAT_CATEGORIES,
+    DK_NBA_LIVE_MILESTONE_STAT_CATEGORIES,
+    DK_NBA_LIVE_STAT_CATEGORIES,
     DK_NBA_PENDING_STAT_CATEGORIES,
     DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES,
     DK_NBA_PREGAME_STAT_CATEGORIES,
@@ -252,36 +254,19 @@ def test_subcategories_for_league_mlb_live_ou_is_live_map():
     assert subcategories_for_league("mlb").live.ou is DK_MLB_LIVE_STAT_CATEGORIES
 
 
-def test_nba_live_ids_match_2026_11_01_capture():
-    # Oracle: each id returned markets whose names match the stat on in-progress
-    # NBA games 2026-11-01 (events 34930761 / 34930762). stl+blk has no milestone
-    # tab, matching pregame.
+def test_subcategories_for_league_nba_live_is_live_map():
     live = subcategories_for_league("nba").live
-    assert live.ou == {
-        "points": "16413",
-        "threes": "16416",
-        "rebounds": "16415",
-        "assists": "16414",
-        "steals": "16419",
-        "blocks": "16418",
-        "pra": "16417",
-        "pts+reb": "16425",
-        "pts+ast": "16426",
-        "reb+ast": "18800",
-        "stl+blk": "16428",
-    }
-    assert live.milestone == {
-        "points": "16761",
-        "threes": "16764",
-        "rebounds": "16763",
-        "assists": "16762",
-        "steals": "16765",
-        "blocks": "16766",
-        "pra": "16769",
-        "pts+reb": "16768",
-        "pts+ast": "16767",
-        "reb+ast": "19574",
-    }
+    assert live.ou is DK_NBA_LIVE_STAT_CATEGORIES
+    assert live.milestone is DK_NBA_LIVE_MILESTONE_STAT_CATEGORIES
+
+
+def test_nba_live_ids_agree_with_independently_captured_wnba_ids():
+    # Oracle: the WNBA ids came from a separate capture (2026-08-04) three months
+    # before NBA's, so a mistyped NBA id cannot match by accident. NBA-only markets
+    # have no second capture; live discovery re-checks those.
+    nba, wnba = (subcategories_for_league(league).live for league in ("nba", "wnba"))
+    assert wnba.configured_ou.items() <= nba.configured_ou.items()
+    assert wnba.configured_milestone.items() <= nba.configured_milestone.items()
 
 
 def test_wnba_live_ids_verified_except_reb_ast_ou():

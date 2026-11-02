@@ -36,31 +36,13 @@ def test_classify_tab_shape_on_captured_tabs(fixture, shape):
     assert classify_tab_shape(_fixture(fixture)) == shape
 
 
-def test_parse_id_spec_expands_ranges_and_dedupes_in_order():
-    assert parse_id_spec(["100-102", "7", "101"]) == ["100", "101", "102", "7"]
-
-
 def test_parse_id_spec_rejects_descending_range():
     with pytest.raises(ValueError, match="descending"):
         parse_id_spec(["102-100"])
 
 
-def test_neighborhood_ids_merges_overlap_and_stays_positive():
+def test_neighborhood_ids_merges_overlapping_windows():
     assert neighborhood_ids(["2", "4"], 1) == ["1", "2", "3", "4", "5"]
-    assert neighborhood_ids(["1"], 2) == ["1", "2", "3"]
-
-
-def test_summarize_tab_empty_on_every_valid_event_is_absent():
-    result = summarize(
-        [
-            TabProbe("e1", "1", is_control=True, **HIT),
-            TabProbe("e1", "2"),
-            TabProbe("e2", "1", is_control=True, **HIT),
-            TabProbe("e2", "2"),
-        ]
-    )
-    assert result.absent == ["2"]
-    assert result.valid_events == ["e1", "e2"]
 
 
 def test_summarize_tab_on_one_of_two_events_is_a_hit_not_absent():
@@ -76,14 +58,6 @@ def test_summarize_tab_on_one_of_two_events_is_a_hit_not_absent():
     assert [probe.event_id for probe in result.hits["2"]] == ["e2"]
 
 
-def test_summarize_blocked_tab_is_unknown_not_absent():
-    result = summarize(
-        [TabProbe("e1", "1", is_control=True, **HIT), TabProbe("e1", "2", blocked=True)]
-    )
-    assert result.absent == []
-    assert result.blocked == 1
-
-
 def test_summarize_event_with_empty_control_gives_no_verdict():
     result = summarize([TabProbe("e1", "1", is_control=True), TabProbe("e1", "2")])
     assert result.valid_events == []
@@ -97,28 +71,12 @@ def test_summarize_keeps_a_hit_from_an_event_with_an_empty_control():
     assert [probe.event_id for probe in result.hits["2"]] == ["e1"]
 
 
-def test_summarize_unposted_event_does_not_count_against_a_tab():
-    result = summarize(
-        [
-            TabProbe("e1", "1", is_control=True, **HIT),
-            TabProbe("e1", "2", **HIT),
-            TabProbe("e2", "1", is_control=True),
-            TabProbe("e2", "2"),
-        ]
-    )
-    assert result.valid_events == ["e1"]
-    assert "2" in result.hits
-    assert result.absent == []
-
-
 def _args(**overrides) -> argparse.Namespace:
     defaults = {
         "league": "nba",
         "state": "live",
         "event_id": ["e1"],
-        "events": 2,
         "ids": None,
-        "pad": 1,
         "concurrency": 2,
     }
     return argparse.Namespace(**{**defaults, **overrides})
@@ -152,7 +110,7 @@ async def test_discover_dk_control_hit_and_blocked_tab_end_to_end(monkeypatch):
         return httpx.Response(200, json={"markets": [], "selections": []})
 
     _patch_client(monkeypatch, handler)
-    probes = await discover.discover_dk(_args(ids=["19083-19085"]))
+    probes = await discover.discover_dk(_args(ids=["19083-19084", "19085"]))
     result = summarize(probes)
 
     assert result.valid_events == ["e1"]

@@ -377,10 +377,25 @@ async def ensure_betr_token(
         except BetrAuthError:
             logger.info("BETR_BEARER_TOKEN expired or expiring soon; attempting refresh")
 
-    if _env("BETR_REFRESH_TOKEN") or (cache and cache.get("refresh_token")):
-        return await refresh_access_token(data_dir=data_dir)
+    has_password = bool(_env("BETR_USERNAME") and _env("BETR_PASSWORD"))
 
-    if _env("BETR_USERNAME") and _env("BETR_PASSWORD"):
+    if _env("BETR_REFRESH_TOKEN") or (cache and cache.get("refresh_token")):
+        try:
+            return await refresh_access_token(data_dir=data_dir)
+        except BetrAuthError as exc:
+            if has_password:
+                logger.warning(f"refresh grant failed ({exc}); falling back to password grant")
+            elif "invalid_grant" in str(exc):
+                # Only Keycloak's own rejection proves the token is dead. A network error or
+                # 5xx leaves it valid, so those re-raise without the re-capture advice.
+                raise BetrAuthError(
+                    f"{exc}. The refresh token is dead (Keycloak session revoked); capture a "
+                    "new BETR_REFRESH_TOKEN or set BETR_USERNAME/BETR_PASSWORD for auto-login"
+                ) from exc
+            else:
+                raise
+
+    if has_password:
         return await login_with_password(data_dir=data_dir)
 
     raise BetrAuthError(

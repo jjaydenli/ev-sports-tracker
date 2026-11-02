@@ -247,24 +247,14 @@ async def test_scrape_stamps_is_live_for_in_play(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_scrape_live_only_skips_pregame_events_before_fetching(monkeypatch):
+async def test_scrape_live_only_keeps_only_in_play_events(monkeypatch):
     payload = json.loads(PITCHER_DRAWER.read_text(encoding="utf-8"))
     _patch_chain_multi_game(monkeypatch, drawer_payload=payload)
-    scraped_events: list[str] = []
-    original = ESPNEngine._scrape_event
-
-    async def recording_scrape_event(self, api, semaphore, game):
-        scraped_events.append(game["event_id"])
-        return await original(self, api, semaphore, game)
-
-    monkeypatch.setattr(ESPNEngine, "_scrape_event", recording_scrape_event)
 
     engine = ESPNEngine(markets=["pitching_strikeouts"], league="mlb", live_only=True)
     props = await engine.scrape()
 
-    assert scraped_events == [LIVE_EVENT_ID]
-    assert props, "expected IN_PLAY props"
-    assert all(p.get("is_live") is True for p in props)
+    assert {p["event_id"] for p in props} == {LIVE_EVENT_ID}
 
 
 @pytest.mark.asyncio

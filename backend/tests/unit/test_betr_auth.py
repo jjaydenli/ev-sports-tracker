@@ -220,7 +220,7 @@ def _dead_refresh_setup(monkeypatch, tmp_path):
     monkeypatch.setenv("BETR_KEYCLOAK_TOKEN_URL", "https://auth.example.com/token")
 
 
-def _fake_keycloak(fresh: str):
+def _fake_keycloak(fresh: str = ""):
     """Keycloak double: refresh grant is rejected as in the captured 400, password grant works."""
 
     async def _fetch(*, grant_type, **_kwargs):
@@ -250,8 +250,7 @@ async def test_ensure_betr_token_falls_back_to_password_when_refresh_revoked(mon
 @pytest.mark.asyncio
 async def test_ensure_betr_token_revoked_refresh_without_password_explains_fix(monkeypatch, tmp_path):
     _dead_refresh_setup(monkeypatch, tmp_path)
-    fresh = _make_jwt({"exp": int(time.time()) + 86400})
-    monkeypatch.setattr("scrapers.dfs.betr.betr_auth.fetch_keycloak_tokens", _fake_keycloak(fresh))
+    monkeypatch.setattr("scrapers.dfs.betr.betr_auth.fetch_keycloak_tokens", _fake_keycloak())
 
     with pytest.raises(BetrAuthError, match=r"Offline user session not found.*BETR_USERNAME"):
         await ensure_betr_token(data_dir=tmp_path)

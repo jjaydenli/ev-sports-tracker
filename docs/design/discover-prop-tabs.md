@@ -36,7 +36,7 @@ can be trusted when it says a tab is absent.
 | `backend/scripts/discover_prop_tabs.py` | new tool: book adapters, `summarize`, rendering |
 | `backend/scrapers/sportsbooks/dk_api.py` | `classify_tab_shape` |
 | `backend/scripts/verify_dk_subcategories.py` | points at the new tool |
-| `backend/tests/fixtures/dk_markets_double_double_live_34930762.json` | captured Yes-only tab |
+| `backend/tests/fixtures/dk_markets_double_double_live_34930762.json` | captured Yes-only tab, trimmed to two players |
 
 ## Test plan
 

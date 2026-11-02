@@ -98,27 +98,24 @@ class Discovery:
 
 
 def parse_id_spec(tokens: Iterable[str]) -> list[str]:
-    """Expand ``["100-102", "7"]`` to ``["100", "101", "102", "7"]``, keeping order."""
-    ids: dict[str, None] = {}
+    """Expand ``["100-102", "7"]`` to ``["100", "101", "102", "7"]``."""
+    ids: list[str] = []
     for token in tokens:
         start, sep, end = token.partition("-")
         if not sep:
-            ids[str(int(token))] = None
+            ids.append(str(int(token)))
             continue
         low, high = int(start), int(end)
         if high < low:
             raise ValueError(f"descending id range: {token}")
-        ids.update((str(value), None) for value in range(low, high + 1))
-    return list(ids)
+        ids.extend(str(value) for value in range(low, high + 1))
+    return ids
 
 
 def neighborhood_ids(seeds: Iterable[str], pad: int) -> list[str]:
     """Return every id within ``pad`` of a seed, sorted; ids cluster by market family."""
-    return [
-        str(value)
-        for value in sorted({v for seed in seeds for v in range(int(seed) - pad, int(seed) + pad + 1)})
-        if value > 0
-    ]
+    window = {v for seed in seeds for v in range(int(seed) - pad, int(seed) + pad + 1)}
+    return [str(value) for value in sorted(window)]
 
 
 def summarize(probes: Iterable[TabProbe]) -> Discovery:
@@ -150,7 +147,7 @@ def summarize(probes: Iterable[TabProbe]) -> Discovery:
     ]
     return Discovery(
         hits=hits,
-        absent=absent if valid else [],
+        absent=absent,
         valid_events=valid,
         unposted_events=[event for event in events if event not in valid],
         blocked=sum(probe.blocked for probe in rows),

@@ -16,7 +16,11 @@ from scrapers.sportsbooks.espn_engine import ESPNEngine
 from scrapers.sportsbooks.fd_engine import FanDuelEngine
 
 
-async def scrape_betr_league(league: str) -> ScrapeResult:
+def _only_live(props: list[dict]) -> list[dict]:
+    return [prop for prop in props if prop.get("is_live")]
+
+
+async def scrape_betr_league(league: str, *, live_only: bool = False) -> ScrapeResult:
     """Fetch Betr raw props for one league without persisting."""
     league_key = normalize_league(league)
     try:
@@ -29,6 +33,8 @@ async def scrape_betr_league(league: str) -> ScrapeResult:
                 error="missing or invalid Betr bearer token",
             )
         props = await engine.scrape()
+        if live_only:
+            props = _only_live(props)
         if not props:
             return ScrapeResult(
                 source="betr",
@@ -52,7 +58,7 @@ async def scrape_betr_league(league: str) -> ScrapeResult:
         )
 
 
-async def scrape_dk_league(league: str) -> ScrapeResult:
+async def scrape_dk_league(league: str, *, live_only: bool = False) -> ScrapeResult:
     """Fetch DraftKings raw props for one league without persisting."""
     league_key = normalize_league(league)
     dk_slate = dk_league_key(league_key)
@@ -71,7 +77,7 @@ async def scrape_dk_league(league: str) -> ScrapeResult:
             reason="not_configured",
         )
     try:
-        engine = DraftKingsEngine(league=dk_slate)
+        engine = DraftKingsEngine(league=dk_slate, live_only=live_only)
         props = await engine.scrape()
         if not props:
             return ScrapeResult(
@@ -96,9 +102,17 @@ async def scrape_dk_league(league: str) -> ScrapeResult:
         )
 
 
-async def scrape_fd_league(league: str) -> ScrapeResult:
+async def scrape_fd_league(league: str, *, live_only: bool = False) -> ScrapeResult:
     """Fetch FanDuel raw props for one league without persisting."""
     league_key = normalize_league(league)
+    if live_only:
+        # FanDuel rows are never marked live, and live Betr props only match live rows.
+        return ScrapeResult(
+            source="fd",
+            league=league_key,
+            status="skipped",
+            reason="no_live_support",
+        )
     fd_slate = league_key.lower()
     if fd_slate not in FD_LEAGUE_SLATES:
         return ScrapeResult(
@@ -133,7 +147,7 @@ async def scrape_fd_league(league: str) -> ScrapeResult:
         )
 
 
-async def scrape_espn_league(league: str) -> ScrapeResult:
+async def scrape_espn_league(league: str, *, live_only: bool = False) -> ScrapeResult:
     """Fetch ESPN raw props for one league without persisting."""
     league_key = normalize_league(league)
     espn_slate = league_key.lower()
@@ -145,7 +159,7 @@ async def scrape_espn_league(league: str) -> ScrapeResult:
             reason="not_configured",
         )
     try:
-        engine = ESPNEngine(league=espn_slate)
+        engine = ESPNEngine(league=espn_slate, live_only=live_only)
         props = await engine.scrape()
         if not props:
             return ScrapeResult(
@@ -170,14 +184,16 @@ async def scrape_espn_league(league: str) -> ScrapeResult:
         )
 
 
-async def scrape_source_league(source: str, league: str) -> ScrapeResult:
+async def scrape_source_league(
+    source: str, league: str, *, live_only: bool = False
+) -> ScrapeResult:
     """Dispatch a pipeline source key to its league scraper."""
     if source == "betr":
-        return await scrape_betr_league(league)
+        return await scrape_betr_league(league, live_only=live_only)
     if source == "dk":
-        return await scrape_dk_league(league)
+        return await scrape_dk_league(league, live_only=live_only)
     if source == "fd":
-        return await scrape_fd_league(league)
+        return await scrape_fd_league(league, live_only=live_only)
     if source == "espn":
-        return await scrape_espn_league(league)
+        return await scrape_espn_league(league, live_only=live_only)
     raise ValueError(f"unknown pipeline source: {source}")

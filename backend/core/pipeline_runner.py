@@ -129,16 +129,15 @@ async def _scrape_league_sources(
     dfs_sources: tuple[str, ...],
     book_sources: tuple[str, ...],
     timer: PipelineTimer,
+    *,
+    live_only: bool = False,
 ) -> list[ScrapeResult]:
     """Scrape all enabled sources for one league in parallel."""
     labels: list[str] = []
     coros = []
-    for source in dfs_sources:
+    for source in (*dfs_sources, *book_sources):
         labels.append(source)
-        coros.append(scrape_source_league(source, league))
-    for source in book_sources:
-        labels.append(source)
-        coros.append(scrape_source_league(source, league))
+        coros.append(scrape_source_league(source, league, live_only=live_only))
 
     if not coros:
         return []
@@ -273,6 +272,7 @@ def run_refresh(
     skip_expiry_check: bool = False,
     include_flat_lines: bool = False,
     timing: bool = False,
+    live_only: bool = False,
 ) -> int:
     """
     Run scrape → normalize → EV pipeline.
@@ -333,6 +333,7 @@ def run_refresh(
                                 dfs_sources,
                                 book_sources,
                                 timer,
+                                live_only=live_only,
                             )
                         )
                     except Exception as exc:
@@ -497,6 +498,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="reuse boards on disk; normalize and run EV scan only",
     )
     mode.add_argument(
+        "--live-only",
+        action="store_true",
+        help="scrape only in-progress games and live props (skips pregame; FanDuel has no live)",
+    )
+    mode.add_argument(
         "--scrape-only",
         action="store_true",
         help="scrape and normalize only; skip EV scan",
@@ -593,6 +599,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.skip_scrape and args.scrape_only:
         logger.error("--skip-scrape and --scrape-only are mutually exclusive")
         raise SystemExit(1)
+    if args.skip_scrape and args.live_only:
+        logger.error("--live-only filters the scrape, so it cannot combine with --skip-scrape")
+        raise SystemExit(1)
 
     try:
         dfs = parse_csv_sources(args.dfs, valid=DFS_SOURCES, label="dfs")
@@ -614,6 +623,7 @@ def main(argv: list[str] | None = None) -> None:
         skip_expiry_check=args.skip_expiry_check,
         include_flat_lines=args.include_flat_lines,
         timing=args.timing,
+        live_only=args.live_only,
     )
     raise SystemExit(code)
 

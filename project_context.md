@@ -61,6 +61,8 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 | WNBA | Betr + DK (FD skipped) | `./ev --wnba` |
 | NBA | Betr + DK + FD | `./ev --nba` |
 
+`--live-only` scrapes in-progress games only: DK and ESPN skip pregame events, Betr keeps live rows, FD is skipped (`no_live_support`). It cannot combine with `--skip-scrape`.
+
 ## 4. Quantitative Modeling & Math
 
 - **Display vs matching:** `game` (AWAY@HOME) is UI-only; match gate never reads it. `config/team_abbrev.py` canonicalizes DK/ESPN/FD display keys.

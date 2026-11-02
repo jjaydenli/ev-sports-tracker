@@ -133,7 +133,10 @@ Prints resolved token URL (env vs JWT `iss` source), client id, `env_bearer` / `
 |--------|-----|
 | `token_url: (not resolved) [missing]` | Set `BETR_KEYCLOAK_TOKEN_URL`, or add a JWT with `iss` (`BETR_BEARER_TOKEN` or copy `.betr_token_cache.json` from another machine) |
 | `grant_probe: ok: False` + HTTP 401 | Re-capture `client_id`, `token_url`, and `refresh_token` from DevTools |
+| `grant_probe: ok: False` + HTTP 400, or pipeline error `invalid_grant` / `Offline user session not found` | The refresh token's session was deleted server-side. Re-capture `BETR_REFRESH_TOKEN` (steps below), or set `BETR_USERNAME`/`BETR_PASSWORD` so the pipeline falls back to the password grant |
 | `cache_access_expires_within_24h: True` (or `env_bearer_expires_within_24h`) on pipeline | Run `--try-grant` or paste a fresh bearer |
+
+**Re-capturing a dead refresh token:** fantasy.betr.app (logged in) → DevTools → Network → filter `openid-connect/token` → open the POST → Response tab → copy `refresh_token` into `BETR_REFRESH_TOKEN` in `config/.env` → `cd backend && python -m scrapers.dfs.betr.betr_auth --try-grant` (expect `ok: True`). Don't log out of the site afterwards.
 
 If password/refresh grants return 401 after capture, re-check `client_id` (mobile/web clients differ, e.g. `betr-rn` vs `betr-web`).
 

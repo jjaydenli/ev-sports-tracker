@@ -207,3 +207,67 @@ async def test_ensure_betr_token_password_login_when_expired(monkeypatch, tmp_pa
 
     result = await ensure_betr_token(data_dir=tmp_path)
     assert result == fresh
+
+
+def _dead_refresh_setup(monkeypatch, tmp_path):
+    """Expired cached access token plus a refresh token Keycloak has revoked."""
+    expired = _make_jwt({"exp": int(time.time()) - 10, "iss": "https://auth.example.com/realms/betr"})
+    save_token_cache(expired, refresh_token="revoked-refresh", data_dir=tmp_path)
+    monkeypatch.delenv("BETR_BEARER_TOKEN", raising=False)
+    monkeypatch.delenv("BETR_REFRESH_TOKEN", raising=False)
+    monkeypatch.delenv("BETR_USERNAME", raising=False)
+    monkeypatch.delenv("BETR_PASSWORD", raising=False)
+    monkeypatch.setenv("BETR_KEYCLOAK_TOKEN_URL", "https://auth.example.com/token")
+
+
+def _fake_keycloak(fresh: str):
+    """Keycloak double: refresh grant is rejected as in the captured 400, password grant works."""
+
+    async def _fetch(*, grant_type, **_kwargs):
+        if grant_type == "refresh_token":
+            raise BetrAuthError(
+                'keycloak token request failed: 400 — {"error":"invalid_grant",'
+                '"error_description":"Offline user session not found"}'
+            )
+        return {"access_token": fresh, "refresh_token": "new-refresh"}
+
+    return _fetch
+
+
+@pytest.mark.asyncio
+async def test_ensure_betr_token_falls_back_to_password_when_refresh_revoked(monkeypatch, tmp_path):
+    """Regression: invalid_grant on refresh used to abort the run despite valid username/password."""
+    _dead_refresh_setup(monkeypatch, tmp_path)
+    monkeypatch.setenv("BETR_USERNAME", "user@example.com")
+    monkeypatch.setenv("BETR_PASSWORD", "secret")
+    fresh = _make_jwt({"exp": int(time.time()) + 86400})
+    monkeypatch.setattr("scrapers.dfs.betr.betr_auth.fetch_keycloak_tokens", _fake_keycloak(fresh))
+
+    assert await ensure_betr_token(data_dir=tmp_path) == fresh
+    assert load_token_cache(tmp_path)["refresh_token"] == "new-refresh"
+
+
+@pytest.mark.asyncio
+async def test_ensure_betr_token_revoked_refresh_without_password_explains_fix(monkeypatch, tmp_path):
+    _dead_refresh_setup(monkeypatch, tmp_path)
+    fresh = _make_jwt({"exp": int(time.time()) + 86400})
+    monkeypatch.setattr("scrapers.dfs.betr.betr_auth.fetch_keycloak_tokens", _fake_keycloak(fresh))
+
+    with pytest.raises(BetrAuthError, match=r"Offline user session not found.*BETR_USERNAME"):
+        await ensure_betr_token(data_dir=tmp_path)
+
+
+@pytest.mark.asyncio
+async def test_ensure_betr_token_outage_without_password_is_not_called_revoked(monkeypatch, tmp_path):
+    """A Keycloak outage leaves the refresh token valid, so don't advise re-capturing it."""
+    _dead_refresh_setup(monkeypatch, tmp_path)
+
+    async def _unavailable(**_kwargs):
+        raise BetrAuthError("keycloak token request failed: 503 — upstream unavailable")
+
+    monkeypatch.setattr("scrapers.dfs.betr.betr_auth.fetch_keycloak_tokens", _unavailable)
+
+    with pytest.raises(BetrAuthError) as exc:
+        await ensure_betr_token(data_dir=tmp_path)
+
+    assert str(exc.value) == "keycloak token request failed: 503 — upstream unavailable"

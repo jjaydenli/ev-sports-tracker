@@ -52,11 +52,13 @@ class ESPNEngine(BaseScraper):
         league: str,
         game_urls: list[str] | None = None,
         concurrency: int = DEFAULT_CONCURRENCY,
+        live_only: bool = False,
     ):
         self.league = league
         self.markets = set(markets or default_scrape_markets_for_league(league))
         self.explicit_game_urls = game_urls or []
         self.concurrency = concurrency
+        self.live_only = live_only
         self._install_id: str | None = None
         self._token: str | None = None
         self._event_start_map: dict[str, str] = {}
@@ -98,6 +100,8 @@ class ESPNEngine(BaseScraper):
                 f"skipped {skipped} non-active {self.league.upper()} games (FINAL/SUSPENDED/other)"
             )
         logger.info(f"discovered {len(active)} {self.league.upper()} games from espn slate")
+        if self.live_only:
+            return [g for g in active if self._event_live_map.get(g.get("event_id", ""))]
         return active
 
     async def _scrape_drawer(

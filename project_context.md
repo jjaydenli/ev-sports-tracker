@@ -22,7 +22,7 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 ### Betr (primary DFS)
 
 - **Role:** Fixed-payout DFS props; primary DFS source.
-- **Code:** `backend/scrapers/dfs/betr/` (`ensure_betr_token`, GraphQL retry), `betr_parser.py`
+- **Code:** `backend/scrapers/dfs/betr/` (`ensure_betr_token`: refresh grant, then password grant if refresh fails; GraphQL retry), `betr_parser.py`
 - **Live:** `IN_PROGRESS` events + `isLive`/`marketStatus` gates; stamps `is_live`, `game`, `event_start`.
 - **Probe:** `python -m scrapers.dfs.betr.betr_auth [--try-grant]` · `betr_api [LEAGUE]`
 - **Detail:** [docs/betting_odds/betr.md](docs/betting_odds/betr.md)
@@ -60,6 +60,8 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 | MLB | Betr + DK/FD/ESPN (FD pregame only) | `./ev --mlb` |
 | WNBA | Betr + DK (FD skipped) | `./ev --wnba` |
 | NBA | Betr + DK + FD | `./ev --nba` |
+
+`--live-only` scrapes in-progress games only: DK and ESPN skip pregame events, Betr keeps live rows, FD is skipped (`no_live_support`). It cannot combine with `--skip-scrape`.
 
 ## 4. Quantitative Modeling & Math
 

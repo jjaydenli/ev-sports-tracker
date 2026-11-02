@@ -18,8 +18,10 @@ fi
 
 [[ ! -f project_context.md ]] && exit 0
 
-mapfile -t changed < <(git diff --name-only "${BASE_REF}...HEAD" 2>/dev/null | sort -u)
-mapfile -t added   < <(git diff --diff-filter=A --name-only "${BASE_REF}...HEAD" 2>/dev/null | sort -u)
+changed=()
+while IFS= read -r line; do changed+=("$line"); done < <(git diff --name-only "${BASE_REF}...HEAD" 2>/dev/null | sort -u)
+added=()
+while IFS= read -r line; do added+=("$line"); done < <(git diff --diff-filter=A --name-only "${BASE_REF}...HEAD" 2>/dev/null | sort -u)
 [[ ${#changed[@]} -eq 0 ]] && exit 0
 
 arch=0 book=0 runner=0 ctx=0 readme=0
@@ -34,7 +36,7 @@ for p in "${changed[@]}"; do
 done
 # book=1 only when a new engine file or pipeline_sources is ADDED — modifying an already-documented
 # book's engine should not require a README update for an entry that already exists there.
-for p in "${added[@]}"; do
+for p in ${added[@]+"${added[@]}"}; do
   [[ "$p" == "backend/config/pipeline_sources.py" \
      || "$p" =~ ^backend/scrapers/sportsbooks/.*_engine\.py$ ]] && book=1 && arch=1
 done

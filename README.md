@@ -104,6 +104,7 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 ./ev --books dk,espn            # subset of sharp books
 ./ev --top-n 25 --min-ev 0.02   # top 25 with ev >= 2%; plus_ev when ev > 0
 ./ev --scrape-only              # scrape + normalize, skip EV
+./ev --live-only --nba          # in-progress games only (skips pregame and FanDuel)
 ./ev --timing                   # wall-clock summary per pipeline stage
 ```
 

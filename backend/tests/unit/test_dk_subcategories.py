@@ -252,12 +252,36 @@ def test_subcategories_for_league_mlb_live_ou_is_live_map():
     assert subcategories_for_league("mlb").live.ou is DK_MLB_LIVE_STAT_CATEGORIES
 
 
-def test_nba_live_ids_not_probed_yet():
-    # NBA live props exist on DK; unprobed until an in-progress NBA game
-    # (earliest ~Oct 2026 season start).
+def test_nba_live_ids_match_2026_11_01_capture():
+    # Oracle: each id returned markets whose names match the stat on in-progress
+    # NBA games 2026-11-01 (events 34930761 / 34930762). stl+blk has no milestone
+    # tab, matching pregame.
     live = subcategories_for_league("nba").live
-    assert live.ou == {}
-    assert live.milestone == {}
+    assert live.ou == {
+        "points": "16413",
+        "threes": "16416",
+        "rebounds": "16415",
+        "assists": "16414",
+        "steals": "16419",
+        "blocks": "16418",
+        "pra": "16417",
+        "pts+reb": "16425",
+        "pts+ast": "16426",
+        "reb+ast": "18800",
+        "stl+blk": "16428",
+    }
+    assert live.milestone == {
+        "points": "16761",
+        "threes": "16764",
+        "rebounds": "16763",
+        "assists": "16762",
+        "steals": "16765",
+        "blocks": "16766",
+        "pra": "16769",
+        "pts+reb": "16768",
+        "pts+ast": "16767",
+        "reb+ast": "19574",
+    }
 
 
 def test_wnba_live_ids_verified_except_reb_ast_ou():

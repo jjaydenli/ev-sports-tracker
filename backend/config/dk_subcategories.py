@@ -70,7 +70,43 @@ DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
     "steals": "2716485",
 }
 
-# Betr markets awaiting DK prop subCategoryId discovery (None = skip scrape, NBA).
+# NBA live O/U ids verified 2026-11-01 on two in-progress games (events 34930761,
+# 34930762). They equal WNBA's live O/U ids except reb+ast, which WNBA never
+# captured live. steals, blocks and stl+blk are thin: they post for few players
+# and only appeared on one of the two games.
+DK_NBA_LIVE_STAT_CATEGORIES: dict[str, str] = {
+    "points": "16413",
+    "threes": "16416",
+    "rebounds": "16415",
+    "assists": "16414",
+    "steals": "16419",
+    "blocks": "16418",
+    "pra": "16417",
+    "pts+reb": "16425",
+    "pts+ast": "16426",
+    "reb+ast": "18800",
+    "stl+blk": "16428",
+}
+
+# NBA live milestone ids verified 2026-11-01 on the same two games. Like the O/U
+# set they equal WNBA's live milestone ids (unlike the pregame milestone ids).
+# stl+blk: O/U only, matching pregame. Sweep of 16755-16784 found no tab.
+DK_NBA_LIVE_MILESTONE_STAT_CATEGORIES: dict[str, str] = {
+    "points": "16761",
+    "threes": "16764",
+    "rebounds": "16763",
+    "assists": "16762",
+    "steals": "16765",
+    "blocks": "16766",
+    "pra": "16769",
+    "pts+reb": "16768",
+    "pts+ast": "16767",
+    "reb+ast": "19574",
+}
+
+# Betr markets with no usable DK prop subCategoryId (None = skip scrape, NBA).
+# double-double and triple-double have ids but are Yes-only, so they stay unwired;
+# the rest did not appear in a live sweep. See docs/betting_odds/draftkings.md.
 DK_NBA_PENDING_STAT_CATEGORIES: dict[str, str | None] = {
     "turnovers": None,
     "fouls": None,
@@ -275,7 +311,7 @@ def _configured(tabs: Mapping[str, str | None]) -> dict[str, str]:
 
 _NBA = LeagueSubcategories(
     pregame=PropTabs(ou=DK_NBA_PREGAME_STAT_CATEGORIES, milestone=DK_NBA_PREGAME_MILESTONE_STAT_CATEGORIES),
-    live=PropTabs(ou={}, milestone={}),
+    live=PropTabs(ou=DK_NBA_LIVE_STAT_CATEGORIES, milestone=DK_NBA_LIVE_MILESTONE_STAT_CATEGORIES),
     pending=DK_NBA_PENDING_STAT_CATEGORIES,
 )
 

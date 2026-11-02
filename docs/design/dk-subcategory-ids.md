@@ -104,6 +104,21 @@ shared-pool-with-membership structure once market divergence was confirmed: it d
 divergence turned out to be per-axis (O/U aliases, milestone doesn't) rather than per-market, so
 each axis just picks the simpler of alias-or-own-dict independently.
 
+## NBA live capture addendum (2026-11-01)
+
+NBA live O/U and milestone ids, verified on two in-progress games (events 34930761 and 34930762).
+The empty NBA live maps are replaced, so NBA becomes the third league with live DraftKings coverage.
+
+- **Live ids are shared across basketball.** NBA matches WNBA's live O/U and milestone ids wherever
+  WNBA has one, unlike pregame milestones, where the two leagues diverge entirely. The maps stay
+  separate because NBA carries markets WNBA does not (`steals`, `blocks`, `stl+blk`).
+- **`reb+ast` O/U is 18800.** WNBA's entry stays `None`: the same id is likely, but it stays unwired
+  until a WNBA game confirms it.
+- **`stl+blk` is O/U only**, matching pregame. A sweep of 16755-16784 found no milestone tab.
+- **`steals`, `blocks` and `stl+blk` O/U are thin:** 1 to 3 players, on one of the two games.
+- **Live double-double (19084) and triple-double (19083) stay unwired**, for the Yes-only reason
+  recorded in the WNBA addendum above.
+
 ## Files / modules
 
 - `config/dk_subcategories.py`: renamed pregame constants; derived reverse index; filled the MLB

@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-08-04
+**Last verified:** 2026-11-01
 
 ## 1. Project Overview
 
@@ -31,7 +31,7 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). §3 is routing only �
 
 - **Role:** Primary sharp O/U + milestone (`N+`) ladders; main input to `core/ladder_index.py` and `core/line_adjustment.py`.
 - **Code:** `dk_engine.py`, `dk_api.py`, `dk_parser.py`, `config/dk_subcategories.py`
-- **Live (MLB, WNBA):** Pregame + in-play O/U and N+ milestone tabs via the pregame/live × ou/milestone grid (`subcategories_for_league`, `config/dk_subcategories.py`); DK reissues subCategoryIds per game state. MLB: new combo keys (`xbh`, `h+r+sb`, `h+sb`, `h+bb+sb`, `r+rbi`) are DK-captured; under-side "X or Fewer" pitcher tabs stay docs-only. WNBA: O/U ids match NBA's exactly, milestone ids do not (own dict); live `reb+ast` O/U still pending. NBA live remains unprobed.
+- **Live (MLB, WNBA, NBA):** Pregame + in-play O/U and N+ milestone tabs via the pregame/live × ou/milestone grid (`subcategories_for_league`, `config/dk_subcategories.py`); DK reissues subCategoryIds per game state. MLB: new combo keys (`xbh`, `h+r+sb`, `h+sb`, `h+bb+sb`, `r+rbi`) are DK-captured; under-side "X or Fewer" pitcher tabs stay docs-only. WNBA: O/U ids match NBA's exactly, milestone ids do not (own dict); live `reb+ast` O/U still pending. NBA: live O/U and milestone ids wired 2026-11-01 for all 11 pregame markets (`stl+blk` O/U only).
 - **Detail:** [docs/betting_odds/draftkings.md](docs/betting_odds/draftkings.md)
 
 ### FanDuel (sharp sportsbook)
@@ -100,7 +100,7 @@ ev-sports-tracker/
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
-    └── tests/                          # fixtures, integration, unit; 669 tests
+    └── tests/                          # fixtures, integration, unit
 ```
 
 **EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).

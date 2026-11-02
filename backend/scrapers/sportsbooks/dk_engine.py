@@ -65,7 +65,9 @@ class DraftKingsEngine(BaseScraper):
         game_urls: list[str] | None = None,
         markets: list[str] | None = None,
         league: str = DEFAULT_LEAGUE,
+        live_only: bool = False,
     ):
+        self.live_only = live_only
         self.explicit_event_ids = parse_event_ids(
             event_ids=event_ids, game_urls=game_urls
         )
@@ -151,6 +153,8 @@ class DraftKingsEngine(BaseScraper):
             task_meta: list[tuple[str, bool]] = []  # (event_id, is_live)
             for event_id in event_ids:
                 is_live = event_id in live_event_ids
+                if self.live_only and not is_live:
+                    continue
                 if is_live:
                     if not live_ou:
                         continue

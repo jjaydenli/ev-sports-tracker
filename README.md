@@ -76,7 +76,7 @@ cp config/.env.example config/.env   # fill in credentials — never commit this
 **Betr auth:** set `BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` (from DevTools on login). Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [`docs/betting_odds/betr.md`](docs/betting_odds/betr.md).
 
 ```bash
-pytest -q   # 550+ tests, offline fixtures only
+pytest -q   # 700+ tests, offline fixtures only
 ```
 
 ## Daily refresh

@@ -4,10 +4,10 @@ This is a *verifier*, not a discoverer. It confirms that a given subCategoryId
 returns the market you expect for one event: either the ids already wired into
 ``config/dk_subcategories.py`` or arbitrary ids you paste with ``--verify``.
 
-Finding *unknown* ids is a separate job: read the ``subCategoryId`` off a stat
-tab in browser DevTools, on the ``event/eventSubcategory/v1/markets`` request.
-Once you have candidate ids, use ``--verify`` here to confirm each one before
-hardcoding it.
+Finding *unknown* ids is a separate job: run ``scripts.discover_prop_tabs``, or
+read the ``subCategoryId`` off a stat tab in browser DevTools, on the
+``event/eventSubcategory/v1/markets`` request. Once you have candidate ids, use
+``--verify`` here to confirm each one before hardcoding it.
 
 examples:
   # verify every configured pregame id for a league resolves
@@ -74,7 +74,7 @@ async def _probe_tab(
 ) -> None:
     """Probe one tab, or report it as pending when no id is mapped."""
     if not prop_subcategory_id or prop_subcategory_id == "TBD":
-        print(f"{label:16} {'—':8}  (pending — no id, capture via DevTools)")
+        print(f"{label:16} {'—':8}  (pending — no id, see discover_prop_tabs)")
         return
     await _probe(client, event_id, label, prop_subcategory_id)
 

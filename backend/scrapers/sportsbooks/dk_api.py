@@ -201,6 +201,24 @@ def _parse_milestone_threshold(selection: dict[str, Any]) -> int | None:
     return None
 
 
+def classify_tab_shape(payload: dict[str, Any]) -> str:
+    """Name a prop tab's selection shape: ou, milestone, yes_only, other or empty.
+
+    Tells a discovery run whether the flatteners can read a tab. ``yes_only`` tabs
+    (double-double) fetch cleanly but flatten to zero rows; see ``dk_subcategories``.
+    """
+    selections = payload.get("selections") or []
+    if not selections:
+        return "empty"
+    if any(_is_point_line_selection(selection) for selection in selections):
+        return LINE_KIND_OU
+    if any(_parse_milestone_threshold(selection) is not None for selection in selections):
+        return LINE_KIND_MILESTONE
+    if all((s.get("outcomeType") or s.get("label")) == "Yes" for s in selections):
+        return "yes_only"
+    return "other"
+
+
 def milestone_threshold_to_line(threshold: int) -> float:
     """Map DK N+ milestone to Betr half-point line (N+ -> line N - 0.5)."""
     return float(threshold) - 0.5

@@ -24,14 +24,25 @@ added=()
 while IFS= read -r line; do added+=("$line"); done < <(git diff --diff-filter=A --name-only "${BASE_REF}...HEAD" 2>/dev/null | sort -u)
 [[ ${#changed[@]} -eq 0 ]] && exit 0
 
-arch=0 book=0 runner=0 ctx=0 readme=0
+# config-only exemption: a branch whose only architecture paths are under backend/config/ (new
+# market or subcategory ids) needs no project_context.md update. pipeline_sources.py and
+# .env.example are the exceptions, added or modified: they change which books run and which env
+# vars exist, both of which project_context.md documents.
+arch=0 nonconfig=0 book=0 runner=0 ctx=0 readme=0
 for p in "${changed[@]}"; do
   case "$p" in
     project_context.md) ctx=1 ;;
     README.md) readme=1 ;;
   esac
-  [[ "$p" =~ ^backend/(scrapers|parsers|core|config|archive)/ \
-     || "$p" =~ ^docs/betting_odds/ ]] && arch=1
+  if [[ "$p" =~ ^backend/(scrapers|parsers|core|config|archive)/ \
+     || "$p" =~ ^docs/betting_odds/ ]]; then
+    arch=1
+    case "$p" in
+      backend/config/pipeline_sources.py | backend/config/.env.example) nonconfig=1 ;;
+      backend/config/*) ;;
+      *) nonconfig=1 ;;
+    esac
+  fi
   [[ "$p" == "backend/core/pipeline_runner.py" ]] && runner=1 && arch=1
 done
 # book=1 only when a new engine file or pipeline_sources is ADDED — modifying an already-documented
@@ -43,7 +54,7 @@ done
 ((arch == 0)) && exit 0
 
 msgs=()
-((ctx == 0)) && msgs+=("  - project_context.md not synced (replace stale §3/§4/§5; prune §6)")
+((ctx == 0 && nonconfig)) && msgs+=("  - project_context.md not synced (replace stale §3/§4/§5; prune §6)")
 ((book && !readme)) && msgs+=("  - README.md sharp-book section may need updating (new engine file added)")
 [[ ${#msgs[@]} -eq 0 ]] && exit 0
 

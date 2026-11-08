@@ -1,0 +1,185 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1d21;
+  --muted: #5d6670;
+  --border: #dde1e6;
+  --row-alt: #f6f7f9;
+  --plus-ev: #e7f6ec;
+  --plus-ev-fg: #136c34;
+  --green: #1d8a45;
+  --amber: #b26a00;
+  --red: #c4302b;
+  --pill-bg: #f1f3f5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121417;
+    --fg: #e7e9ec;
+    --muted: #9aa3ad;
+    --border: #2b3036;
+    --row-alt: #181b1f;
+    --plus-ev: #13301f;
+    --plus-ev-fg: #6fd398;
+    --green: #4cc27a;
+    --amber: #e3a23b;
+    --red: #f06a64;
+    --pill-bg: #1d2125;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+h1 {
+  margin: 0 0 4px;
+  font-size: 1.6rem;
+}
+
+.lede {
+  margin: 0 0 12px;
+  color: var(--muted);
+  max-width: 70ch;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  font-size: 0.9rem;
+}
+
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.pill-green .pill-dot { background: var(--green); }
+.pill-amber .pill-dot { background: var(--amber); }
+.pill-red .pill-dot { background: var(--red); }
+.pill-red { color: var(--red); }
+
+.table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+table.board {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.board th,
+.board td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.board th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.board .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.board tbody tr:nth-child(even of :not(.breakdown-row)) {
+  background: var(--row-alt);
+}
+
+.board tr.plus-ev {
+  background: var(--plus-ev);
+}
+
+.board tr.plus-ev .ev {
+  color: var(--plus-ev-fg);
+  font-weight: 600;
+}
+
+.expand {
+  all: unset;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.expand:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
+.breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0;
+  white-space: normal;
+}
+
+.breakdown dt {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.breakdown dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--muted);
+}
+
+button {
+  font: inherit;
+}
+
+.pager button {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.pager button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.empty {
+  color: var(--muted);
+}

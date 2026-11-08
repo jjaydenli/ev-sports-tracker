@@ -65,7 +65,7 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 
 ## 4. Quantitative Modeling & Math
 
-- **Display vs matching:** `game` (AWAY@HOME) is UI-only; match gate never reads it. `config/team_abbrev.py` canonicalizes DK/ESPN/FD display keys.
+- **Display vs matching:** `game` (AWAY@HOME) is UI-only; match gate never reads it. `config/team_abbrev.py` maps FD full names to Betr codes and aliases ESPN codes; Betr and DK strings pass through as emitted. EV rows take `game` from the Betr prop.
 - **Match keys:** `core/ladder_index.py` — `build_match_context_key` → `player|market|league|[event_hour]|[live]`; `build_player_market_key` → `player|market|[event_hour]|[live]`. Pregame: `event_hour` = UTC hour-floor when `event_start` present. Live: omit `event_hour` (`|live` suffix only). Pregame without `event_start` fails closed. Ambiguous same-key+line odds collision drops the `pm_key`.
 - **Market mapping:** `PLATFORM_MARKET_MAPPINGS` → `MARKETS` in `config/market_maps.py`; a stat on both sides of the ball gets explicit `batting_`/`pitching_` prefixes on both names, never one bare shared name.
 - **De-vig (O/U):** American odds → implied probs; multiplicative removal in `utils/math_utils.py`.

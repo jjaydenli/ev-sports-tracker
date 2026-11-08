@@ -1,5 +1,9 @@
 # EV Sports Tracker
 
+[![CI](https://github.com/jjaydenli/ev-sports-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/jjaydenli/ev-sports-tracker/actions/workflows/ci.yml)
+
+**Live board: LIVE_BOARD_URL** (the latest scheduled scrape, refreshed four times a day)
+
 Python pipeline that identifies +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines against sharp sportsbook prices. Scrapes, normalizes, and de-vigs data from three sportsbooks with undocumented APIs — DraftKings, FanDuel, and ESPN BET (TheScore Bet) — then ranks opportunities by edge.
 
 ## Technical highlights
@@ -25,11 +29,23 @@ Each run scrapes all configured sources in parallel, normalizes to a shared `Nor
 
 Architecture decisions: [`docs/design/`](docs/design/)
 
+## How the live board works
+
+```
+GitHub Actions (cron, 4x/day)  ──▶  FastAPI (Render)  ──▶  Postgres (Neon)  ◀──  Next.js page (Vercel, ISR)
+  ./ev --top-n all                    POST /api/runs        board_runs table        GET /api/board
+  python -m web.publish
+```
+
+A scheduled workflow (`.github/workflows/live-board.yml`) runs the full pipeline on a GitHub runner and posts the run to the API with `web.publish`. Every run posts its per-source health; the board is attached only when `./ev` exited 0, the board belongs to this run, and it has at least one row, so a failed or empty run never replaces the last good board. The API validates the envelope with pydantic and stores each run as one `board_runs` row. The page is statically generated and revalidated every five minutes, so visitors never wait on the API waking up. A status pill shows when the board was scraped and turns amber or red when the latest run was empty, partial, or failed. Workflow logs are public, so they carry the coverage line and warnings only, never a prop.
+
 ## Repository layout
 
 ```
 ev-sports-tracker/
 ├── ev                            # bash entry point → backend/core/pipeline_runner.py
+├── .github/workflows/            # ci.yml (tests, lint, types), live-board.yml (scheduled scrape)
+├── frontend/                     # Next.js live board page
 └── backend/
     ├── config/
     │   ├── api_headers.py        # Platform-specific headers and auth builders
@@ -58,6 +74,7 @@ ev-sports-tracker/
     │   ├── engine.py             # EV calculation, per-prop sharp filtering
     │   ├── ev_pipeline.py        # Unified board → ranked JSON output
     │   └── pipeline_runner.py    # Orchestrator and CLI
+    ├── web/                      # Board API (FastAPI), run store, scrape-job publisher
     ├── tests/
     │   ├── fixtures/             # Captured API payloads (offline; no live network in tests)
     │   └── unit/
@@ -103,6 +120,7 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 ./ev --mlb                      # MLB only
 ./ev --books dk,espn            # subset of sharp books
 ./ev --top-n 25 --min-ev 0.02   # top 25 with ev >= 2%; plus_ev when ev > 0
+./ev --top-n all                # every ranked row (what the live board publishes)
 ./ev --scrape-only              # scrape + normalize, skip EV
 ./ev --live-only --nba          # in-progress games only (skips pregame and FanDuel)
 ./ev --timing                   # wall-clock summary per pipeline stage

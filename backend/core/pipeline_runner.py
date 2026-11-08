@@ -31,6 +31,7 @@ from core.pipeline_artifacts import (
     SCRAPE_COVERAGE_FILENAME,
     all_pipeline_artifacts,
     artifacts_for_sources,
+    format_coverage_summary,
     load_wrapped_board,
     pipeline_run_lock,
     wipe_files,
@@ -126,19 +127,6 @@ def _is_full_run(
         and book_sources == BOOK_SOURCES
         and leagues == PIPELINE_LEAGUES
     )
-
-
-def _format_coverage_summary(sources: dict[str, dict]) -> str:
-    parts = []
-    for key in sorted(sources):
-        entry = sources[key]
-        status = entry.get("status", "?")
-        count = entry.get("prop_count", 0)
-        part = f"{key}={status}({count})"
-        if entry.get("blocked_requests"):
-            part += f" blocked={entry['blocked_requests']}/{entry['requests']}"
-        parts.append(part)
-    return " ".join(parts)
 
 
 async def _scrape_league_sources(
@@ -375,7 +363,7 @@ def run_refresh(
                         return 1
                     _accumulate_results(accumulators, results, coverage)
 
-            logger.info(f"scrape coverage: {_format_coverage_summary(coverage)}")
+            logger.info(f"scrape coverage: {format_coverage_summary(coverage)}")
 
             with timer.stage("normalize"):
                 normalized_chunks: list[list[dict]] = []

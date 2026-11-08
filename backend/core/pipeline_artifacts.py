@@ -210,6 +210,20 @@ def write_scrape_coverage(
         json.dump(payload, file, indent=2)
 
 
+def format_coverage_summary(sources: dict[str, dict]) -> str:
+    """One-line ``source:league=status(count)`` summary of coverage ``sources``."""
+    parts = []
+    for key in sorted(sources):
+        entry = sources[key]
+        status = entry.get("status", "?")
+        count = entry.get("prop_count", 0)
+        part = f"{key}={status}({count})"
+        if entry.get("blocked_requests"):
+            part += f" blocked={entry['blocked_requests']}/{entry['requests']}"
+        parts.append(part)
+    return " ".join(parts)
+
+
 def default_full_run_sources() -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
     """Default dfs, books, and leagues for a full ``./ev`` run."""
     return DFS_SOURCES, BOOK_SOURCES, PIPELINE_LEAGUES

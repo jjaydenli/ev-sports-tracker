@@ -268,7 +268,7 @@ def run_ev_scan(
     data_dir: str | Path = "data/processed",
     *,
     min_ev: float | None = None,
-    top_n: int = 15,
+    top_n: int | None = 15,
     normalize_first: bool = True,
     include_flat_lines: bool = False,
     expected_run_id: str | None = None,

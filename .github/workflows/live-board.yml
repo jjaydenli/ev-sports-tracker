@@ -1,0 +1,67 @@
+name: Live board
+
+# Scrape the full board and publish it to the board API four times a day.
+# Crons are UTC, set for PST (UTC-8): 9:00, 12:00, 14:30 and 17:00 PT. After the
+# March DST switch each run lands an hour later in PT until these are edited.
+on:
+  schedule:
+    - cron: "0 17 * * *"
+    - cron: "0 20 * * *"
+    - cron: "30 22 * * *"
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-board
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      # Workflow logs are public: ./ev's full output (including the ranked table)
+      # goes to a file that is never uploaded, and only warning and error lines are
+      # echoed here.
+      - name: Scrape
+        id: scrape
+        env:
+          BETR_REFRESH_TOKEN: ${{ secrets.BETR_REFRESH_TOKEN }}
+          BETR_KEYCLOAK_TOKEN_URL: https://account.betr.app/realms/betr/protocol/openid-connect/token
+          BETR_KEYCLOAK_CLIENT_ID: betr-rn
+        run: |
+          set +e
+          ./ev --top-n all > "$RUNNER_TEMP/ev.log" 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          grep -E '\| (WARNING|ERROR|CRITICAL) +\|' "$RUNNER_TEMP/ev.log" || true
+
+      # Always runs, so a failed scrape still publishes its health. A cancelled or
+      # timed-out scrape leaves no exit code, which is published as a failure.
+      - name: Publish
+        if: always()
+        working-directory: backend
+        env:
+          BOARD_API_URL: ${{ secrets.BOARD_API_URL }}
+          BOARD_PUSH_TOKEN: ${{ secrets.BOARD_PUSH_TOKEN }}
+        run: python -m web.publish --exit-code "${{ steps.scrape.outputs.code || '1' }}"
+
+      # Fails the run when ./ev failed, so GitHub emails the repo owner.
+      - name: Fail on scrape failure
+        if: always() && steps.scrape.outputs.code != '0'
+        run: |
+          echo "./ev exited with code '${{ steps.scrape.outputs.code }}'"
+          exit 1

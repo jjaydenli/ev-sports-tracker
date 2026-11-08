@@ -1,0 +1,22 @@
+{
+  "player": "player",
+  "league": "league",
+  "team": "team",
+  "game": "game",
+  "market": "market",
+  "line": "line",
+  "side": "side",
+  "evPct": "ev_pct",
+  "plusEv": "plus_ev",
+  "hitPct": "side_hit_pct",
+  "betrBreakevenPct": "betr_implied_pct",
+  "noVigImpliedPct": "no_vig_implied_pct",
+  "noVigFavoredSide": "no_vig_favored_side",
+  "dkOver": "dk_over_odds",
+  "dkUnder": "dk_under_odds",
+  "fdOver": "fd_over_odds",
+  "fdUnder": "fd_under_odds",
+  "lineSource": "line_source",
+  "corroborated": "corroborated",
+  "sharpByBook": "sharp_by_book"
+}

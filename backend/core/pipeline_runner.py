@@ -31,6 +31,7 @@ from core.pipeline_artifacts import (
     SCRAPE_COVERAGE_FILENAME,
     all_pipeline_artifacts,
     artifacts_for_sources,
+    format_coverage_summary,
     load_wrapped_board,
     pipeline_run_lock,
     wipe_files,
@@ -126,19 +127,6 @@ def _is_full_run(
         and book_sources == BOOK_SOURCES
         and leagues == PIPELINE_LEAGUES
     )
-
-
-def _format_coverage_summary(sources: dict[str, dict]) -> str:
-    parts = []
-    for key in sorted(sources):
-        entry = sources[key]
-        status = entry.get("status", "?")
-        count = entry.get("prop_count", 0)
-        part = f"{key}={status}({count})"
-        if entry.get("blocked_requests"):
-            part += f" blocked={entry['blocked_requests']}/{entry['requests']}"
-        parts.append(part)
-    return " ".join(parts)
 
 
 async def _scrape_league_sources(
@@ -285,7 +273,7 @@ def run_refresh(
     books: tuple[str, ...] | None = None,
     leagues: tuple[str, ...] | None = None,
     min_ev: float | None = None,
-    top_n: int = 15,
+    top_n: int | None = 15,
     skip_expiry_check: bool = False,
     include_flat_lines: bool = False,
     timing: bool = False,
@@ -375,7 +363,7 @@ def run_refresh(
                         return 1
                     _accumulate_results(accumulators, results, coverage)
 
-            logger.info(f"scrape coverage: {_format_coverage_summary(coverage)}")
+            logger.info(f"scrape coverage: {format_coverage_summary(coverage)}")
 
             with timer.stage("normalize"):
                 normalized_chunks: list[list[dict]] = []
@@ -500,6 +488,21 @@ def run_refresh(
         lock_stack.close()
 
 
+def _top_n_arg(value: str) -> int | None:
+    """``--top-n`` value: a positive int, or ``all`` for every ranked row (``None``)."""
+    if value.lower() == "all":
+        return None
+    try:
+        top_n = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"expected a positive integer or 'all', got {value!r}"
+        ) from None
+    if top_n < 1:
+        raise argparse.ArgumentTypeError(f"must be at least 1 or 'all', got {top_n}")
+    return top_n
+
+
 def build_parser() -> argparse.ArgumentParser:
     """CLI argument parser for run_refresh."""
     parser = argparse.ArgumentParser(
@@ -586,10 +589,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     ev_out.add_argument(
         "--top-n",
-        type=int,
+        type=_top_n_arg,
         default=15,
         metavar="N",
-        help="max ranked rows written to ev_opportunities.json",
+        help="max ranked rows written to ev_opportunities.json, or 'all'",
     )
     ev_out.add_argument(
         "--include-flat-lines",

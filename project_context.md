@@ -1,6 +1,6 @@
 # Master Project Context: Multi-Platform EV Betting Engine
 
-**Last verified:** 2026-11-01
+**Last verified:** 2026-11-08
 
 ## 1. Project Overview
 
@@ -13,7 +13,7 @@
 - **Books:** DK REST (`dk_api.py`, `dk_engine.py`), FD REST (`fd_api.py`, `fd_engine.py`), ESPN GraphQL persisted-query (`espn_api.py`, `espn_auth.py`)
 - **Headers:** `config/api_headers.py` (`BETR_*`, `DK_*`, `FD_*`, `ESPN_*`; Betr JWT via `settings.py`/`betr_auth`)
 - **Logging:** `loguru` · **Testing:** `pytest`, `pytest-asyncio`, `pytest-mock` (offline fixtures only)
-- *(Future: FastAPI, Redis, PostgreSQL, React)*
+- **Live board:** GitHub Actions cron (scrape) → FastAPI on Render (`backend/web/`, `psycopg`) → Postgres on Neon → Next.js on Vercel (`frontend/`, ISR)
 
 ## 3. Platform-Specific Extraction Logic
 
@@ -81,7 +81,8 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 ev-sports-tracker/
 ├── scripts/                            # check_arch_sync.sh
 ├── docs/design/                        # architecture decision records
-├── .github/workflows/ci.yml
+├── .github/workflows/                  # ci.yml; live-board.yml (4x/day scrape → web.publish)
+├── frontend/                           # Next.js live board (app/, components/, lib/board-fields.json)
 ├── ev                                    # → backend pipeline_runner
 ├── loop                                  # ./ev loop; all leagues, no default --min-ev; colored table + toast
 └── backend/
@@ -98,11 +99,12 @@ ev-sports-tracker/
     │   ├── ev_pipeline.py, ev_display.py  # ranked JSON + console table (column registry, EV% tiers, Stack/dim/ms-grey), ev_run_diff.py
     │   ├── pipeline_scrape.py, pipeline_artifacts.py, scrape_result.py
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
+    ├── web/                            # app (board API), models, store (board_runs), publish (scrape-job poster)
     ├── archive/dabble/
     ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
     └── tests/                          # fixtures, integration, unit
 ```
 
-**EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set).
+**EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set). Live board: scheduled `./ev --top-n all` → `web.publish` (board only on exit 0 + same `run_id` + ≥1 row) → `POST /api/runs` → `board_runs` → `GET /api/board` → page.
 
 **Console table vocabulary** (`ev_display.py`): raw `adjustment_method` never renders. `Src` collapses to a real quote (`exact`, `exact·N` = N books corroborating) or an inferred one (`ms◆` one-sided milestone, `adj` line adjusted off the ladder), unknown → `?`. `Stat` renders `MARKET_ABBREV` (betting notation, keyed on canonical markets); `Side` renders `▲`/`▼` (`O/U` for an exact coin flip). A column registry owns order, headers, widths and per-column style roles. `Stack` marks every row of a same-team cluster with ≥2 distinct players; a per-player dim marks non-best rows, with one bright row kept per trust tier (exact and milestone independently). Milestone rows grey their Hit%/EV%/Src. Book identity and main-vs-alt stay in `board.json`'s `sharp_by_book`, not the terminal.

@@ -92,6 +92,43 @@ def test_find_ev_opportunities_includes_league_from_dfs_prop():
     assert all(row["league"] == "MLB" for row in results)
 
 
+@pytest.mark.parametrize(
+    ("dk_over", "dk_under", "expected_side", "expected_ev"),
+    [
+        # Hand oracle: implied 0.58333 / 0.45455, de-vig over = 0.58333 / 1.03788 = 0.56204;
+        # EV = 0.56204 - 120/220 = +0.0166.
+        (-140, 120, "over", 0.0166),
+        # Mirror image: under carries the 0.56204 fair probability.
+        (120, -140, "under", 0.0166),
+    ],
+)
+def test_find_ev_opportunities_default_path_emits_only_better_side(
+    dk_over, dk_under, expected_side, expected_ev
+):
+    """min_ev unset (the CLI default) must not leak the losing leg of a 2-way market."""
+    betr = [_betr_prop("Test Player", "points", 20.5)]
+    dk = [_dk_prop("Test Player", "points", 20.5, dk_over, dk_under)]
+
+    results = find_ev_opportunities(betr, dk)
+
+    assert [(row["side"], row["ev"]) for row in results] == [(expected_side, expected_ev)]
+
+
+def test_find_ev_opportunities_exact_coin_flip_collapses_to_single_ou_row():
+    """Symmetric sharp line de-vigs to exactly 50/50, so neither side is better."""
+    betr = [_betr_prop("Test Player", "points", 20.5)]
+    dk = [_dk_prop("Test Player", "points", 20.5, -115, -115)]
+
+    results = find_ev_opportunities(betr, dk)
+
+    # Hand oracle: fair 0.5 each side; EV = 0.5 - 120/220 = -0.0455.
+    assert len(results) == 1
+    assert results[0]["side"] == "O/U"
+    assert results[0]["side_hit_pct"] == 50.0
+    assert results[0]["ev"] == -0.0455
+    assert results[0]["plus_ev"] is False
+
+
 def test_find_ev_opportunities_finds_positive_ev_over():
     betr = [_betr_prop("Test Player", "points", 20.5)]
     dk = [_dk_prop("Test Player", "points", 20.5, -140, 120)]
@@ -144,25 +181,14 @@ def test_find_ev_opportunities_filters_at_negative_min_ev_threshold():
     dk = [_dk_prop("Test Player", "points", 20.5, -110, -110)]
 
     unfiltered = find_ev_opportunities(betr, dk)
-    assert len(unfiltered) == 2
-    assert all(row["ev"] == pytest.approx(-0.0455, abs=1e-4) for row in unfiltered)
+    assert len(unfiltered) == 1
+    assert unfiltered[0]["ev"] == pytest.approx(-0.0455, abs=1e-4)
 
     filtered = find_ev_opportunities(betr, dk, min_ev=-0.05)
-    assert len(filtered) == 2
+    assert len(filtered) == 1
 
     filtered_tighter = find_ev_opportunities(betr, dk, min_ev=-0.04)
     assert filtered_tighter == []
-
-
-def test_even_sharp_line_negative_ev_at_minus_120_breakeven():
-    """50/50 de-vig vs -120 breakeven (54.55%) is -EV on both sides."""
-    betr = [_betr_prop("Test Player", "points", 20.5)]
-    dk = [_dk_prop("Test Player", "points", 20.5, -110, -110)]
-
-    results = find_ev_opportunities(betr, dk)
-    assert len(results) == 2
-    assert all(row["ev"] == pytest.approx(-0.0455, abs=1e-4) for row in results)
-    assert all(not row["plus_ev"] for row in results)
 
 
 def test_find_ev_opportunities_top_n_limits_results():
@@ -184,13 +210,16 @@ def test_find_ev_opportunities_top_n_limits_results():
 
 
 def test_negative_ev_row_included_with_plus_ev_false():
+    """With min_ev unset, a prop whose better side is still -EV surfaces flagged, not dropped."""
     betr = [_betr_prop("Test Player", "points", 20.5)]
-    dk = [_dk_prop("Test Player", "points", 20.5, 120, -140)]
+    dk = [_dk_prop("Test Player", "points", 20.5, -115, -105)]
 
     results = find_ev_opportunities(betr, dk, top_n=15)
 
-    assert results
-    assert any(row["ev"] < 0 and not row["plus_ev"] for row in results)
+    # Hand oracle: implied 0.53488 / 0.51220, de-vig over = 0.51084; EV = 0.51084 - 120/220.
+    assert [(row["side"], row["ev"], row["plus_ev"]) for row in results] == [
+        ("over", -0.0346, False)
+    ]
 
 
 def test_compare_betr_vs_draftkings_sorts_by_ev_descending():

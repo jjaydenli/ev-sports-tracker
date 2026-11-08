@@ -200,6 +200,34 @@ def test_main_posts_the_run_and_logs_no_prop(
 
 
 @pytest.mark.parametrize(
+    ("row_count", "expected_dropped"),
+    [(2000, 0), (2001, 1)],
+    ids=["at-ceiling", "one-over-ceiling"],
+)
+def test_main_caps_the_published_board_at_2000_rows(
+    tmp_path: Path,
+    push_env: list[float],
+    capsys: pytest.CaptureFixture[str],
+    row_count: int,
+    expected_dropped: int,
+) -> None:
+    # Rows are opaque to web/; only their order matters here (the engine ranks by EV).
+    rows = [{"rank": i} for i in range(row_count)]
+    transport, seen = _transport([_status(200)])
+
+    assert main(_argv(_healthy_dir(tmp_path, rows)), transport=transport) == 0
+
+    sent = RunPayload.model_validate_json(seen[0].content)
+    assert sent.outcome == "ok"
+    assert sent.board is not None and sent.board.props == rows[:2000]
+    line = capsys.readouterr().out.strip()
+    if expected_dropped:
+        assert line.endswith(f"truncated={expected_dropped}")
+    else:
+        assert "truncated=" not in line
+
+
+@pytest.mark.parametrize(
     ("responses", "expected_exit", "expected_requests"),
     [
         ([_status(503), _status(200)], 0, 2),

@@ -32,6 +32,10 @@ from core.pipeline_runner import DEFAULT_DATA_DIR
 # Render's free web service takes about a minute to wake from sleep.
 POST_TIMEOUT_S = 150.0
 RETRY_DELAY_S = 10.0
+# ``./ev --top-n all`` is uncapped, so the bound on what one POST carries sits here: about
+# 5x the largest board seen (~1.2 KB a row). Capped here, not rejected by the API, so an
+# oversized board never costs the run its health record.
+MAX_PUBLISHED_ROWS = 2000
 
 
 def build_run_payload(data_dir: Path, exit_code: int) -> dict[str, Any]:
@@ -75,6 +79,18 @@ def build_run_payload(data_dir: Path, exit_code: int) -> dict[str, Any]:
         "coverage": coverage,
         "board": board,
     }
+
+
+def cap_board_rows(payload: dict[str, Any], max_rows: int = MAX_PUBLISHED_ROWS) -> int:
+    """Keep the board's first ``max_rows`` rows (already ranked by EV); return how many
+    were dropped."""
+    board = payload.get("board")
+    if not board:
+        return 0
+    props = board["props"]
+    dropped = max(len(props) - max_rows, 0)
+    board["props"] = props[:max_rows]
+    return dropped
 
 
 def post_run(
@@ -129,10 +145,12 @@ def main(
         return 1
 
     payload = build_run_payload(args.data_dir, args.exit_code)
+    dropped = cap_board_rows(payload)
     failure = post_run(payload, api_url=api_url, token=token, transport=transport)
     summary = format_coverage_summary(payload["coverage"].get("sources") or {})
     published = "ok" if failure is None else f"failed({failure})"
-    print(f"{summary} outcome={payload['outcome']} publish={published}")
+    truncated = f" truncated={dropped}" if dropped else ""
+    print(f"{summary} outcome={payload['outcome']} publish={published}{truncated}")
     return 0 if failure is None else 1
 
 

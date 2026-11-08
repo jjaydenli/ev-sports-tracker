@@ -143,18 +143,19 @@ def test_sources_carry_dk_block_counts(client: TestClient, s1_ev_rows: list[dict
     assert got["fd:NBA"]["requests"] is None
 
 
-def test_limit_caps_rows(client: TestClient, s1_ev_rows: list[dict]) -> None:
-    rows = [dict(s1_ev_rows[0], player=f"Player {i}") for i in range(5)]
+def test_board_is_whole_by_default_and_limit_keeps_rank_order(
+    client: TestClient, s1_ev_rows: list[dict]
+) -> None:
+    rows = [dict(s1_ev_rows[0], player=f"Player {i}") for i in range(250)]
     client.post(
         "/api/runs",
         json=_run("run-a", generated_at="2026-11-08T17:00:00+00:00", outcome="ok", props=rows),
         headers=_auth(),
     )
 
+    assert client.get("/api/board").json()["board"]["props"] == rows
     assert client.get("/api/board?limit=2").json()["board"]["props"] == rows[:2]
-    assert len(client.get("/api/board").json()["board"]["props"]) == 5
     assert client.get("/api/board?limit=0").status_code == 422
-    assert client.get("/api/board?limit=201").status_code == 422
 
 
 @pytest.mark.parametrize(

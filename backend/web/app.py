@@ -25,9 +25,6 @@ from web.models import (
 )
 from web.store import BoardStore, PostgresBoardStore, StoredRun
 
-DEFAULT_BOARD_LIMIT = 50
-MAX_BOARD_LIMIT = 200
-
 
 def _require_push_token(
     authorization: Annotated[str | None, Header()] = None,
@@ -103,8 +100,10 @@ def create_app(store: BoardStore | None = None) -> FastAPI:
     @app.get("/api/board", response_model=BoardResponse)
     def get_board(
         board_store: Annotated[BoardStore, Depends(_store)],
-        limit: Annotated[int, Query(ge=1, le=MAX_BOARD_LIMIT)] = DEFAULT_BOARD_LIMIT,
+        limit: Annotated[int | None, Query(ge=1)] = None,
     ) -> BoardResponse:
+        """Newest good board plus the latest run's health; no ``limit`` returns every row
+        (the page paginates in the browser)."""
         board_run = board_store.latest_board()
         latest = board_store.latest_run()
         board = (

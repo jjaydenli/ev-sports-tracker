@@ -17,6 +17,7 @@ from core.pipeline_runner import (
     normalize_league_flag_argv,
 )
 from core.scrape_result import ScrapeResult
+from scrapers.dfs.betr.betr_auth import BetrAuthError
 
 
 def _write_wrapped_normalized(tmp_path, betr_count: int, dk_count: int, *, run_id: str = "test-run") -> None:
@@ -478,3 +479,40 @@ def test_main_rejects_live_only_with_skip_scrape(_mock_run_refresh):
         main(["--live-only", "--skip-scrape"])
 
     assert exc.value.code == 1
+
+
+@pytest.mark.parametrize(
+    "ensure_behavior",
+    [
+        # Refresh grant rejected (dead refresh token): ensure_betr_token raises.
+        {"side_effect": BetrAuthError("keycloak token request failed: 400 invalid_grant")},
+        # A token comes back but fails validation (empty): previously an uncaught traceback.
+        {"return_value": ""},
+    ],
+    ids=["refresh_rejected", "token_fails_validation"],
+)
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
+def test_run_refresh_betr_auth_failure_keeps_prior_board(
+    mock_scrape, ensure_behavior, tmp_path
+):
+    """Dead Betr auth must not wipe the last good board, and must record why it stopped."""
+    _write_wrapped_normalized(tmp_path, betr_count=1, dk_count=1, run_id="prior-run")
+    save_wrapped_board(tmp_path / "ev_opportunities.json", run_id="prior-run", props=[])
+
+    from core.pipeline_runner import run_refresh
+
+    with patch(
+        "core.pipeline_runner.ensure_betr_token", new_callable=AsyncMock, **ensure_behavior
+    ):
+        code = run_refresh(data_dir=tmp_path)
+
+    assert code == 1
+    mock_scrape.assert_not_awaited()
+    assert load_wrapped_board(tmp_path / "ev_opportunities.json")[0] == "prior-run"
+    assert load_wrapped_board(tmp_path / BETR_NORMALIZED)[0] == "prior-run"
+    coverage = json.loads((tmp_path / "scrape_coverage.json").read_text(encoding="utf-8"))
+    assert coverage["ev"] == {"eligible": False, "previous_run_id": "prior-run"}
+    for league in PIPELINE_LEAGUES:
+        entry = coverage["sources"][f"betr:{league}"]
+        assert (entry["status"], entry["reason"]) == ("failed", "auth")
+        assert entry["error"]

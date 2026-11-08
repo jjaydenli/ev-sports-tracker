@@ -70,18 +70,32 @@ def _backend_root() -> Path:
     return Path(__file__).resolve().parent.parent
 
 
+BETR_AUTH_FIX_HINT = (
+    "fix: re-capture BETR_REFRESH_TOKEN per docs/betting_odds/betr.md "
+    "(Re-capturing a dead refresh token); the previous board was kept"
+)
+
+
 def _preflight_betr_auth(*, skip_expiry_check: bool) -> None:
-    """Validate or obtain a Betr token before scraping."""
+    """Validate or obtain a Betr token before scraping; raises BetrAuthError."""
     if skip_expiry_check:
         return
+    validate_betr_token_or_raise(asyncio.run(ensure_betr_token()))
 
-    try:
-        token = asyncio.run(ensure_betr_token())
-    except BetrAuthError as exc:
-        logger.error(str(exc))
-        raise SystemExit(1) from exc
 
-    validate_betr_token_or_raise(token)
+def _betr_auth_failure_coverage(
+    leagues: tuple[str, ...], error: str
+) -> dict[str, dict]:
+    """Coverage entries for a run stopped by Betr auth, so the failure reason is on disk."""
+    return {
+        result.coverage_key: result.to_dict()
+        for result in (
+            ScrapeResult(
+                source="betr", league=league, status="failed", error=error, reason="auth"
+            )
+            for league in leagues
+        )
+    }
 
 
 def _resolve_run_scope(
@@ -302,6 +316,27 @@ def run_refresh(
             prior_ev_path = data_path / "ev_opportunities.json"
             prior_run_id, _ = load_wrapped_board(prior_ev_path)
 
+            # Before any wipe: a dead token must leave the last good board on disk.
+            if "betr" in dfs_sources:
+                with timer.stage("betr auth"):
+                    try:
+                        _preflight_betr_auth(skip_expiry_check=skip_expiry_check)
+                    except BetrAuthError as exc:
+                        logger.error(f"betr auth failed: {exc}")
+                        logger.error(BETR_AUTH_FIX_HINT)
+                        write_scrape_coverage(
+                            data_path / SCRAPE_COVERAGE_FILENAME,
+                            run_id=run_id,
+                            mode=mode,
+                            dfs_sources=dfs_sources,
+                            book_sources=book_sources,
+                            leagues=league_list,
+                            sources=_betr_auth_failure_coverage(league_list, str(exc)),
+                            ev_eligible=False,
+                            previous_run_id=prior_run_id,
+                        )
+                        return 1
+
             if full_run:
                 wipe_files(data_path, list(all_pipeline_artifacts()))
             else:
@@ -314,10 +349,6 @@ def run_refresh(
                         include_shared=True,
                     ),
                 )
-
-            if "betr" in dfs_sources:
-                with timer.stage("betr auth"):
-                    _preflight_betr_auth(skip_expiry_check=skip_expiry_check)
 
             accumulators: dict[str, list[dict]] = {
                 source: [] for source in (*dfs_sources, *book_sources)

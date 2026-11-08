@@ -91,7 +91,7 @@ The pipeline and scrapers call `ensure_betr_token()` before Betr requests:
 3. Keycloak **refresh_token** grant when `BETR_REFRESH_TOKEN` (or cache) is set
 4. Keycloak **password** grant when `BETR_USERNAME` and `BETR_PASSWORD` are set
 
-JWT **expiry pre-flight** fails the run if the access token is expired or expires within 24 hours. Override only for debugging: `python -m core.pipeline_runner --skip-expiry-check`.
+JWT **expiry pre-flight** fails the run if the access token is expired or expires within 24 hours. It runs before any artifact is wiped, so the previous board survives; `scrape_coverage.json` records `betr:<league>` as `failed` with `reason: "auth"` and the error text. Override only for debugging: `python -m core.pipeline_runner --skip-expiry-check`.
 
 ### Alternative: manual bearer JWT
 

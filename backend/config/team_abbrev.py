@@ -5,9 +5,12 @@ anchor) defines the canonical form used in the display ``game`` string. The
 cross-book match gate keys on event-hour, not abbreviations, so these helpers
 are display-only — a mismatched abbreviation no longer costs a match.
 
-- Abbreviation-emitting books (betr, DraftKings, ESPN) are normalized through
-  :data:`TEAM_ABBR_ALIASES` via :func:`canonicalize_team_abbr` so every
-  ``AWAY@HOME`` display string converges regardless of source book.
+- Betr and DraftKings ``game`` strings pass through as the book emits them. Only
+  ESPN's are normalized through :data:`TEAM_ABBR_ALIASES` via
+  :func:`canonicalize_team_abbr`. The aliases are league-blind (``WAS -> WSH``
+  suits MLB/WNBA but not Betr NBA), so check that before wiring another book in.
+- EV rows and the console board take ``game`` from the Betr prop, so a sharp
+  book's ``game`` string only surfaces in its normalized board JSON.
 - FanDuel exposes only full team names (no abbreviations), so its ``game`` string
   is built from :data:`TEAM_FULL_NAME_TO_ABBR` via :func:`game_key_from_full_names`.
 
@@ -38,8 +41,9 @@ def canonicalize_team_abbr(abbr: str) -> str:
 # only full names (e.g. "Chicago White Sox"), sometimes with a pitcher annotation
 # ("Minnesota Twins (J Ryan)") that is stripped before lookup. Values must match
 # betr's vocabulary; abbreviations marked (unverified) are best-standard guesses
-# pending a live betr slate carrying that team — a wrong/missing entry only drops
-# FanDuel matches for that team (graceful) and never affects DK/ESPN.
+# pending a live betr slate carrying that team. A wrong entry only mislabels the
+# FanDuel ``game`` string, and a missing one leaves it unset with a warning;
+# matching keys on event hour, so neither costs a match.
 TEAM_FULL_NAME_TO_ABBR: dict[str, str] = {
     # --- MLB ---
     "Arizona Diamondbacks": "ARI",
@@ -88,6 +92,42 @@ TEAM_FULL_NAME_TO_ABBR: dict[str, str] = {
     "Phoenix Mercury": "PHX",
     "Seattle Storm": "SEA",
     "Washington Mystics": "WSH",
+    # --- NBA ---
+    # Betr's NBA vocabulary differs from its WNBA/MLB one (PHO not PHX, WAS not WSH).
+    # Verified from live Betr NBA slates 2026-11: BOS CHI CLE DEN DET GS HOU IND LAC
+    # LAL MIA MIL NO NY OKC ORL PHI PHO SA SAC UTA WAS. The rest are (unverified)
+    # pending a Betr slate carrying the team.
+    "Atlanta Hawks": "ATL",  # (unverified)
+    "Boston Celtics": "BOS",
+    "Brooklyn Nets": "BKN",  # (unverified)
+    "Charlotte Hornets": "CHA",  # (unverified)
+    "Chicago Bulls": "CHI",
+    "Cleveland Cavaliers": "CLE",
+    "Dallas Mavericks": "DAL",  # (unverified)
+    "Denver Nuggets": "DEN",
+    "Detroit Pistons": "DET",
+    "Golden State Warriors": "GS",
+    "Houston Rockets": "HOU",
+    "Indiana Pacers": "IND",
+    "LA Clippers": "LAC",
+    "Los Angeles Clippers": "LAC",
+    "Los Angeles Lakers": "LAL",
+    "Memphis Grizzlies": "MEM",  # (unverified)
+    "Miami Heat": "MIA",
+    "Milwaukee Bucks": "MIL",
+    "Minnesota Timberwolves": "MIN",  # (unverified)
+    "New Orleans Pelicans": "NO",
+    "New York Knicks": "NY",
+    "Oklahoma City Thunder": "OKC",
+    "Orlando Magic": "ORL",
+    "Philadelphia 76ers": "PHI",
+    "Phoenix Suns": "PHO",
+    "Portland Trail Blazers": "POR",  # (unverified)
+    "Sacramento Kings": "SAC",
+    "San Antonio Spurs": "SA",
+    "Toronto Raptors": "TOR",  # (unverified)
+    "Utah Jazz": "UTA",
+    "Washington Wizards": "WAS",
 }
 
 # Punctuation/case-insensitive lookup so "St. Louis" vs "St Louis" still resolves.

@@ -13,6 +13,7 @@ from scrapers.base_scraper import BaseScraper
 from scrapers.sportsbooks.dk_api import (
     LIVE_EVENT_STATUSES,
     SCRAPABLE_EVENT_STATUSES,
+    DkBlockLedger,
     build_event_game_map,
     build_event_start_map,
     extract_event_ids,
@@ -76,6 +77,7 @@ class DraftKingsEngine(BaseScraper):
         self.stat_categories = self.subs.pregame.ou
         self.milestone_categories = self.subs.pregame.configured_milestone
         self.markets = markets or list(self.stat_categories.keys())
+        self.block_ledger = DkBlockLedger()
 
     async def authenticate(self) -> str | None:
         return None
@@ -131,12 +133,14 @@ class DraftKingsEngine(BaseScraper):
         live_ou = self.subs.live.configured_ou
         live_milestone = self.subs.live.configured_milestone
         all_props: list[dict[str, Any]] = []
+        self.block_ledger = DkBlockLedger()
 
         async with httpx.AsyncClient(
             headers=DK_BASE_HEADERS,
             follow_redirects=True,
             timeout=15.0,
             limits=HTTPX_LIMITS,
+            event_hooks={"response": [self.block_ledger.record]},
         ) as client:
             event_ids, live_event_ids, event_game_map, event_start_map = (
                 await self._resolve_event_ids(client)

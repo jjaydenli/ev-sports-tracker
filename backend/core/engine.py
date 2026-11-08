@@ -196,6 +196,26 @@ def _favored_no_vig(fair_over: float, fair_under: float) -> tuple[str, float]:
     return "under", fair_under
 
 
+_COIN_FLIP_TOLERANCE = 1e-9
+
+
+def _pick_side(
+    fair_over: float | None, fair_under: float | None
+) -> tuple[str, float] | None:
+    """One row per DFS prop: the higher-EV allowed side, or ``O/U`` on an exact coin flip.
+
+    Both sides of a prop share one breakeven, so EV order equals fair-probability order.
+    ``None`` marks a side the DFS book does not offer.
+    """
+    if fair_over is None:
+        return None if fair_under is None else ("under", fair_under)
+    if fair_under is None:
+        return "over", fair_over
+    if abs(fair_over - fair_under) < _COIN_FLIP_TOLERANCE:
+        return "O/U", fair_over
+    return ("over", fair_over) if fair_over > fair_under else ("under", fair_under)
+
+
 def _append_side_opportunity(
     opportunities: list[dict],
     *,
@@ -402,26 +422,18 @@ def find_ev_opportunities(
             )
         if resolved is not None and is_ev_eligible_quote(resolved):
             fair_over, fair_under = _fair_probs_from_resolved(resolved)
-
-            if dfs_prop.get("over_odds") is not None:
+            picked = _pick_side(
+                fair_over if dfs_prop.get("over_odds") is not None else None,
+                fair_under if dfs_prop.get("under_odds") is not None else None,
+            )
+            if picked is not None:
+                side, fair_prob = picked
                 _append_side_opportunity(
                     opportunities,
                     dfs_prop=dfs_prop,
                     resolved=resolved,
-                    side="over",
-                    fair_prob=fair_over,
-                    breakeven_prob=breakeven_prob,
-                    fair_over=fair_over,
-                    fair_under=fair_under,
-                    dfs_sportsbook=dfs_side.name,
-                )
-            if dfs_prop.get("under_odds") is not None:
-                _append_side_opportunity(
-                    opportunities,
-                    dfs_prop=dfs_prop,
-                    resolved=resolved,
-                    side="under",
-                    fair_prob=fair_under,
+                    side=side,
+                    fair_prob=fair_prob,
                     breakeven_prob=breakeven_prob,
                     fair_over=fair_over,
                     fair_under=fair_under,

@@ -26,6 +26,30 @@ DK_MARKETS_MAX_ATTEMPTS = 5
 DK_MARKETS_RETRY_DELAYS_SEC = (0.5, 1.0, 2.0, 4.0)
 
 
+class DkBlockLedger:
+    """Final HTTP status per DK URL, fed by a response hook on the scrape client.
+
+    Keyed by URL so a request that 403s and then succeeds on retry counts as
+    served; only a URL whose last response is a retry status counts as blocked.
+    """
+
+    def __init__(self) -> None:
+        self._last_status: dict[str, int] = {}
+
+    async def record(self, response: httpx.Response) -> None:
+        self._last_status[str(response.request.url)] = response.status_code
+
+    @property
+    def requests(self) -> int:
+        return len(self._last_status)
+
+    @property
+    def blocked(self) -> int:
+        return sum(
+            1 for status in self._last_status.values() if status in DK_MARKETS_RETRY_STATUS
+        )
+
+
 def _dk_markets_max_concurrent() -> int:
     raw = os.getenv("DK_MARKETS_MAX_CONCURRENT", "6")
     try:

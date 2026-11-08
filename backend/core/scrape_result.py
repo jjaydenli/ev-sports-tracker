@@ -18,6 +18,10 @@ class ScrapeResult:
     prop_count: int = 0
     error: str | None = None
     reason: str | None = None
+    # HTTP requests sent and how many stayed blocked (403/429) after retries;
+    # None for sources that do not measure it.
+    requests: int | None = None
+    blocked_requests: int | None = None
     props: list[dict] = field(default_factory=list)
 
     @property

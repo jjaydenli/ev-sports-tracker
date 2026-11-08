@@ -14,6 +14,7 @@ from config.dk_subcategories import (
 from scrapers.sportsbooks.dk_api import (
     LIVE_EVENT_STATUSES,
     SCRAPABLE_EVENT_STATUSES,
+    DkBlockLedger,
     extract_event_ids,
     fetch_and_flatten_all_for_market,
     fetch_and_flatten_markets,
@@ -201,13 +202,18 @@ async def test_fetch_event_subcategory_markets_retries_transient_403(points_payl
         return httpx.Response(200, json=points_payload, request=request)
 
     transport = httpx.MockTransport(handler)
-    async with httpx.AsyncClient(transport=transport) as client:
+    ledger = DkBlockLedger()
+    async with httpx.AsyncClient(
+        transport=transport, event_hooks={"response": [ledger.record]}
+    ) as client:
         result = await fetch_event_subcategory_markets(
             client, EVENT_ID, DK_NBA_PREGAME_STAT_CATEGORIES["points"]
         )
 
     assert result == points_payload
     assert attempts == 2
+    # Served on retry: one request, not a block.
+    assert (ledger.requests, ledger.blocked) == (1, 0)
 
 
 def test_flatten_mlb_hits_fixture():

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from loguru import logger
+
 from config.dk_subcategories import (
     DK_LEAGUE_SLATES,
     subcategories_for_league,
@@ -79,12 +81,31 @@ async def scrape_dk_league(league: str, *, live_only: bool = False) -> ScrapeRes
     try:
         engine = DraftKingsEngine(league=dk_slate, live_only=live_only)
         props = await engine.scrape()
+        ledger = engine.block_ledger
+        if ledger.blocked:
+            logger.warning(
+                f"draftkings {league_key}: {ledger.blocked}/{ledger.requests} requests "
+                "still blocked (403/429) after retries"
+            )
         if not props:
+            # No props with blocks seen is a block, not a quiet slate.
+            if ledger.blocked:
+                return ScrapeResult(
+                    source="dk",
+                    league=league_key,
+                    status="failed",
+                    reason="blocked",
+                    error=f"{ledger.blocked}/{ledger.requests} DK requests blocked",
+                    requests=ledger.requests,
+            blocked_requests=ledger.blocked,
+                )
             return ScrapeResult(
                 source="dk",
                 league=league_key,
                 status="no_events",
                 prop_count=0,
+                requests=ledger.requests,
+            blocked_requests=ledger.blocked,
             )
         return ScrapeResult(
             source="dk",
@@ -92,6 +113,8 @@ async def scrape_dk_league(league: str, *, live_only: bool = False) -> ScrapeRes
             status="ok",
             prop_count=len(props),
             props=props,
+            requests=ledger.requests,
+            blocked_requests=ledger.blocked,
         )
     except Exception as exc:
         return ScrapeResult(

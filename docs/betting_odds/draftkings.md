@@ -211,6 +211,8 @@ The scraper fetches O/U for every market in `DK_NBA_PREGAME_STAT_CATEGORIES` and
 
 DraftKings serves markets through Akamai on `sportsbook-nash.draftkings.com`. Blocks show up as **403 Access Denied** (HTML), not JSON rate-limit bodies. The scraper treats 403/429 as **transient** and retries with backoff while a global semaphore limits in-flight market GETs.
 
+A response hook (`DkBlockLedger`) records each URL's final status, so a request still 403/429 after its retries counts as blocked. The `dk:<league>` entry in `scrape_coverage.json` carries `requests` and `blocked_requests`, and the coverage log line appends `blocked=N/M`. A scrape with no props and any block reports `failed` with `reason: "blocked"`, not `no_events`, so a blocked IP can't pass as a night with no games.
+
 ### HTTP budget (typical NBA slate, auto-discover)
 
 | Step | Calls | Notes |

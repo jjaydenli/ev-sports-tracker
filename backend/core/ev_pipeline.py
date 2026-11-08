@@ -254,6 +254,16 @@ def persist_match_diagnostics(
     return stats
 
 
+def _empty_board_reason(betr_count: int, min_ev: float | None) -> str:
+    """Why a scan produced no rows: every resolved prop yields a row unless min_ev drops it."""
+    if min_ev is not None:
+        return f"nothing reached min_ev={min_ev}; rerun without --min-ev to see every match"
+    return (
+        f"none of {betr_count} betr props resolved to an EV-eligible sharp line "
+        f"(per-prop reasons in {UNMATCHED_BETR_FILENAME})"
+    )
+
+
 def run_ev_scan(
     data_dir: str | Path = "data/processed",
     *,
@@ -322,12 +332,16 @@ def run_ev_scan(
         diff = compute_run_diff(previous_rows, opportunities)
         write_run_diff_json(diff, data_path / EV_DIFF_FILENAME)
 
-    logger.success(
-        f"top={len(opportunities)} plus_ev={plus_ev_count} "
-        f"(min_ev={min_ev}, top_n={top_n}) -> {output_path}"
-    )
-
-    if opportunities:
+    if not opportunities:
+        logger.warning(
+            f"no plays on the board: {_empty_board_reason(len(betr_props), min_ev)} "
+            f"-> {output_path}"
+        )
+    else:
+        logger.success(
+            f"top={len(opportunities)} plus_ev={plus_ev_count} "
+            f"(min_ev={min_ev}, top_n={top_n}) -> {output_path}"
+        )
         logger.info(
             "ranked plays:\n"
             + format_ev_opportunities_table(opportunities, color_ev=True)

@@ -7,6 +7,7 @@ import pytest
 from config.fd_competitions import (
     FD_LEAGUE_SLATES,
     build_content_managed_page_url,
+    build_event_game_map,
     build_event_page_url,
     extract_event_ids,
     parse_event_id_from_url,
@@ -75,6 +76,20 @@ def test_extract_event_ids_returns_matchups_only(league_payload):
     )
 
     assert event_ids == ["35639109", "35652199", "35652200"]
+
+
+def test_build_event_game_map_nba_uses_betr_codes(league_payload):
+    """FanDuel NBA events carry full names only; the game string must match Betr's codes.
+
+    Expected codes are Betr's own live NBA vocabulary (NY, SA, OKC), not a guess.
+    """
+    game_map = build_event_game_map(league_payload, competition_id=NBA_COMPETITION_ID)
+
+    assert game_map == {
+        "35639109": "SA@OKC",
+        "35652199": "NY@OKC",
+        "35652200": "NY@SA",
+    }
 
 
 def test_extract_event_ids_can_include_specials(league_payload):

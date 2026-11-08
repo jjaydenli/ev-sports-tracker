@@ -43,9 +43,10 @@ jobs:
           BETR_REFRESH_TOKEN: ${{ secrets.BETR_REFRESH_TOKEN }}
           BETR_KEYCLOAK_TOKEN_URL: https://account.betr.app/realms/betr/protocol/openid-connect/token
           BETR_KEYCLOAK_CLIENT_ID: betr-rn
+        # theScore Bet (the espn source) is off until its Cloudflare block is solved.
         run: |
           set +e
-          ./ev --top-n all > "$RUNNER_TEMP/ev.log" 2>&1
+          ./ev --top-n all --books dk,fd > "$RUNNER_TEMP/ev.log" 2>&1
           echo "code=$?" >> "$GITHUB_OUTPUT"
           grep -E '\| (WARNING|ERROR|CRITICAL) +\|' "$RUNNER_TEMP/ev.log" || true
 

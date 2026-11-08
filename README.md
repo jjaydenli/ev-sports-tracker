@@ -33,7 +33,7 @@ Architecture decisions: [`docs/design/`](docs/design/)
 
 ```
 GitHub Actions (cron, 4x/day)  ──▶  FastAPI (Render)  ──▶  Postgres (Neon)  ◀──  Next.js page (Vercel, ISR)
-  ./ev --top-n all                    POST /api/runs        board_runs table        GET /api/board
+  ./ev --top-n all --books dk,fd      POST /api/runs        board_runs table        GET /api/board
   python -m web.publish
 ```
 
@@ -120,7 +120,7 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 ./ev --mlb                      # MLB only
 ./ev --books dk,espn            # subset of sharp books
 ./ev --top-n 25 --min-ev 0.02   # top 25 with ev >= 2%; plus_ev when ev > 0
-./ev --top-n all                # every ranked row (what the live board publishes)
+./ev --top-n all                # every ranked row (the live board adds --books dk,fd)
 ./ev --scrape-only              # scrape + normalize, skip EV
 ./ev --live-only --nba          # in-progress games only (skips pregame and FanDuel)
 ./ev --timing                   # wall-clock summary per pipeline stage

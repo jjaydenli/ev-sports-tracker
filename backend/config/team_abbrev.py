@@ -94,32 +94,33 @@ TEAM_FULL_NAME_TO_ABBR: dict[str, str] = {
     "Washington Mystics": "WSH",
     # --- NBA ---
     # Betr's NBA vocabulary differs from its WNBA/MLB one (PHO not PHX, WAS not WSH).
-    # Verified from live Betr NBA slates 2026-11: CLE DEN GS HOU IND NO NY OKC ORL PHO
-    # SA SAC UTA WAS. The rest are (unverified) pending a Betr slate carrying the team.
+    # Verified from live Betr NBA slates 2026-11: BOS CHI CLE DEN DET GS HOU IND LAC
+    # LAL MIA MIL NO NY OKC ORL PHI PHO SA SAC UTA WAS. The rest are (unverified)
+    # pending a Betr slate carrying the team.
     "Atlanta Hawks": "ATL",  # (unverified)
-    "Boston Celtics": "BOS",  # (unverified)
+    "Boston Celtics": "BOS",
     "Brooklyn Nets": "BKN",  # (unverified)
     "Charlotte Hornets": "CHA",  # (unverified)
-    "Chicago Bulls": "CHI",  # (unverified)
+    "Chicago Bulls": "CHI",
     "Cleveland Cavaliers": "CLE",
     "Dallas Mavericks": "DAL",  # (unverified)
     "Denver Nuggets": "DEN",
-    "Detroit Pistons": "DET",  # (unverified)
+    "Detroit Pistons": "DET",
     "Golden State Warriors": "GS",
     "Houston Rockets": "HOU",
     "Indiana Pacers": "IND",
-    "LA Clippers": "LAC",  # (unverified)
-    "Los Angeles Clippers": "LAC",  # (unverified)
-    "Los Angeles Lakers": "LAL",  # (unverified)
+    "LA Clippers": "LAC",
+    "Los Angeles Clippers": "LAC",
+    "Los Angeles Lakers": "LAL",
     "Memphis Grizzlies": "MEM",  # (unverified)
-    "Miami Heat": "MIA",  # (unverified)
-    "Milwaukee Bucks": "MIL",  # (unverified)
+    "Miami Heat": "MIA",
+    "Milwaukee Bucks": "MIL",
     "Minnesota Timberwolves": "MIN",  # (unverified)
     "New Orleans Pelicans": "NO",
     "New York Knicks": "NY",
     "Oklahoma City Thunder": "OKC",
     "Orlando Magic": "ORL",
-    "Philadelphia 76ers": "PHI",  # (unverified)
+    "Philadelphia 76ers": "PHI",
     "Phoenix Suns": "PHO",
     "Portland Trail Blazers": "POR",  # (unverified)
     "Sacramento Kings": "SAC",

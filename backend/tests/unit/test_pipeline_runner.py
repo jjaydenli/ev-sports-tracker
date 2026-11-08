@@ -153,6 +153,22 @@ def test_build_parser_min_ev_default_and_values():
     assert parser.parse_args(["--min-ev", "0.02"]).min_ev == 0.02
 
 
+def test_build_parser_top_n_all_means_uncapped():
+    parser = build_parser()
+    assert parser.parse_args([]).top_n == 15
+    assert parser.parse_args(["--top-n", "1"]).top_n == 1
+    assert parser.parse_args(["--top-n", "all"]).top_n is None
+    assert parser.parse_args(["--top-n", "ALL"]).top_n is None
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "ten"])
+def test_build_parser_top_n_rejects_non_positive_and_junk(value, capsys):
+    with pytest.raises(SystemExit) as exc:
+        build_parser().parse_args(["--top-n", value])
+    assert exc.value.code == 2
+    assert "--top-n" in capsys.readouterr().err
+
+
 def test_build_parser_has_shorthand_flag_per_pipeline_league():
     parser = build_parser()
     for league in PIPELINE_LEAGUES:

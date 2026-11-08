@@ -134,7 +134,10 @@ def _format_coverage_summary(sources: dict[str, dict]) -> str:
         entry = sources[key]
         status = entry.get("status", "?")
         count = entry.get("prop_count", 0)
-        parts.append(f"{key}={status}({count})")
+        part = f"{key}={status}({count})"
+        if entry.get("blocked_requests"):
+            part += f" blocked={entry['blocked_requests']}/{entry['requests']}"
+        parts.append(part)
     return " ".join(parts)
 
 

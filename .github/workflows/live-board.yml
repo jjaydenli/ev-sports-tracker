@@ -41,7 +41,7 @@ jobs:
         id: scrape
         env:
           BETR_REFRESH_TOKEN: ${{ secrets.BETR_REFRESH_TOKEN }}
-          BETR_KEYCLOAK_TOKEN_URL: REPLACE_WITH_BETR_KEYCLOAK_TOKEN_URL
+          BETR_KEYCLOAK_TOKEN_URL: https://account.betr.app/realms/betr/protocol/openid-connect/token
           BETR_KEYCLOAK_CLIENT_ID: betr-rn
         run: |
           set +e

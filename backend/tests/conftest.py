@@ -1,6 +1,25 @@
 """Shared fixtures and mock HTTP responses."""
 
+import json
+from pathlib import Path
+
 import pytest
+
+from core.engine import find_ev_opportunities
+
+_SCENARIO_DIR = Path(__file__).resolve().parent / "fixtures" / "scenarios"
+
+
+@pytest.fixture
+def s1_ev_rows() -> list[dict]:
+    """Real engine rows from the S1 scenario board (one DK O/U match, over is +EV)."""
+    scenario = json.loads((_SCENARIO_DIR / "s1_clean_single_book_ou.json").read_text())
+    return find_ev_opportunities(
+        scenario["betr_props"],
+        scenario["dk_props"],
+        fanduel_props=scenario.get("fd_props"),
+        espn_props=scenario.get("espn_props"),
+    )
 
 
 @pytest.fixture

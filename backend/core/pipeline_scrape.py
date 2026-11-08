@@ -82,7 +82,6 @@ async def scrape_dk_league(league: str, *, live_only: bool = False) -> ScrapeRes
         engine = DraftKingsEngine(league=dk_slate, live_only=live_only)
         props = await engine.scrape()
         ledger = engine.block_ledger
-        http_counts = {"requests": ledger.requests, "blocked_requests": ledger.blocked}
         if ledger.blocked:
             logger.warning(
                 f"draftkings {league_key}: {ledger.blocked}/{ledger.requests} requests "
@@ -97,14 +96,16 @@ async def scrape_dk_league(league: str, *, live_only: bool = False) -> ScrapeRes
                     status="failed",
                     reason="blocked",
                     error=f"{ledger.blocked}/{ledger.requests} DK requests blocked",
-                    **http_counts,
+                    requests=ledger.requests,
+            blocked_requests=ledger.blocked,
                 )
             return ScrapeResult(
                 source="dk",
                 league=league_key,
                 status="no_events",
                 prop_count=0,
-                **http_counts,
+                requests=ledger.requests,
+            blocked_requests=ledger.blocked,
             )
         return ScrapeResult(
             source="dk",
@@ -112,7 +113,8 @@ async def scrape_dk_league(league: str, *, live_only: bool = False) -> ScrapeRes
             status="ok",
             prop_count=len(props),
             props=props,
-            **http_counts,
+            requests=ledger.requests,
+            blocked_requests=ledger.blocked,
         )
     except Exception as exc:
         return ScrapeResult(

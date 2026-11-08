@@ -207,12 +207,10 @@ def _pick_side(
     Both sides of a prop share one breakeven, so EV order equals fair-probability order.
     ``None`` marks a side the DFS book does not offer.
     """
-    if fair_over is None and fair_under is None:
-        return None
+    if fair_over is None:
+        return None if fair_under is None else ("under", fair_under)
     if fair_under is None:
         return "over", fair_over
-    if fair_over is None:
-        return "under", fair_under
     if abs(fair_over - fair_under) < _COIN_FLIP_TOLERANCE:
         return "O/U", fair_over
     return ("over", fair_over) if fair_over > fair_under else ("under", fair_under)

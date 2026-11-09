@@ -204,6 +204,24 @@ const MARKET_WORDS: Record<string, string> = {
   hits: "Hits",
 };
 
+/** Filter menus list leagues in this order; any other league follows, A–Z. */
+export const LEAGUE_ORDER: readonly string[] = ["NBA", "NFL", "NHL", "MLB"];
+
+/**
+ * Each league's markets in the filter menu, by market key; any other market follows, A–Z.
+ * Fixed rather than by prop count, so the list does not reshuffle on every refresh.
+ */
+export const MARKET_ORDER: Readonly<Record<string, readonly string[]>> = {
+  NBA: ["points", "rebounds", "assists", "pra", "pts+reb", "pts+ast", "reb+ast", "threes"],
+  MLB: ["hits"],
+};
+
+/** A value's place in one of the orders above; unlisted values all tie, after the listed ones. */
+export function orderRank(order: readonly string[] | undefined, value: string): number {
+  const i = order?.indexOf(value) ?? -1;
+  return i < 0 ? Number.MAX_SAFE_INTEGER : i;
+}
+
 /** "pts+reb" → "Pts + Reb"; an unknown market shows its raw key. */
 export function marketWords(market: string | null): string {
   if (market === null) return DASH;

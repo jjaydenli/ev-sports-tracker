@@ -13,7 +13,7 @@
 - **Books:** DK REST (`dk_api.py`, `dk_engine.py`), FD REST (`fd_api.py`, `fd_engine.py`), ESPN GraphQL persisted-query (`espn_api.py`, `espn_auth.py`)
 - **Headers:** `config/api_headers.py` (`BETR_*`, `DK_*`, `FD_*`, `ESPN_*`; Betr JWT via `settings.py`/`betr_auth`)
 - **Logging:** `loguru` · **Testing:** `pytest`, `pytest-asyncio`, `pytest-mock` (offline fixtures only)
-- **Live board:** GitHub Actions cron (scrape) → FastAPI on Render (`backend/web/`, `psycopg`) → Postgres on Neon → Next.js on Vercel (`frontend/`, ISR)
+- **Live board:** external cron → GitHub Actions `workflow_dispatch` (scrape; built-in schedule is a backup that skips when the board is fresh) → FastAPI on Render (`backend/web/`, `psycopg`) → Postgres on Neon → Next.js on Vercel (`frontend/`, ISR)
 
 ## 3. Platform-Specific Extraction Logic
 

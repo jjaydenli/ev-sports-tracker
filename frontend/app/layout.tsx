@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "EV board",
-  description: "Betr pick'em props priced against DraftKings and FanDuel no-vig odds.",
+  title: "Betr +EV Prop Optimizer",
+  description:
+    "Each Betr pick'em prop's fair hit chance from sportsbook no-vig odds, against Betr's breakeven.",
   robots: { index: false, follow: false },
 };
 

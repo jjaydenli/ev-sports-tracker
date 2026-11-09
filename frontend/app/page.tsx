@@ -13,11 +13,10 @@ export default async function Page() {
   return (
     <main>
       <header>
-        <h1>EV board</h1>
+        <h1>Betr +EV Prop Optimizer</h1>
         <p className="lede">
-          Betr pick&apos;em props priced against DraftKings and FanDuel. EV% compares each
-          side&apos;s no-vig hit probability with Betr&apos;s breakeven; +EV rows are
-          highlighted. Select a player for the breakdown.
+          Each Betr pick&apos;em prop&apos;s fair hit chance from sportsbook no-vig odds, against
+          Betr&apos;s breakeven. Select a row for the breakdown.
         </p>
         <StatusPill run={latestRun} board={board} />
       </header>

@@ -5,9 +5,9 @@
 export default function Error({ reset }: { error: Error; reset: () => void }) {
   return (
     <main>
-      <h1>EV board</h1>
+      <h1>Betr +EV Prop Optimizer</h1>
       <p className="empty">The board is not available right now. Try again in a minute.</p>
-      <button type="button" onClick={reset}>
+      <button type="button" className="more" onClick={reset}>
         Retry
       </button>
     </main>

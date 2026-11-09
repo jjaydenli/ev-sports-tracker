@@ -82,7 +82,7 @@ ev-sports-tracker/
 ├── scripts/                            # check_arch_sync.sh
 ├── docs/design/                        # architecture decision records
 ├── .github/workflows/                  # ci.yml; live-board.yml (4x/day scrape → web.publish)
-├── frontend/                           # Next.js live board (app/, components/, lib/board-fields.json)
+├── frontend/                           # Next.js live board (app/, components/, lib/board-fields.json + books.json, public/books/)
 ├── ev                                    # → backend pipeline_runner
 ├── loop                                  # ./ev loop; all leagues, no default --min-ev; colored table + toast
 └── backend/

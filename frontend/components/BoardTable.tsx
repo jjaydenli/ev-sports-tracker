@@ -1,172 +1,279 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, type ReactNode, useState } from "react";
 
 import {
+  BETR,
+  type Book,
   type BoardRow,
   DASH,
   F,
+  PRICED_BOOKS,
+  americanToPct,
   bool,
+  bookPrices,
+  edgePts,
+  edgeStep,
   formatOdds,
   formatPct,
+  formatSignedPct,
+  hasPrices,
+  holdPct,
+  lineSourceWords,
+  marketWords,
+  matchup,
   num,
+  oneSidedCaveat,
+  pctToAmerican,
+  pickLine,
   str,
+  whySentence,
 } from "@/lib/board";
 
-const PAGE_SIZE = 25;
-const COLUMN_COUNT = 11;
+/** A board row with a stable id (its index on the board), so sorting cannot reuse keys. */
+type Prop = { id: number; row: BoardRow };
 
-function rowKey(row: BoardRow, index: number): string {
-  return [str(row, F.player), str(row, F.market), num(row, F.line), str(row, F.side), index].join(
-    "|",
-  );
-}
+type Column = {
+  id: string;
+  header: ReactNode;
+  className?: string;
+  cell: (row: BoardRow) => ReactNode;
+};
 
-function teamGame(row: BoardRow): string {
-  const parts = [str(row, F.team), str(row, F.game)].filter(Boolean);
-  if (parts.length) return parts.join(" · ");
-  return str(row, F.league) ?? DASH;
-}
-
-function oddsPair(row: BoardRow, overKey: string, underKey: string): string {
-  const over = num(row, overKey);
-  const under = num(row, underKey);
-  if (over === null && under === null) return DASH;
-  return `${formatOdds(over)} / ${formatOdds(under)}`;
-}
-
-function source(row: BoardRow): string {
-  const lineSource = str(row, F.lineSource) ?? DASH;
-  return bool(row, F.corroborated) ? `${lineSource} ✓` : lineSource;
-}
-
-function sharpByBook(row: BoardRow): [string, string][] {
-  const value = row[F.sharpByBook];
-  if (!value || typeof value !== "object") return [];
-  return Object.entries(value as Record<string, unknown>).map(([book, how]) => [
-    book,
-    typeof how === "string" ? how : DASH,
-  ]);
-}
-
-function Breakdown({ row }: { row: BoardRow }) {
-  const books = sharpByBook(row);
-  const favored = str(row, F.noVigFavoredSide);
+function Logo({ book }: { book: Book }) {
   return (
-    <dl className="breakdown">
-      <div>
-        <dt>No-vig fair probability{favored ? ` (${favored})` : ""}</dt>
-        <dd>{formatPct(num(row, F.noVigImpliedPct), 2)}</dd>
-      </div>
-      <div>
-        <dt>Hit probability, this side</dt>
-        <dd>{formatPct(num(row, F.hitPct), 2)}</dd>
-      </div>
-      <div>
-        <dt>Betr breakeven</dt>
-        <dd>{formatPct(num(row, F.betrBreakevenPct), 2)}</dd>
-      </div>
-      <div>
-        <dt>Sharp books used</dt>
-        <dd>
-          {books.length
-            ? books.map(([book, how]) => `${book} (${how})`).join(", ")
-            : DASH}
-        </dd>
-      </div>
-    </dl>
+    <span className="logo" tabIndex={0} title={book.name}>
+      {book.logo ? (
+        <img src={book.logo} alt="" />
+      ) : (
+        <span className="mono" aria-hidden="true">
+          {book.monogram ?? book.name.slice(0, 2)}
+        </span>
+      )}
+      <span className="sr">{book.name}</span>
+    </span>
   );
+}
+
+function PlayerCell({ row }: { row: BoardRow }) {
+  const side = str(row, F.side);
+  const breakeven = num(row, F.betrBreakevenPct);
+  return (
+    <>
+      <span className="idrow">
+        <span className="player">{str(row, F.player) ?? DASH}</span>
+        <span className="bar" aria-hidden="true" />
+        <span className="matchup">
+          {matchup(row).map((part, i) =>
+            part.own ? <b key={i}>{part.text}</b> : <Fragment key={i}>{part.text}</Fragment>,
+          )}
+        </span>
+        {bool(row, F.isLive) && <span className="live">LIVE</span>}
+      </span>
+      <span className="pickrow">
+        <span className={`sl ${side ?? ""}`}>{pickLine(row)}</span>
+        <span className="bar" aria-hidden="true" />
+        <span className="mk">{marketWords(str(row, F.market))}</span>
+        <span className="be" title={`Betr breakeven ${formatPct(breakeven, 2)}`}>
+          {formatOdds(pctToAmerican(breakeven))}
+        </span>
+        <Logo book={BETR} />
+      </span>
+    </>
+  );
+}
+
+function HitCell({ row }: { row: BoardRow }) {
+  const hit = num(row, F.hitPct);
+  const breakeven = num(row, F.betrBreakevenPct);
+  const step = edgeStep(edgePts(row));
+  const tip =
+    hit === null
+      ? undefined
+      : `Hit ${formatPct(hit, 2)} · breakeven ${formatPct(breakeven, 2)} · fair ${formatOdds(pctToAmerican(hit))}`;
+  return (
+    <span className="mstack" title={tip}>
+      <span className={step ? `hit e${step}` : "hit"}>{formatPct(hit)}</span>
+      <span className="evline">{formatSignedPct(num(row, F.evPct))} EV</span>
+    </span>
+  );
+}
+
+function BookCell({ row, book }: { row: BoardRow; book: Book }) {
+  const prices = bookPrices(row, book);
+  if (!hasPrices(prices)) return <span className="none">{DASH}</span>;
+  const pickOver = str(row, F.side) === "over";
+  const hold = holdPct(prices.over, prices.under);
+  const tip =
+    `${book.name}: over ${formatOdds(prices.over)}, under ${formatOdds(prices.under)}` +
+    (hold === null ? "" : ` · hold ${hold.toFixed(1)}%`);
+  return (
+    <span className="slash" title={tip}>
+      <span className={pickOver ? "on" : undefined}>{formatOdds(prices.over)}</span>
+      <span className="sep">/</span>
+      <span className={pickOver ? undefined : "on"}>{formatOdds(prices.under)}</span>
+    </span>
+  );
+}
+
+function Detail({ row }: { row: BoardRow }) {
+  const why = whySentence(row);
+  const caveat = oneSidedCaveat(row);
+  const books = PRICED_BOOKS.filter((book) => hasPrices(bookPrices(row, book)));
+  return (
+    <div className="detail-inner">
+      <p className="why">
+        {why.verdict && <strong>{why.verdict}</strong>} {why.reason}
+      </p>
+      <dl className="facts">
+        <div>
+          <dt>Fair hit chance (no vig)</dt>
+          <dd>{formatPct(num(row, F.hitPct), 2)}</dd>
+        </div>
+        <div>
+          <dt>Betr breakeven</dt>
+          <dd>{formatPct(num(row, F.betrBreakevenPct), 2)}</dd>
+        </div>
+        <div>
+          <dt>EV</dt>
+          <dd>{formatSignedPct(num(row, F.evPct))}</dd>
+        </div>
+        <div>
+          <dt>Price source</dt>
+          <dd className="plain">{lineSourceWords(row)}</dd>
+        </div>
+      </dl>
+      {books.length > 0 && (
+        <table className="books">
+          <thead>
+            <tr>
+              <th scope="col">Book</th>
+              <th scope="col" className="num">Line</th>
+              <th scope="col" className="num">Over</th>
+              <th scope="col" className="num">Under</th>
+              <th scope="col" className="num">Implied o / u (with vig)</th>
+              <th scope="col" className="num">Hold</th>
+            </tr>
+          </thead>
+          <tbody>
+            {books.map((book) => {
+              const { over, under } = bookPrices(row, book);
+              return (
+                <tr key={book.key}>
+                  <td>
+                    <span className="bookname">
+                      <Logo book={book} />
+                      {book.name}
+                    </span>
+                  </td>
+                  <td className="num">{num(row, F.line) ?? DASH}</td>
+                  <td className="num">{formatOdds(over)}</td>
+                  <td className="num">{formatOdds(under)}</td>
+                  <td className="num">
+                    {formatPct(americanToPct(over))} / {formatPct(americanToPct(under))}
+                  </td>
+                  <td className="num">{formatPct(holdPct(over, under))}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+      {caveat && <p className="caveat">{caveat}</p>}
+    </div>
+  );
+}
+
+function columnsFor(rows: BoardRow[]): Column[] {
+  const shown = PRICED_BOOKS.filter((book) =>
+    rows.some((row) => hasPrices(bookPrices(row, book))),
+  );
+  return [
+    {
+      id: "player",
+      header: "Player",
+      className: "sticky-col",
+      cell: (row) => <PlayerCell row={row} />,
+    },
+    {
+      id: "hit",
+      header: "Hit %",
+      className: "num metric",
+      cell: (row) => <HitCell row={row} />,
+    },
+    ...shown.map(
+      (book): Column => ({
+        id: book.key,
+        header: <Logo book={book} />,
+        className: "book",
+        cell: (row) => <BookCell row={row} book={book} />,
+      }),
+    ),
+  ];
 }
 
 export function BoardTable({ rows }: { rows: BoardRow[] }) {
-  const [page, setPage] = useState(0);
-  const [open, setOpen] = useState<string | null>(null);
-
-  const pageCount = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-  const current = Math.min(page, pageCount - 1);
-  const start = current * PAGE_SIZE;
-  const visible = rows.slice(start, start + PAGE_SIZE);
+  const [open, setOpen] = useState<number | null>(null);
 
   if (!rows.length) {
     return <p className="empty">No props on the board.</p>;
   }
 
+  const columns = columnsFor(rows);
+  const props: Prop[] = rows.map((row, id) => ({ id, row }));
+
   return (
-    <>
-      <div className="table-scroll">
-        <table className="board">
-          <thead>
-            <tr>
-              <th scope="col">Player</th>
-              <th scope="col">Team / Game</th>
-              <th scope="col">Market</th>
-              <th scope="col" className="num">Line</th>
-              <th scope="col">Side</th>
-              <th scope="col" className="num">EV%</th>
-              <th scope="col" className="num">Hit%</th>
-              <th scope="col" className="num">Betr breakeven</th>
-              <th scope="col" className="num">DK O/U</th>
-              <th scope="col" className="num">FD O/U</th>
-              <th scope="col">Src</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visible.map((row, offset) => {
-              const key = rowKey(row, start + offset);
-              const isOpen = open === key;
-              return (
-                <Fragment key={key}>
-                  <tr className={bool(row, F.plusEv) ? "plus-ev" : undefined}>
-                    <td>
-                      <button
-                        type="button"
-                        className="expand"
-                        aria-expanded={isOpen}
-                        onClick={() => setOpen(isOpen ? null : key)}
-                      >
-                        <span aria-hidden="true">{isOpen ? "▾" : "▸"}</span>{" "}
-                        {str(row, F.player) ?? DASH}
-                      </button>
+    <div className="grid">
+      <table className="board">
+        <thead>
+          <tr>
+            {columns.map((col) => (
+              <th key={col.id} scope="col" className={col.className}>
+                {col.header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {props.map(({ id, row }) => {
+            const isOpen = open === id;
+            const toggle = () => setOpen(isOpen ? null : id);
+            return (
+              <Fragment key={id}>
+                <tr
+                  className="prop"
+                  tabIndex={0}
+                  aria-expanded={isOpen}
+                  onClick={(event) => {
+                    if ((event.target as Element).closest(".logo")) return;
+                    toggle();
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.target !== event.currentTarget) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      toggle();
+                    }
+                  }}
+                >
+                  {columns.map((col) => (
+                    <td key={col.id} className={col.className}>
+                      {col.cell(row)}
                     </td>
-                    <td>{teamGame(row)}</td>
-                    <td>{str(row, F.market) ?? DASH}</td>
-                    <td className="num">{num(row, F.line) ?? DASH}</td>
-                    <td>{str(row, F.side) ?? DASH}</td>
-                    <td className="num ev">{formatPct(num(row, F.evPct), 2)}</td>
-                    <td className="num">{formatPct(num(row, F.hitPct))}</td>
-                    <td className="num">{formatPct(num(row, F.betrBreakevenPct))}</td>
-                    <td className="num">{oddsPair(row, F.dkOver, F.dkUnder)}</td>
-                    <td className="num">{oddsPair(row, F.fdOver, F.fdUnder)}</td>
-                    <td>{source(row)}</td>
+                  ))}
+                </tr>
+                {isOpen && (
+                  <tr className="detail">
+                    <td colSpan={columns.length}>
+                      <Detail row={row} />
+                    </td>
                   </tr>
-                  {isOpen && (
-                    <tr className="breakdown-row">
-                      <td colSpan={COLUMN_COUNT}>
-                        <Breakdown row={row} />
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <nav className="pager" aria-label="Board pages">
-        <button type="button" onClick={() => setPage(current - 1)} disabled={current === 0}>
-          Previous
-        </button>
-        <span>
-          Rows {start + 1}–{start + visible.length} of {rows.length}
-        </span>
-        <button
-          type="button"
-          onClick={() => setPage(current + 1)}
-          disabled={current >= pageCount - 1}
-        >
-          Next
-        </button>
-      </nav>
-    </>
+                )}
+              </Fragment>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }

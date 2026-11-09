@@ -3,13 +3,23 @@
   --fg: #1a1d21;
   --muted: #5d6670;
   --border: #dde1e6;
-  --row-alt: #f6f7f9;
-  --plus-ev: #e7f6ec;
-  --plus-ev-fg: #136c34;
   --green: #1d8a45;
   --amber: #b26a00;
   --red: #c4302b;
   --pill-bg: #f1f3f5;
+  --faint: #8a939c;
+  --surface: #f7f8fa;
+  --sep: #eef0f3;
+  --head-bg: #f3f5f7;
+  --hover: #f1f5fb;
+  --focus: #2457c5;
+  --edge-1: #e9f6ee;
+  --edge-2: #c9ebd5;
+  --edge-3: #9fdcb5;
+  --edge-fg: #11612f;
+  --live: #c4302b;
+  --over: #1f5fc4;
+  --under: #c4302b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,13 +28,23 @@
     --fg: #e7e9ec;
     --muted: #9aa3ad;
     --border: #2b3036;
-    --row-alt: #181b1f;
-    --plus-ev: #13301f;
-    --plus-ev-fg: #6fd398;
     --green: #4cc27a;
     --amber: #e3a23b;
     --red: #f06a64;
     --pill-bg: #1d2125;
+    --faint: #6e7781;
+    --surface: #171a1e;
+    --sep: #1f2328;
+    --head-bg: #1a1e22;
+    --hover: #1b2230;
+    --focus: #7ea6ff;
+    --edge-1: #14301f;
+    --edge-2: #1a4229;
+    --edge-3: #215a36;
+    --edge-fg: #7ee0a3;
+    --live: #f06a64;
+    --over: #7ea6ff;
+    --under: #f06a64;
   }
 }
 
@@ -79,31 +99,74 @@ h1 {
 .pill-red .pill-dot { background: var(--red); }
 .pill-red { color: var(--red); }
 
-.table-scroll {
-  overflow-x: auto;
+button {
+  font: inherit;
+}
+
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* The table scrolls inside its own box both ways, so the header row and player column stick. */
+.grid {
+  overflow: auto;
+  max-height: calc(100vh - 150px);
   border: 1px solid var(--border);
   border-radius: 8px;
 }
 
 table.board {
-  width: 100%;
-  border-collapse: collapse;
-  white-space: nowrap;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+  font-size: 14px;
 }
 
 .board th,
 .board td {
-  padding: 8px 10px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--sep);
+  white-space: nowrap;
   text-align: left;
-  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
-.board th {
-  font-size: 0.8rem;
+.board thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 52px;
+  background: var(--head-bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
   font-weight: 600;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+}
+
+.board .sticky-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 1%;
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+}
+
+.board thead .sticky-col {
+  z-index: 3;
+  background: var(--head-bg);
 }
 
 .board .num {
@@ -111,75 +174,244 @@ table.board {
   font-variant-numeric: tabular-nums;
 }
 
-.board tbody tr:nth-child(even of :not(.breakdown-row)) {
-  background: var(--row-alt);
+.board th.metric {
+  width: 1%;
 }
 
-.board tr.plus-ev {
-  background: var(--plus-ev);
+.board th.book,
+.board td.book {
+  min-width: 92px;
+  text-align: center;
 }
 
-.board tr.plus-ev .ev {
-  color: var(--plus-ev-fg);
+.board tbody tr.prop {
+  cursor: pointer;
+}
+
+.board tbody tr.prop:hover td {
+  background: var(--hover);
+}
+
+.board tr.prop:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -2px;
+}
+
+/* Player and pick: name | matchup LIVE, then side+line | MARKET breakeven [Betr]. */
+.idrow,
+.pickrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.idrow {
+  margin-bottom: 3px;
+}
+
+.bar {
+  width: 1px;
+  height: 14px;
+  background: var(--border);
+}
+
+.player {
+  font-size: 15px;
   font-weight: 600;
 }
 
-.expand {
-  all: unset;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.expand:focus-visible {
-  outline: 2px solid var(--fg);
-  outline-offset: 2px;
-}
-
-.breakdown {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 32px;
-  margin: 0;
-  white-space: normal;
-}
-
-.breakdown dt {
-  font-size: 0.8rem;
+.matchup {
+  font-size: 12px;
   color: var(--muted);
 }
 
-.breakdown dd {
-  margin: 0;
+.matchup b {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.live {
+  color: var(--live);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.pickrow {
+  display: inline-flex;
   font-variant-numeric: tabular-nums;
 }
 
-.pager {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 12px;
+.pickrow .sl {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.pickrow .sl.over { color: var(--over); }
+.pickrow .sl.under { color: var(--under); }
+
+.pickrow .mk {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
-button {
-  font: inherit;
+.pickrow .be {
+  font-size: 12px;
+  color: var(--faint);
 }
 
-.pager button {
-  padding: 6px 14px;
+/* Hit %, graded by its edge over Betr's breakeven, with EV under it. */
+.mstack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.hit {
+  display: inline-block;
+  min-width: 58px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  text-align: right;
+}
+
+.hit.e1 { background: var(--edge-1); color: var(--edge-fg); }
+.hit.e2 { background: var(--edge-2); color: var(--edge-fg); font-weight: 600; }
+.hit.e3 { background: var(--edge-3); color: var(--edge-fg); font-weight: 700; }
+
+.evline {
+  padding-right: 7px;
+  font-size: 12px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One book cell: over/under inline, the picked side bold. */
+.slash {
+  font-size: 13px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.slash .sep {
+  margin: 0 2px;
+}
+
+.slash .on {
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.board .none {
+  color: var(--faint);
+}
+
+/* Book logo; the name is screen-reader text and the hover title. */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo img,
+.logo .mono {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.board thead .logo img,
+.board thead .logo .mono {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.logo .mono {
+  background: #0b6b3a;
+  color: #fff;
+  font: 700 10px/18px system-ui, sans-serif;
+  text-align: center;
+}
+
+.board thead .logo .mono {
+  font-size: 12px;
+  line-height: 28px;
+}
+
+/* Expanded row. */
+.board tr.detail td {
+  padding: 14px 16px 16px;
+  background: var(--surface);
+  white-space: normal;
+}
+
+.detail-inner {
+  position: sticky;
+  left: 16px;
+  max-width: min(860px, calc(100vw - 64px));
+}
+
+.why {
+  margin: 0 0 10px;
+}
+
+.why strong {
+  font-weight: 600;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 28px;
+  margin: 0 0 12px;
+}
+
+.facts dt {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.facts dd.plain {
+  font-weight: 400;
+}
+
+table.books {
   border: 1px solid var(--border);
   border-radius: 6px;
+  border-spacing: 0;
   background: var(--bg);
-  color: var(--fg);
-  cursor: pointer;
 }
 
-.pager button:disabled {
-  opacity: 0.4;
-  cursor: default;
+.board table.books th {
+  position: static;
+  height: auto;
 }
 
-.empty {
-  color: var(--muted);
+.board table.books th,
+.board table.books td {
+  padding: 5px 12px;
+}
+
+.bookname {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.caveat {
+  margin: 8px 0 0;
+  color: var(--amber);
+  font-size: 13px;
 }

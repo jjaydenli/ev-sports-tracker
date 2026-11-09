@@ -8,7 +8,7 @@ import { SITE_NAME, SOURCE_URL, fetchBoard } from "@/lib/board";
 export const revalidate = 300;
 
 export default async function Page() {
-  const { board, latest_run: latestRun } = await fetchBoard();
+  const { board, latest_run: latestRun, team_names: teamNames = {} } = await fetchBoard();
 
   return (
     <main>
@@ -32,7 +32,7 @@ export default async function Page() {
         <StatusPill run={latestRun} board={board} />
       </header>
       {board ? (
-        <BoardTable rows={board.props} />
+        <BoardTable rows={board.props} teamNames={teamNames} />
       ) : (
         <p className="empty">No board has been published yet.</p>
       )}

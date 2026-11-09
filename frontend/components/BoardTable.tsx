@@ -33,6 +33,7 @@ import {
   MARKET_ORDER,
   marketWords,
   matchup,
+  matchupNames,
   num,
   oneSidedCaveat,
   orderRank,
@@ -40,6 +41,8 @@ import {
   pickLine,
   type Prices,
   str,
+  type TeamNames,
+  teamNamesFor,
   vigWords,
   whySentence,
 } from "@/lib/board";
@@ -94,6 +97,8 @@ type Facet = {
   /** What a pick stores. Market and game carry the league, so NBA Points is not NHL Points. */
   value: (row: BoardRow) => string | null;
   name: (row: BoardRow) => string;
+  /** More text the menu's search matches beyond `name`, never shown. */
+  alsoSearch?: (row: BoardRow, names: TeamNames) => string;
   /** Order within a league (leagues themselves follow LEAGUE_ORDER); ties go A–Z by name. */
   rank: (row: BoardRow) => number;
   /** Tag in-progress options LIVE. */
@@ -130,6 +135,7 @@ const FACETS: Record<FacetKey, Facet> = {
       return game === null ? null : `${leagueOf(row)}|${game}`;
     },
     name: (row) => matchup(row).map((part) => part.text).join(""),
+    alsoSearch: matchupNames,
     rank: () => 0,
     showsLive: true,
   },
@@ -146,12 +152,15 @@ const DEFAULT_SORT: Sort = { key: "hit", dir: -1 };
 const PAGE_SIZE = 50;
 
 /** Whether a row passes every filter, or every one but `skip` (a menu's own counts). */
-function matches(row: BoardRow, f: Filters, skip?: FacetKey): boolean {
+function matches(row: BoardRow, f: Filters, names: TeamNames, skip?: FacetKey): boolean {
   const query = f.player.trim().toLowerCase();
+  const hit = (text: string | null) => (text ?? "").toLowerCase().includes(query);
   return (
     (!f.plusEvOnly || bool(row, F.plusEv)) &&
     (f.gameState === "all" || (f.gameState === "live") === bool(row, F.isLive)) &&
-    (!query || (str(row, F.player) ?? "").toLowerCase().includes(query)) &&
+    (!query ||
+      hit(str(row, F.player)) ||
+      teamNamesFor(names, row, str(row, F.team)).some(hit)) &&
     FACET_KEYS.every(
       (key) => key === skip || !f[key].size || f[key].has(FACETS[key].value(row) ?? ""),
     )
@@ -189,13 +198,20 @@ type MenuOption = {
   value: string;
   league: string;
   name: string;
+  /** Lower-case text the menu's search box matches: `name` plus the facet's `alsoSearch`. */
+  search: string;
   rank: number;
   live: boolean;
   count: number;
 };
 
 /** A menu's choices: one per distinct value on the board, leagues in LEAGUE_ORDER. */
-function menuOptions(rows: BoardRow[], key: FacetKey, filters: Filters): MenuOption[] {
+function menuOptions(
+  rows: BoardRow[],
+  key: FacetKey,
+  filters: Filters,
+  names: TeamNames,
+): MenuOption[] {
   const facet = FACETS[key];
   const byValue = new Map<string, MenuOption>();
   for (const row of rows) {
@@ -203,10 +219,12 @@ function menuOptions(rows: BoardRow[], key: FacetKey, filters: Filters): MenuOpt
     if (value === null) continue;
     let option = byValue.get(value);
     if (!option) {
+      const name = facet.name(row);
       option = {
         value,
         league: leagueOf(row),
-        name: facet.name(row),
+        name,
+        search: `${name} ${facet.alsoSearch?.(row, names) ?? ""}`.toLowerCase(),
         rank: facet.rank(row),
         live: false,
         count: 0,
@@ -214,7 +232,7 @@ function menuOptions(rows: BoardRow[], key: FacetKey, filters: Filters): MenuOpt
       byValue.set(value, option);
     }
     if (facet.showsLive && bool(row, F.isLive)) option.live = true;
-    if (matches(row, filters, key)) option.count += 1;
+    if (matches(row, filters, names, key)) option.count += 1;
   }
   return [...byValue.values()].sort(
     (a, b) =>
@@ -534,7 +552,7 @@ function FilterMenu({
   const needle = query.trim().toLowerCase();
   const shown = options.filter(
     (o) =>
-      (!needle || o.name.toLowerCase().includes(needle)) &&
+      (!needle || o.search.includes(needle)) &&
       (facetKey === "league" || !leagues.size || leagues.has(o.league)),
   );
   const sectionLeagues = [...new Set(shown.map((o) => o.league))];
@@ -685,17 +703,19 @@ function breakdown(props: Prop[]): string {
 
 function FilterBar({
   rows,
+  teamNames,
   filters,
   onChange,
   count,
 }: {
   rows: BoardRow[];
+  teamNames: TeamNames;
   filters: Filters;
   onChange: (change: Partial<Filters>) => void;
   count: string;
 }) {
   const options = Object.fromEntries(
-    FACET_KEYS.map((key) => [key, menuOptions(rows, key, filters)]),
+    FACET_KEYS.map((key) => [key, menuOptions(rows, key, filters, teamNames)]),
   ) as Record<FacetKey, MenuOption[]>;
   const menu = (key: FacetKey) => (
     <FilterMenu
@@ -737,8 +757,8 @@ function FilterBar({
         <input
           type="search"
           className={filters.player ? "set" : undefined}
-          placeholder="Search player"
-          aria-label="Search player"
+          placeholder="Search player or team"
+          aria-label="Search player or team"
           value={filters.player}
           onChange={(event) => onChange({ player: event.target.value })}
         />
@@ -785,7 +805,7 @@ function SortHeader({
   );
 }
 
-export function BoardTable({ rows }: { rows: BoardRow[] }) {
+export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: TeamNames }) {
   const [open, setOpen] = useState<number | null>(null);
   const [filters, setFilters] = useState<Filters>(NO_FILTERS);
   const [sort, setSort] = useState<Sort>(DEFAULT_SORT);
@@ -797,8 +817,8 @@ export function BoardTable({ rows }: { rows: BoardRow[] }) {
   const columns = useMemo(() => columnsFor(rows), [rows]);
   const props = useMemo(() => rows.map((row, id): Prop => ({ id, row })), [rows]);
   const matching = useMemo(
-    () => sorted(props.filter(({ row }) => matches(row, filters)), sort),
-    [props, filters, sort],
+    () => sorted(props.filter(({ row }) => matches(row, filters, teamNames)), sort),
+    [props, filters, teamNames, sort],
   );
 
   // Scroll the table so the first added row sits one row below the top, keeping the last
@@ -851,6 +871,7 @@ export function BoardTable({ rows }: { rows: BoardRow[] }) {
     <>
       <FilterBar
         rows={rows}
+        teamNames={teamNames}
         filters={filters}
         onChange={changeFilters}
         count={breakdown(matching)}

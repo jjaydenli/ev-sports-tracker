@@ -1,4 +1,6 @@
 from config.team_abbrev import (
+    TEAMS_BY_LEAGUE,
+    _normalize_name,
     abbr_from_full_name,
     canonicalize_team_abbr,
     game_key_from_full_names,
@@ -46,3 +48,16 @@ def test_game_key_from_full_names_canonical():
 
 def test_game_key_from_full_names_unmapped_returns_none():
     assert game_key_from_full_names("Philadelphia Phillies", "Some Fake Team") is None
+
+
+def test_full_names_are_unique_across_leagues():
+    """The league-blind map merges every league; a repeated name would keep one code."""
+    seen: dict[str, str] = {}
+    repeated = []
+    for league, teams in TEAMS_BY_LEAGUE.items():
+        for name in teams:
+            key = _normalize_name(name)
+            if key in seen:
+                repeated.append(f"{name!r} in {seen[key]} and {league}")
+            seen[key] = league
+    assert not repeated, repeated

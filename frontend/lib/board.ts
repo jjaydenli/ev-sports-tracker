@@ -43,7 +43,12 @@ export type LatestRun = {
 export type BoardResponse = {
   board: Board | null;
   latest_run: LatestRun | null;
+  // Absent until the API is redeployed; search then matches team codes only.
+  team_names?: TeamNames;
 };
+
+/** League -> team code -> full names, from the API (backend `TEAMS_BY_LEAGUE`). */
+export type TeamNames = Record<string, Record<string, string[]>>;
 
 export const REVALIDATE_SECONDS = 300;
 
@@ -281,6 +286,21 @@ export function matchup(row: BoardRow): MatchupPart[] {
     { text: " @ ", own: false },
     { text: home, own: home === team },
   ];
+}
+
+/**
+ * A team code's full names in the row's own league (NBA PHI is the 76ers, MLB PHI the
+ * Phillies); none for an unknown code, or a league the API does not name.
+ */
+export function teamNamesFor(names: TeamNames, row: BoardRow, code: string | null): string[] {
+  return code === null ? [] : (names[str(row, F.league) ?? ""]?.[code] ?? []);
+}
+
+/** The matchup in full names, for search: "Brooklyn Nets @ Dallas Mavericks". */
+export function matchupNames(row: BoardRow, names: TeamNames): string {
+  return matchup(row)
+    .map((part) => teamNamesFor(names, row, part.text).join(" ") || part.text)
+    .join("");
 }
 
 /**

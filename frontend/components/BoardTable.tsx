@@ -11,6 +11,8 @@ import {
   useState,
 } from "react";
 
+import { Chevron, Magnifier, Tick } from "@/components/icons";
+
 import {
   BETR,
   type Book,
@@ -26,25 +28,34 @@ import {
   formatPct,
   formatSignedPct,
   hasPrices,
-  LEAGUE_ORDER,
-  leagueOf,
   lineSourceWords,
-  MARKET_ORDER,
   marketWords,
   matchup,
-  matchupNames,
   num,
   oneSidedCaveat,
-  orderRank,
   pctToAmerican,
   pickLine,
   type Prices,
   str,
   type TeamNames,
-  teamNamesFor,
   vigWords,
   whySentence,
 } from "@/lib/board";
+import {
+  breakdown,
+  FACET_KEYS,
+  FACETS,
+  type FacetKey,
+  type Filters,
+  type GameState,
+  isFiltered,
+  matches,
+  menuLabel,
+  type MenuOption,
+  menuOptions,
+  NO_FILTERS,
+  NONE,
+} from "@/lib/filters";
 
 /** A board row with a stable id (its index on the board), so sorting cannot reuse keys. */
 type Prop = { id: number; row: BoardRow };
@@ -64,82 +75,6 @@ type Column = {
   cell: (row: BoardRow) => ReactNode;
 };
 
-type GameState = "all" | "pre" | "live";
-
-/** The filters picked from a menu; each holds several picks, and none picked means no filter. */
-type FacetKey = "league" | "market" | "game";
-
-type Filters = {
-  plusEvOnly: boolean;
-  gameState: GameState;
-  player: string;
-} & Record<FacetKey, ReadonlySet<string>>;
-
-const NONE: ReadonlySet<string> = new Set();
-
-const NO_FILTERS: Filters = {
-  plusEvOnly: false,
-  league: NONE,
-  gameState: "all",
-  market: NONE,
-  game: NONE,
-  player: "",
-};
-
-type Facet = {
-  /** The menu button with nothing picked, and the phone sheet's title. */
-  title: string;
-  /** "2 markets", "Showing all markets", "No market matches …". */
-  one: string;
-  /** The search box's placeholder; a menu without one has no search. */
-  search?: string;
-  /** What a pick stores. Market and game carry the league, so NBA Points is not NHL Points. */
-  value: (row: BoardRow) => string | null;
-  name: (row: BoardRow) => string;
-  /** More text the menu's search matches beyond `name`, never shown. */
-  alsoSearch?: (row: BoardRow, names: TeamNames) => string;
-  /** Order within a league (leagues themselves follow LEAGUE_ORDER); ties go A–Z by name. */
-  rank: (row: BoardRow) => number;
-  /** Tag in-progress options LIVE. */
-  showsLive?: boolean;
-};
-
-const FACETS: Record<FacetKey, Facet> = {
-  league: {
-    title: "Leagues",
-    one: "league",
-    value: (row) => leagueOf(row) || null,
-    name: leagueOf,
-    rank: () => 0,
-  },
-  market: {
-    title: "Markets",
-    one: "market",
-    search: "Search markets",
-    value: (row) => {
-      const market = str(row, F.market);
-      return market === null ? null : `${leagueOf(row)}|${market}`;
-    },
-    name: (row) => marketWords(str(row, F.market)),
-    rank: (row) => orderRank(MARKET_ORDER[leagueOf(row)], str(row, F.market) ?? ""),
-  },
-  game: {
-    title: "Games",
-    one: "game",
-    search: "Search games",
-    value: (row) => {
-      const game = str(row, F.game);
-      return game === null ? null : `${leagueOf(row)}|${game}`;
-    },
-    name: (row) => matchup(row).map((part) => part.text).join(""),
-    alsoSearch: matchupNames,
-    rank: () => 0,
-    showsLive: true,
-  },
-};
-
-const FACET_KEYS = Object.keys(FACETS) as FacetKey[];
-
 const DEFAULT_SORT: Sort = { key: "hit", dir: -1 };
 
 /**
@@ -147,22 +82,6 @@ const DEFAULT_SORT: Sort = { key: "hit", dir: -1 };
  * pages keeps every earlier match on screen; filters and sort still cover the whole board.
  */
 const PAGE_SIZE = 50;
-
-/** Whether a row passes every filter, or every one but `skip` (a menu's own counts). */
-function matches(row: BoardRow, f: Filters, names: TeamNames, skip?: FacetKey): boolean {
-  const query = f.player.trim().toLowerCase();
-  const hit = (text: string | null) => (text ?? "").toLowerCase().includes(query);
-  return (
-    (!f.plusEvOnly || bool(row, F.plusEv)) &&
-    (f.gameState === "all" || (f.gameState === "live") === bool(row, F.isLive)) &&
-    (!query ||
-      hit(str(row, F.player)) ||
-      teamNamesFor(names, row, str(row, F.team)).some(hit)) &&
-    FACET_KEYS.every(
-      (key) => key === skip || !f[key].size || f[key].has(FACETS[key].value(row) ?? ""),
-    )
-  );
-}
 
 /** Hit % sorts on EV: the same order as the edge, which is what the colour shows. */
 const SORT_VALUE: Record<SortKey, (row: BoardRow) => string | number | null> = {
@@ -188,56 +107,6 @@ function sorted(props: Prop[], { key, dir }: Sort): Prop[] {
             : 0;
     return order * dir;
   });
-}
-
-/** One choice in a filter menu. `count` honours every other active filter. */
-type MenuOption = {
-  value: string;
-  league: string;
-  name: string;
-  /** Lower-case text the menu's search box matches: `name` plus the facet's `alsoSearch`. */
-  search: string;
-  rank: number;
-  live: boolean;
-  count: number;
-};
-
-/** A menu's choices: one per distinct value on the board, leagues in LEAGUE_ORDER. */
-function menuOptions(
-  rows: BoardRow[],
-  key: FacetKey,
-  filters: Filters,
-  names: TeamNames,
-): MenuOption[] {
-  const facet = FACETS[key];
-  const byValue = new Map<string, MenuOption>();
-  for (const row of rows) {
-    const value = facet.value(row);
-    if (value === null) continue;
-    let option = byValue.get(value);
-    if (!option) {
-      const name = facet.name(row);
-      option = {
-        value,
-        league: leagueOf(row),
-        name,
-        search: `${name} ${facet.alsoSearch?.(row, names) ?? ""}`.toLowerCase(),
-        rank: facet.rank(row),
-        live: false,
-        count: 0,
-      };
-      byValue.set(value, option);
-    }
-    if (facet.showsLive && bool(row, F.isLive)) option.live = true;
-    if (matches(row, filters, names, key)) option.count += 1;
-  }
-  return [...byValue.values()].sort(
-    (a, b) =>
-      orderRank(LEAGUE_ORDER, a.league) - orderRank(LEAGUE_ORDER, b.league) ||
-      a.league.localeCompare(b.league) ||
-      a.rank - b.rank ||
-      a.name.localeCompare(b.name),
-  );
 }
 
 function Logo({ book }: { book: Book }) {
@@ -400,57 +269,6 @@ function columnsFor(rows: BoardRow[]): Column[] {
       }),
     ),
   ];
-}
-
-const ICON_PROPS = { "aria-hidden": true, focusable: false } as const;
-
-function Chevron({ className }: { className?: string }) {
-  return (
-    <svg className={className} width="12" height="12" viewBox="0 0 12 12" {...ICON_PROPS}>
-      <path
-        d="M3 4.5 6 7.5 9 4.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function Magnifier() {
-  return (
-    <svg className="mag" width="16" height="16" viewBox="0 0 16 16" {...ICON_PROPS}>
-      <circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M10.5 10.5 14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function Tick() {
-  return (
-    <span className="tick">
-      <svg width="12" height="12" viewBox="0 0 12 12" {...ICON_PROPS}>
-        <path
-          d="M2.5 6.2 5 8.5 9.5 3.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
-  );
-}
-
-/** "Markets" with nothing picked, "Points" (or "NBA Points" on a multi-league board), "2 markets". */
-function menuLabel(facet: Facet, picked: MenuOption[], prefixLeague: boolean): string {
-  if (!picked.length) return facet.title;
-  if (picked.length > 1) return `${picked.length} ${facet.one}s`;
-  const [only] = picked;
-  return prefixLeague ? `${only.league} ${only.name}` : only.name;
 }
 
 /**
@@ -677,26 +495,6 @@ const GAME_STATES: { value: GameState; label: string }[] = [
   { value: "pre", label: "Pre-game" },
   { value: "live", label: "Live" },
 ];
-
-function isFiltered(f: Filters): boolean {
-  return (
-    f.plusEvOnly ||
-    f.gameState !== NO_FILTERS.gameState ||
-    f.player !== NO_FILTERS.player ||
-    FACET_KEYS.some((key) => f[key].size > 0)
-  );
-}
-
-/** "22 live · 345 pre-game · 0 +EV", counted over the rows that match. */
-function breakdown(props: Prop[]): string {
-  let live = 0;
-  let plusEv = 0;
-  for (const { row } of props) {
-    if (bool(row, F.isLive)) live += 1;
-    if (bool(row, F.plusEv)) plusEv += 1;
-  }
-  return `${live} live · ${props.length - live} pre-game · ${plusEv} +EV`;
-}
 
 function FilterBar({
   rows,

@@ -7,6 +7,12 @@ import booksJson from "./books.json";
  */
 export const F = boardFields;
 
+/** The product's name: tab title, page heading, error page. */
+export const SITE_NAME = "AlphaOdds";
+
+/** The header's "Source on GitHub" link. */
+export const SOURCE_URL = "https://github.com/jjaydenli/ev-sports-tracker";
+
 /** One EV row as the engine wrote it. Rows are read only through {@link F}. */
 export type BoardRow = Record<string, unknown>;
 
@@ -119,12 +125,17 @@ export function edgePts(row: BoardRow): number | null {
   return hit === null || breakeven === null ? null : hit - breakeven;
 }
 
-/** Colour step for the edge: 0 at or below breakeven, then under 1 pt, under 2.5, beyond. */
-export function edgeStep(edge: number | null): 0 | 1 | 2 | 3 {
-  if (edge === null || edge <= 0) return 0;
-  if (edge < 1) return 1;
-  if (edge < 2.5) return 2;
-  return 3;
+/** Hit % fill step: above breakeven green (under 1 pt, under 2.5, beyond), below it red-leaning
+ * (within 1 pt, within 2.5); further below, or unpriced, no fill. */
+export type EdgeStep = "e3" | "e2" | "e1" | "n1" | "n2" | null;
+
+export function edgeStep(edge: number | null): EdgeStep {
+  if (edge === null || edge <= -2.5) return null;
+  if (edge <= -1) return "n2";
+  if (edge <= 0) return "n1";
+  if (edge < 1) return "e1";
+  if (edge < 2.5) return "e2";
+  return "e3";
 }
 
 // ---- books ----
@@ -255,20 +266,26 @@ export function matchup(row: BoardRow): MatchupPart[] {
   ];
 }
 
-/** The expanded row's "why" sentence: a verdict and the reason, in words. */
-export function whySentence(row: BoardRow): { verdict: string; reason: string } {
+/**
+ * The expanded row's "why" sentence: a verdict and the two numbers it compares.
+ * "Fair chance of the under is 54.08%; Betr needs 54.55% to break even."
+ */
+export function whySentence(row: BoardRow): { verdict: string; fair: string; need: string } | null {
   const hit = num(row, F.hitPct);
   const breakeven = num(row, F.betrBreakevenPct);
   const edge = edgePts(row);
-  if (hit === null || breakeven === null || edge === null) {
-    return { verdict: "", reason: "Not enough prices to call this one." };
-  }
-  const side = str(row, F.side) ?? "pick";
-  const fair = `the sportsbooks' fair chance of the ${side} hitting is ${formatPct(hit, 2)}`;
-  const need = `the ${formatPct(breakeven, 2)} Betr needs to break even`;
-  return edge > 0
-    ? { verdict: "+EV:", reason: `${fair}, ${edge.toFixed(2)} pts above ${need}.` }
-    : { verdict: "Not +EV:", reason: `${fair}, ${Math.abs(edge).toFixed(2)} pts short of ${need}.` };
+  if (hit === null || breakeven === null || edge === null) return null;
+  return {
+    verdict: edge > 0 ? "+EV" : "Not +EV",
+    fair: formatPct(hit, 2),
+    need: formatPct(breakeven, 2),
+  };
+}
+
+/** "6.2% vig": a book's hold on its two-way price, in the bettor's word. */
+export function vigWords(prices: Prices): string | null {
+  const hold = holdPct(prices.over, prices.under);
+  return hold === null ? null : `${hold.toFixed(1)}% vig`;
 }
 
 /** One-sided prices make the fair probability an estimate; say so when the row flags it. */

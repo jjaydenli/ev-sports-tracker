@@ -7,17 +7,24 @@
   --green: #1d8a45;
   --amber: #b26a00;
   --red: #c4302b;
-  --pill-bg: #f1f3f5;
   --faint: #8a939c;
   --surface: #f7f8fa;
   --sep: #eef0f3;
-  --head-bg: #f3f5f7;
   --hover: #f1f5fb;
   --focus: #2457c5;
-  --edge-1: #e9f6ee;
   --edge-2: #c9ebd5;
-  --edge-3: #9fdcb5;
   --edge-fg: #11612f;
+  --page: #f4f6fa;
+  --row: #ffffff;
+  --accent: #2457c5;
+  --accent-soft: #e8eefb;
+  --accent-fg: #1d4aa8;
+  /* Hit % fill by edge over breakeven; foreground contrast in the comment. */
+  --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 2.5+ pts above   5.3:1 */
+  --hit-e2: #8fd19e; --hit-e2-fg: #0b3d1a;  /* 1-2.5 above      6.9:1 */
+  --hit-e1: #d6f0dc; --hit-e1-fg: #0f5223;  /* 0-1 above        7.7:1 */
+  --hit-n1: #fbd5cc; --hit-n1-fg: #7a2214;  /* within 1 below   7.5:1 */
+  --hit-n2: #f8ecea; --hit-n2-fg: #1a1d21;  /* 1-2.5 below     14.6:1 */
   --live: #c4302b;
   --over: #1f5fc4;
   --under: #c4302b;
@@ -34,17 +41,23 @@
     --green: #4cc27a;
     --amber: #e3a23b;
     --red: #f06a64;
-    --pill-bg: #1d2125;
     --faint: #6e7781;
     --surface: #171a1e;
     --sep: #1f2328;
-    --head-bg: #1a1e22;
     --hover: #1b2230;
     --focus: #7ea6ff;
-    --edge-1: #14301f;
     --edge-2: #1a4229;
-    --edge-3: #215a36;
     --edge-fg: #7ee0a3;
+    --page: #0e1013;
+    --row: #16191d;
+    --accent: #7ea6ff;
+    --accent-soft: #18233a;
+    --accent-fg: #a9c3ff;
+    --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 5.3:1 */
+    --hit-e2: #22603a; --hit-e2-fg: #e8f6ec;  /* 6.7:1 */
+    --hit-e1: #173a26; --hit-e1-fg: #8fe0ab;  /* 8.0:1 */
+    --hit-n1: #5a2622; --hit-n1-fg: #ffb8ad;  /* 7.3:1 */
+    --hit-n2: #2a1c1b; --hit-n2-fg: #e7e9ec;  /* 13.5:1 */
     --live: #f06a64;
     --over: #7ea6ff;
     --under: #f06a64;
@@ -59,7 +72,7 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--page);
   color: var(--fg);
   font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -75,6 +88,48 @@ h1 {
   font-size: 1.6rem;
 }
 
+/* Header: logo and name, the source link at the right. */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0 0 6px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.brand img {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-left: -4px;
+}
+
+.source-link {
+  font-size: 14px;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+}
+
+.source-link:hover {
+  color: var(--accent);
+  border-bottom-color: currentColor;
+}
+
+.source-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 .lede {
   margin: 0 0 12px;
   color: var(--muted);
@@ -87,8 +142,9 @@ h1 {
   gap: 8px;
   margin: 0 0 16px;
   padding: 4px 12px;
+  border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--pill-bg);
+  background: var(--row);
   font-size: 0.9rem;
 }
 
@@ -152,7 +208,7 @@ button {
   padding: 5px 8px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: var(--bg);
+  background: var(--row);
   color: var(--fg);
   font: inherit;
   font-size: 14px;
@@ -173,7 +229,7 @@ button {
   min-height: 30px;
   padding: 5px 10px;
   border: 0;
-  background: var(--bg);
+  background: var(--row);
   color: var(--muted);
   font-size: 14px;
   cursor: pointer;
@@ -184,8 +240,8 @@ button {
 }
 
 .seg button[aria-pressed="true"] {
-  background: var(--head-bg);
-  color: var(--fg);
+  background: var(--accent-soft);
+  color: var(--accent-fg);
   font-weight: 600;
 }
 
@@ -246,6 +302,7 @@ input:focus-visible,
   padding: 0 10px;
   border: 1px solid var(--border);
   border-radius: 6px;
+  background: var(--row);
 }
 
 .filters .toggle.on {
@@ -260,7 +317,7 @@ input:focus-visible,
 }
 
 .seg button[aria-pressed="true"]:hover {
-  background: var(--head-bg);
+  background: var(--accent-soft);
 }
 
 @media (max-width: 640px) {
@@ -275,6 +332,7 @@ input:focus-visible,
   max-height: calc(100vh - 150px);
   border: 1px solid var(--border);
   border-radius: 8px;
+  background: var(--row);
 }
 
 table.board {
@@ -287,7 +345,7 @@ table.board {
 
 .board th,
 .board td {
-  padding: 7px 12px;
+  padding: 11px 12px;
   border-bottom: 1px solid var(--sep);
   white-space: nowrap;
   text-align: left;
@@ -299,11 +357,22 @@ table.board {
   top: 0;
   z-index: 2;
   height: 52px;
-  background: var(--head-bg);
+  padding-top: 7px;
+  padding-bottom: 7px;
+  background: var(--accent-soft);
   border-bottom: 1px solid var(--border);
   font-size: 12px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--accent-fg);
+}
+
+/* Rows touch, alternate rows striped. */
+.board td {
+  background: var(--row);
+}
+
+.board tbody tr.alt td {
+  background: var(--surface);
 }
 
 .board .sticky-col {
@@ -311,13 +380,11 @@ table.board {
   left: 0;
   z-index: 1;
   width: 1%;
-  background: var(--bg);
   border-right: 1px solid var(--border);
 }
 
 .board thead .sticky-col {
   z-index: 3;
-  background: var(--head-bg);
 }
 
 .board .num {
@@ -339,7 +406,7 @@ table.board {
 }
 
 .board th[aria-sort] .sort {
-  color: var(--fg);
+  color: var(--accent-fg);
 }
 
 .board th .sort .arrow {
@@ -353,7 +420,13 @@ table.board {
 }
 
 .board th.metric {
-  width: 1%;
+  width: 120px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.board th.metric .sort {
+  justify-content: center;
 }
 
 .board th.book,
@@ -366,8 +439,18 @@ table.board {
   cursor: pointer;
 }
 
+/* Hover: one accent outline round the whole row, drawn inside the cells so it never sits
+   on the dividers between them. */
 .board tbody tr.prop:hover td {
-  background: var(--hover);
+  box-shadow: inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+}
+
+.board tbody tr.prop:hover td:first-child {
+  box-shadow: inset 2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+}
+
+.board tbody tr.prop:hover td:last-child {
+  box-shadow: inset -2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
 }
 
 .board tr.prop:focus-visible {
@@ -441,32 +524,51 @@ table.board {
   color: var(--faint);
 }
 
-/* Hit %, graded by its edge over Betr's breakeven, with EV under it. */
+/* Hit %, the whole cell filled by its edge over Betr's breakeven, EV under it. The fills
+   run unbroken down the column: no rule between them, and stripe, hover and an opened row
+   never repaint them. */
+.board td.metric {
+  padding: 0;
+  border-bottom-color: transparent;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 .mstack {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+  align-items: center;
+  gap: 1px;
+  width: 100%;
+  padding: 11px 12px;
 }
 
 .hit {
-  display: inline-block;
-  min-width: 58px;
-  padding: 3px 7px;
-  border-radius: 4px;
-  text-align: right;
+  font-size: 16px;
+  font-weight: 600;
 }
-
-.hit.e1 { background: var(--edge-1); color: var(--edge-fg); }
-.hit.e2 { background: var(--edge-2); color: var(--edge-fg); font-weight: 600; }
-.hit.e3 { background: var(--edge-3); color: var(--edge-fg); font-weight: 700; }
 
 .evline {
-  padding-right: 7px;
   font-size: 12px;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
+
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .n1, .n2) .hit {
+  font-weight: 700;
+}
+
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .n1, .n2) .evline {
+  color: inherit;
+  opacity: 0.85;
+  font-weight: 500;
+}
+
+.board tbody tr.prop td.metric.e3 { background: var(--hit-e3); color: var(--hit-e3-fg); }
+.board tbody tr.prop td.metric.e2 { background: var(--hit-e2); color: var(--hit-e2-fg); }
+.board tbody tr.prop td.metric.e1 { background: var(--hit-e1); color: var(--hit-e1-fg); }
+.board tbody tr.prop td.metric.n1 { background: var(--hit-n1); color: var(--hit-n1-fg); }
+.board tbody tr.prop td.metric.n2 { background: var(--hit-n2); color: var(--hit-n2-fg); }
+.board tbody tr.prop td.metric:not(.e3, .e2, .e1, .n1, .n2) { background: var(--row); }
 
 /* One book cell: over/under inline, the picked side bold. */
 .slash {
@@ -522,74 +624,101 @@ table.board {
   line-height: 28px;
 }
 
-/* Expanded row. */
-.board tr.detail td {
-  padding: 14px 16px 16px;
+/* Expanded row: the opened row and its detail share one band, marked at the left edge. */
+.board tr.prop[aria-expanded="true"] td {
   background: var(--surface);
+  border-bottom-color: transparent;
+}
+
+.board tr.prop[aria-expanded="true"] td.sticky-col {
+  box-shadow: inset 3px 0 0 var(--focus);
+}
+
+.board tr.detail td {
+  padding: 4px 16px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   white-space: normal;
+}
+
+.board tr.detail td.sticky-col,
+.board tr.detail td:first-child {
+  box-shadow: inset 3px 0 0 var(--focus);
 }
 
 .detail-inner {
   position: sticky;
   left: 16px;
-  max-width: min(860px, calc(100vw - 64px));
+  max-width: min(760px, calc(100vw - 64px));
 }
 
 .why {
-  margin: 0 0 10px;
+  margin: 0 0 14px;
+  font-size: 15px;
 }
 
-.why strong {
-  font-weight: 600;
-}
-
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 28px;
-  margin: 0 0 12px;
-}
-
-.facts dt {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.facts dd {
-  margin: 0;
-  font-weight: 600;
+.why b {
   font-variant-numeric: tabular-nums;
 }
 
-.facts dd.plain {
-  font-weight: 400;
-}
-
-table.books {
+.verdict {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 7px;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  border-spacing: 0;
+  border-radius: 4px;
   background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: 1px;
 }
 
-.board table.books th {
-  position: static;
-  height: auto;
+.verdict.good {
+  border-color: transparent;
+  background: var(--edge-2);
+  color: var(--edge-fg);
 }
 
-.board table.books th,
-.board table.books td {
-  padding: 5px 12px;
+.source {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* One line per book, columns aligned across books: logo + name, prices, vig. */
+.book-prices {
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
+  align-items: center;
+  gap: 8px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.book-prices li {
+  display: contents;
 }
 
 .bookname {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+}
+
+.book-prices .slash {
+  font-size: 14px;
+}
+
+.book-prices .vig {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .caveat {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   color: var(--amber);
   font-size: 13px;
 }
@@ -621,7 +750,7 @@ table.books {
   padding: 5px 14px;
   border: 1px solid var(--border);
   border-radius: 6px;
-  background: var(--bg);
+  background: var(--row);
   color: var(--fg);
   font-size: 14px;
   cursor: pointer;

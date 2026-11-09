@@ -11,7 +11,6 @@ import {
   DASH,
   F,
   PRICED_BOOKS,
-  americanToPct,
   bool,
   bookPrices,
   edgePts,
@@ -20,7 +19,6 @@ import {
   formatPct,
   formatSignedPct,
   hasPrices,
-  holdPct,
   lineSourceWords,
   marketWords,
   matchup,
@@ -28,7 +26,9 @@ import {
   oneSidedCaveat,
   pctToAmerican,
   pickLine,
+  type Prices,
   str,
+  vigWords,
   whySentence,
 } from "@/lib/board";
 
@@ -45,6 +45,8 @@ type Column = {
   /** Set on a sortable column; its header becomes a sort button. */
   sortKey?: SortKey;
   className?: string;
+  /** A per-row class on the cell, added to `className` (the Hit % fill step). */
+  cellClass?: (row: BoardRow) => string | null;
   cell: (row: BoardRow) => ReactNode;
 };
 
@@ -170,32 +172,39 @@ function PlayerCell({ row }: { row: BoardRow }) {
 function HitCell({ row }: { row: BoardRow }) {
   const hit = num(row, F.hitPct);
   const breakeven = num(row, F.betrBreakevenPct);
-  const step = edgeStep(edgePts(row));
   const tip =
     hit === null
       ? undefined
       : `Hit ${formatPct(hit, 2)} · breakeven ${formatPct(breakeven, 2)} · fair ${formatOdds(pctToAmerican(hit))}`;
   return (
     <span className="mstack" data-tip={tip}>
-      <span className={step ? `hit e${step}` : "hit"}>{formatPct(hit)}</span>
+      <span className="hit">{formatPct(hit)}</span>
       <span className="evline">{formatSignedPct(num(row, F.evPct))} EV</span>
     </span>
+  );
+}
+
+/** "+105/-135" with the picked side bold; over always first. A missing side is a dash. */
+function OddsPair({ prices, pickOver }: { prices: Prices; pickOver: boolean }) {
+  return (
+    <>
+      <span className={pickOver ? "on" : undefined}>{formatOdds(prices.over)}</span>
+      <span className="sep">/</span>
+      <span className={pickOver ? undefined : "on"}>{formatOdds(prices.under)}</span>
+    </>
   );
 }
 
 function BookCell({ row, book }: { row: BoardRow; book: Book }) {
   const prices = bookPrices(row, book);
   if (!hasPrices(prices)) return <span className="none">{DASH}</span>;
-  const pickOver = str(row, F.side) === "over";
-  const hold = holdPct(prices.over, prices.under);
+  const vig = vigWords(prices);
   const tip =
     `${book.name}: over ${formatOdds(prices.over)}, under ${formatOdds(prices.under)}` +
-    (hold === null ? "" : ` · hold ${hold.toFixed(1)}%`);
+    (vig === null ? "" : ` · ${vig}`);
   return (
     <span className="slash" data-tip={tip}>
-      <span className={pickOver ? "on" : undefined}>{formatOdds(prices.over)}</span>
-      <span className="sep">/</span>
-      <span className={pickOver ? undefined : "on"}>{formatOdds(prices.under)}</span>
+      <OddsPair prices={prices} pickOver={str(row, F.side) === "over"} />
     </span>
   );
 }
@@ -203,65 +212,40 @@ function BookCell({ row, book }: { row: BoardRow; book: Book }) {
 function Detail({ row }: { row: BoardRow }) {
   const why = whySentence(row);
   const caveat = oneSidedCaveat(row);
+  const side = str(row, F.side);
   const books = PRICED_BOOKS.filter((book) => hasPrices(bookPrices(row, book)));
   return (
     <div className="detail-inner">
       <p className="why">
-        {why.verdict && <strong>{why.verdict}</strong>} {why.reason}
+        {why ? (
+          <>
+            <span className={why.verdict === "+EV" ? "verdict good" : "verdict"}>{why.verdict}</span>
+            Fair chance of the {side ?? "pick"} is <b>{why.fair}</b>; Betr needs <b>{why.need}</b>{" "}
+            to break even.
+          </>
+        ) : (
+          "Not enough prices to call this one."
+        )}
       </p>
-      <dl className="facts">
-        <div>
-          <dt>Fair hit chance (no vig)</dt>
-          <dd>{formatPct(num(row, F.hitPct), 2)}</dd>
-        </div>
-        <div>
-          <dt>Betr breakeven</dt>
-          <dd>{formatPct(num(row, F.betrBreakevenPct), 2)}</dd>
-        </div>
-        <div>
-          <dt>EV</dt>
-          <dd>{formatSignedPct(num(row, F.evPct))}</dd>
-        </div>
-        <div>
-          <dt>Price source</dt>
-          <dd className="plain">{lineSourceWords(row)}</dd>
-        </div>
-      </dl>
+      <p className="source">{lineSourceWords(row)}, vig removed</p>
       {books.length > 0 && (
-        <table className="books">
-          <thead>
-            <tr>
-              <th scope="col">Book</th>
-              <th scope="col" className="num">Line</th>
-              <th scope="col" className="num">Over</th>
-              <th scope="col" className="num">Under</th>
-              <th scope="col" className="num">Implied o / u (with vig)</th>
-              <th scope="col" className="num">Hold</th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((book) => {
-              const { over, under } = bookPrices(row, book);
-              return (
-                <tr key={book.key}>
-                  <td>
-                    <span className="bookname">
-                      <Logo book={book} />
-                      {book.name}
-                    </span>
-                  </td>
-                  <td className="num">{num(row, F.line) ?? DASH}</td>
-                  <td className="num">{formatOdds(over)}</td>
-                  <td className="num">{formatOdds(under)}</td>
-                  <td className="num">
-                    {formatPct(americanToPct(over))} / {formatPct(americanToPct(under))}
-                  </td>
-                  <td className="num">{formatPct(holdPct(over, under))}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <ul className="book-prices">
+          {books.map((book) => {
+            const prices = bookPrices(row, book);
+            return (
+              <li key={book.key}>
+                <span className="bookname">
+                  <Logo book={book} />
+                  {book.name}
+                </span>
+                <span className="slash">
+                  <OddsPair prices={prices} pickOver={side === "over"} />
+                </span>
+                <span className="vig">{vigWords(prices) ?? ""}</span>
+              </li>
+            );
+          })}
+        </ul>
       )}
       {caveat && <p className="caveat">{caveat}</p>}
     </div>
@@ -284,7 +268,8 @@ function columnsFor(rows: BoardRow[]): Column[] {
       id: "hit",
       header: "Hit %",
       sortKey: "hit",
-      className: "num metric",
+      className: "metric",
+      cellClass: (row) => edgeStep(edgePts(row)),
       cell: (row) => <HitCell row={row} />,
     },
     ...shown.map(
@@ -313,9 +298,12 @@ function SelectFilter({
 }) {
   return (
     <label className={value ? "field set" : "field"}>
-      {label}
-      <select value={value} onChange={(event) => onChange(event.target.value)}>
-        <option value="">All</option>
+      <select
+        value={value}
+        aria-label={label}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        <option value="">All {label.toLowerCase()}s</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {words(option)}
@@ -404,7 +392,7 @@ function FilterBar({
       <input
         type="search"
         className={filters.player ? "set" : undefined}
-        placeholder="Player"
+        placeholder="Search player"
         aria-label="Search player"
         value={filters.player}
         onChange={(event) => onChange({ player: event.target.value })}
@@ -556,7 +544,7 @@ export function BoardTable({ rows }: { rows: BoardRow[] }) {
               return (
                 <Fragment key={id}>
                   <tr
-                    className="prop"
+                    className={pos % 2 ? "prop alt" : "prop"}
                     data-pos={pos}
                     tabIndex={0}
                     aria-expanded={isOpen}
@@ -573,7 +561,13 @@ export function BoardTable({ rows }: { rows: BoardRow[] }) {
                     }}
                   >
                     {columns.map((col) => (
-                      <td key={col.id} className={col.className}>
+                      <td
+                        key={col.id}
+                        className={
+                          [col.className, col.cellClass?.(row)].filter(Boolean).join(" ") ||
+                          undefined
+                        }
+                      >
                         {col.cell(row)}
                       </td>
                     ))}

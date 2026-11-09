@@ -1,4 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="7" fill="#2457c5"/>
-  <text x="16" y="21.5" fill="#ffffff" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="15" font-weight="700" text-anchor="middle" letter-spacing="-0.5">EV</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <title>AlphaOdds</title>
+  <style>
+    .letter { stroke: #1a1d21; }
+    .slash { stroke: #2457c5; }
+    @media (prefers-color-scheme: dark) {
+      .letter { stroke: #e7e9ec; }
+      .slash { stroke: #7ea6ff; }
+    }
+  </style>
+  <!-- Lowercase alpha: an "o" and a "u" (over/under) sharing one upright, crossed by the board's
+       over/under slash. The letter is cut back 0.8 units on each side of the slash, its bottom end included,
+       so the slash reads as its own stroke. The u's two arm tops sit at the same height (measured). -->
+  <mask id="gap" maskUnits="userSpaceOnUse" x="0" y="0" width="32" height="32">
+    <rect width="32" height="32" fill="#fff"/>
+    <path d="M25.15 7.34L13 21.3" stroke="#000" stroke-width="6"/>
+  </mask>
+  <g transform="translate(16 16) scale(1.165) translate(-15.65 -16.98)">
+    <path class="letter" mask="url(#gap)" stroke-width="3.6" d="M13 21.3C9.5 22.6 5 20 5 15.5C5 11.6 7.8 9.4 11 9.4C14.4 9.4 17.2 11.8 17.4 15.5L17.4 21C17.4 24 19.31 25.8 21.85 25.8C24.39 25.8 26.3 24 26.3 21"/>
+    <path class="slash" stroke-width="4.4" d="M24.1 8.55L13 21.3"/>
+  </g>
 </svg>

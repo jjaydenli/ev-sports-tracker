@@ -1,8 +1,8 @@
-# EV Sports Tracker
+# AlphaOdds
 
 [![CI](https://github.com/jjaydenli/ev-sports-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/jjaydenli/ev-sports-tracker/actions/workflows/ci.yml)
 
-**Live board: https://ev-sports-tracker.vercel.app** (the latest scheduled scrape, refreshed four times a day)
+**Live board: https://alphaodds.vercel.app** (the latest scheduled scrape, refreshed four times a day)
 
 Python pipeline that identifies +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines against sharp sportsbook prices. Scrapes, normalizes, and de-vigs data from three sportsbooks with undocumented APIs (DraftKings, FanDuel, and theScore Bet, formerly ESPN BET), then ranks opportunities by edge.
 

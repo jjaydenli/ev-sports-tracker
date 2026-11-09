@@ -1,6 +1,6 @@
 import { BoardTable } from "@/components/BoardTable";
 import { StatusPill } from "@/components/StatusPill";
-import { fetchBoard } from "@/lib/board";
+import { SITE_NAME, SOURCE_URL, fetchBoard } from "@/lib/board";
 
 // ISR: visitors get the cached page; only the background revalidation waits on the API.
 // Next reads this segment config statically, so it cannot import REVALIDATE_SECONDS
@@ -13,7 +13,15 @@ export default async function Page() {
   return (
     <main>
       <header>
-        <h1>Betr +EV Prop Optimizer</h1>
+        <div className="topbar">
+          <h1 className="brand">
+            <img src="/icon.svg" alt="" width={32} height={32} />
+            {SITE_NAME}
+          </h1>
+          <a className="source-link" href={SOURCE_URL}>
+            Source on GitHub
+          </a>
+        </div>
         <p className="lede">
           Each Betr pick&apos;em prop&apos;s fair hit chance from sportsbook no-vig odds, against
           Betr&apos;s breakeven. Select a row for the breakdown.

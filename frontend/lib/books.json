@@ -1,0 +1,32 @@
+[
+  {
+    "key": "dk",
+    "name": "DraftKings",
+    "sharpName": "DraftKings",
+    "logo": "/books/dk.png",
+    "over": "dkOver",
+    "under": "dkUnder"
+  },
+  {
+    "key": "fd",
+    "name": "FanDuel",
+    "sharpName": "FanDuel",
+    "logo": "/books/fd.ico",
+    "over": "fdOver",
+    "under": "fdUnder"
+  },
+  {
+    "key": "espn",
+    "name": "theScore Bet",
+    "sharpName": "ESPN",
+    "logo": null,
+    "monogram": "tS",
+    "over": "espnOver",
+    "under": "espnUnder"
+  },
+  {
+    "key": "betr",
+    "name": "Betr",
+    "logo": "/books/betr.png"
+  }
+]

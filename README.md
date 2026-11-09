@@ -1,28 +1,28 @@
-# EV Sports Tracker
+# AlphaOdds
 
 [![CI](https://github.com/jjaydenli/ev-sports-tracker/actions/workflows/ci.yml/badge.svg)](https://github.com/jjaydenli/ev-sports-tracker/actions/workflows/ci.yml)
 
-**Live board: LIVE_BOARD_URL** (the latest scheduled scrape, refreshed four times a day)
+**Live board: https://alphaodds.vercel.app** (the latest scheduled scrape, refreshed four times a day)
 
-Python pipeline that identifies +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines against sharp sportsbook prices. Scrapes, normalizes, and de-vigs data from three sportsbooks with undocumented APIs — DraftKings, FanDuel, and ESPN BET (TheScore Bet) — then ranks opportunities by edge.
+Python pipeline that identifies +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines against sharp sportsbook prices. Scrapes, normalizes, and de-vigs data from three sportsbooks with undocumented APIs (DraftKings, FanDuel, and theScore Bet, formerly ESPN BET), then ranks opportunities by edge.
 
 ## Technical highlights
 
-- **API reverse engineering** — all three sportsbooks have unpublished APIs. ESPN BET uses GET-based GraphQL persisted queries with an encrypted JWE bearer token (minted anonymously via a `Startup` op; cached and reactively re-minted on 401). DraftKings and FanDuel use undocumented REST endpoints discovered through DevTools captures.
+- **API reverse engineering**: all three sportsbooks have unpublished APIs. theScore Bet uses GET-based GraphQL persisted queries with an encrypted JWE bearer token (minted anonymously via a `Startup` op; cached and reactively re-minted on 401). DraftKings and FanDuel use undocumented REST endpoints discovered through DevTools captures.
 
-- **De-vig algorithm for one-sided markets** — sportsbooks offer milestone props (`N+` over-only) with no paired under, making standard two-sided de-vigging impossible. When a contiguous `N+` ladder exists, the engine renormalizes the vig-inflated survival curve `S(N) = P(X≥N)` back to fair probability mass. Falls back to hold-shrink when only a lone threshold is available.
+- **De-vig algorithm for one-sided markets**: sportsbooks offer milestone props (`N+` over-only) with no paired under, making standard two-sided de-vigging impossible. When a contiguous `N+` ladder exists, the engine renormalizes the vig-inflated survival curve `S(N) = P(X≥N)` back to fair probability mass. Falls back to hold-shrink when only a lone threshold is available.
 
-- **Match-context resolution** — props across books are matched on a canonical key `player|market|league|game|event_hour|live` where `event_hour` is the UTC hour-floor of game start. This eliminates cross-day ladder drift (e.g. a player listed for tomorrow's game being priced against today's Betr prop) and disambiguates MLB doubleheaders without special-case logic.
+- **Match-context resolution**: props across books are matched on a canonical key `player|market|league|game|event_hour|live` where `event_hour` is the UTC hour-floor of game start. This eliminates cross-day ladder drift (e.g. a player listed for tomorrow's game being priced against today's Betr prop) and disambiguates MLB doubleheaders without special-case logic.
 
-- **Data-driven book registry** — a `SharpBookConfig` dataclass drives all resolution logic (O/U interpolation strategy, milestone fallback, hold estimation). Adding a fourth sportsbook requires one registry entry; zero edits to resolution or assembly code.
+- **Data-driven book registry**: a `SharpBookConfig` dataclass drives all resolution logic (O/U interpolation strategy, milestone fallback, hold estimation). Adding a fourth sportsbook requires one registry entry; zero edits to resolution or assembly code.
 
 ## How it works
 
 ```
-Betr (DFS)  ──┐
-DraftKings  ──┤──▶  normalize  ──▶  match-context filter  ──▶  per-book resolve  ──▶  ranked +EV output
-FanDuel     ──┤                         (canonical key)          (de-vig + ladder)
-ESPN BET    ──┘
+Betr (DFS)    ──┐
+DraftKings    ──┤──▶  normalize  ──▶  match-context filter  ──▶  per-book resolve  ──▶  ranked +EV output
+FanDuel       ──┤                         (canonical key)          (de-vig + ladder)
+theScore Bet  ──┘
 ```
 
 Each run scrapes all configured sources in parallel, normalizes to a shared `NormalizedProp` schema, then for each Betr prop filters the sharp pool to the same game snapshot before building O/U or milestone ladders. Multi-book consensus runs when two or more books price the same line exactly.
@@ -50,11 +50,11 @@ ev-sports-tracker/
     ├── config/
     │   ├── api_headers.py        # Platform-specific headers and auth builders
     │   ├── market_maps.py        # Canonical market name translations
-    │   ├── sharp_books.py        # SharpBookConfig registry (DK / FD / ESPN)
+    │   ├── sharp_books.py        # SharpBookConfig registry (DK / FD / theScore Bet)
     │   ├── dk_subcategories.py   # DK subCategoryId map per market/league
     │   ├── team_abbrev.py        # Cross-book team abbreviation canonicalization
     │   ├── pipeline_sources.py   # League + source registry
-    │   ├── espn_queries.py       # ESPN GraphQL persisted-query hashes
+    │   ├── espn_queries.py       # theScore Bet GraphQL persisted-query hashes
     │   └── settings.py           # Credential loading from .env
     ├── scrapers/
     │   ├── base_scraper.py       # Abstract base: authenticate → scrape → save
@@ -87,7 +87,7 @@ ev-sports-tracker/
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-cp config/.env.example config/.env   # fill in credentials — never commit this file
+cp config/.env.example config/.env   # fill in credentials; never commit this file
 ```
 
 **Betr auth:** set `BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` (from DevTools on login). Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [`docs/betting_odds/betr.md`](docs/betting_odds/betr.md).

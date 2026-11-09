@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light dark;
   --bg: #ffffff;
   --fg: #1a1d21;
   --muted: #5d6670;
@@ -6,20 +7,30 @@
   --green: #1d8a45;
   --amber: #b26a00;
   --red: #c4302b;
-  --pill-bg: #f1f3f5;
   --faint: #8a939c;
   --surface: #f7f8fa;
   --sep: #eef0f3;
-  --head-bg: #f3f5f7;
   --hover: #f1f5fb;
   --focus: #2457c5;
-  --edge-1: #e9f6ee;
   --edge-2: #c9ebd5;
-  --edge-3: #9fdcb5;
   --edge-fg: #11612f;
+  --page: #f4f6fa;
+  --row: #ffffff;
+  --accent: #2457c5;
+  --accent-soft: #e8eefb;
+  --accent-fg: #1d4aa8;
+  /* Hit % fill by edge over breakeven; foreground contrast in the comment. */
+  --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 2.5+ pts above   5.3:1 */
+  --hit-e2: #8fd19e; --hit-e2-fg: #0b3d1a;  /* 1-2.5 above      6.9:1 */
+  --hit-e1: #d6f0dc; --hit-e1-fg: #0f5223;  /* 0-1 above        7.7:1 */
+  --hit-near: #fde9c6; --hit-near-fg: #6e4300;  /* within 1 below  7.2:1 */
   --live: #c4302b;
   --over: #1f5fc4;
   --under: #c4302b;
+  --mono-bg: #0b6b3a;
+  --mono-fg: #ffffff;
+  --shadow: 0 8px 24px rgba(16, 24, 40, 0.14), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --scrim: rgba(10, 14, 20, 0.45);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -31,20 +42,28 @@
     --green: #4cc27a;
     --amber: #e3a23b;
     --red: #f06a64;
-    --pill-bg: #1d2125;
     --faint: #6e7781;
     --surface: #171a1e;
     --sep: #1f2328;
-    --head-bg: #1a1e22;
     --hover: #1b2230;
     --focus: #7ea6ff;
-    --edge-1: #14301f;
     --edge-2: #1a4229;
-    --edge-3: #215a36;
     --edge-fg: #7ee0a3;
+    --page: #0e1013;
+    --row: #16191d;
+    --accent: #7ea6ff;
+    --accent-soft: #18233a;
+    --accent-fg: #a9c3ff;
+    --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 5.3:1 */
+    --hit-e2: #22603a; --hit-e2-fg: #e8f6ec;  /* 6.7:1 */
+    --hit-e1: #173a26; --hit-e1-fg: #8fe0ab;  /* 8.0:1 */
+    --hit-near: #4a3413; --hit-near-fg: #ffd28f;  /* 8.3:1 */
     --live: #f06a64;
     --over: #7ea6ff;
     --under: #f06a64;
+    --mono-bg: #1f7a4a;
+    --mono-fg: #ffffff;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
   }
 }
 
@@ -54,7 +73,7 @@
 
 body {
   margin: 0;
-  background: var(--bg);
+  background: var(--page);
   color: var(--fg);
   font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -70,6 +89,63 @@ h1 {
   font-size: 1.6rem;
 }
 
+/* Header: logo and name, the source link at the right. */
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0 0 6px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.brand img {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  margin-left: -4px;
+}
+
+/* Ghost button: quiet beside the name, full colour on hover. */
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--row);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.source-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.source-link:hover {
+  color: var(--fg);
+  border-color: var(--muted);
+}
+
+.source-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
 .lede {
   margin: 0 0 12px;
   color: var(--muted);
@@ -82,8 +158,9 @@ h1 {
   gap: 8px;
   margin: 0 0 16px;
   padding: 4px 12px;
+  border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--pill-bg);
+  background: var(--row);
   font-size: 0.9rem;
 }
 
@@ -96,6 +173,11 @@ h1 {
 
 .pill-green .pill-dot { background: var(--green); }
 .pill-amber .pill-dot { background: var(--amber); }
+/* A warning tint on the frame only; the text stays body colour. */
+.pill-amber {
+  border-color: color-mix(in srgb, var(--amber) 45%, var(--border));
+  background: color-mix(in srgb, var(--amber) 9%, var(--row));
+}
 .pill-red .pill-dot { background: var(--red); }
 .pill-red { color: var(--red); }
 
@@ -118,12 +200,459 @@ button {
   white-space: nowrap;
 }
 
+/* Filters row, with the match count at its right. */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  margin: 0 0 10px;
+}
+
+/* The +EV toggle and the menu buttons share one shape with the search box and segments. */
+.filters .evt,
+.trig {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--row);
+  color: var(--fg);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filters .evt {
+  color: var(--muted);
+}
+
+.filters .evt[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+.trig svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.trig .tl {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trig[aria-expanded="true"] {
+  border-color: var(--focus);
+}
+
+.trig.set .tl {
+  font-weight: 600;
+}
+
+.filters input[type="search"] {
+  width: 180px;
+  min-height: 32px;
+  padding: 5px 8px 5px 31px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--row);
+  color: var(--fg);
+  font: inherit;
+  font-size: 14px;
+}
+
+.searchwrap,
+.lsearch {
+  position: relative;
+  display: inline-flex;
+}
+
+.searchwrap .mag,
+.lsearch .mag {
+  position: absolute;
+  top: 50%;
+  left: 9px;
+  transform: translateY(-50%);
+  color: var(--faint);
+  pointer-events: none;
+}
+
+/* A filter menu's popover: search, the picked line, then the choices. */
+.dd {
+  position: relative;
+}
+
+.pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  width: 300px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--row);
+  box-shadow: var(--shadow);
+}
+
+.pop .phead,
+.scrim {
+  display: none;
+}
+
+.lsearch {
+  display: flex;
+  margin: 0 0 6px;
+}
+
+.lsearch .mag {
+  left: 11px;
+}
+
+.filters .lsearch input[type="search"] {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px 0 34px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.pickline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 30px;
+  padding: 0 10px 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pickline .clr {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.pickline .clr.idle {
+  visibility: hidden;
+}
+
+.opts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+/* league tag | name | count | check circle */
+.opt {
+  display: grid;
+  grid-template-columns: 34px 1fr auto 20px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--fg);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.opt.notag {
+  grid-template-columns: 1fr auto 20px;
+}
+
+.lhead ~ .opt.notag {
+  padding-left: 28px;
+}
+
+.opt:hover {
+  background: var(--hover);
+}
+
+/* Inset, so the list's scroll box does not clip the ring. */
+.opt:focus-visible,
+.lhead:focus-visible {
+  outline-offset: -2px;
+}
+
+.opt[aria-pressed="true"] {
+  background: var(--accent-soft);
+}
+
+.opt .tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--faint);
+}
+
+.opt .nm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.opt[aria-pressed="true"] .nm {
+  font-weight: 600;
+}
+
+.opt .live {
+  font-size: 10px;
+}
+
+.opt .n {
+  font-size: 12px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.tick svg {
+  display: none;
+}
+
+.opt[aria-pressed="true"] .tick {
+  border-color: var(--focus);
+  background: var(--focus);
+  color: var(--bg);
+}
+
+.opt[aria-pressed="true"] .tick svg {
+  display: block;
+}
+
+/* A league heading on a multi-league board; folds its choices away. */
+.lhead {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  margin-top: 6px;
+  padding: 0 10px;
+  border: 0;
+  border-top: 1px solid var(--sep);
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lhead:hover {
+  color: var(--fg);
+  background: var(--hover);
+}
+
+.lhead .fold {
+  transition: transform 0.15s;
+}
+
+.lhead[aria-expanded="false"] .fold {
+  transform: rotate(-90deg);
+}
+
+.lhead .lsum {
+  margin-left: auto;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.nomatch {
+  margin: 0;
+  padding: 12px 10px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.xbtn {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.xbtn:hover {
+  background: var(--hover);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lhead .fold {
+    transition: none;
+  }
+}
+
+/* Phone: the popover becomes a bottom sheet over a scrim, with a title and a close button. */
+@media (max-width: 640px) {
+  .pop {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    max-height: 75vh;
+    padding: 12px 12px 20px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .pop .phead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 2px 10px;
+  }
+
+  .pop .phead h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .pop .opts {
+    max-height: none;
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 19;
+    background: var(--scrim);
+  }
+
+  .opt {
+    min-height: 44px;
+  }
+}
+
+.seg {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.seg button {
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 0;
+  background: var(--row);
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.seg button + button {
+  border-left: 1px solid var(--border);
+}
+
+.seg button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-fg);
+  font-weight: 600;
+}
+
+.count {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* One set of states for every control: hover, pressed, keyboard focus. */
+.seg button:hover,
+.more:hover,
+.clear:hover,
+.trig:hover,
+.filters .evt:hover,
+.filters input[type="search"]:hover {
+  background: var(--hover);
+}
+
+.trig:hover,
+.filters .evt:hover,
+.filters input[type="search"]:hover {
+  border-color: var(--muted);
+}
+
+.seg button:active,
+.more:active,
+.clear:active,
+.board th .sort:active {
+  transform: translateY(1px);
+}
+
+.board th .sort:hover {
+  color: var(--fg);
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+.logo:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+/* A filter set away from All: accent border, so a narrowed board is visible at a glance. */
+.trig.set,
+.filters .evt[aria-pressed="true"],
+.filters .searchwrap input[type="search"].set {
+  border-color: var(--focus);
+  box-shadow: inset 0 0 0 1px var(--focus);
+}
+
+.seg button[aria-pressed="true"]:hover,
+.filters .evt[aria-pressed="true"]:hover {
+  background: var(--accent-soft);
+}
+
+@media (max-width: 640px) {
+  .filters input[type="search"] {
+    width: 140px;
+  }
+}
+
 /* The table scrolls inside its own box both ways, so the header row and player column stick. */
 .grid {
   overflow: auto;
   max-height: calc(100vh - 150px);
   border: 1px solid var(--border);
   border-radius: 8px;
+  background: var(--row);
 }
 
 table.board {
@@ -136,7 +665,7 @@ table.board {
 
 .board th,
 .board td {
-  padding: 7px 12px;
+  padding: 11px 12px;
   border-bottom: 1px solid var(--sep);
   white-space: nowrap;
   text-align: left;
@@ -148,11 +677,22 @@ table.board {
   top: 0;
   z-index: 2;
   height: 52px;
-  background: var(--head-bg);
+  padding-top: 7px;
+  padding-bottom: 7px;
+  background: var(--accent-soft);
   border-bottom: 1px solid var(--border);
   font-size: 12px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--accent-fg);
+}
+
+/* Rows touch, alternate rows striped. */
+.board td {
+  background: var(--row);
+}
+
+.board tbody tr.alt td {
+  background: var(--surface);
 }
 
 .board .sticky-col {
@@ -160,13 +700,11 @@ table.board {
   left: 0;
   z-index: 1;
   width: 1%;
-  background: var(--bg);
   border-right: 1px solid var(--border);
 }
 
 .board thead .sticky-col {
   z-index: 3;
-  background: var(--head-bg);
 }
 
 .board .num {
@@ -174,8 +712,41 @@ table.board {
   font-variant-numeric: tabular-nums;
 }
 
+/* A sortable header is a button; the arrow shows only on the active column. */
+.board th .sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.board th[aria-sort] .sort {
+  color: var(--accent-fg);
+}
+
+.board th .sort .arrow {
+  min-width: 0.7em;
+}
+
+.board td.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--muted);
+}
+
 .board th.metric {
-  width: 1%;
+  width: 120px;
+  min-width: 120px;
+  text-align: center;
+}
+
+.board th.metric .sort {
+  justify-content: center;
 }
 
 .board th.book,
@@ -188,8 +759,18 @@ table.board {
   cursor: pointer;
 }
 
+/* Hover: one accent outline round the whole row, drawn inside the cells so it never sits
+   on the dividers between them. */
 .board tbody tr.prop:hover td {
-  background: var(--hover);
+  box-shadow: inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+}
+
+.board tbody tr.prop:hover td:first-child {
+  box-shadow: inset 2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+}
+
+.board tbody tr.prop:hover td:last-child {
+  box-shadow: inset -2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
 }
 
 .board tr.prop:focus-visible {
@@ -263,32 +844,50 @@ table.board {
   color: var(--faint);
 }
 
-/* Hit %, graded by its edge over Betr's breakeven, with EV under it. */
+/* Hit %, the whole cell filled by its edge over Betr's breakeven, EV under it. The fills
+   run unbroken down the column: no rule between them, and stripe, hover and an opened row
+   never repaint them. */
+.board td.metric {
+  padding: 0;
+  border-bottom-color: transparent;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 .mstack {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  align-items: flex-end;
-  gap: 2px;
+  align-items: center;
+  gap: 1px;
+  width: 100%;
+  padding: 11px 12px;
 }
 
 .hit {
-  display: inline-block;
-  min-width: 58px;
-  padding: 3px 7px;
-  border-radius: 4px;
-  text-align: right;
+  font-size: 16px;
+  font-weight: 600;
 }
-
-.hit.e1 { background: var(--edge-1); color: var(--edge-fg); }
-.hit.e2 { background: var(--edge-2); color: var(--edge-fg); font-weight: 600; }
-.hit.e3 { background: var(--edge-3); color: var(--edge-fg); font-weight: 700; }
 
 .evline {
-  padding-right: 7px;
   font-size: 12px;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
+
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) .hit {
+  font-weight: 700;
+}
+
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) .evline {
+  color: inherit;
+  opacity: 0.85;
+  font-weight: 500;
+}
+
+.board tbody tr.prop td.metric.e3 { background: var(--hit-e3); color: var(--hit-e3-fg); }
+.board tbody tr.prop td.metric.e2 { background: var(--hit-e2); color: var(--hit-e2-fg); }
+.board tbody tr.prop td.metric.e1 { background: var(--hit-e1); color: var(--hit-e1-fg); }
+.board tbody tr.prop td.metric.near { background: var(--hit-near); color: var(--hit-near-fg); }
+.board tbody tr.prop td.metric:not(.e3, .e2, .e1, .near) { background: var(--row); }
 
 /* One book cell: over/under inline, the picked side bold. */
 .slash {
@@ -306,8 +905,10 @@ table.board {
   font-weight: 700;
 }
 
-.board .none {
+.board .none,
+.slash .on.none {
   color: var(--faint);
+  font-weight: 400;
 }
 
 /* Book logo; the name is screen-reader text and the hover title. */
@@ -333,8 +934,8 @@ table.board {
 }
 
 .logo .mono {
-  background: #0b6b3a;
-  color: #fff;
+  background: var(--mono-bg);
+  color: var(--mono-fg);
   font: 700 10px/18px system-ui, sans-serif;
   text-align: center;
 }
@@ -344,74 +945,174 @@ table.board {
   line-height: 28px;
 }
 
-/* Expanded row. */
-.board tr.detail td {
-  padding: 14px 16px 16px;
+/* Expanded row: the opened row and its detail share one band, marked at the left edge. */
+.board tr.prop[aria-expanded="true"] td {
   background: var(--surface);
+  border-bottom-color: transparent;
+}
+
+.board tr.prop[aria-expanded="true"] td.sticky-col {
+  box-shadow: inset 3px 0 0 var(--focus);
+}
+
+.board tr.detail td {
+  padding: 4px 16px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   white-space: normal;
+}
+
+.board tr.detail td.sticky-col,
+.board tr.detail td:first-child {
+  box-shadow: inset 3px 0 0 var(--focus);
 }
 
 .detail-inner {
   position: sticky;
   left: 16px;
-  max-width: min(860px, calc(100vw - 64px));
+  max-width: min(760px, calc(100vw - 64px));
 }
 
 .why {
-  margin: 0 0 10px;
+  margin: 0 0 14px;
+  font-size: 15px;
 }
 
-.why strong {
-  font-weight: 600;
-}
-
-.facts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 28px;
-  margin: 0 0 12px;
-}
-
-.facts dt {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.facts dd {
-  margin: 0;
-  font-weight: 600;
+.why b {
   font-variant-numeric: tabular-nums;
 }
 
-.facts dd.plain {
-  font-weight: 400;
-}
-
-table.books {
+.verdict {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 1px 7px;
   border: 1px solid var(--border);
-  border-radius: 6px;
-  border-spacing: 0;
+  border-radius: 4px;
   background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  vertical-align: 1px;
 }
 
-.board table.books th {
-  position: static;
-  height: auto;
+.verdict.good {
+  border-color: transparent;
+  background: var(--edge-2);
+  color: var(--edge-fg);
 }
 
-.board table.books th,
-.board table.books td {
-  padding: 5px 12px;
+.source {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* One line per book, columns aligned across books: logo + name, prices, vig. */
+.book-prices {
+  display: grid;
+  grid-template-columns: repeat(3, max-content);
+  align-items: center;
+  gap: 8px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.book-prices li {
+  display: contents;
 }
 
 .bookname {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+}
+
+.book-prices .slash {
+  font-size: 14px;
+}
+
+.book-prices .vig {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .caveat {
-  margin: 8px 0 0;
+  margin: 12px 0 0;
   color: var(--amber);
   font-size: 13px;
+}
+
+/* "Show more" is the table's last row; its contents stay in view on a sideways scroll. */
+.board tr.more-row td {
+  padding: 12px 16px;
+  background: var(--surface);
+  border-bottom: 0;
+}
+
+.more-inner {
+  position: sticky;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.more-inner .progress {
+  font-size: 13px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.more,
+.clear {
+  min-height: 32px;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--row);
+  color: var(--fg);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.clear {
+  color: var(--muted);
+}
+
+.clear.idle {
+  visibility: hidden;
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--focus);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+/* The one tooltip (components/Tip.tsx): fixed, so the table's scroll box cannot clip it. */
+.tip {
+  position: fixed;
+  z-index: 10;
+  max-width: 320px;
+  padding: 5px 8px;
+  border-radius: 5px;
+  background: var(--fg);
+  color: var(--bg);
+  font-size: 12px;
+  line-height: 1.35;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.tip[hidden] {
+  display: none;
 }

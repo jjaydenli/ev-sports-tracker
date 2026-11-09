@@ -19,8 +19,6 @@
   "espnOver": "espn_over_odds",
   "espnUnder": "espn_under_odds",
   "lineSource": "line_source",
-  "corroborated": "corroborated",
-  "sharpByBook": "sharp_by_book",
   "sharpBooks": "sharp_books",
   "isLive": "is_live",
   "notTrueDevig": "not_true_devig",

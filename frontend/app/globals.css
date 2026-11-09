@@ -181,6 +181,26 @@ h1 {
 .pill-red .pill-dot { background: var(--red); }
 .pill-red { color: var(--red); }
 
+/* The schedule tip's trigger: muted until hovered or focused, so the time stays the read. */
+.pill-info {
+  display: inline-flex;
+  margin: 0 -4px 0 -2px;
+  padding: 2px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  cursor: help;
+}
+.pill-info svg {
+  width: 14px;
+  height: 14px;
+}
+.pill-info:hover,
+.pill-info:focus-visible {
+  color: var(--fg);
+}
+
 button {
   font: inherit;
 }

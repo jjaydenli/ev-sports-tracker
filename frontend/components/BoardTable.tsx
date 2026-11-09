@@ -11,8 +11,6 @@ import {
   useState,
 } from "react";
 
-import { TipLayer } from "@/components/Tip";
-
 import {
   BETR,
   type Book,
@@ -983,7 +981,6 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
           </tbody>
         </table>
       </div>
-      <TipLayer />
     </>
   );
 }

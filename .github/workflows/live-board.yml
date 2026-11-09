@@ -1,25 +1,67 @@
 name: Live board
 
 # Scrape the full board and publish it to the board API four times a day.
-# Crons are UTC, set for PST (UTC-8): 9:00, 12:00, 14:30 and 17:00 PT. After the
-# March DST switch each run lands an hour later in PT until these are edited.
+#
+# The primary trigger is an external cron (cron-job.org) that calls the
+# workflow_dispatch API at 9:35, 12:35, 15:35 and 18:35 America/Los_Angeles,
+# 25 minutes before the :00 game clusters. GitHub's own scheduler is
+# best-effort: it delays runs and drops some at busy times such as the top of
+# the hour, and here it missed most slots.
+#
+# The schedule below is a backup 20 minutes after each slot. Its crons are UTC,
+# set for PST (UTC-8): 9:55, 12:55, 15:55 and 18:55 PT; after the March DST
+# switch they land an hour later in PT, 80 minutes after the slot. A backup run
+# skips the scrape when a successful run started in the last 90 minutes, which
+# covers both offsets and stays well short of the 3 hours between slots. A
+# failed primary run does not count, so the backup retries it.
 on:
   schedule:
-    - cron: "0 17 * * *"
-    - cron: "0 20 * * *"
-    - cron: "30 22 * * *"
-    - cron: "0 1 * * *"
+    - cron: "55 17 * * *"
+    - cron: "55 20 * * *"
+    - cron: "55 23 * * *"
+    - cron: "55 2 * * *"
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: live-board
   cancel-in-progress: false
 
 jobs:
+  # Scheduled runs only: is the board already fresh from a recent good run?
+  # This run is still in progress, so it never counts itself.
+  check-fresh:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      fresh: ${{ steps.check.outputs.fresh }}
+    steps:
+      - name: Look for a successful run in the last 90 minutes
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          recent=$(gh run list --workflow live-board.yml --status success --limit 20 \
+            --json createdAt \
+            --jq '[.[] | select((now - (.createdAt | fromdateiso8601)) < 5400)] | length')
+          if [ "$recent" -gt 0 ]; then
+            echo "fresh=true" >> "$GITHUB_OUTPUT"
+            echo "A successful run started in the last 90 minutes; skipping the scrape."
+          else
+            echo "fresh=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  # A dispatch skips check-fresh, and a skipped dependency would skip this job
+  # too, hence !cancelled(). If the check itself fails, fresh is empty and the
+  # scrape runs anyway.
   scrape-and-publish:
+    needs: check-fresh
+    if: ${{ !cancelled() && needs.check-fresh.outputs.fresh != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

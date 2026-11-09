@@ -37,97 +37,109 @@ def canonicalize_team_abbr(abbr: str) -> str:
     return TEAM_ABBR_ALIASES.get(code, code)
 
 
-# Full team name -> canonical (betr) abbreviation. FanDuel league events carry
+# League -> full team name -> canonical (betr) abbreviation. Leagues are keyed by the
+# board row's ``league`` value, since one code can name different teams in different
+# leagues (NBA PHI is the 76ers, MLB PHI the Phillies). FanDuel league events carry
 # only full names (e.g. "Chicago White Sox"), sometimes with a pitcher annotation
 # ("Minnesota Twins (J Ryan)") that is stripped before lookup. Values must match
 # betr's vocabulary; abbreviations marked (unverified) are best-standard guesses
 # pending a live betr slate carrying that team. A wrong entry only mislabels the
 # FanDuel ``game`` string, and a missing one leaves it unset with a warning;
 # matching keys on event hour, so neither costs a match.
+TEAMS_BY_LEAGUE: dict[str, dict[str, str]] = {
+    "MLB": {
+        "Arizona Diamondbacks": "ARI",
+        "Athletics": "ATH",  # (unverified) Sacramento/Oakland Athletics
+        "Oakland Athletics": "ATH",  # (unverified)
+        "Sacramento Athletics": "ATH",  # (unverified)
+        "Atlanta Braves": "ATL",
+        "Baltimore Orioles": "BAL",
+        "Boston Red Sox": "BOS",
+        "Chicago Cubs": "CHC",
+        "Chicago White Sox": "CHW",
+        "Cincinnati Reds": "CIN",
+        "Cleveland Guardians": "CLE",
+        "Colorado Rockies": "COL",
+        "Detroit Tigers": "DET",
+        "Houston Astros": "HOU",
+        "Kansas City Royals": "KC",
+        "Los Angeles Angels": "LAA",
+        "Los Angeles Dodgers": "LAD",
+        "Miami Marlins": "MIA",
+        "Milwaukee Brewers": "MIL",
+        "Minnesota Twins": "MIN",
+        "New York Mets": "NYM",
+        "New York Yankees": "NYY",
+        "Philadelphia Phillies": "PHI",
+        "Pittsburgh Pirates": "PIT",
+        "San Diego Padres": "SD",
+        "San Francisco Giants": "SF",  # (unverified)
+        "Seattle Mariners": "SEA",
+        "St. Louis Cardinals": "STL",
+        "Tampa Bay Rays": "TB",
+        "Texas Rangers": "TEX",
+        "Toronto Blue Jays": "TOR",
+        "Washington Nationals": "WSH",
+    },
+    "WNBA": {
+        "Atlanta Dream": "ATL",
+        "Chicago Sky": "CHI",
+        "Connecticut Sun": "CONN",
+        "Dallas Wings": "DAL",
+        "Golden State Valkyries": "GSV",  # (unverified)
+        "Indiana Fever": "IND",
+        "Las Vegas Aces": "LV",
+        "Los Angeles Sparks": "LA",  # (unverified)
+        "Minnesota Lynx": "MIN",
+        "New York Liberty": "NY",
+        "Phoenix Mercury": "PHX",
+        "Seattle Storm": "SEA",
+        "Washington Mystics": "WSH",
+    },
+    "NBA": {
+        # Betr's NBA vocabulary differs from its WNBA/MLB one (PHO not PHX, WAS not WSH).
+        # Verified from live Betr NBA slates 2026-11: BOS CHI CLE DEN DET GS HOU IND LAC
+        # LAL MIA MIL NO NY OKC ORL PHI PHO SA SAC UTA WAS. The rest are (unverified)
+        # pending a Betr slate carrying the team.
+        "Atlanta Hawks": "ATL",  # (unverified)
+        "Boston Celtics": "BOS",
+        "Brooklyn Nets": "BKN",  # (unverified)
+        "Charlotte Hornets": "CHA",  # (unverified)
+        "Chicago Bulls": "CHI",
+        "Cleveland Cavaliers": "CLE",
+        "Dallas Mavericks": "DAL",  # (unverified)
+        "Denver Nuggets": "DEN",
+        "Detroit Pistons": "DET",
+        "Golden State Warriors": "GS",
+        "Houston Rockets": "HOU",
+        "Indiana Pacers": "IND",
+        "LA Clippers": "LAC",
+        "Los Angeles Clippers": "LAC",
+        "Los Angeles Lakers": "LAL",
+        "Memphis Grizzlies": "MEM",  # (unverified)
+        "Miami Heat": "MIA",
+        "Milwaukee Bucks": "MIL",
+        "Minnesota Timberwolves": "MIN",  # (unverified)
+        "New Orleans Pelicans": "NO",
+        "New York Knicks": "NY",
+        "Oklahoma City Thunder": "OKC",
+        "Orlando Magic": "ORL",
+        "Philadelphia 76ers": "PHI",
+        "Phoenix Suns": "PHO",
+        "Portland Trail Blazers": "POR",  # (unverified)
+        "Sacramento Kings": "SAC",
+        "San Antonio Spurs": "SA",
+        "Toronto Raptors": "TOR",  # (unverified)
+        "Utah Jazz": "UTA",
+        "Washington Wizards": "WAS",
+    },
+}
+
+# League-blind view for FanDuel, whose events name teams without a league. A full
+# name must not repeat across leagues, or this merge keeps only one of its codes
+# (guarded in ``test_team_abbrev``).
 TEAM_FULL_NAME_TO_ABBR: dict[str, str] = {
-    # --- MLB ---
-    "Arizona Diamondbacks": "ARI",
-    "Athletics": "ATH",  # (unverified) Sacramento/Oakland Athletics
-    "Oakland Athletics": "ATH",  # (unverified)
-    "Sacramento Athletics": "ATH",  # (unverified)
-    "Atlanta Braves": "ATL",
-    "Baltimore Orioles": "BAL",
-    "Boston Red Sox": "BOS",
-    "Chicago Cubs": "CHC",
-    "Chicago White Sox": "CHW",
-    "Cincinnati Reds": "CIN",
-    "Cleveland Guardians": "CLE",
-    "Colorado Rockies": "COL",
-    "Detroit Tigers": "DET",
-    "Houston Astros": "HOU",
-    "Kansas City Royals": "KC",
-    "Los Angeles Angels": "LAA",
-    "Los Angeles Dodgers": "LAD",
-    "Miami Marlins": "MIA",
-    "Milwaukee Brewers": "MIL",
-    "Minnesota Twins": "MIN",
-    "New York Mets": "NYM",
-    "New York Yankees": "NYY",
-    "Philadelphia Phillies": "PHI",
-    "Pittsburgh Pirates": "PIT",
-    "San Diego Padres": "SD",
-    "San Francisco Giants": "SF",  # (unverified)
-    "Seattle Mariners": "SEA",
-    "St. Louis Cardinals": "STL",
-    "Tampa Bay Rays": "TB",
-    "Texas Rangers": "TEX",
-    "Toronto Blue Jays": "TOR",
-    "Washington Nationals": "WSH",
-    # --- WNBA ---
-    "Atlanta Dream": "ATL",
-    "Chicago Sky": "CHI",
-    "Connecticut Sun": "CONN",
-    "Dallas Wings": "DAL",
-    "Golden State Valkyries": "GSV",  # (unverified)
-    "Indiana Fever": "IND",
-    "Las Vegas Aces": "LV",
-    "Los Angeles Sparks": "LA",  # (unverified)
-    "Minnesota Lynx": "MIN",
-    "New York Liberty": "NY",
-    "Phoenix Mercury": "PHX",
-    "Seattle Storm": "SEA",
-    "Washington Mystics": "WSH",
-    # --- NBA ---
-    # Betr's NBA vocabulary differs from its WNBA/MLB one (PHO not PHX, WAS not WSH).
-    # Verified from live Betr NBA slates 2026-11: BOS CHI CLE DEN DET GS HOU IND LAC
-    # LAL MIA MIL NO NY OKC ORL PHI PHO SA SAC UTA WAS. The rest are (unverified)
-    # pending a Betr slate carrying the team.
-    "Atlanta Hawks": "ATL",  # (unverified)
-    "Boston Celtics": "BOS",
-    "Brooklyn Nets": "BKN",  # (unverified)
-    "Charlotte Hornets": "CHA",  # (unverified)
-    "Chicago Bulls": "CHI",
-    "Cleveland Cavaliers": "CLE",
-    "Dallas Mavericks": "DAL",  # (unverified)
-    "Denver Nuggets": "DEN",
-    "Detroit Pistons": "DET",
-    "Golden State Warriors": "GS",
-    "Houston Rockets": "HOU",
-    "Indiana Pacers": "IND",
-    "LA Clippers": "LAC",
-    "Los Angeles Clippers": "LAC",
-    "Los Angeles Lakers": "LAL",
-    "Memphis Grizzlies": "MEM",  # (unverified)
-    "Miami Heat": "MIA",
-    "Milwaukee Bucks": "MIL",
-    "Minnesota Timberwolves": "MIN",  # (unverified)
-    "New Orleans Pelicans": "NO",
-    "New York Knicks": "NY",
-    "Oklahoma City Thunder": "OKC",
-    "Orlando Magic": "ORL",
-    "Philadelphia 76ers": "PHI",
-    "Phoenix Suns": "PHO",
-    "Portland Trail Blazers": "POR",  # (unverified)
-    "Sacramento Kings": "SAC",
-    "San Antonio Spurs": "SA",
-    "Toronto Raptors": "TOR",  # (unverified)
-    "Utah Jazz": "UTA",
-    "Washington Wizards": "WAS",
+    name: abbr for teams in TEAMS_BY_LEAGUE.values() for name, abbr in teams.items()
 }
 
 # Punctuation/case-insensitive lookup so "St. Louis" vs "St Louis" still resolves.

@@ -15,6 +15,7 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 
+from config.team_abbrev import team_names_by_code
 from web.models import (
     BoardResponse,
     BoardView,
@@ -118,6 +119,7 @@ def create_app(store: BoardStore | None = None) -> FastAPI:
         return BoardResponse(
             board=board,
             latest_run=_latest_run_view(latest) if latest is not None else None,
+            team_names=team_names_by_code(),
         )
 
     @app.get("/healthz")

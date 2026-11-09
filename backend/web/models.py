@@ -74,3 +74,5 @@ class LatestRunView(BaseModel):
 class BoardResponse(BaseModel):
     board: BoardView | None
     latest_run: LatestRunView | None
+    # League -> team code -> full names, so the page can search by team name.
+    team_names: dict[str, dict[str, list[str]]]

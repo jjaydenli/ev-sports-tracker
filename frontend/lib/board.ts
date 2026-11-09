@@ -43,6 +43,8 @@ export type LatestRun = {
 export type BoardResponse = {
   board: Board | null;
   latest_run: LatestRun | null;
+  // League -> team code -> full names. Absent until the API is redeployed.
+  team_names?: Record<string, Record<string, string[]>>;
 };
 
 export const REVALIDATE_SECONDS = 300;

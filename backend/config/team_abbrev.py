@@ -142,6 +142,21 @@ TEAM_FULL_NAME_TO_ABBR: dict[str, str] = {
     name: abbr for teams in TEAMS_BY_LEAGUE.values() for name, abbr in teams.items()
 }
 
+
+def team_names_by_code() -> dict[str, dict[str, list[str]]]:
+    """League -> code -> every full name for it, for the board's team search.
+
+    A code can carry more than one spelling (``LA Clippers``, ``Los Angeles Clippers``);
+    all are kept so a search for either finds the team.
+    """
+    by_league: dict[str, dict[str, list[str]]] = {}
+    for league, teams in TEAMS_BY_LEAGUE.items():
+        codes = by_league.setdefault(league, {})
+        for name, abbr in teams.items():
+            codes.setdefault(abbr, []).append(name)
+    return by_league
+
+
 # Punctuation/case-insensitive lookup so "St. Louis" vs "St Louis" still resolves.
 _PAREN_RE = re.compile(r"\s*\([^)]*\)")
 

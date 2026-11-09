@@ -54,10 +54,25 @@ def _run(
     return payload
 
 
+def _nothing_stored(client: TestClient) -> bool:
+    body = client.get("/api/board").json()
+    return body["board"] is None and body["latest_run"] is None
+
+
 def test_empty_store_returns_nulls(client: TestClient) -> None:
     response = client.get("/api/board")
     assert response.status_code == 200
-    assert response.json() == {"board": None, "latest_run": None}
+    assert _nothing_stored(client)
+
+
+def test_team_names_resolve_a_code_per_league(client: TestClient) -> None:
+    """Oracle: the real teams. PHI is a different team in each league, and the
+    Clippers go by two names; the page needs every spelling to match a search."""
+    names = client.get("/api/board").json()["team_names"]
+    assert names["NBA"]["PHI"] == ["Philadelphia 76ers"]
+    assert names["MLB"]["PHI"] == ["Philadelphia Phillies"]
+    assert sorted(names["NBA"]["LAC"]) == ["LA Clippers", "Los Angeles Clippers"]
+    assert names["WNBA"]["PHX"] == ["Phoenix Mercury"]
 
 
 def test_failed_run_does_not_displace_last_good_board(
@@ -174,7 +189,7 @@ def test_push_rejects_bad_token(
 ) -> None:
     run = _run("run-a", generated_at="2026-11-08T17:00:00+00:00", outcome="ok", props=s1_ev_rows)
     assert client.post("/api/runs", json=run, headers=headers).status_code == 401
-    assert client.get("/api/board").json() == {"board": None, "latest_run": None}
+    assert _nothing_stored(client)
 
 
 def test_push_without_server_token_is_503(
@@ -184,7 +199,7 @@ def test_push_without_server_token_is_503(
     run = _run("run-a", generated_at="2026-11-08T17:00:00+00:00", outcome="ok", props=s1_ev_rows)
     with TestClient(create_app(store=InMemoryBoardStore())) as client:
         assert client.post("/api/runs", json=run, headers=_auth()).status_code == 503
-        assert client.get("/api/board").json() == {"board": None, "latest_run": None}
+        assert _nothing_stored(client)
 
 
 def _mismatched_board(rows: list[dict]) -> dict:
@@ -212,7 +227,7 @@ def test_push_rejects_inconsistent_envelope(
     client: TestClient, s1_ev_rows: list[dict], build
 ) -> None:
     assert client.post("/api/runs", json=build(s1_ev_rows), headers=_auth()).status_code == 422
-    assert client.get("/api/board").json() == {"board": None, "latest_run": None}
+    assert _nothing_stored(client)
 
 
 def test_healthz(client: TestClient) -> None:

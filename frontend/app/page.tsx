@@ -1,5 +1,6 @@
 import { BoardTable } from "@/components/BoardTable";
 import { StatusPill } from "@/components/StatusPill";
+import { TipLayer } from "@/components/Tip";
 import { SITE_NAME, SOURCE_URL, fetchBoard } from "@/lib/board";
 
 // ISR: visitors get the cached page; only the background revalidation waits on the API.
@@ -36,6 +37,8 @@ export default async function Page() {
       ) : (
         <p className="empty">No board has been published yet.</p>
       )}
+      {/* Page level, not inside the table: the status pill's tip needs it with no board too. */}
+      <TipLayer />
     </main>
   );
 }

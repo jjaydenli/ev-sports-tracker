@@ -13,6 +13,11 @@ type Tone = "green" | "amber" | "red";
 
 const STALE_AFTER_MS = 18 * 60 * 60 * 1000;
 
+// Mirrors the external cron that triggers .github/workflows/live-board.yml; keep in step.
+const SCHEDULE_TIP =
+  "Updates 4x daily at 9:35, 12:35, 3:35 and 6:35 PT. A fixed schedule keeps request " +
+  "volume low so the sportsbooks don't rate-limit the scraper.";
+
 /**
  * One label per distinct failure, named by book so leagues fold together: "Betr login",
  * "DraftKings blocked", "theScore Bet unavailable".
@@ -88,6 +93,13 @@ export function StatusPill({ run, board }: { run: LatestRun | null; board: Board
     <p className={`pill pill-${tone}`} role="status">
       <span className="pill-dot" aria-hidden="true" />
       {text}
+      <button type="button" className="pill-info" aria-label="Refresh schedule" data-tip={SCHEDULE_TIP}>
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
+          <circle cx="8" cy="4.9" r="1" fill="currentColor" />
+          <path d="M8 7.2v4.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      </button>
     </p>
   );
 }

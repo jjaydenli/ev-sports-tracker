@@ -13,14 +13,18 @@ type Tone = "green" | "amber" | "red";
 
 const STALE_AFTER_MS = 18 * 60 * 60 * 1000;
 
-/** One label per distinct failure: "Betr login", "DraftKings blocked", or the source key. */
+/**
+ * One label per distinct failure, named by book so leagues fold together: "Betr login",
+ * "DraftKings blocked", "theScore Bet unavailable".
+ */
 function failureLabels(run: LatestRun): string[] {
   const labels: string[] = [];
   for (const [key, health] of Object.entries(run.sources)) {
     if (health.status !== "failed") continue;
-    let label = key;
+    const book = sourceBookName(key);
+    let label = `${book} unavailable`;
     if (health.reason === "auth") label = "Betr login";
-    else if (health.reason === "blocked") label = `${sourceBookName(key)} blocked`;
+    else if (health.reason === "blocked") label = `${book} blocked`;
     if (!labels.includes(label)) labels.push(label);
   }
   return labels;

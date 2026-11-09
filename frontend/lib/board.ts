@@ -10,7 +10,7 @@ export const F = boardFields;
 /** The product's name: tab title, page heading, error page. */
 export const SITE_NAME = "AlphaOdds";
 
-/** The header's "Source on GitHub" link. */
+/** The header's GitHub button. */
 export const SOURCE_URL = "https://github.com/jjaydenli/ev-sports-tracker";
 
 /** One EV row as the engine wrote it. Rows are read only through {@link F}. */
@@ -125,14 +125,13 @@ export function edgePts(row: BoardRow): number | null {
   return hit === null || breakeven === null ? null : hit - breakeven;
 }
 
-/** Hit % fill step: above breakeven green (under 1 pt, under 2.5, beyond), below it red-leaning
- * (within 1 pt, within 2.5); further below, or unpriced, no fill. */
-export type EdgeStep = "e3" | "e2" | "e1" | "n1" | "n2" | null;
+/** Hit % fill step: above breakeven green (under 1 pt, under 2.5, beyond); within 1 pt below,
+ * orange ("near"); further below, or unpriced, no fill. Red is kept for under picks and LIVE. */
+export type EdgeStep = "e3" | "e2" | "e1" | "near" | null;
 
 export function edgeStep(edge: number | null): EdgeStep {
-  if (edge === null || edge <= -2.5) return null;
-  if (edge <= -1) return "n2";
-  if (edge <= 0) return "n1";
+  if (edge === null || edge <= -1) return null;
+  if (edge <= 0) return "near";
   if (edge < 1) return "e1";
   if (edge < 2.5) return "e2";
   return "e3";

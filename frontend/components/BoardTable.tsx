@@ -283,13 +283,18 @@ function HitCell({ row }: { row: BoardRow }) {
   );
 }
 
-/** "+105/-135" with the picked side bold; over always first. A missing side is a dash. */
+/** "+105/-135" with the picked side bold; over always first. A missing side is a muted dash. */
 function OddsPair({ prices, pickOver }: { prices: Prices; pickOver: boolean }) {
+  const side = (price: number | null, picked: boolean) => (
+    <span className={picked ? (price === null ? "on none" : "on") : undefined}>
+      {formatOdds(price)}
+    </span>
+  );
   return (
     <>
-      <span className={pickOver ? "on" : undefined}>{formatOdds(prices.over)}</span>
+      {side(prices.over, pickOver)}
       <span className="sep">/</span>
-      <span className={pickOver ? undefined : "on"}>{formatOdds(prices.under)}</span>
+      {side(prices.under, !pickOver)}
     </>
   );
 }

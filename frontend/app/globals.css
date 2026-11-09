@@ -23,8 +23,7 @@
   --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 2.5+ pts above   5.3:1 */
   --hit-e2: #8fd19e; --hit-e2-fg: #0b3d1a;  /* 1-2.5 above      6.9:1 */
   --hit-e1: #d6f0dc; --hit-e1-fg: #0f5223;  /* 0-1 above        7.7:1 */
-  --hit-n1: #fbd5cc; --hit-n1-fg: #7a2214;  /* within 1 below   7.5:1 */
-  --hit-n2: #f8ecea; --hit-n2-fg: #1a1d21;  /* 1-2.5 below     14.6:1 */
+  --hit-near: #fde9c6; --hit-near-fg: #6e4300;  /* within 1 below  7.2:1 */
   --live: #c4302b;
   --over: #1f5fc4;
   --under: #c4302b;
@@ -58,8 +57,7 @@
     --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 5.3:1 */
     --hit-e2: #22603a; --hit-e2-fg: #e8f6ec;  /* 6.7:1 */
     --hit-e1: #173a26; --hit-e1-fg: #8fe0ab;  /* 8.0:1 */
-    --hit-n1: #5a2622; --hit-n1-fg: #ffb8ad;  /* 7.3:1 */
-    --hit-n2: #2a1c1b; --hit-n2-fg: #e7e9ec;  /* 13.5:1 */
+    --hit-near: #4a3413; --hit-near-fg: #ffd28f;  /* 8.3:1 */
     --live: #f06a64;
     --over: #7ea6ff;
     --under: #f06a64;
@@ -116,21 +114,36 @@ h1 {
   margin-left: -4px;
 }
 
+/* Ghost button: quiet beside the name, full colour on hover. */
 .source-link {
-  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--row);
   color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px solid var(--border);
+}
+
+.source-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 .source-link:hover {
-  color: var(--accent);
-  border-bottom-color: currentColor;
+  color: var(--fg);
+  border-color: var(--muted);
 }
 
 .source-link:focus-visible {
   outline: 2px solid var(--focus);
-  outline-offset: 2px;
+  outline-offset: 1px;
 }
 
 .lede {
@@ -160,6 +173,11 @@ h1 {
 
 .pill-green .pill-dot { background: var(--green); }
 .pill-amber .pill-dot { background: var(--amber); }
+/* A warning tint on the frame only; the text stays body colour. */
+.pill-amber {
+  border-color: color-mix(in srgb, var(--amber) 45%, var(--border));
+  background: color-mix(in srgb, var(--amber) 9%, var(--row));
+}
 .pill-red .pill-dot { background: var(--red); }
 .pill-red { color: var(--red); }
 
@@ -855,11 +873,11 @@ table.board {
   color: var(--muted);
 }
 
-.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .n1, .n2) .hit {
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) .hit {
   font-weight: 700;
 }
 
-.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .n1, .n2) .evline {
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) .evline {
   color: inherit;
   opacity: 0.85;
   font-weight: 500;
@@ -868,9 +886,8 @@ table.board {
 .board tbody tr.prop td.metric.e3 { background: var(--hit-e3); color: var(--hit-e3-fg); }
 .board tbody tr.prop td.metric.e2 { background: var(--hit-e2); color: var(--hit-e2-fg); }
 .board tbody tr.prop td.metric.e1 { background: var(--hit-e1); color: var(--hit-e1-fg); }
-.board tbody tr.prop td.metric.n1 { background: var(--hit-n1); color: var(--hit-n1-fg); }
-.board tbody tr.prop td.metric.n2 { background: var(--hit-n2); color: var(--hit-n2-fg); }
-.board tbody tr.prop td.metric:not(.e3, .e2, .e1, .n1, .n2) { background: var(--row); }
+.board tbody tr.prop td.metric.near { background: var(--hit-near); color: var(--hit-near-fg); }
+.board tbody tr.prop td.metric:not(.e3, .e2, .e1, .near) { background: var(--row); }
 
 /* One book cell: over/under inline, the picked side bold. */
 .slash {
@@ -888,8 +905,10 @@ table.board {
   font-weight: 700;
 }
 
-.board .none {
+.board .none,
+.slash .on.none {
   color: var(--faint);
+  font-weight: 400;
 }
 
 /* Book logo; the name is screen-reader text and the hover title. */

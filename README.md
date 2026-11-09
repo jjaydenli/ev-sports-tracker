@@ -6,7 +6,9 @@
 
 ![The live board at alphaodds.vercel.app](docs/images/live-board.png)
 
-Python pipeline that identifies +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines against sharp sportsbook prices. Scrapes, normalizes, and de-vigs data from three sportsbooks with undocumented APIs (DraftKings, FanDuel, and theScore Bet, formerly ESPN BET), then ranks opportunities by edge.
+*Ranked plays from the latest scrape. The status pill shows when it ran and whether every source succeeded.*
+
+Finds +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines (Betr) against sharp sportsbook prices. A Python pipeline scrapes, normalizes, and de-vigs three sportsbooks with undocumented APIs (DraftKings, FanDuel, and theScore Bet, formerly ESPN BET) and ranks opportunities by edge; a FastAPI and Next.js board publishes the results.
 
 ## Technical highlights
 
@@ -16,7 +18,7 @@ Python pipeline that identifies +EV (positive expected value) player prop bets b
 
 - **Match-context resolution**: props across books are matched on a canonical key `player|market|league|game|event_hour|live` where `event_hour` is the UTC hour-floor of game start. This eliminates cross-day ladder drift (e.g. a player listed for tomorrow's game being priced against today's Betr prop) and disambiguates MLB doubleheaders without special-case logic.
 
-- **Data-driven book registry**: a `SharpBookConfig` dataclass drives all resolution logic (O/U interpolation strategy, milestone fallback, hold estimation). Adding a fourth sportsbook requires one registry entry; zero edits to resolution or assembly code.
+- **Data-driven book registry**: a `SharpBookConfig` dataclass drives all resolution logic (O/U interpolation strategy, milestone fallback, hold estimation). A fourth sportsbook needs a scraper, a parser, and one registry entry; no edits to resolution code.
 
 ## How it works
 
@@ -31,7 +33,7 @@ Each run scrapes all configured sources in parallel, normalizes to a shared `Nor
 
 ![Ranked output from ./ev](docs/images/cli-ranked.png)
 
-*Ranked output from `./ev` on an NBA slate. The ESPN column is empty because theScore Bet is scraped for MLB and WNBA only.*
+*Ranked output from `./ev` on an NBA slate where no line cleared 0% EV, so every row is negative. `[TEAM]` is the player's team, a shared color bar marks teammates (a correlated stack), a dimmed row is a player's weaker duplicate, and `exact·2` means two books quoted the exact line. ESPN is empty because theScore Bet is scraped for MLB and WNBA only.*
 
 Architecture decisions: [`docs/design/`](docs/design/)
 
@@ -46,51 +48,11 @@ GitHub Actions                 ──▶  FastAPI (Render)  ──▶  Postgres 
   python -m web.publish
 ```
 
-A workflow (`.github/workflows/live-board.yml`) runs the full pipeline on a GitHub runner four times a day and posts the run to the API with `web.publish`. GitHub's scheduler delays and drops on-the-hour runs, so an external cron triggers the workflow on time; the built-in schedule is a backup that skips when the board is already fresh. The live board prices DraftKings and FanDuel only, since theScore Bet blocks requests from cloud runners. Every run posts its per-source health; the board is attached only when `./ev` exited 0, the board belongs to this run, and it has at least one row, so a failed or empty run never replaces the last good board. The API validates the envelope with pydantic and stores each run as one `board_runs` row. The page is statically generated and revalidated every five minutes, so visitors never wait on the API waking up. A status pill shows when the board was scraped and turns amber or red when the latest run was empty, partial, or failed. Workflow logs are public, so they carry the coverage line and warnings only, never a prop.
-
-## Repository layout
-
-```
-ev-sports-tracker/
-├── ev                            # bash entry point → backend/core/pipeline_runner.py
-├── .github/workflows/            # ci.yml (tests, lint, types), live-board.yml (scheduled scrape)
-├── frontend/                     # Next.js live board page
-└── backend/
-    ├── config/
-    │   ├── api_headers.py        # Platform-specific headers and auth builders
-    │   ├── market_maps.py        # Canonical market name translations
-    │   ├── sharp_books.py        # SharpBookConfig registry (DK / FD / theScore Bet)
-    │   ├── dk_subcategories.py   # DK subCategoryId map per market/league
-    │   ├── team_abbrev.py        # Cross-book team abbreviation canonicalization
-    │   ├── pipeline_sources.py   # League + source registry
-    │   ├── espn_queries.py       # theScore Bet GraphQL persisted-query hashes
-    │   └── settings.py           # Credential loading from .env
-    ├── scrapers/
-    │   ├── base_scraper.py       # Abstract base: authenticate → scrape → save
-    │   ├── dfs/betr/             # Betr GraphQL (httpx)
-    │   └── sportsbooks/
-    │       ├── dk_engine.py / dk_api.py
-    │       ├── fd_engine.py / fd_api.py
-    │       └── espn_engine.py / espn_api.py / espn_auth.py
-    ├── parsers/
-    │   ├── betr_parser.py, dk_parser.py, fd_parser.py, espn_parser.py
-    │   └── normalize.py          # Unified NormalizedProp output schema
-    ├── core/
-    │   ├── ladder_index.py       # Match-context keys, O/U + milestone ladder builders
-    │   ├── resolution_math.py    # De-vig, logit interpolation, survival-curve normalization
-    │   ├── line_adjustment.py    # Single-book resolution (BookQuote, ResolvedSharpQuote)
-    │   ├── multi_book_resolver.py# Multi-book assembly and weighted consensus
-    │   ├── engine.py             # EV calculation, per-prop sharp filtering
-    │   ├── ev_pipeline.py        # Unified board → ranked JSON output
-    │   └── pipeline_runner.py    # Orchestrator and CLI
-    ├── web/                      # Board API (FastAPI), run store, scrape-job publisher
-    ├── tests/
-    │   ├── fixtures/             # Captured API payloads (offline; no live network in tests)
-    │   └── unit/
-    └── data/processed/           # Run output (gitignored)
-```
+A workflow (`.github/workflows/live-board.yml`) runs the pipeline four times a day and posts the run with `web.publish`. An external cron triggers it on time, since GitHub's scheduler delays on-the-hour runs; the built-in schedule is a backup that skips when the board is fresh. The live board prices DraftKings and FanDuel only, since theScore Bet blocks requests from cloud runners. A run replaces the board only if `./ev` exited 0 with at least one row, so a failed or empty run never overwrites the last good board. The page is statically generated and revalidated every five minutes, so visitors never wait on the API waking up.
 
 ## Setup
+
+Requires Python 3.13. `./ev` needs Betr credentials (below); the sportsbooks need none.
 
 ```bash
 cd backend
@@ -105,7 +67,7 @@ cp config/.env.example config/.env   # fill in credentials; never commit this fi
 pytest -q   # 750+ tests, offline fixtures only
 ```
 
-## Daily refresh
+## Usage
 
 From the repo root (activates `backend/.venv` automatically):
 
@@ -117,7 +79,7 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 
 | File | Contents |
 |------|----------|
-| `ev_opportunities.json` | Ranked +EV plays (default top 15) |
+| `ev_opportunities.json` | Ranked plays, best EV first (default top 15) |
 | `ev_run_diff.json` | New / removed / improved vs previous run |
 | `match_report.json` | Match rates by league and source |
 | `scrape_coverage.json` | Per-source scrape status |
@@ -128,7 +90,7 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 ```bash
 ./ev --mlb                      # MLB only
 ./ev --books dk,espn            # subset of sharp books
-./ev --top-n 25 --min-ev 0.02   # top 25 with ev >= 2%; plus_ev when ev > 0
+./ev --top-n 25 --min-ev 0.02   # top 25 with EV >= 2%
 ./ev --top-n all                # every ranked row (the live board adds --books dk,fd)
 ./ev --scrape-only              # scrape + normalize, skip EV
 ./ev --live-only --nba          # in-progress games only (skips pregame and FanDuel)
@@ -137,6 +99,25 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 
 Platform-specific API notes: [`docs/betting_odds/`](docs/betting_odds/)
 
+## Repository layout
+
+```
+ev-sports-tracker/
+├── ev                    # entry point → backend/core/pipeline_runner.py
+├── .github/workflows/    # ci.yml (tests, lint, types), live-board.yml (scheduled scrape)
+├── frontend/             # Next.js live board page
+│   ├── app/              # page (revalidates every 5 min), layout, error page
+│   ├── components/       # board table, status pill, tooltips
+│   └── lib/              # board API client, field and book metadata
+└── backend/
+    ├── config/           # SharpBookConfig registry, market maps, headers, league/source registry
+    ├── scrapers/         # Betr (DFS) and DraftKings / FanDuel / theScore Bet engines
+    ├── parsers/          # per-book parsers → shared NormalizedProp schema
+    ├── core/             # ladders, de-vig math, resolution, EV engine, CLI orchestrator
+    ├── web/              # board API (FastAPI), run store, publisher
+    └── tests/            # unit tests on captured API payloads (no live network)
+```
+
 ## Security
 
-All API keys and tokens are loaded via `os.getenv()` from `config/.env`. No credentials are hardcoded or committed. The git history is scanned on pre-commit to block accidental `.env` inclusion.
+Credentials load from `config/.env` via `os.getenv()`; nothing is hardcoded, and `.env` files are gitignored.

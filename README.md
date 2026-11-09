@@ -4,6 +4,8 @@
 
 **Live board: https://alphaodds.vercel.app** (the latest scheduled scrape, refreshed four times a day)
 
+![The live board at alphaodds.vercel.app](docs/images/live-board.png)
+
 Python pipeline that identifies +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines against sharp sportsbook prices. Scrapes, normalizes, and de-vigs data from three sportsbooks with undocumented APIs (DraftKings, FanDuel, and theScore Bet, formerly ESPN BET), then ranks opportunities by edge.
 
 ## Technical highlights
@@ -27,17 +29,24 @@ theScore Bet  ──┘
 
 Each run scrapes all configured sources in parallel, normalizes to a shared `NormalizedProp` schema, then for each Betr prop filters the sharp pool to the same game snapshot before building O/U or milestone ladders. Multi-book consensus runs when two or more books price the same line exactly.
 
+![Ranked output from ./ev](docs/images/cli-ranked.png)
+
+*Ranked output from `./ev` on an NBA slate. The ESPN column is empty because theScore Bet is scraped for MLB and WNBA only.*
+
 Architecture decisions: [`docs/design/`](docs/design/)
 
 ## How the live board works
 
 ```
-GitHub Actions (cron, 4x/day)  ──▶  FastAPI (Render)  ──▶  Postgres (Neon)  ◀──  Next.js page (Vercel, ISR)
+External cron (4x/day)
+  │ workflow_dispatch
+  ▼
+GitHub Actions                 ──▶  FastAPI (Render)  ──▶  Postgres (Neon)  ◀──  Next.js page (Vercel, ISR)
   ./ev --top-n all --books dk,fd      POST /api/runs        board_runs table        GET /api/board
   python -m web.publish
 ```
 
-A scheduled workflow (`.github/workflows/live-board.yml`) runs the full pipeline on a GitHub runner and posts the run to the API with `web.publish`. Every run posts its per-source health; the board is attached only when `./ev` exited 0, the board belongs to this run, and it has at least one row, so a failed or empty run never replaces the last good board. The API validates the envelope with pydantic and stores each run as one `board_runs` row. The page is statically generated and revalidated every five minutes, so visitors never wait on the API waking up. A status pill shows when the board was scraped and turns amber or red when the latest run was empty, partial, or failed. Workflow logs are public, so they carry the coverage line and warnings only, never a prop.
+A workflow (`.github/workflows/live-board.yml`) runs the full pipeline on a GitHub runner four times a day and posts the run to the API with `web.publish`. GitHub's scheduler delays and drops on-the-hour runs, so an external cron triggers the workflow on time; the built-in schedule is a backup that skips when the board is already fresh. The live board prices DraftKings and FanDuel only, since theScore Bet blocks requests from cloud runners. Every run posts its per-source health; the board is attached only when `./ev` exited 0, the board belongs to this run, and it has at least one row, so a failed or empty run never replaces the last good board. The API validates the envelope with pydantic and stores each run as one `board_runs` row. The page is statically generated and revalidated every five minutes, so visitors never wait on the API waking up. A status pill shows when the board was scraped and turns amber or red when the latest run was empty, partial, or failed. Workflow logs are public, so they carry the coverage line and warnings only, never a prop.
 
 ## Repository layout
 
@@ -93,7 +102,7 @@ cp config/.env.example config/.env   # fill in credentials; never commit this fi
 **Betr auth:** set `BETR_REFRESH_TOKEN` + `BETR_KEYCLOAK_TOKEN_URL` (from DevTools on login). Probe: `python -m scrapers.dfs.betr.betr_auth --try-grant`. See [`docs/betting_odds/betr.md`](docs/betting_odds/betr.md).
 
 ```bash
-pytest -q   # 700+ tests, offline fixtures only
+pytest -q   # 750+ tests, offline fixtures only
 ```
 
 ## Daily refresh

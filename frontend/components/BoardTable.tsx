@@ -27,6 +27,7 @@ import {
   formatSignedPct,
   hasPrices,
   LEAGUE_ORDER,
+  leagueOf,
   lineSourceWords,
   MARKET_ORDER,
   marketWords,
@@ -103,13 +104,11 @@ type Facet = {
   showsLive?: boolean;
 };
 
-const leagueOf = (row: BoardRow) => str(row, F.league) ?? "";
-
 const FACETS: Record<FacetKey, Facet> = {
   league: {
     title: "Leagues",
     one: "league",
-    value: (row) => str(row, F.league),
+    value: (row) => leagueOf(row) || null,
     name: leagueOf,
     rank: () => 0,
   },

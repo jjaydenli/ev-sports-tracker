@@ -85,6 +85,14 @@ export function bool(row: BoardRow, key: string): boolean {
   return row[key] === true;
 }
 
+/**
+ * The row's league, upper-cased: the key every menu groups by and team names are looked
+ * up under, so a stray "nba" joins NBA instead of forming its own group. "" when unset.
+ */
+export function leagueOf(row: BoardRow): string {
+  return (str(row, F.league) ?? "").toUpperCase();
+}
+
 export const DASH = "–";
 
 export function formatOdds(value: number | null): string {
@@ -268,7 +276,7 @@ export type MatchupPart = { text: string; own: boolean };
  */
 export function matchup(row: BoardRow): MatchupPart[] {
   const game = str(row, F.game);
-  if (game === null) return [{ text: str(row, F.league) ?? "", own: false }];
+  if (game === null) return [{ text: leagueOf(row), own: false }];
   const sides = game.split("@");
   if (sides.length !== 2) return [{ text: game, own: false }];
   const team = str(row, F.team);
@@ -285,7 +293,7 @@ export function matchup(row: BoardRow): MatchupPart[] {
  * Phillies); none for an unknown code, or a league the API does not name.
  */
 export function teamNamesFor(names: TeamNames, row: BoardRow, code: string | null): string[] {
-  return code === null ? [] : (names[str(row, F.league) ?? ""]?.[code] ?? []);
+  return code === null ? [] : (names[leagueOf(row)]?.[code] ?? []);
 }
 
 /** The matchup in full names, for search: "Brooklyn Nets @ Dallas Mavericks". */

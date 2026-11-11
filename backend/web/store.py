@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Protocol
 
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
+from core.pipeline_artifacts import pipeline_run_in_progress
 from web.models import RunOutcome
+from web.publish import build_run_payload
 
 
 @dataclass(frozen=True)
@@ -59,6 +62,59 @@ class InMemoryBoardStore:
 
     def latest_board(self) -> StoredRun | None:
         return _newest([run for run in self._runs.values() if run.outcome == "ok"])
+
+
+# --- Local board: the page's API over this checkout's data folder -------------------------
+
+
+class FileBoardStore:
+    """Reads the local ``data/processed`` on every call; nothing posts to it.
+
+    Each read classifies the disk with ``build_run_payload`` (the publisher's own
+    ok/empty/failed rule, read as exit 0) and remembers the newest run and newest ``ok``
+    run it has seen. While a run holds the pipeline lock, its artifacts are wiped, so
+    reads skip the disk and serve those memories: the same last good board the cloud
+    keeps. A directory with no coverage file contributes no run.
+    """
+
+    def __init__(self, data_dir: Path) -> None:
+        self._data_dir = Path(data_dir)
+        self._last_run: StoredRun | None = None
+        self._last_board: StoredRun | None = None
+
+    def setup(self) -> None:
+        return None
+
+    def upsert_run(self, run: StoredRun) -> None:
+        raise NotImplementedError("the local board reads the disk; nothing posts")
+
+    def _refresh(self) -> None:
+        if pipeline_run_in_progress(self._data_dir):
+            return
+        payload = build_run_payload(self._data_dir, exit_code=0)
+        if not payload["coverage"]:  # no coverage file: a ``nocoverage-*`` envelope
+            return
+        board = payload["board"]
+        run = StoredRun(
+            run_id=payload["run_id"],
+            generated_at=datetime.fromisoformat(payload["generated_at"]),
+            received_at=datetime.now(UTC),
+            exit_code=payload["exit_code"],
+            outcome=payload["outcome"],
+            coverage=payload["coverage"],
+            props=board["props"] if board is not None else None,
+        )
+        self._last_run = run
+        if run.outcome == "ok":
+            self._last_board = run
+
+    def latest_run(self) -> StoredRun | None:
+        self._refresh()
+        return self._last_run
+
+    def latest_board(self) -> StoredRun | None:
+        self._refresh()
+        return self._last_board
 
 
 _COLUMNS = "run_id, generated_at, received_at, exit_code, outcome, coverage, props"

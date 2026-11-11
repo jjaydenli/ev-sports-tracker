@@ -201,6 +201,36 @@ h1 {
   color: var(--fg);
 }
 
+/* The local board's run trigger and running state. */
+.pill:has(.pill-refresh) { flex-wrap: wrap; }
+.pill-running .pill-dot { background: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .pill-running .pill-dot { animation: pill-pulse 1.2s ease-in-out infinite; }
+}
+@keyframes pill-pulse {
+  50% { opacity: 0.3; }
+}
+.pill-refresh {
+  margin-left: 4px;
+  padding: 1px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.pill-refresh:hover:not(:disabled) { border-color: var(--muted); }
+.pill-refresh:disabled {
+  color: var(--muted);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.pill-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 button {
   font: inherit;
 }

@@ -97,6 +97,8 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 ./ev --timing                   # wall-clock summary per pipeline stage
 ```
 
+**Local board:** `npm run dev` from the repo root serves the board page over local runs at `http://localhost:3000`; its refresh button runs `./ev --top-n all`, and terminal runs need `--top-n all` for the full board.
+
 Platform-specific API notes: [`docs/betting_odds/`](docs/betting_odds/)
 
 ## Repository layout

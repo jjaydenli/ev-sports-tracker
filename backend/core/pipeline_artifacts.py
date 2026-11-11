@@ -147,6 +147,24 @@ def pipeline_run_lock(data_dir: Path) -> Iterator[None]:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
 
 
+def pipeline_run_in_progress(data_dir: Path) -> bool:
+    """True while some ``./ev`` holds :func:`pipeline_run_lock` on ``data_dir``.
+
+    Probes with a shared, non-blocking ``flock`` and releases it at once: a held
+    exclusive lock refuses it, while concurrent probes never refuse each other.
+    """
+    lock_path = Path(data_dir) / PIPELINE_RUN_LOCK_FILENAME
+    if not lock_path.exists():
+        return False
+    with lock_path.open("a+", encoding="utf-8") as lock_file:
+        try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_SH | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+    return False
+
+
 def load_wrapped_board(path: Path) -> tuple[str | None, list[dict]]:
     """
     Load props from a board file.

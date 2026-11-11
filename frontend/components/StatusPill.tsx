@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { LOCAL_TIP, LocalRunControls, runningPillState, useLocalRun } from "@/components/LocalRunControls";
 import {
   type Board,
   type LatestRun,
@@ -9,7 +10,7 @@ import {
   sourceBookName,
 } from "@/lib/board";
 
-type Tone = "green" | "amber" | "red";
+type Tone = "green" | "amber" | "red" | "running";
 
 const STALE_AFTER_MS = 18 * 60 * 60 * 1000;
 
@@ -48,8 +49,10 @@ export function pillState(
   run: LatestRun | null,
   board: Board | null,
   nowMs: number | null,
+  seconds = false,
 ): { tone: Tone; text: string } {
-  const showing = board ? ` · showing board from ${formatPacificTime(board.generated_at)}` : "";
+  const time = (iso: string) => formatPacificTime(iso, { seconds });
+  const showing = board ? ` · showing board from ${time(board.generated_at)}` : "";
   if (!run) {
     return { tone: "amber", text: "No scrape runs yet" };
   }
@@ -65,7 +68,7 @@ export function pillState(
     return { tone: "amber", text: `Partial prices: ${failures.join(", ")}${showing}` };
   }
   const scrapedAt = Date.parse(run.generated_at);
-  const at = formatPacificTime(run.generated_at);
+  const at = time(run.generated_at);
   if (nowMs === null) {
     return { tone: "green", text: `Scraped ${at}` };
   }
@@ -78,9 +81,19 @@ export function pillState(
 
 /**
  * Client component so the relative age stays current inside cached HTML. The server
- * render (and the first client render, to match it) shows the absolute time only.
+ * render (and the first client render, to match it) shows the absolute time only. `local`
+ * (the page's `isLocalBoard()`) adds the run controls and seconds; the live board has
+ * neither and never polls.
  */
-export function StatusPill({ run, board }: { run: LatestRun | null; board: Board | null }) {
+export function StatusPill({
+  run,
+  board,
+  local: isLocal,
+}: {
+  run: LatestRun | null;
+  board: Board | null;
+  local: boolean;
+}) {
   const [nowMs, setNowMs] = useState<number | null>(null);
   useEffect(() => {
     setNowMs(Date.now());
@@ -88,12 +101,21 @@ export function StatusPill({ run, board }: { run: LatestRun | null; board: Board
     return () => clearInterval(timer);
   }, []);
 
-  const { tone, text } = pillState(run, board, nowMs);
+  const local = useLocalRun(isLocal);
+  const { tone, text } = local?.running
+    ? runningPillState(board)
+    : pillState(run, board, nowMs, isLocal);
   return (
     <p className={`pill pill-${tone}`} role="status">
       <span className="pill-dot" aria-hidden="true" />
       {text}
-      <button type="button" className="pill-info" aria-label="Refresh schedule" data-tip={SCHEDULE_TIP}>
+      {local && <LocalRunControls local={local} />}
+      <button
+        type="button"
+        className="pill-info"
+        aria-label={local ? "About the local board" : "Refresh schedule"}
+        data-tip={local ? LOCAL_TIP : SCHEDULE_TIP}
+      >
         <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
           <circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
           <circle cx="8" cy="4.9" r="1" fill="currentColor" />

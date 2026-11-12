@@ -100,6 +100,8 @@ MARKET_ABBREV: dict[str, str] = {
     "pts+reb": "PTS+REB",
     "pts+ast": "PTS+AST",
     "reb+ast": "REB+AST",
+    "double-double": "DD",
+    "triple-double": "TD",
 }
 
 _SIDE_GLYPH: dict[str, str] = {"over": "▲", "under": "▼"}

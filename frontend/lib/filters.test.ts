@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { type BoardRow, F, type TeamNames } from "@/lib/board";
 import {
+  available,
   type FacetKey,
   type Filters,
   filterMenus,
-  grayed,
   matches,
   NO_FILTERS,
+  popupMatches,
 } from "@/lib/filters";
 
 function row(league: string, game: string, team: string, market: string): BoardRow {
@@ -47,25 +48,56 @@ describe("filterMenus counts", () => {
   });
 });
 
-describe("grayed", () => {
-  it("grays an option with no props left, but never a picked one", () => {
+describe("available", () => {
+  it("lists an option with props left, or a picked one, and no other", () => {
     // DAL@BKN has only points. Rebounds is picked first, so it stays removable at 0.
     const picks: Filters = {
       ...NO_FILTERS,
       game: new Set(["NBA|DAL@BKN"]),
       market: new Set(["NBA|rebounds"]),
     };
-    const gray = Object.fromEntries(
+    const listed = Object.fromEntries(
       filterMenus(ROWS, picks, {}).options.market.map((o) => [
         o.value,
-        [o.count, grayed(o, picks.market)],
+        [o.count, available(o, picks.market)],
       ]),
     );
-    expect(gray).toEqual({
-      "NBA|points": [1, false],
-      "NBA|rebounds": [0, false],
-      "NHL|points": [0, true],
+    expect(listed).toEqual({
+      "NBA|points": [1, true],
+      "NBA|rebounds": [0, true],
+      "NHL|points": [0, false],
     });
+  });
+});
+
+describe("popupMatches", () => {
+  const options = filterMenus(
+    [
+      ...ROWS,
+      row("WNBA", "DAL@LVA", "DAL", "points"),
+      row("NBA", "LAL@BOS", "LAL", "pts+reb"),
+    ],
+    NO_FILTERS,
+    {},
+  ).options;
+  const found = (key: FacetKey, query: string) =>
+    options[key].filter((o) => popupMatches(o, query)).map((o) => o.value);
+
+  it("reads a league word as a word start: nba is NBA, never WNBA", () => {
+    // Hand-derived from the rows above: NBA has points and Pts + Reb, WNBA has points.
+    expect(found("market", "nba").sort()).toEqual(
+      ["NBA|points", "NBA|pts+reb", "NBA|rebounds"].sort(),
+    );
+    expect(found("market", "wnba")).toEqual(["WNBA|points"]);
+  });
+
+  it("needs every word: a league word and a name piece together", () => {
+    expect(found("market", "nba poin")).toEqual(["NBA|points"]);
+    expect(found("team", "wnba dal")).toEqual(["WNBA|DAL"]);
+  });
+
+  it("matches nothing for a word that is neither", () => {
+    expect(found("market", "nba zzz")).toEqual([]);
   });
 });
 

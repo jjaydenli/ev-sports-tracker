@@ -551,16 +551,6 @@ button {
   display: block;
 }
 
-/* No props left under the other picks; stays in place so the list does not jump. */
-.opt:disabled {
-  color: var(--faint);
-  cursor: default;
-}
-
-.opt:disabled:hover {
-  background: none;
-}
-
 /* A league heading on a multi-league board; folds its choices away. */
 .lhead {
   display: flex;
@@ -584,12 +574,6 @@ button {
 .lhead:hover {
   color: var(--fg);
   background: var(--hover);
-}
-
-/* Still opens, so its text keeps body contrast; live headings stand out by colour and weight. */
-.lhead.gone {
-  color: var(--muted);
-  font-weight: 500;
 }
 
 .lhead .fold {

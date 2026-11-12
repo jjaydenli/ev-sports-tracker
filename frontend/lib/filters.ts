@@ -167,9 +167,22 @@ export type MenuOption = {
   count: number;
 };
 
-/** No props left under the other picks: grayed, unless picked, so a pick stays removable. */
-export function grayed(option: MenuOption, picked: ReadonlySet<string>): boolean {
-  return option.count === 0 && !picked.has(option.value);
+/** Props left under the other picks, or picked so it can be removed; the rest are unlisted. */
+export function available(option: MenuOption, picked: ReadonlySet<string>): boolean {
+  return option.count > 0 || picked.has(option.value);
+}
+
+/**
+ * Whether a popup search matches an option: every typed word is a piece of its name (or team and
+ * game names) or starts a word of its league, so `nba` finds NBA's options but not WNBA's.
+ */
+export function popupMatches(option: MenuOption, query: string): boolean {
+  const league = option.league.toLowerCase();
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((word) => option.search.includes(word) || startsWord(league, word) >= 0);
 }
 
 /** Every popup category's choices, and what its "All …" row counts. */

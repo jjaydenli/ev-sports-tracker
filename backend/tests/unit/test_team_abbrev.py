@@ -1,4 +1,6 @@
+from config.pipeline_sources import PIPELINE_LEAGUES
 from config.team_abbrev import (
+    CODE_ONLY_LEAGUES,
     TEAMS_BY_LEAGUE,
     _normalize_name,
     abbr_from_full_name,
@@ -61,3 +63,13 @@ def test_full_names_are_unique_across_leagues():
                 repeated.append(f"{name!r} in {seen[key]} and {league}")
             seen[key] = league
     assert not repeated, repeated
+
+
+def test_every_pipeline_league_is_named_or_code_only():
+    """The board's team search reads names per league; a league in neither table would
+    match codes only with no record that it was meant to."""
+    unnamed = [lg for lg in PIPELINE_LEAGUES if lg not in TEAMS_BY_LEAGUE]
+    assert sorted(unnamed) == sorted(CODE_ONLY_LEAGUES), (
+        f"named nowhere: {sorted(set(unnamed) - set(CODE_ONLY_LEAGUES))}; "
+        f"code-only but named: {sorted(set(CODE_ONLY_LEAGUES) - set(unnamed))}"
+    )

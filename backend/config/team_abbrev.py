@@ -135,6 +135,11 @@ TEAMS_BY_LEAGUE: dict[str, dict[str, str]] = {
     },
 }
 
+# Board leagues the page searches by team code only, each with why it has no names
+# above. Every pipeline league is in TEAMS_BY_LEAGUE or here (guarded in
+# ``test_team_abbrev``), so a new league cannot silently lose team-name search.
+CODE_ONLY_LEAGUES: dict[str, str] = {}
+
 # League-blind view for FanDuel, whose events name teams without a league. A full
 # name must not repeat across leagues, or this merge keeps only one of its codes
 # (guarded in ``test_team_abbrev``).

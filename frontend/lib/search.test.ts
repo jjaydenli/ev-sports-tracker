@@ -119,3 +119,31 @@ describe("universal search", () => {
     expect(found("dal wnba", dalNba)).toEqual([]);
   });
 });
+
+describe("market aliases", () => {
+  const names: TeamNames = { MLB: { TB: ["Tampa Bay Rays"], ATL: ["Atlanta Braves"] } };
+  const rows: Record<string, BoardRow> = {
+    pra: row("NBA", "BKN@DAL", "BKN", "Cam Thomas", "pra"),
+    ptsReb: row("NBA", "BKN@DAL", "DAL", "Kyrie Irving", "pts+reb"),
+    stlBlk: row("NBA", "BKN@DAL", "BKN", "Nic Claxton", "stl+blk"),
+    steals: row("NBA", "BKN@DAL", "BKN", "Nic Claxton", "steals"),
+    hrr: row("MLB", "TB@ATL", "ATL", "Ronald Acuña Jr.", "h+r+rbi"),
+    totalBases: row("MLB", "TB@ATL", "ATL", "Ronald Acuña Jr.", "total_bases"),
+    tbHits: row("MLB", "TB@ATL", "TB", "Yandy Díaz", "hits"),
+  };
+
+  // Each alias names exactly one combo (Decision 19), read off the rows above by hand.
+  it.each<[string, string[]]>([
+    ["pra", ["pra"]],
+    ["stocks", ["stlBlk"]],
+    ["hrr", ["hrr"]],
+    // Never an alias for Total Bases: "tb" is Tampa Bay's code.
+    ["tb", ["tbHits"]],
+  ])("%j", (text, expected) => {
+    const query = parseQuery(text);
+    const hits = Object.keys(rows).filter((id) =>
+      matchesQuery(searchEntry(rows[id], names), query),
+    );
+    expect(hits).toEqual(expected);
+  });
+});

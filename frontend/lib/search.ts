@@ -2,6 +2,7 @@ import {
   type BoardRow,
   F,
   leagueOf,
+  MARKET_ALIASES,
   marketWords,
   str,
   type TeamNames,
@@ -67,12 +68,14 @@ function teamText(row: BoardRow, names: TeamNames, code: string | null): string 
 }
 
 export function searchEntry(row: BoardRow, names: TeamNames): SearchEntry {
-  const label = marketWords(str(row, F.market));
+  const market = str(row, F.market);
+  const label = marketWords(market);
+  const aliases = Object.keys(MARKET_ALIASES).filter((alias) => MARKET_ALIASES[alias] === market);
   const parts: [Tag, string | null][] = [
     ["player", str(row, F.player)],
     ["team", teamText(row, names, str(row, F.team))],
     ["opponent", teamText(row, names, opponentOf(row))],
-    ["market", label],
+    ["market", [label, ...aliases].join(" ")],
     ["league", leagueOf(row)],
   ];
   return {

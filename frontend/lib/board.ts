@@ -208,6 +208,17 @@ export function hasPrices({ over, under }: Prices): boolean {
 /** Web label per market key; a backend test checks every canonical market has one. */
 const MARKET_WORDS: Record<string, string> = marketWordsJson;
 
+/**
+ * Search-only shorthand, never shown: alias → market key. Only established shorthand naming
+ * exactly one combo whose label does not already hold it, and only on request. Never "tb",
+ * which is Tampa Bay's code.
+ */
+export const MARKET_ALIASES: Readonly<Record<string, string>> = {
+  pra: "pra",
+  stocks: "stl+blk",
+  hrr: "h+r+rbi",
+};
+
 /** Filter menus list leagues in this order; any other league follows, A–Z. */
 export const LEAGUE_ORDER: readonly string[] = ["NBA", "NFL", "NHL", "MLB"];
 

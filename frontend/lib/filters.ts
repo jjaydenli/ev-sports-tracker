@@ -134,23 +134,30 @@ export function startsWord(text: string, needle: string): number {
   return -1;
 }
 
-/** Whether a row passes every filter, or every one but `skip` (a category's own counts). */
-export function matches(row: BoardRow, f: Filters, names: TeamNames, skip?: FacetKey): boolean {
+/** The +EV only and game state toggles: the filters outside the popup and the search box. */
+function passesToggles(row: BoardRow, f: Filters): boolean {
+  return (
+    (!f.plusEvOnly || bool(row, F.plusEv)) &&
+    (f.gameState === "all" || (f.gameState === "live") === bool(row, F.isLive))
+  );
+}
+
+/** Whether a row passes one popup category's picks (none picked passes every row). */
+function passesPicks(row: BoardRow, f: Filters, key: FacetKey): boolean {
+  return !f[key].size || FACETS[key].values(row).some((value) => f[key].has(value));
+}
+
+/** Whether a row passes every filter: what the board shows. */
+export function matches(row: BoardRow, f: Filters, names: TeamNames): boolean {
   const query = f.text.trim().toLowerCase().replace(/\s+/g, " ");
   const typed = () =>
     [str(row, F.player), str(row, F.team), ...teamNamesFor(names, row, str(row, F.team))].some(
       (text) => startsWord((text ?? "").toLowerCase(), query) >= 0,
     );
   return (
-    (!f.plusEvOnly || bool(row, F.plusEv)) &&
-    (f.gameState === "all" || (f.gameState === "live") === bool(row, F.isLive)) &&
+    passesToggles(row, f) &&
     (!query || typed()) &&
-    FACET_KEYS.every(
-      (key) =>
-        key === skip ||
-        !f[key].size ||
-        FACETS[key].values(row).some((value) => f[key].has(value)),
-    )
+    FACET_KEYS.every((key) => passesPicks(row, f, key))
   );
 }
 
@@ -166,45 +173,64 @@ export type MenuOption = {
   count: number;
 };
 
-/** A menu's choices: one per distinct value on the board, leagues in LEAGUE_ORDER. */
-export function menuOptions(
-  rows: BoardRow[],
-  key: FacetKey,
-  filters: Filters,
-  names: TeamNames,
-): MenuOption[] {
-  const facet = FACETS[key];
-  // The popup counts what its own picks leave; the search text applies only on the board.
-  const picksOnly = { ...filters, text: "" };
-  const byValue = new Map<string, MenuOption>();
+/** Every popup category's choices, and what its "All …" row counts. */
+export type FilterMenus = {
+  /** One choice per distinct value on the board, leagues in LEAGUE_ORDER. */
+  options: Record<FacetKey, MenuOption[]>;
+  /** The props left with the category's own picks taken off. */
+  all: Record<FacetKey, number>;
+};
+
+/**
+ * The popup's choices and counts, in one pass over the rows. A category counts the rows that
+ * pass every filter but its own picks; the search text applies only on the board.
+ */
+export function filterMenus(rows: BoardRow[], filters: Filters, names: TeamNames): FilterMenus {
+  const byValue = Object.fromEntries(
+    FACET_KEYS.map((key) => [key, new Map<string, MenuOption>()]),
+  ) as Record<FacetKey, Map<string, MenuOption>>;
+  const all = Object.fromEntries(FACET_KEYS.map((key) => [key, 0])) as Record<FacetKey, number>;
   for (const row of rows) {
-    const passes = matches(row, picksOnly, names, key);
-    for (const value of facet.values(row)) {
-      let option = byValue.get(value);
-      if (!option) {
-        const name = facet.name(row, names, value);
-        option = {
-          value,
-          league: leagueOf(row),
-          name,
-          search: `${name} ${facet.alsoSearch?.(row, names, value) ?? ""}`.toLowerCase(),
-          rank: facet.rank(row),
-          live: false,
-          count: 0,
-        };
-        byValue.set(value, option);
+    const toggles = passesToggles(row, filters);
+    const failed = FACET_KEYS.filter((key) => !passesPicks(row, filters, key));
+    for (const key of FACET_KEYS) {
+      // Counts toward k when nothing fails, or k's own picks are all that fail.
+      const counts = toggles && (!failed.length || (failed.length === 1 && failed[0] === key));
+      if (counts) all[key] += 1;
+      const facet = FACETS[key];
+      for (const value of facet.values(row)) {
+        let option = byValue[key].get(value);
+        if (!option) {
+          const name = facet.name(row, names, value);
+          option = {
+            value,
+            league: leagueOf(row),
+            name,
+            search: `${name} ${facet.alsoSearch?.(row, names, value) ?? ""}`.toLowerCase(),
+            rank: facet.rank(row),
+            live: false,
+            count: 0,
+          };
+          byValue[key].set(value, option);
+        }
+        if (facet.showsLive && bool(row, F.isLive)) option.live = true;
+        if (counts) option.count += 1;
       }
-      if (facet.showsLive && bool(row, F.isLive)) option.live = true;
-      if (passes) option.count += 1;
     }
   }
-  return [...byValue.values()].sort(
-    (a, b) =>
-      orderRank(LEAGUE_ORDER, a.league) - orderRank(LEAGUE_ORDER, b.league) ||
-      a.league.localeCompare(b.league) ||
-      a.rank - b.rank ||
-      a.name.localeCompare(b.name),
-  );
+  const options = Object.fromEntries(
+    FACET_KEYS.map((key) => [
+      key,
+      [...byValue[key].values()].sort(
+        (a, b) =>
+          orderRank(LEAGUE_ORDER, a.league) - orderRank(LEAGUE_ORDER, b.league) ||
+          a.league.localeCompare(b.league) ||
+          a.rank - b.rank ||
+          a.name.localeCompare(b.name),
+      ),
+    ]),
+  ) as Record<FacetKey, MenuOption[]>;
+  return { options, all };
 }
 
 /** "22 live · 345 pre-game · 0 +EV", counted over the rows that match. */

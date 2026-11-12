@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { type BoardRow, F } from "@/lib/board";
-import { type FacetKey, type Filters, menuOptions, NO_FILTERS } from "@/lib/filters";
+import { type FacetKey, type Filters, filterMenus, NO_FILTERS } from "@/lib/filters";
 
 function row(league: string, game: string, team: string, market: string): BoardRow {
   return { [F.league]: league, [F.game]: game, [F.team]: team, [F.market]: market };
@@ -22,7 +22,7 @@ const PICKS: Filters = {
   market: new Set(["NBA|points"]),
 };
 
-describe("menuOptions counts", () => {
+describe("filterMenus counts", () => {
   // A row counts toward category k exactly when the only checks it fails are k's own picks.
   // Expected counts are hand-counted from ROWS and PICKS, not taken from a run.
   it.each<[FacetKey, Record<string, number>]>([
@@ -34,7 +34,7 @@ describe("menuOptions counts", () => {
     ["game", { "NBA|LAL@BOS": 2, "NBA|DAL@BKN": 1, "NHL|TOR@MTL": 0 }],
   ])("%s", (key, expected) => {
     const counts = Object.fromEntries(
-      menuOptions(ROWS, key, PICKS, {}).map((option) => [option.value, option.count]),
+      filterMenus(ROWS, PICKS, {}).options[key].map((option) => [option.value, option.count]),
     );
     expect(counts).toEqual(expected);
   });

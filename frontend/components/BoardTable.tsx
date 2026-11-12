@@ -45,14 +45,13 @@ import {
 import {
   activePicks,
   breakdown,
-  FACET_KEYS,
   FACETS,
   type FacetKey,
+  filterMenus,
   type Filters,
   type GameState,
   matches,
   type MenuOption,
-  menuOptions,
   NO_FILTERS,
   NO_PICKS,
   pickCount,
@@ -290,9 +289,8 @@ function activeSummary(options: Record<FacetKey, MenuOption[]>, filters: Filters
 }
 
 function FilterBar({
-  rows,
-  teamNames,
   options,
+  counts,
   filters,
   onChange,
   searchRef,
@@ -300,9 +298,9 @@ function FilterBar({
   count,
   shown,
 }: {
-  rows: BoardRow[];
-  teamNames: TeamNames;
   options: Record<FacetKey, MenuOption[]>;
+  /** Each category's "All …" count. */
+  counts: Record<FacetKey, number>;
   filters: Filters;
   onChange: (change: Partial<Filters>) => void;
   searchRef: RefObject<HTMLInputElement | null>;
@@ -310,13 +308,6 @@ function FilterBar({
   count: string;
   shown: number;
 }) {
-  const picksOnly = { ...filters, text: "" };
-  const counts = Object.fromEntries(
-    FACET_KEYS.map((key) => [
-      key,
-      rows.filter((row) => matches(row, picksOnly, teamNames, key)).length,
-    ]),
-  ) as Record<FacetKey, number>;
   return (
     <>
       <div className="filters" role="group" aria-label="Filters">
@@ -405,11 +396,8 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
     () => sorted(props.filter(({ row }) => matches(row, filters, teamNames)), sort),
     [props, filters, sort, teamNames],
   );
-  const options = useMemo(
-    () =>
-      Object.fromEntries(
-        FACET_KEYS.map((key) => [key, menuOptions(rows, key, filters, teamNames)]),
-      ) as Record<FacetKey, MenuOption[]>,
+  const { options, all } = useMemo(
+    () => filterMenus(rows, filters, teamNames),
     [rows, filters, teamNames],
   );
 
@@ -473,9 +461,8 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
   return (
     <>
       <FilterBar
-        rows={rows}
-        teamNames={teamNames}
         options={options}
+        counts={all}
         filters={filters}
         onChange={changeFilters}
         searchRef={searchRef}

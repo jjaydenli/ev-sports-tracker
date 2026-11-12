@@ -774,6 +774,12 @@ input:focus-visible,
   box-shadow: inset 0 0 0 1px var(--focus);
 }
 
+/* Focused, the outline already says "accent": drop the set border so the two don't stack. */
+.trig.set:focus-visible {
+  border-color: transparent;
+  box-shadow: none;
+}
+
 .seg button[aria-pressed="true"]:hover,
 .filters .evt[aria-pressed="true"]:hover {
   background: var(--accent-soft);

@@ -2,16 +2,17 @@
 
 import {
   Fragment,
-  type KeyboardEvent,
   type ReactNode,
+  type RefObject,
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
 } from "react";
 
-import { Chevron, Magnifier, Tick } from "@/components/icons";
+import { ChipRow } from "@/components/ChipRow";
+import { FiltersPopup } from "@/components/FiltersPopup";
+import { SearchBox } from "@/components/SearchBox";
 
 import {
   BETR,
@@ -42,19 +43,19 @@ import {
   whySentence,
 } from "@/lib/board";
 import {
+  activePicks,
   breakdown,
   FACET_KEYS,
   FACETS,
   type FacetKey,
   type Filters,
   type GameState,
-  isFiltered,
   matches,
-  menuLabel,
   type MenuOption,
   menuOptions,
   NO_FILTERS,
-  NONE,
+  NO_PICKS,
+  pickCount,
 } from "@/lib/filters";
 
 /** A board row with a stable id (its index on the board), so sorting cannot reuse keys. */
@@ -271,307 +272,94 @@ function columnsFor(rows: BoardRow[]): Column[] {
   ];
 }
 
-/**
- * One filter's dropdown: pick several, each with its count under the other filters. On a board
- * with two or more leagues, Market and Game group their choices under a foldable heading per
- * league; the first open folds every league except one holding a pick, and folds then persist.
- */
-function FilterMenu({
-  facetKey,
-  options,
-  picked,
-  leagues,
-  multiLeague,
-  onChange,
-}: {
-  facetKey: FacetKey;
-  options: MenuOption[];
-  picked: ReadonlySet<string>;
-  /** The League filter's picks; Market and Game then list only those leagues. */
-  leagues: ReadonlySet<string>;
-  multiLeague: boolean;
-  onChange: (next: ReadonlySet<string>) => void;
-}) {
-  const facet = FACETS[facetKey];
-  const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  /** Folded leagues; null until the first open decides them. */
-  const [folded, setFolded] = useState<ReadonlySet<string> | null>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLDivElement>(null);
-  const popId = useId();
-
-  const focusList = () =>
-    (searchRef.current ?? listRef.current?.querySelector<HTMLElement>(".opt"))?.focus();
-
-  const close = (refocus: boolean) => {
-    setOpen(false);
-    if (refocus) triggerRef.current?.focus();
-  };
-
-  // Outside click closes; Esc closes and returns focus to the button.
-  useEffect(() => {
-    if (!open) return;
-    focusList();
-    const onDown = (event: MouseEvent) => {
-      if (!wrapRef.current?.contains(event.target as Node)) setOpen(false);
-    };
-    const onKey = (event: globalThis.KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setOpen(false);
-      triggerRef.current?.focus();
-    };
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  const toggleOpen = () => {
-    if (open) return close(false);
-    if (folded === null) {
-      const holdingPick = new Set(options.filter((o) => picked.has(o.value)).map((o) => o.league));
-      setFolded(new Set(options.map((o) => o.league).filter((lg) => !holdingPick.has(lg))));
-    }
-    setQuery("");
-    setOpen(true);
-  };
-
-  const toggle = (value: string) => {
-    const next = new Set(picked);
-    if (!next.delete(value)) next.add(value);
-    onChange(next);
-  };
-
-  const toggleFold = (lg: string) =>
-    setFolded((current) => {
-      const next = new Set(current);
-      if (!next.delete(lg)) next.add(lg);
-      return next;
-    });
-
-  // Arrow keys step through options and league headings; Enter and Space toggle (they are buttons).
-  const onListKey = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-    event.preventDefault();
-    const items = [...(listRef.current?.querySelectorAll<HTMLElement>(".opt, .lhead") ?? [])];
-    const at = items.indexOf(document.activeElement as HTMLElement);
-    const step = event.key === "ArrowDown" ? 1 : -1;
-    items[Math.max(0, Math.min(items.length - 1, at + step))]?.focus();
-  };
-
-  const needle = query.trim().toLowerCase();
-  const shown = options.filter(
-    (o) =>
-      (!needle || o.search.includes(needle)) &&
-      (facetKey === "league" || !leagues.size || leagues.has(o.league)),
-  );
-  const sectionLeagues = [...new Set(shown.map((o) => o.league))];
-  const sectioned = facetKey !== "league" && sectionLeagues.length > 1;
-  const pickedOptions = options.filter((o) => picked.has(o.value));
-
-  const optionButton = (o: MenuOption, tagged: boolean) => (
-    <button
-      key={o.value}
-      type="button"
-      className={tagged ? "opt" : "opt notag"}
-      aria-pressed={picked.has(o.value)}
-      onClick={() => toggle(o.value)}
-    >
-      {tagged && <span className="tag">{o.league}</span>}
-      <span className="nm">
-        {o.name}
-        {o.live && <span className="live">LIVE</span>}
-      </span>
-      <span className="n">{o.count}</span>
-      <Tick />
-    </button>
-  );
-
-  return (
-    <div className="dd" ref={wrapRef}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className={picked.size ? "trig set" : "trig"}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-controls={open ? popId : undefined}
-        onClick={toggleOpen}
-      >
-        <span className="tl">{menuLabel(facet, pickedOptions, multiLeague && facetKey !== "league")}</span>
-        <Chevron />
-      </button>
-      {open && (
-        <>
-          <div className="scrim" onClick={() => close(true)} />
-          <div className="pop" id={popId} role="dialog" aria-label={facet.title}>
-            <div className="phead">
-              <h3>{facet.title}</h3>
-              <button type="button" className="xbtn" aria-label="Close" onClick={() => close(true)}>
-                ×
-              </button>
-            </div>
-            {facet.search && (
-              <div className="lsearch">
-                <Magnifier />
-                <input
-                  ref={searchRef}
-                  type="search"
-                  placeholder={facet.search}
-                  aria-label={facet.search}
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                />
-              </div>
-            )}
-            {/* Always present, so the list never shifts on the first pick; Clear is held invisible. */}
-            <div className="pickline">
-              <span>{picked.size ? `${picked.size} picked` : `Showing all ${facet.one}s`}</span>
-              <button
-                type="button"
-                className={picked.size ? "link clr" : "link clr idle"}
-                aria-hidden={!picked.size}
-                tabIndex={picked.size ? undefined : -1}
-                onClick={() => {
-                  onChange(NONE);
-                  focusList();
-                }}
-              >
-                Clear
-              </button>
-            </div>
-            <div
-              className="opts"
-              ref={listRef}
-              role="group"
-              aria-label={facet.title}
-              onKeyDown={onListKey}
-            >
-              {sectioned
-                ? sectionLeagues.map((lg) => {
-                    const mine = shown.filter((o) => o.league === lg);
-                    const shut = !needle && (folded?.has(lg) ?? false);
-                    const pickedHere = mine.filter((o) => picked.has(o.value)).length;
-                    return (
-                      <Fragment key={lg}>
-                        <button
-                          type="button"
-                          className="lhead"
-                          aria-expanded={!shut}
-                          onClick={() => toggleFold(lg)}
-                        >
-                          <Chevron className="fold" />
-                          <span>{lg}</span>
-                          <span className="lsum">
-                            {pickedHere ? `${pickedHere} picked · ` : ""}
-                            {mine.length}
-                          </span>
-                        </button>
-                        {!shut && mine.map((o) => optionButton(o, false))}
-                      </Fragment>
-                    );
-                  })
-                : shown.map((o) => optionButton(o, facetKey !== "league"))}
-              {!shown.length && (
-                <p className="nomatch">
-                  No {facet.one} matches “{query.trim()}”.
-                </p>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
 const GAME_STATES: { value: GameState; label: string }[] = [
   { value: "all", label: "All" },
   { value: "pre", label: "Pre-game" },
   { value: "live", label: "Live" },
 ];
 
+/** The zero-result row's list of what is narrowing the board: "DAL (NBA), +EV only and “kyr”". */
+function activeSummary(options: Record<FacetKey, MenuOption[]>, filters: Filters): string {
+  const parts = activePicks(options, filters).map((chip) => chip.label);
+  if (filters.plusEvOnly) parts.push("+EV only");
+  if (filters.gameState !== "all") {
+    parts.push(filters.gameState === "live" ? "Live" : "Pre-game");
+  }
+  if (filters.text.trim()) parts.push(`“${filters.text.trim()}”`);
+  return parts.length > 1 ? `${parts.slice(0, -1).join(", ")} and ${parts.at(-1)}` : parts[0];
+}
+
 function FilterBar({
   rows,
   teamNames,
+  options,
   filters,
   onChange,
+  searchRef,
+  filtersButtonRef,
   count,
+  shown,
 }: {
   rows: BoardRow[];
   teamNames: TeamNames;
+  options: Record<FacetKey, MenuOption[]>;
   filters: Filters;
   onChange: (change: Partial<Filters>) => void;
+  searchRef: RefObject<HTMLInputElement | null>;
+  filtersButtonRef: RefObject<HTMLButtonElement | null>;
   count: string;
+  shown: number;
 }) {
-  const options = Object.fromEntries(
-    FACET_KEYS.map((key) => [key, menuOptions(rows, key, filters, teamNames)]),
-  ) as Record<FacetKey, MenuOption[]>;
-  const menu = (key: FacetKey) => (
-    <FilterMenu
-      facetKey={key}
-      options={options[key]}
-      picked={filters[key]}
-      leagues={filters.league}
-      multiLeague={options.league.length > 1}
-      onChange={(next) => onChange({ [key]: next })}
-    />
-  );
+  const picksOnly = { ...filters, text: "" };
+  const counts = Object.fromEntries(
+    FACET_KEYS.map((key) => [
+      key,
+      rows.filter((row) => matches(row, picksOnly, teamNames, key)).length,
+    ]),
+  ) as Record<FacetKey, number>;
   return (
-    <div className="filters" role="group" aria-label="Filters">
-      <button
-        type="button"
-        className="evt"
-        aria-pressed={filters.plusEvOnly}
-        onClick={() => onChange({ plusEvOnly: !filters.plusEvOnly })}
-      >
-        +EV only
-      </button>
-      {menu("league")}
-      <div className="seg" role="group" aria-label="Game state">
-        {GAME_STATES.map(({ value, label }) => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={filters.gameState === value}
-            onClick={() => onChange({ gameState: value })}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      {menu("market")}
-      {menu("game")}
-      <span className="searchwrap">
-        <Magnifier />
-        <input
-          type="search"
-          className={filters.player ? "set" : undefined}
-          placeholder="Search player or team"
-          aria-label="Search player or team"
-          value={filters.player}
-          onChange={(event) => onChange({ player: event.target.value })}
+    <>
+      <div className="filters" role="group" aria-label="Filters">
+        <button
+          type="button"
+          className="evt"
+          aria-pressed={filters.plusEvOnly}
+          onClick={() => onChange({ plusEvOnly: !filters.plusEvOnly })}
+        >
+          +EV only
+        </button>
+        <div className="seg" role="group" aria-label="Game state">
+          {GAME_STATES.map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={filters.gameState === value}
+              onClick={() => onChange({ gameState: value })}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <FiltersPopup
+          options={options}
+          filters={filters}
+          onChange={onChange}
+          counts={counts}
+          shown={shown}
+          triggerRef={filtersButtonRef}
         />
-      </span>
-      {/* Always rendered, so its space is held and the table does not jump when it shows. */}
-      <button
-        type="button"
-        className={isFiltered(filters) ? "clear" : "clear idle"}
-        aria-hidden={!isFiltered(filters)}
-        tabIndex={isFiltered(filters) ? undefined : -1}
-        onClick={() => onChange(NO_FILTERS)}
-      >
-        Clear filters
-      </button>
-      <span className="count" aria-live="polite">
-        {count}
-      </span>
-    </div>
+        <SearchBox text={filters.text} onText={(text) => onChange({ text })} inputRef={searchRef} />
+        <span className="count" aria-live="polite">
+          {count}
+        </span>
+      </div>
+      <ChipRow
+        options={options}
+        filters={filters}
+        onChange={onChange}
+        filtersButtonRef={filtersButtonRef}
+      />
+    </>
   );
 }
 
@@ -608,12 +396,21 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
   /** Position of the first row a "Show more" added, to bring into view once it renders. */
   const [revealFrom, setRevealFrom] = useState<number | null>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const filtersButtonRef = useRef<HTMLButtonElement>(null);
 
   const columns = useMemo(() => columnsFor(rows), [rows]);
   const props = useMemo(() => rows.map((row, id): Prop => ({ id, row })), [rows]);
   const matching = useMemo(
     () => sorted(props.filter(({ row }) => matches(row, filters, teamNames)), sort),
-    [props, filters, teamNames, sort],
+    [props, filters, sort, teamNames],
+  );
+  const options = useMemo(
+    () =>
+      Object.fromEntries(
+        FACET_KEYS.map((key) => [key, menuOptions(rows, key, filters, teamNames)]),
+      ) as Record<FacetKey, MenuOption[]>,
+    [rows, filters, teamNames],
   );
 
   // Scroll the table so the first added row sits one row below the top, keeping the last
@@ -646,6 +443,17 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
     setFilters((current) => ({ ...current, ...change }));
     setShownCount(PAGE_SIZE);
   };
+  // The zero-result row's buttons vanish with it, so focus goes to what each one cleared.
+  const clearPicks = () => {
+    changeFilters(NO_PICKS);
+    filtersButtonRef.current?.focus();
+  };
+  const clearSearch = () => {
+    changeFilters({ text: "" });
+    searchRef.current?.focus();
+  };
+  const picked = pickCount(filters) > 0;
+  const typed = filters.text.trim() !== "";
   const changeSort = (key: SortKey) => {
     setSort((current) =>
       current.key === key
@@ -667,9 +475,13 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
       <FilterBar
         rows={rows}
         teamNames={teamNames}
+        options={options}
         filters={filters}
         onChange={changeFilters}
+        searchRef={searchRef}
+        filtersButtonRef={filtersButtonRef}
         count={breakdown(matching)}
+        shown={matching.length}
       />
       <div className="grid" ref={gridRef}>
         <table className="board">
@@ -696,7 +508,18 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
             {visible.length === 0 && (
               <tr>
                 <td colSpan={columns.length} className="empty">
-                  No props match these filters.
+                  No props match {activeSummary(options, filters)}.{" "}
+                  {picked && (
+                    <button type="button" className="link" onClick={clearPicks}>
+                      Clear filters
+                    </button>
+                  )}
+                  {picked && typed && " · "}
+                  {typed && (
+                    <button type="button" className="link" onClick={clearSearch}>
+                      Clear search
+                    </button>
+                  )}
                 </td>
               </tr>
             )}

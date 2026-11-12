@@ -57,7 +57,7 @@ import {
   passesFilters,
   pickCount,
 } from "@/lib/filters";
-import { matchesQuery, parseQuery, type SearchEntry, searchEntry } from "@/lib/search";
+import { parseQuery, type SearchEntry, searchEntry, searchHits } from "@/lib/search";
 
 /**
  * A board row with a stable id (its index on the board), so sorting cannot reuse keys, and
@@ -415,8 +415,10 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
   const matching = useMemo(
     () =>
       sorted(
-        props.filter(
-          ({ row, search }) => passesFilters(row, filters) && matchesQuery(search, query),
+        searchHits(
+          props.filter(({ row }) => passesFilters(row, filters)),
+          ({ search }) => search,
+          query,
         ),
         sort,
       ),

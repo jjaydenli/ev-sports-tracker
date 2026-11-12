@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { type BoardRow, F, type TeamNames } from "@/lib/board";
 import { type Filters, NO_FILTERS, passesFilters } from "@/lib/filters";
-import { matchesQuery, parseQuery, searchEntry } from "@/lib/search";
+import { parseQuery, searchEntry, searchHits } from "@/lib/search";
 
 function row(league: string, game: string, team: string, player: string, market: string) {
   return {
@@ -49,9 +49,8 @@ const ENTRIES = Object.fromEntries(
 
 function found(text: string, filters: Filters = NO_FILTERS): string[] {
   const query = parseQuery(text);
-  return Object.keys(ROWS).filter(
-    (id) => passesFilters(ROWS[id], filters) && matchesQuery(ENTRIES[id], query),
-  );
+  const ids = Object.keys(ROWS).filter((id) => passesFilters(ROWS[id], filters));
+  return searchHits(ids, (id) => ENTRIES[id], query);
 }
 
 const BKN_DAL_GAME = [
@@ -141,9 +140,30 @@ describe("market aliases", () => {
     ["tb", ["tbHits"]],
   ])("%j", (text, expected) => {
     const query = parseQuery(text);
-    const hits = Object.keys(rows).filter((id) =>
-      matchesQuery(searchEntry(rows[id], names), query),
-    );
+    const hits = searchHits(Object.keys(rows), (id) => searchEntry(rows[id], names), query);
     expect(hits).toEqual(expected);
+  });
+});
+
+describe("own team before opponent", () => {
+  // Two Kyries in one game: Irving plays for DAL, Hunt for BKN.
+  const rows: Record<string, BoardRow> = {
+    irving: row("NBA", "BKN@DAL", "DAL", "Kyrie Irving", "points"),
+    hunt: row("NBA", "BKN@DAL", "BKN", "Kyrie Hunt", "points"),
+    cam: row("NBA", "BKN@DAL", "BKN", "Cam Thomas", "points"),
+  };
+  const hits = (text: string, ids = Object.keys(rows)) =>
+    searchHits(ids, (id) => searchEntry(rows[id], NAMES), parseQuery(text));
+
+  it.each<[string, string[]]>([
+    ["kyr", ["irving", "hunt"]],
+    ["kyr bkn", ["hunt"]], // Irving also matches, but only through his opponent
+    ["kyr dal", ["irving"]],
+  ])("%j", (text, expected) => {
+    expect(hits(text)).toEqual(expected);
+  });
+
+  it("falls back to the opponent when no one has that team", () => {
+    expect(hits("kyr bkn", ["irving", "cam"])).toEqual(["irving"]);
   });
 });

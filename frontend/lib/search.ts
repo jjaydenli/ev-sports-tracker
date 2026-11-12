@@ -110,21 +110,39 @@ function sameParts(a: readonly string[], b: readonly string[]): boolean {
 }
 
 /**
- * Whether a row matches every typed word, in any order. A word that matches only the opponent
- * counts only beside a word that matches the player or own team: "dal" is DAL's players, and
- * "kyrie bkn" is Kyrie against BKN. Market and league words narrow but never anchor.
+ * How a row matches every typed word, in any order, or null. A word that matches only the
+ * opponent counts only beside a word that matches the player or own team: "dal" is DAL's
+ * players, and "kyrie bkn" is Kyrie against BKN. Market and league words narrow but never
+ * anchor. "opponent" means some word matched only the opponent; "own" means none did.
  */
-export function matchesQuery(entry: SearchEntry, query: Query): boolean {
-  if (!query.combos.every((combo) => sameParts(combo, entry.combo))) return false;
+export function matchKind(entry: SearchEntry, query: Query): "own" | "opponent" | null {
+  if (!query.combos.every((combo) => sameParts(combo, entry.combo))) return null;
   let anchored = false;
   let needsAnchor = false;
   for (const typed of query.words) {
     const tags = new Set(
       entry.words.filter(({ word }) => startsWord(word, typed) >= 0).map(({ tag }) => tag),
     );
-    if (!tags.size) return false;
+    if (!tags.size) return null;
     if (tags.has("player") || tags.has("team")) anchored = true;
     else if (tags.size === 1 && tags.has("opponent")) needsAnchor = true;
   }
-  return anchored || !needsAnchor;
+  if (needsAnchor && !anchored) return null;
+  return needsAnchor ? "opponent" : "own";
+}
+
+/**
+ * The items matching the query. Opponent matches are a fallback: when any item matches
+ * without one, only those are kept. "kyr bkn" is then BKN's Kyrie when there is one, and
+ * the Kyrie playing BKN only when there is not. "bkn dal" has no such item (no team is
+ * both), so it keeps the whole game.
+ */
+export function searchHits<T>(
+  items: readonly T[],
+  entryOf: (item: T) => SearchEntry,
+  query: Query,
+): T[] {
+  const kinds = items.map((item) => matchKind(entryOf(item), query));
+  const kept = kinds.includes("own") ? "own" : "opponent";
+  return items.filter((_, i) => kinds[i] === kept);
 }

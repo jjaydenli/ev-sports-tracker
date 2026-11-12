@@ -13,6 +13,7 @@ import {
   type TeamNames,
   teamNamesFor,
 } from "@/lib/board";
+import { fold, startsWord } from "@/lib/search";
 
 export type GameState = "all" | "pre" | "live";
 
@@ -123,17 +124,6 @@ export function pickCount(f: Filters): number {
   return FACET_KEYS.reduce((sum, key) => sum + f[key].size, 0);
 }
 
-/**
- * Where `needle` starts a word of `text`, or -1: "bk" finds "BKN", "angeles" finds
- * "Los Angeles", but "al" does not find "DAL". Both are expected lower-case.
- */
-export function startsWord(text: string, needle: string): number {
-  for (let at = text.indexOf(needle); at >= 0; at = text.indexOf(needle, at + 1)) {
-    if (at === 0 || !/[a-z0-9]/.test(text[at - 1])) return at;
-  }
-  return -1;
-}
-
 /** The +EV only and game state toggles: the filters outside the popup and the search box. */
 function passesToggles(row: BoardRow, f: Filters): boolean {
   return (
@@ -147,18 +137,22 @@ function passesPicks(row: BoardRow, f: Filters, key: FacetKey): boolean {
   return !f[key].size || FACETS[key].values(row).some((value) => f[key].has(value));
 }
 
-/** Whether a row passes every filter: what the board shows. */
+/** Whether a row passes every filter but the search text. */
+export function passesFilters(row: BoardRow, f: Filters): boolean {
+  return passesToggles(row, f) && FACET_KEYS.every((key) => passesPicks(row, f, key));
+}
+
+/**
+ * Classic search, kept only to compare against universal search on this branch: the whole
+ * query as one word-start prefix of the player, the own team's code or its full name.
+ */
 export function matches(row: BoardRow, f: Filters, names: TeamNames): boolean {
-  const query = f.text.trim().toLowerCase().replace(/\s+/g, " ");
+  const query = fold(f.text.trim().replace(/\s+/g, " "));
   const typed = () =>
     [str(row, F.player), str(row, F.team), ...teamNamesFor(names, row, str(row, F.team))].some(
-      (text) => startsWord((text ?? "").toLowerCase(), query) >= 0,
+      (text) => startsWord(fold(text ?? ""), query) >= 0,
     );
-  return (
-    passesToggles(row, f) &&
-    (!query || typed()) &&
-    FACET_KEYS.every((key) => passesPicks(row, f, key))
-  );
+  return passesFilters(row, f) && (!query || typed());
 }
 
 /** One choice in a filter menu. `count` honours every other active filter except the text. */

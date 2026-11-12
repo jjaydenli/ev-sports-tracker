@@ -54,11 +54,16 @@ import {
   type MenuOption,
   NO_FILTERS,
   NO_PICKS,
+  passesFilters,
   pickCount,
 } from "@/lib/filters";
+import { matchesQuery, parseQuery, type SearchEntry, searchEntry } from "@/lib/search";
 
-/** A board row with a stable id (its index on the board), so sorting cannot reuse keys. */
-type Prop = { id: number; row: BoardRow };
+/**
+ * A board row with a stable id (its index on the board), so sorting cannot reuse keys, and
+ * its search words, built once per board load.
+ */
+type Prop = { id: number; row: BoardRow; search: SearchEntry };
 
 type SortKey = "player" | "hit";
 
@@ -391,10 +396,27 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
   const filtersButtonRef = useRef<HTMLButtonElement>(null);
 
   const columns = useMemo(() => columnsFor(rows), [rows]);
-  const props = useMemo(() => rows.map((row, id): Prop => ({ id, row })), [rows]);
+  const props = useMemo(
+    () => rows.map((row, id): Prop => ({ id, row, search: searchEntry(row, teamNames) })),
+    [rows, teamNames],
+  );
+  // `?search=classic` brings back the old search for side-by-side testing; this branch only.
+  const [classic, setClassic] = useState(false);
+  useEffect(() => {
+    setClassic(new URLSearchParams(window.location.search).get("search") === "classic");
+  }, []);
+  const query = useMemo(() => parseQuery(filters.text), [filters.text]);
   const matching = useMemo(
-    () => sorted(props.filter(({ row }) => matches(row, filters, teamNames)), sort),
-    [props, filters, sort, teamNames],
+    () =>
+      sorted(
+        props.filter(({ row, search }) =>
+          classic
+            ? matches(row, filters, teamNames)
+            : passesFilters(row, filters) && matchesQuery(search, query),
+        ),
+        sort,
+      ),
+    [props, filters, sort, teamNames, classic, query],
   );
   const { options, all } = useMemo(
     () => filterMenus(rows, filters, teamNames),

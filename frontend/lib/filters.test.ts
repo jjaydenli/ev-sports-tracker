@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { type BoardRow, F } from "@/lib/board";
-import { type FacetKey, type Filters, filterMenus, grayed, NO_FILTERS } from "@/lib/filters";
+import { type BoardRow, F, type TeamNames } from "@/lib/board";
+import {
+  type FacetKey,
+  type Filters,
+  filterMenus,
+  grayed,
+  matches,
+  NO_FILTERS,
+} from "@/lib/filters";
 
 function row(league: string, game: string, team: string, market: string): BoardRow {
   return { [F.league]: league, [F.game]: game, [F.team]: team, [F.market]: market };
@@ -59,5 +66,38 @@ describe("grayed", () => {
       "NBA|rebounds": [0, false],
       "NHL|points": [0, true],
     });
+  });
+});
+
+describe("classic search", () => {
+  // The search on main before universal search: the whole query as one word-start prefix of
+  // the player, the own team's code or its full name. Deleted with the classic matcher.
+  const names: TeamNames = { NBA: { DAL: ["Dallas Mavericks"], LAL: ["Los Angeles Lakers"] } };
+  const players: Record<string, BoardRow> = {
+    kyrie: { [F.league]: "NBA", [F.game]: "LAL@DAL", [F.team]: "DAL", [F.player]: "Kyrie Irving" },
+    luka: { [F.league]: "NBA", [F.game]: "LAL@DAL", [F.team]: "LAL", [F.player]: "Luka Dončić" },
+    aja: { [F.league]: "WNBA", [F.game]: "DAL@LV", [F.team]: "LV", [F.player]: "A'ja Wilson" },
+  };
+
+  // Expected sets are read off the three rows above by hand.
+  it.each<[string, string[]]>([
+    ["kyr", ["kyrie"]], // start of the player's first name
+    ["irv", ["kyrie"]], // start of a later word
+    ["KYRIE irving", ["kyrie"]], // case and the whole name as a phrase
+    ["dal", ["kyrie"]], // own team's code, never the opponent's (Luka plays against DAL)
+    ["los angeles", ["luka"]], // own team's full name, as a phrase
+    ["al", []], // not the start of a word: "DAL" and "Dallas" hold it mid-word
+    ["rving", []],
+    ["  kyrie   irving ", ["kyrie"]], // spaces trimmed and collapsed
+    // Accents and apostrophes are dropped on both sides (Decision 18).
+    ["doncic", ["luka"]],
+    ["Dončić", ["luka"]],
+    ["aja", ["aja"]],
+    ["a'ja", ["aja"]],
+  ])("%j", (text, expected) => {
+    const found = Object.keys(players).filter((id) =>
+      matches(players[id], { ...NO_FILTERS, text }, names),
+    );
+    expect(found).toEqual(expected);
   });
 });

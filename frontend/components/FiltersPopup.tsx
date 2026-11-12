@@ -17,13 +17,15 @@ import {
   FACETS,
   type FacetKey,
   type Filters,
-  grayed,
+  available,
   type MenuOption,
   NONE,
   NO_PICKS,
   pickCount,
+  popupMatches,
   unscoped,
 } from "@/lib/filters";
+import { isSlashShortcut } from "@/lib/keys";
 
 const FOCUSABLE = 'button:not([disabled]):not([tabindex="-1"]), input:not([disabled])';
 
@@ -82,8 +84,18 @@ export function FiltersPopup({
     const onDown = (event: MouseEvent) => {
       if (!wrapRef.current?.contains(event.target as Node)) setOpen(false);
     };
+    // `/` jumps to this category's search; Leagues has none, so it does nothing there.
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (!isSlashShortcut(event)) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
     document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
     // Focus moves once per open, not on every category switch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -102,16 +114,17 @@ export function FiltersPopup({
   const toggle = (o: MenuOption) => {
     const next = new Set(picked);
     if (!next.delete(o.value)) next.add(o.value);
-    // Unpicked with nothing left, it grays and disables under the focus: move focus first.
-    if (grayed(o, next)) focusList();
+    // Unpicked with nothing left, the row leaves the list under the focus: move focus first.
+    if (!available(o, next)) focusList();
     onChange({ [cat]: next });
   };
 
   const needle = query.trim().toLowerCase();
-  const leagues = filters.league;
-  const list = options[cat].filter(
-    (o) => (!needle || o.search.includes(needle)) && (cat === "league" || !leagues.size || leagues.has(o.league)),
-  );
+  // Only what still has props under the other picks (plus what is picked), narrowed by the search.
+  const fits = options[cat].filter((o) => available(o, picked));
+  const list = needle ? fits.filter((o) => popupMatches(o, needle)) : fits;
+  // Search words that only match what the other picks have filtered out.
+  const hiddenHit = needle && !list.length && options[cat].some((o) => popupMatches(o, needle));
   const sectionLeagues = [...new Set(list.map((o) => o.league))];
   const sectioned = cat !== "league" && sectionLeagues.length > 1;
   const folded =
@@ -132,10 +145,12 @@ export function FiltersPopup({
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     event.preventDefault();
     const items = [
-      ...(listRef.current?.querySelectorAll<HTMLElement>(".opt:not(:disabled), .lhead") ?? []),
+      ...(listRef.current?.querySelectorAll<HTMLElement>(".opt, .lhead") ?? []),
     ];
     const at = items.indexOf(document.activeElement as HTMLElement);
     const step = event.key === "ArrowDown" ? 1 : -1;
+    // Up from the first row goes back to the search box, where ArrowDown came from.
+    if (at + step < 0 && searchRef.current) return searchRef.current.focus();
     items[Math.max(0, Math.min(items.length - 1, at + step))]?.focus();
   };
 
@@ -159,15 +174,17 @@ export function FiltersPopup({
     }
   };
 
+  // One result left: Enter picks it. Marked on the row so the key's target is visible.
+  const only = needle && list.length === 1 ? list[0] : null;
+
   const row = (o: MenuOption, tagged: boolean) => {
     const code = cat === "team" ? unscoped(o.value) : null;
     return (
       <button
         key={o.value}
         type="button"
-        className={tagged ? "opt" : "opt notag"}
+        className={`${tagged ? "opt" : "opt notag"}${o === only ? " armed" : ""}`}
         aria-pressed={picked.has(o.value)}
-        disabled={grayed(o, picked)}
         onClick={() => toggle(o)}
       >
         {tagged && <span className="tag">{o.league}</span>}
@@ -176,7 +193,15 @@ export function FiltersPopup({
           {code && code !== o.name && <span className="code">{o.name}</span>}
           {o.live && <span className="live">LIVE</span>}
         </span>
-        <span className="n">{o.count}</span>
+        {/* The key rides inside the count cell: the row is a fixed grid, a fifth item would wrap. */}
+        <span className="n">
+          {o === only && (
+            <kbd className="skey" aria-hidden="true">
+              ↵
+            </kbd>
+          )}
+          {o.count}
+        </span>
         <Tick />
       </button>
     );
@@ -240,7 +265,32 @@ export function FiltersPopup({
                       aria-label={facet.search}
                       value={query}
                       onChange={(event) => setQuery(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "ArrowDown") {
+                          event.preventDefault();
+                          listRef.current?.querySelector<HTMLElement>(".opt, .lhead")?.focus();
+                        } else if (event.key === "Escape") {
+                          // First Esc leaves the search (text kept); the next one closes.
+                          event.preventDefault();
+                          event.stopPropagation();
+                          dialogRef.current
+                            ?.querySelector<HTMLElement>('.fcat[aria-pressed="true"]')
+                            ?.focus();
+                        } else if (event.key === "Enter" && only) {
+                          event.preventDefault();
+                          toggle(only);
+                        }
+                      }}
                     />
+                    {!query && (
+                      <kbd
+                        className="skey"
+                        aria-hidden="true"
+                        style={{ left: `calc(34px + ${facet.search.length}ch + 8px)` }}
+                      >
+                        /
+                      </kbd>
+                    )}
                   </div>
                 )}
                 <div className="opts" ref={listRef} role="group" aria-label={facet.title} onKeyDown={onListKey}>
@@ -261,13 +311,11 @@ export function FiltersPopup({
                         const mine = list.filter((o) => o.league === lg);
                         const shut = !needle && folded.has(lg);
                         const pickedHere = mine.filter((o) => picked.has(o.value)).length;
-                        // Nothing left in the league: gray, but it still opens.
-                        const gone = mine.every((o) => grayed(o, picked));
                         return (
                           <Fragment key={lg}>
                             <button
                               type="button"
-                              className={gone ? "lhead gone" : "lhead"}
+                              className="lhead"
                               aria-expanded={!shut}
                               onClick={() => toggleFold(lg)}
                             >
@@ -285,7 +333,11 @@ export function FiltersPopup({
                     : list.map((o) => row(o, cat !== "league"))}
                   {!list.length && (
                     <p className="nomatch">
-                      No {facet.one} matches “{query.trim()}”.
+                      {!needle
+                        ? "Nothing left under your other filters."
+                        : hiddenHit
+                          ? `No ${facet.one} matches “${query.trim()}” under your other filters.`
+                          : `No ${facet.one} matches “${query.trim()}”.`}
                     </p>
                   )}
                 </div>

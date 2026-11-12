@@ -13,6 +13,7 @@ import {
   type TeamNames,
   teamNamesFor,
 } from "@/lib/board";
+import { startsWord } from "@/lib/search";
 
 export type GameState = "all" | "pre" | "live";
 
@@ -123,17 +124,6 @@ export function pickCount(f: Filters): number {
   return FACET_KEYS.reduce((sum, key) => sum + f[key].size, 0);
 }
 
-/**
- * Where `needle` starts a word of `text`, or -1: "bk" finds "BKN", "angeles" finds
- * "Los Angeles", but "al" does not find "DAL". Both are expected lower-case.
- */
-export function startsWord(text: string, needle: string): number {
-  for (let at = text.indexOf(needle); at >= 0; at = text.indexOf(needle, at + 1)) {
-    if (at === 0 || !/[a-z0-9]/.test(text[at - 1])) return at;
-  }
-  return -1;
-}
-
 /** The +EV only and game state toggles: the filters outside the popup and the search box. */
 function passesToggles(row: BoardRow, f: Filters): boolean {
   return (
@@ -147,18 +137,9 @@ function passesPicks(row: BoardRow, f: Filters, key: FacetKey): boolean {
   return !f[key].size || FACETS[key].values(row).some((value) => f[key].has(value));
 }
 
-/** Whether a row passes every filter: what the board shows. */
-export function matches(row: BoardRow, f: Filters, names: TeamNames): boolean {
-  const query = f.text.trim().toLowerCase().replace(/\s+/g, " ");
-  const typed = () =>
-    [str(row, F.player), str(row, F.team), ...teamNamesFor(names, row, str(row, F.team))].some(
-      (text) => startsWord((text ?? "").toLowerCase(), query) >= 0,
-    );
-  return (
-    passesToggles(row, f) &&
-    (!query || typed()) &&
-    FACET_KEYS.every((key) => passesPicks(row, f, key))
-  );
+/** Whether a row passes every filter but the search text. */
+export function passesFilters(row: BoardRow, f: Filters): boolean {
+  return passesToggles(row, f) && FACET_KEYS.every((key) => passesPicks(row, f, key));
 }
 
 /** One choice in a filter menu. `count` honours every other active filter except the text. */
@@ -173,9 +154,22 @@ export type MenuOption = {
   count: number;
 };
 
-/** No props left under the other picks: grayed, unless picked, so a pick stays removable. */
-export function grayed(option: MenuOption, picked: ReadonlySet<string>): boolean {
-  return option.count === 0 && !picked.has(option.value);
+/** Props left under the other picks, or picked so it can be removed; the rest are unlisted. */
+export function available(option: MenuOption, picked: ReadonlySet<string>): boolean {
+  return option.count > 0 || picked.has(option.value);
+}
+
+/**
+ * Whether a popup search matches an option: every typed word is a piece of its name (or team and
+ * game names) or starts a word of its league, so `nba` finds NBA's options but not WNBA's.
+ */
+export function popupMatches(option: MenuOption, query: string): boolean {
+  const league = option.league.toLowerCase();
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
+    .every((word) => option.search.includes(word) || startsWord(league, word) >= 0);
 }
 
 /** Every popup category's choices, and what its "All …" row counts. */

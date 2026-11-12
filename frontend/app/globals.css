@@ -551,16 +551,6 @@ button {
   display: block;
 }
 
-/* No props left under the other picks; stays in place so the list does not jump. */
-.opt:disabled {
-  color: var(--faint);
-  cursor: default;
-}
-
-.opt:disabled:hover {
-  background: none;
-}
-
 /* A league heading on a multi-league board; folds its choices away. */
 .lhead {
   display: flex;
@@ -584,12 +574,6 @@ button {
 .lhead:hover {
   color: var(--fg);
   background: var(--hover);
-}
-
-/* Still opens, so its text keeps body contrast; live headings stand out by colour and weight. */
-.lhead.gone {
-  color: var(--muted);
-  font-weight: 500;
 }
 
 .lhead .fold {
@@ -790,6 +774,12 @@ input:focus-visible,
   box-shadow: inset 0 0 0 1px var(--focus);
 }
 
+/* Focused, the outline already says "accent": drop the set border so the two don't stack. */
+.trig.set:focus-visible {
+  border-color: transparent;
+  box-shadow: none;
+}
+
 .seg button[aria-pressed="true"]:hover,
 .filters .evt[aria-pressed="true"]:hover {
   background: var(--accent-soft);
@@ -838,6 +828,53 @@ input:focus-visible,
 
 .sbox input:focus-visible {
   outline: none;
+}
+
+/* The "/" shortcut hint; gone while focused, once text shows ×, and on phones (no keyboard). */
+.skey {
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.sbox:focus-within .skey,
+.lsearch:focus-within .skey,
+body:has([aria-modal="true"]) .sbox .skey {
+  display: none;
+}
+
+/* Empty, the field hugs its placeholder (width set inline) so the hint follows the words. */
+.sbox input:placeholder-shown {
+  flex: none;
+  min-width: 0;
+}
+
+.lsearch .skey {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* The one row Enter will pick. */
+.opt.armed {
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.opt .n {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Empties the search in one click; shown only while there is text. */
@@ -910,6 +947,10 @@ input:focus-visible,
   .sbox {
     flex-basis: 100%;
     min-width: 0;
+  }
+
+  .skey {
+    display: none;
   }
 }
 

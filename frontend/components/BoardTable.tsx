@@ -12,6 +12,7 @@ import {
 
 import { ChipRow } from "@/components/ChipRow";
 import { FiltersPopup } from "@/components/FiltersPopup";
+import { isSlashShortcut } from "@/lib/keys";
 import { SearchBox } from "@/components/SearchBox";
 
 import {
@@ -50,15 +51,19 @@ import {
   filterMenus,
   type Filters,
   type GameState,
-  matches,
   type MenuOption,
   NO_FILTERS,
   NO_PICKS,
+  passesFilters,
   pickCount,
 } from "@/lib/filters";
+import { parseQuery, type SearchEntry, searchEntry, searchHits } from "@/lib/search";
 
-/** A board row with a stable id (its index on the board), so sorting cannot reuse keys. */
-type Prop = { id: number; row: BoardRow };
+/**
+ * A board row with a stable id (its index on the board), so sorting cannot reuse keys, and
+ * its search words, built once per board load.
+ */
+type Prop = { id: number; row: BoardRow; search: SearchEntry };
 
 type SortKey = "player" | "hit";
 
@@ -390,11 +395,34 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
   const searchRef = useRef<HTMLInputElement>(null);
   const filtersButtonRef = useRef<HTMLButtonElement>(null);
 
+  // `/` jumps to search. While the Filters popup is open it owns `/` (its own search box).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!isSlashShortcut(event) || document.querySelector('[aria-modal="true"]')) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
   const columns = useMemo(() => columnsFor(rows), [rows]);
-  const props = useMemo(() => rows.map((row, id): Prop => ({ id, row })), [rows]);
+  const props = useMemo(
+    () => rows.map((row, id): Prop => ({ id, row, search: searchEntry(row, teamNames) })),
+    [rows, teamNames],
+  );
+  const query = useMemo(() => parseQuery(filters.text), [filters.text]);
   const matching = useMemo(
-    () => sorted(props.filter(({ row }) => matches(row, filters, teamNames)), sort),
-    [props, filters, sort, teamNames],
+    () =>
+      sorted(
+        searchHits(
+          props.filter(({ row }) => passesFilters(row, filters)),
+          ({ search }) => search,
+          query,
+        ),
+        sort,
+      ),
+    [props, filters, sort, query],
   );
   const { options, all } = useMemo(
     () => filterMenus(rows, filters, teamNames),

@@ -24,6 +24,7 @@ import {
   pickCount,
   unscoped,
 } from "@/lib/filters";
+import { isSlashShortcut } from "@/lib/keys";
 
 const FOCUSABLE = 'button:not([disabled]):not([tabindex="-1"]), input:not([disabled])';
 
@@ -82,8 +83,18 @@ export function FiltersPopup({
     const onDown = (event: MouseEvent) => {
       if (!wrapRef.current?.contains(event.target as Node)) setOpen(false);
     };
+    // `/` jumps to this category's search; Leagues has none, so it does nothing there.
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (!isSlashShortcut(event)) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
     document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
     // Focus moves once per open, not on every category switch.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -159,13 +170,16 @@ export function FiltersPopup({
     }
   };
 
+  // One result left: Enter picks it. Marked on the row so the key's target is visible.
+  const only = needle && list.length === 1 && !grayed(list[0], picked) ? list[0] : null;
+
   const row = (o: MenuOption, tagged: boolean) => {
     const code = cat === "team" ? unscoped(o.value) : null;
     return (
       <button
         key={o.value}
         type="button"
-        className={tagged ? "opt" : "opt notag"}
+        className={`${tagged ? "opt" : "opt notag"}${o === only ? " armed" : ""}`}
         aria-pressed={picked.has(o.value)}
         disabled={grayed(o, picked)}
         onClick={() => toggle(o)}
@@ -176,7 +190,15 @@ export function FiltersPopup({
           {code && code !== o.name && <span className="code">{o.name}</span>}
           {o.live && <span className="live">LIVE</span>}
         </span>
-        <span className="n">{o.count}</span>
+        {/* The key rides inside the count cell: the row is a fixed grid, a fifth item would wrap. */}
+        <span className="n">
+          {o === only && (
+            <kbd className="skey" aria-hidden="true">
+              ↵
+            </kbd>
+          )}
+          {o.count}
+        </span>
         <Tick />
       </button>
     );
@@ -240,7 +262,21 @@ export function FiltersPopup({
                       aria-label={facet.search}
                       value={query}
                       onChange={(event) => setQuery(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key !== "Enter" || !only) return;
+                        event.preventDefault();
+                        toggle(only);
+                      }}
                     />
+                    {!query && (
+                      <kbd
+                        className="skey"
+                        aria-hidden="true"
+                        style={{ left: `calc(34px + ${facet.search.length}ch + 8px)` }}
+                      >
+                        /
+                      </kbd>
+                    )}
                   </div>
                 )}
                 <div className="opts" ref={listRef} role="group" aria-label={facet.title} onKeyDown={onListKey}>

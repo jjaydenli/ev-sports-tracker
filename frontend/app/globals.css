@@ -840,6 +840,53 @@ input:focus-visible,
   outline: none;
 }
 
+/* The "/" shortcut hint; gone while focused, once text shows ×, and on phones (no keyboard). */
+.skey {
+  flex: none;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.sbox:focus-within .skey,
+.lsearch:focus-within .skey,
+body:has([aria-modal="true"]) .sbox .skey {
+  display: none;
+}
+
+/* Empty, the field hugs its placeholder (width set inline) so the hint follows the words. */
+.sbox input:placeholder-shown {
+  flex: none;
+  min-width: 0;
+}
+
+.lsearch .skey {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* The one row Enter will pick. */
+.opt.armed {
+  background: var(--hover);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.opt .n {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Empties the search in one click; shown only while there is text. */
 .sclear {
   flex: none;
@@ -910,6 +957,10 @@ input:focus-visible,
   .sbox {
     flex-basis: 100%;
     min-width: 0;
+  }
+
+  .skey {
+    display: none;
   }
 }
 

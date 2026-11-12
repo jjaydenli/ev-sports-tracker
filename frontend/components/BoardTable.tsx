@@ -12,6 +12,7 @@ import {
 
 import { ChipRow } from "@/components/ChipRow";
 import { FiltersPopup } from "@/components/FiltersPopup";
+import { isSlashShortcut } from "@/lib/keys";
 import { SearchBox } from "@/components/SearchBox";
 
 import {
@@ -394,6 +395,17 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
   const gridRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const filtersButtonRef = useRef<HTMLButtonElement>(null);
+
+  // `/` jumps to search. While the Filters popup is open it owns `/` (its own search box).
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (!isSlashShortcut(event) || document.querySelector('[aria-modal="true"]')) return;
+      event.preventDefault();
+      searchRef.current?.focus();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   const columns = useMemo(() => columnsFor(rows), [rows]);
   const props = useMemo(

@@ -269,6 +269,13 @@ export function FiltersPopup({
                         if (event.key === "ArrowDown") {
                           event.preventDefault();
                           listRef.current?.querySelector<HTMLElement>(".opt, .lhead")?.focus();
+                        } else if (event.key === "Escape") {
+                          // First Esc leaves the search (text kept); the next one closes.
+                          event.preventDefault();
+                          event.stopPropagation();
+                          dialogRef.current
+                            ?.querySelector<HTMLElement>('.fcat[aria-pressed="true"]')
+                            ?.focus();
                         } else if (event.key === "Enter" && only) {
                           event.preventDefault();
                           toggle(only);

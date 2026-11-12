@@ -16,6 +16,7 @@ from pathlib import Path
 
 from config.market_maps import PLATFORM_MARKET_MAPPINGS
 from config.sharp_books import SHARP_BOOK_BY_NAME
+from core.ev_display import MARKET_ABBREV
 
 BOARD_FIELDS = Path(__file__).resolve().parents[3] / "frontend" / "lib" / "board-fields.json"
 
@@ -93,3 +94,18 @@ def test_market_web_labels_are_unique() -> None:
     for market, label in labels.items():
         assert label not in seen, f"{market} and {seen[label]} both read {label!r}"
         seen[label] = market
+
+
+def test_cli_and_web_label_tables_list_the_same_markets() -> None:
+    """A market renamed or dropped in one label table but not the other leaves a stale key.
+
+    The two tests above (and ``test_ev_display``'s) only prove each table covers the canonical
+    markets; neither catches an extra left behind in one table. Compared as sets, each side's
+    extras named.
+    """
+    web = set(json.loads(MARKET_WORDS.read_text(encoding="utf-8")))
+    cli = set(MARKET_ABBREV)
+    assert web == cli, (
+        f"only in market-words.json: {sorted(web - cli)}; "
+        f"only in MARKET_ABBREV: {sorted(cli - web)}"
+    )

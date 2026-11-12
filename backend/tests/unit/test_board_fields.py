@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from config.market_maps import PLATFORM_MARKET_MAPPINGS
 from config.sharp_books import SHARP_BOOK_BY_NAME
 
 BOARD_FIELDS = Path(__file__).resolve().parents[3] / "frontend" / "lib" / "board-fields.json"
@@ -68,3 +69,27 @@ def test_every_registry_book_resolves(s1_ev_rows: list[dict]) -> None:
 
     missing = set(PILL_SOURCE_BOOKS) - {book["key"] for book in books}
     assert not missing, f"source keys with no registry entry: {sorted(missing)}"
+
+
+MARKET_WORDS = FRONTEND / "lib" / "market-words.json"
+
+
+def test_every_canonical_market_has_a_web_label() -> None:
+    """The board shows an unlabelled market as its raw key, and search can't find it by words.
+
+    Oracle: ``PLATFORM_MARKET_MAPPINGS``, the registry upstream of both label tables, not
+    ``market-words.json``. A registry walk proving one property, so one loop.
+    """
+    labels: dict[str, str] = json.loads(MARKET_WORDS.read_text(encoding="utf-8"))
+    canonical = {m for mapping in PLATFORM_MARKET_MAPPINGS.values() for m in mapping.values()}
+    missing = sorted(canonical - set(labels))
+    assert not missing, f"canonical markets with no market-words.json label: {missing}"
+
+
+def test_market_web_labels_are_unique() -> None:
+    """Two markets sharing a label are indistinguishable in the Market column and menu."""
+    labels: dict[str, str] = json.loads(MARKET_WORDS.read_text(encoding="utf-8"))
+    seen: dict[str, str] = {}
+    for market, label in labels.items():
+        assert label not in seen, f"{market} and {seen[label]} both read {label!r}"
+        seen[label] = market

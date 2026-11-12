@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { type BoardRow, F } from "@/lib/board";
-import { type FacetKey, type Filters, filterMenus, NO_FILTERS } from "@/lib/filters";
+import { type FacetKey, type Filters, filterMenus, grayed, NO_FILTERS } from "@/lib/filters";
 
 function row(league: string, game: string, team: string, market: string): BoardRow {
   return { [F.league]: league, [F.game]: game, [F.team]: team, [F.market]: market };
@@ -37,5 +37,27 @@ describe("filterMenus counts", () => {
       filterMenus(ROWS, PICKS, {}).options[key].map((option) => [option.value, option.count]),
     );
     expect(counts).toEqual(expected);
+  });
+});
+
+describe("grayed", () => {
+  it("grays an option with no props left, but never a picked one", () => {
+    // DAL@BKN has only points. Rebounds is picked first, so it stays removable at 0.
+    const picks: Filters = {
+      ...NO_FILTERS,
+      game: new Set(["NBA|DAL@BKN"]),
+      market: new Set(["NBA|rebounds"]),
+    };
+    const gray = Object.fromEntries(
+      filterMenus(ROWS, picks, {}).options.market.map((o) => [
+        o.value,
+        [o.count, grayed(o, picks.market)],
+      ]),
+    );
+    expect(gray).toEqual({
+      "NBA|points": [1, false],
+      "NBA|rebounds": [0, false],
+      "NHL|points": [0, true],
+    });
   });
 });

@@ -17,6 +17,7 @@ import {
   FACETS,
   type FacetKey,
   type Filters,
+  grayed,
   type MenuOption,
   NONE,
   NO_PICKS,
@@ -98,9 +99,11 @@ export function FiltersPopup({
     setQuery("");
   };
 
-  const toggle = (value: string) => {
+  const toggle = (o: MenuOption) => {
     const next = new Set(picked);
-    if (!next.delete(value)) next.add(value);
+    if (!next.delete(o.value)) next.add(o.value);
+    // Unpicked with nothing left, it grays and disables under the focus: move focus first.
+    if (grayed(o, next)) focusList();
     onChange({ [cat]: next });
   };
 
@@ -128,7 +131,9 @@ export function FiltersPopup({
   const onListKey = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
     event.preventDefault();
-    const items = [...(listRef.current?.querySelectorAll<HTMLElement>(".opt, .lhead") ?? [])];
+    const items = [
+      ...(listRef.current?.querySelectorAll<HTMLElement>(".opt:not(:disabled), .lhead") ?? []),
+    ];
     const at = items.indexOf(document.activeElement as HTMLElement);
     const step = event.key === "ArrowDown" ? 1 : -1;
     items[Math.max(0, Math.min(items.length - 1, at + step))]?.focus();
@@ -162,7 +167,8 @@ export function FiltersPopup({
         type="button"
         className={tagged ? "opt" : "opt notag"}
         aria-pressed={picked.has(o.value)}
-        onClick={() => toggle(o.value)}
+        disabled={grayed(o, picked)}
+        onClick={() => toggle(o)}
       >
         {tagged && <span className="tag">{o.league}</span>}
         <span className="nm">
@@ -255,11 +261,13 @@ export function FiltersPopup({
                         const mine = list.filter((o) => o.league === lg);
                         const shut = !needle && folded.has(lg);
                         const pickedHere = mine.filter((o) => picked.has(o.value)).length;
+                        // Nothing left in the league: gray, but it still opens.
+                        const gone = mine.every((o) => grayed(o, picked));
                         return (
                           <Fragment key={lg}>
                             <button
                               type="button"
-                              className="lhead"
+                              className={gone ? "lhead gone" : "lhead"}
                               aria-expanded={!shut}
                               onClick={() => toggleFold(lg)}
                             >

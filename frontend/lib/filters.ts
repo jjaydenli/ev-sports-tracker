@@ -173,6 +173,11 @@ export type MenuOption = {
   count: number;
 };
 
+/** No props left under the other picks: grayed, unless picked, so a pick stays removable. */
+export function grayed(option: MenuOption, picked: ReadonlySet<string>): boolean {
+  return option.count === 0 && !picked.has(option.value);
+}
+
 /** Every popup category's choices, and what its "All …" row counts. */
 export type FilterMenus = {
   /** One choice per distinct value on the board, leagues in LEAGUE_ORDER. */

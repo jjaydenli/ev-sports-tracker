@@ -13,7 +13,7 @@ import {
   type TeamNames,
   teamNamesFor,
 } from "@/lib/board";
-import { fold, startsWord } from "@/lib/search";
+import { startsWord } from "@/lib/search";
 
 export type GameState = "all" | "pre" | "live";
 
@@ -140,19 +140,6 @@ function passesPicks(row: BoardRow, f: Filters, key: FacetKey): boolean {
 /** Whether a row passes every filter but the search text. */
 export function passesFilters(row: BoardRow, f: Filters): boolean {
   return passesToggles(row, f) && FACET_KEYS.every((key) => passesPicks(row, f, key));
-}
-
-/**
- * Classic search, kept only to compare against universal search on this branch: the whole
- * query as one word-start prefix of the player, the own team's code or its full name.
- */
-export function matches(row: BoardRow, f: Filters, names: TeamNames): boolean {
-  const query = fold(f.text.trim().replace(/\s+/g, " "));
-  const typed = () =>
-    [str(row, F.player), str(row, F.team), ...teamNamesFor(names, row, str(row, F.team))].some(
-      (text) => startsWord(fold(text ?? ""), query) >= 0,
-    );
-  return passesFilters(row, f) && (!query || typed());
 }
 
 /** One choice in a filter menu. `count` honours every other active filter except the text. */

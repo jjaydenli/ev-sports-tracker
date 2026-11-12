@@ -51,7 +51,6 @@ import {
   filterMenus,
   type Filters,
   type GameState,
-  matches,
   type MenuOption,
   NO_FILTERS,
   NO_PICKS,
@@ -412,23 +411,16 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
     () => rows.map((row, id): Prop => ({ id, row, search: searchEntry(row, teamNames) })),
     [rows, teamNames],
   );
-  // `?search=classic` brings back the old search for side-by-side testing; this branch only.
-  const [classic, setClassic] = useState(false);
-  useEffect(() => {
-    setClassic(new URLSearchParams(window.location.search).get("search") === "classic");
-  }, []);
   const query = useMemo(() => parseQuery(filters.text), [filters.text]);
   const matching = useMemo(
     () =>
       sorted(
-        props.filter(({ row, search }) =>
-          classic
-            ? matches(row, filters, teamNames)
-            : passesFilters(row, filters) && matchesQuery(search, query),
+        props.filter(
+          ({ row, search }) => passesFilters(row, filters) && matchesQuery(search, query),
         ),
         sort,
       ),
-    [props, filters, sort, teamNames, classic, query],
+    [props, filters, sort, query],
   );
   const { options, all } = useMemo(
     () => filterMenus(rows, filters, teamNames),

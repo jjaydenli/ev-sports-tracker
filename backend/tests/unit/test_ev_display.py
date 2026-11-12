@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+from config.market_maps import PLATFORM_MARKET_MAPPINGS
 from config.team_abbrev import TEAM_ABBR_ALIASES, TEAM_FULL_NAME_TO_ABBR
 from core.ev_display import (
     _ANSI_ESCAPE,
@@ -80,6 +81,17 @@ def test_market_abbrev_labels_are_unique():
     for market, abbrev in MARKET_ABBREV.items():
         assert abbrev not in seen, f"{market} and {seen[abbrev]} both render {abbrev!r}"
         seen[abbrev] = market
+
+
+def test_every_canonical_market_has_an_abbrev():
+    """A canonical market missing from ``MARKET_ABBREV`` shows its raw key in Stat.
+
+    Oracle: ``PLATFORM_MARKET_MAPPINGS``, the registry upstream of ``ev_display``, not the
+    dict under test. A registry walk proving one property, so one loop, not a parametrize.
+    """
+    canonical = {market for mapping in PLATFORM_MARKET_MAPPINGS.values() for market in mapping.values()}
+    missing = sorted(canonical - set(MARKET_ABBREV))
+    assert not missing, f"canonical markets with no MARKET_ABBREV entry: {missing}"
 
 
 # A Stat label equal to a team code is ambiguous against the Game column — "[TB]@NYY | ▲ | TB".

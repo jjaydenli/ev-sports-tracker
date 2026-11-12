@@ -1,5 +1,6 @@
 import boardFields from "./board-fields.json";
 import booksJson from "./books.json";
+import marketWordsJson from "./market-words.json";
 
 /**
  * Engine row keys the page renders, by the name the page uses. The keys themselves live
@@ -196,17 +197,8 @@ export function hasPrices({ over, under }: Prices): boolean {
 
 // ---- words ----
 
-const MARKET_WORDS: Record<string, string> = {
-  points: "Points",
-  rebounds: "Rebounds",
-  assists: "Assists",
-  threes: "Threes",
-  "pts+reb": "Pts + Reb",
-  "pts+ast": "Pts + Ast",
-  "reb+ast": "Reb + Ast",
-  pra: "Pts + Reb + Ast",
-  hits: "Hits",
-};
+/** Web label per market key; a backend test checks every canonical market has one. */
+const MARKET_WORDS: Record<string, string> = marketWordsJson;
 
 /** Filter menus list leagues in this order; any other league follows, A–Z. */
 export const LEAGUE_ORDER: readonly string[] = ["NBA", "NFL", "NHL", "MLB"];

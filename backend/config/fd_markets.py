@@ -135,6 +135,10 @@ FD_MILESTONE_MARKETS_BY_LEAGUE: dict[str, tuple[str, ...]] = {
     "mlb": FD_MLB_MILESTONE_MARKETS,
 }
 
+# Leagues whose milestone (N+) markets flatten from in-play pages only. Pregame NBA
+# milestones stay off until their pricing is ready; removing "nba" turns them on.
+FD_LIVE_ONLY_MILESTONE_LEAGUES: frozenset[str] = frozenset({"nba"})
+
 _STAT_SUFFIX_TO_CANONICAL_BY_LEAGUE: dict[str, tuple[tuple[str, str], ...]] = {
     "nba": _STAT_SUFFIX_TO_CANONICAL_NBA,
     "mlb": _STAT_SUFFIX_TO_CANONICAL_MLB,
@@ -161,6 +165,14 @@ FD_TO_RECORD_MILESTONE_RE = re.compile(
 )
 FD_TO_RECORD_SINGULAR_MILESTONE_RE = re.compile(
     r"^TO_RECORD_(?:A|AN)_(?P<stat>.+)$"
+)
+# TO_SCORE_15+_POINTS (NBA points milestones)
+FD_TO_SCORE_MILESTONE_RE = re.compile(
+    r"^TO_SCORE_(?P<threshold>\d+)\+_(?P<stat>.+)$"
+)
+# 2+_MADE_THREES (NBA threes milestones carry no TO_ prefix)
+FD_MADE_THREES_MILESTONE_RE = re.compile(
+    r"^(?P<threshold>\d+)\+_MADE_(?P<stat>THREES)$"
 )
 FD_PLAYER_TO_RECORD_HIT_RE = re.compile(r"^PLAYER_TO_RECORD_A_HIT$")
 FD_PLAYER_TO_RECORD_HITS_RE = re.compile(
@@ -193,6 +205,10 @@ def default_scrape_markets_for_league(league: str = "nba") -> tuple[str, ...]:
 
 def milestone_markets_for_league(league: str = "nba") -> tuple[str, ...]:
     return FD_MILESTONE_MARKETS_BY_LEAGUE.get(_league_key(league), ())
+
+
+def milestones_are_live_only(league: str = "nba") -> bool:
+    return _league_key(league) in FD_LIVE_ONLY_MILESTONE_LEAGUES
 
 
 def milestone_threshold_to_line(threshold: int) -> float:
@@ -240,33 +256,42 @@ def parse_player_milestone_market_type(
     league: str = "nba",
 ) -> tuple[str, int] | None:
     """
-    Return (canonical_market, threshold) for a FanDuel MLB milestone marketType.
+    Return (canonical_market, threshold) for a FanDuel milestone (N+) marketType.
 
-    Returns None for O/U boards, unmapped stats, and non-MLB leagues.
+    Stat suffixes resolve through the league's suffix table, so an unmapped stat
+    (double-double, steals, blocks) returns None. Also None for O/U boards, game
+    lines, and leagues with no suffix table.
     """
-    if _league_key(league) != "mlb":
+    key = _league_key(league)
+    if key not in _STAT_SUFFIX_TO_CANONICAL_BY_LEAGUE:
         return None
 
     text = market_type or ""
 
-    match = FD_PLAYER_TO_RECORD_HIT_RE.match(text)
-    if match:
-        return "hits", 1
+    if key == "mlb":
+        match = FD_PLAYER_TO_RECORD_HIT_RE.match(text)
+        if match:
+            return "hits", 1
 
-    match = FD_PLAYER_TO_RECORD_HITS_RE.match(text)
-    if match:
-        return "hits", int(match.group("threshold"))
+        match = FD_PLAYER_TO_RECORD_HITS_RE.match(text)
+        if match:
+            return "hits", int(match.group("threshold"))
 
-    match = FD_PLAYER_TO_RECORD_HRR_RE.match(text)
-    if match:
-        return "h+r+rbi", int(match.group("threshold"))
+        match = FD_PLAYER_TO_RECORD_HRR_RE.match(text)
+        if match:
+            return "h+r+rbi", int(match.group("threshold"))
 
-    match = FD_TO_RECORD_MILESTONE_RE.match(text)
-    if match:
-        stat = _canonical_for_stat_suffix(match.group("stat"), league=league)
-        if not stat:
-            return None
-        return stat, int(match.group("threshold"))
+    for pattern in (
+        FD_TO_RECORD_MILESTONE_RE,
+        FD_TO_SCORE_MILESTONE_RE,
+        FD_MADE_THREES_MILESTONE_RE,
+    ):
+        match = pattern.match(text)
+        if match:
+            stat = _canonical_for_stat_suffix(match.group("stat"), league=league)
+            if not stat:
+                return None
+            return stat, int(match.group("threshold"))
 
     match = FD_TO_RECORD_SINGULAR_MILESTONE_RE.match(text)
     if match:

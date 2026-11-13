@@ -79,6 +79,9 @@ _FD_EVENT_FILES = [
     "fd_event_35639109_player_assists.json",
     "fd_event_35730475_pitcher_props.json",
     "fd_event_35733870_milestones.json",
+    "fd_event_36257605_live_sgp.json",
+    "fd_event_36257605_player_combos.json",
+    "fd_event_36257605_live_sgp_unpriced.json",
 ]
 
 

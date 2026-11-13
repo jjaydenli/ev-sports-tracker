@@ -21,6 +21,7 @@ from config.fd_markets import (
     is_multi_market_tab,
     is_player_ou_market_for_tab,
     milestone_threshold_to_line,
+    milestones_are_live_only,
     parse_player_milestone_market_type,
     parse_player_ou_market_type,
 )
@@ -293,7 +294,7 @@ def flatten_player_milestone_market(
     tab: str,
     league: str = "nba",
 ) -> list[dict[str, Any]]:
-    """Flatten one FanDuel MLB milestone (N+) market into master-board rows."""
+    """Flatten one FanDuel milestone (N+) market into master-board rows."""
     market_type = str(fd_market.get("marketType") or "")
     parsed = parse_player_milestone_market_type(market_type, league=league)
     if not parsed:
@@ -466,6 +467,9 @@ def flatten_event_page_response(
 
             parsed_ms = parse_player_milestone_market_type(market_type, league=league)
             if parsed_ms:
+                # In-play pages return early above, so this page is pregame.
+                if milestones_are_live_only(league):
+                    continue
                 canonical_market, _ = parsed_ms
                 if allowed is not None and canonical_market not in allowed:
                     continue

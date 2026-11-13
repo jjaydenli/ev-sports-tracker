@@ -1,3 +1,5 @@
+import pytest
+
 from config.pipeline_sources import PIPELINE_LEAGUES
 from config.team_abbrev import (
     CODE_ONLY_LEAGUES,
@@ -46,6 +48,23 @@ def test_game_key_from_full_names_canonical():
         game_key_from_full_names("Philadelphia Phillies", "Washington Nationals")
         == "PHI@WSH"
     )
+
+
+@pytest.mark.parametrize(
+    "away, home, betr_game",
+    [
+        # FanDuel event names from the 2026-11-01 NBA slate; expected keys are the
+        # `game` strings Betr showed for the same games, which matching joins on.
+        ("Los Angeles Clippers", "Golden State Warriors", "LAC@GS"),
+        ("Toronto Raptors", "Los Angeles Lakers", "TOR@LAL"),
+        ("Oklahoma City Thunder", "Cleveland Cavaliers", "OKC@CLE"),
+        ("Portland Trail Blazers", "Denver Nuggets", "POR@DEN"),
+        ("Detroit Pistons", "Charlotte Hornets", "DET@CHA"),
+        ("Chicago Bulls", "Philadelphia 76ers", "CHI@PHI"),
+    ],
+)
+def test_fd_nba_event_names_resolve_to_betr_game(away, home, betr_game):
+    assert game_key_from_full_names(away, home) == betr_game
 
 
 def test_game_key_from_full_names_unmapped_returns_none():

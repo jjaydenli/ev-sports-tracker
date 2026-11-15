@@ -1,5 +1,8 @@
+import pytest
+
 from config.fd_markets import (
     FD_DEFAULT_SCRAPE_MARKETS,
+    FD_LIVE_TAB_MARKETS_BY_LEAGUE,
     FD_MLB_DEFAULT_SCRAPE_MARKETS,
     FD_MLB_MILESTONE_MARKETS,
     canonical_to_tab_for_league,
@@ -68,9 +71,51 @@ def test_mlb_parse_player_milestone_market_type():
     assert parse_player_milestone_market_type(
         "PITCHER_C_TOTAL_STRIKEOUTS", league="mlb"
     ) is None
-    assert parse_player_milestone_market_type(
-        "TO_SCORE_25+_POINTS", league="nba"
-    ) is None
+
+
+@pytest.mark.parametrize(
+    "market_type, market_name, expected",
+    [
+        # marketType -> marketName pairs from the 2026-11-01 live NBA captures
+        # (event 36257605); the expected value is read off FanDuel's display name.
+        # Points, threes and pts+ast parse inside test_flatten_nba_milestone_runner_row.
+        ("TO_RECORD_8+_REBOUNDS", "8+ Rebounds", ("rebounds", 8)),
+        ("TO_RECORD_10+_ASSISTS", "10+ Assists", ("assists", 10)),
+        ("TO_RECORD_25+_PTS_+_REB", "25+ Pts + Reb", ("pts+reb", 25)),
+        ("TO_RECORD_10+_REB_+_AST", "10+ Reb + Ast", ("reb+ast", 10)),
+        ("TO_RECORD_30+_PTS_+_REB_+_AST", "30+ Pts + Reb + Ast", ("pra", 30)),
+    ],
+)
+def test_nba_parse_player_milestone_market_type(market_type, market_name, expected):
+    assert (
+        parse_player_milestone_market_type(market_type, league="nba") == expected
+    ), market_name
+
+
+@pytest.mark.parametrize(
+    "market_type",
+    [
+        "TO_RECORD_A_DOUBLE_DOUBLE",  # singular TO_RECORD_A_ shape, unmapped stat
+        "TO_RECORD_2+_STEALS",  # N+ shape matches, stat not in the NBA suffix table
+        "PLAYER_C_TOTAL_POINTS",  # an O/U board is never a milestone
+    ],
+)
+def test_nba_parse_player_milestone_market_type_rejects_unmapped(market_type):
+    assert parse_player_milestone_market_type(market_type, league="nba") is None
+
+
+def test_live_tab_markets_partition_each_leagues_default_markets():
+    """Live tabs must split a league's markets with no overlap: a market fetched from two
+    tabs gives two same-line O/U rows, and build_player_market_ladder drops the pm_key
+    when their prices differ."""
+    assert "nba" in FD_LIVE_TAB_MARKETS_BY_LEAGUE
+    for league, tabs in FD_LIVE_TAB_MARKETS_BY_LEAGUE.items():
+        seen: dict[str, str] = {}
+        for tab, markets in tabs.items():
+            for market in markets:
+                assert market not in seen, f"{league}: {market} in {seen[market]} and {tab}"
+                seen[market] = tab
+        assert set(seen) == set(default_scrape_markets_for_league(league)), league
 
 
 def test_milestone_threshold_to_line():

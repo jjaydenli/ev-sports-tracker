@@ -1,7 +1,7 @@
 """FanDuel sportsbook scraper via event-page player O/U ladders (main + alt)."""
 
 import asyncio
-from typing import Any
+from typing import Any, NamedTuple
 
 import httpx
 from loguru import logger
@@ -12,6 +12,7 @@ from config.fd_competitions import (
     build_event_game_map,
     build_event_start_map,
     extract_event_ids,
+    extract_live_event_ids,
     parse_event_id_from_url,
 )
 from config.fd_markets import (
@@ -20,6 +21,7 @@ from config.fd_markets import (
     is_core_ou_market,
     is_extended_ou_market,
     known_markets_for_league,
+    live_tab_markets_for_league,
     tab_for_canonical_market,
 )
 from scrapers.base_scraper import BaseScraper
@@ -84,6 +86,30 @@ def scrape_targets_for_markets(
     return targets
 
 
+def live_scrape_targets(
+    markets: list[str],
+    *,
+    league: str = DEFAULT_LEAGUE,
+) -> list[tuple[str, set[str] | None]]:
+    """Map requested canonical markets to in-play tab fetches; empty when the league has none."""
+    wanted = set(markets)
+    targets: list[tuple[str, set[str] | None]] = []
+    for tab, tab_markets in live_tab_markets_for_league(league).items():
+        selected = wanted.intersection(tab_markets)
+        if selected:
+            targets.append((tab, selected))
+    return targets
+
+
+class TabFetch(NamedTuple):
+    """One event-page request, and the state the page is expected to be in."""
+
+    event_id: str
+    tab: str
+    markets: set[str] | None
+    is_live: bool
+
+
 class FanDuelEngine(BaseScraper):
     sportsbook_name = "FanDuel"
 
@@ -94,6 +120,7 @@ class FanDuelEngine(BaseScraper):
         markets: list[str] | None = None,
         league: str = DEFAULT_LEAGUE,
         concurrency: int = DEFAULT_CONCURRENCY,
+        live_only: bool = False,
     ):
         self.explicit_event_ids = parse_event_ids(
             event_ids=event_ids, game_urls=game_urls
@@ -101,21 +128,24 @@ class FanDuelEngine(BaseScraper):
         self.league = league
         self.markets = markets or list(default_scrape_markets_for_league(league))
         self.concurrency = concurrency
+        self.live_only = live_only
         self._event_start_map: dict[str, str] = {}
         self._event_game_map: dict[str, str] = {}
+        self._live_event_ids: set[str] = set()
 
     async def authenticate(self) -> str | None:
         return None
 
     async def _fetch_league_slate(
         self, client: httpx.AsyncClient
-    ) -> tuple[list[str], dict[str, str], dict[str, str]]:
+    ) -> tuple[list[str], set[str], dict[str, str], dict[str, str]]:
+        # Explicit ids have no slate, so their state is unknown: they stay pregame-only.
         if self.explicit_event_ids:
-            return self.explicit_event_ids, {}, {}
+            return self.explicit_event_ids, set(), {}, {}
 
         payload = await fetch_league_events(client, self.league)
         if not payload:
-            return [], {}, {}
+            return [], set(), {}, {}
 
         slate = FD_LEAGUE_SLATES[self.league]
         event_ids = extract_event_ids(
@@ -133,20 +163,51 @@ class FanDuelEngine(BaseScraper):
             competition_id=slate["competition_id"],
             require_matchup=True,
         )
-        logger.info(
-            f"discovered {len(event_ids)} {self.league.upper()} events from fanduel slate"
+        live_ids = set(
+            extract_live_event_ids(
+                payload,
+                competition_id=slate["competition_id"],
+                require_matchup=True,
+            )
         )
-        return event_ids, start_map, game_map
+        logger.info(
+            f"discovered {len(event_ids)} {self.league.upper()} events "
+            f"({len(live_ids)} live) from fanduel slate"
+        )
+        return event_ids, live_ids, start_map, game_map
 
     async def _resolve_event_ids(self, client: httpx.AsyncClient) -> list[str]:
-        event_ids, start_map, game_map = await self._fetch_league_slate(client)
+        event_ids, live_ids, start_map, game_map = await self._fetch_league_slate(client)
+        self._live_event_ids = live_ids
         self._event_start_map = start_map
         self._event_game_map = game_map
         return event_ids
 
+    def _tab_fetches(
+        self,
+        event_ids: list[str],
+        pregame_targets: list[tuple[str, set[str] | None]],
+        live_targets: list[tuple[str, set[str] | None]],
+    ) -> list[TabFetch]:
+        """Live events take live tabs only; pregame events are skipped under live_only."""
+        fetches: list[TabFetch] = []
+        for event_id in event_ids:
+            if event_id in self._live_event_ids:
+                fetches.extend(
+                    TabFetch(event_id, tab, markets, is_live=True)
+                    for tab, markets in live_targets
+                )
+            elif not self.live_only:
+                fetches.extend(
+                    TabFetch(event_id, tab, markets, is_live=False)
+                    for tab, markets in pregame_targets
+                )
+        return fetches
+
     async def scrape(self) -> list[dict[str, Any]]:
-        targets = scrape_targets_for_markets(self.markets, league=self.league)
-        if not targets:
+        pregame_targets = scrape_targets_for_markets(self.markets, league=self.league)
+        live_targets = live_scrape_targets(self.markets, league=self.league)
+        if not pregame_targets and not live_targets:
             return []
 
         unknown_markets = set(self.markets) - known_markets_for_league(self.league)
@@ -167,26 +228,27 @@ class FanDuelEngine(BaseScraper):
                 logger.warning("No FanDuel event IDs available to scrape.")
                 return []
 
-            async def fetch_tab(
-                event_id: str, tab: str, markets: set[str] | None
-            ) -> list[dict[str, Any]]:
+            fetches = self._tab_fetches(event_ids, pregame_targets, live_targets)
+            if not fetches:
+                logger.info(f"no live fanduel {self.league.upper()} events to scrape")
+                return []
+
+            async def fetch_tab(fetch: TabFetch) -> list[dict[str, Any]]:
                 async with semaphore:
                     return await fetch_and_flatten_event_page(
                         client,
-                        event_id,
-                        tab=tab,
-                        markets=markets,
+                        fetch.event_id,
+                        tab=fetch.tab,
+                        markets=fetch.markets,
                         league=self.league,
+                        is_live=fetch.is_live,
                     )
 
-            tasks = [
-                fetch_tab(event_id, tab, markets)
-                for event_id in event_ids
-                for tab, markets in targets
-            ]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            results = await asyncio.gather(
+                *(fetch_tab(fetch) for fetch in fetches), return_exceptions=True
+            )
 
-        for result in results:
+        for fetch, result in zip(fetches, results, strict=True):
             if isinstance(result, Exception):
                 logger.error(f"fanduel fetch failed: {result}")
                 continue
@@ -194,6 +256,8 @@ class FanDuelEngine(BaseScraper):
                 continue
             for row in result:
                 row["league"] = self.league.upper()
+                if fetch.is_live:
+                    row["is_live"] = True
                 event_id = str(row.get("event_id", ""))
                 event_start = self._event_start_map.get(event_id, "")
                 if event_start:
@@ -204,9 +268,12 @@ class FanDuelEngine(BaseScraper):
                 all_props.append(row)
 
         line_count = count_fd_line_rows(all_props)
+        live_events = {fetch.event_id for fetch in fetches if fetch.is_live}
+        fetched_events = {fetch.event_id for fetch in fetches}
         logger.info(
             f"fetched {len(all_props)} fanduel props ({line_count} O/U lines) "
-            f"from {len(event_ids)} events x {len(targets)} tab fetches"
+            f"from {len(fetches)} tab fetches across {len(fetched_events)} events "
+            f"({len(live_events)} live)"
         )
         return all_props
 

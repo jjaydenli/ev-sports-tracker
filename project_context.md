@@ -36,7 +36,7 @@ Platform depth: [docs/betting_odds/](docs/betting_odds/). ยง3 is routing only โ€
 
 ### FanDuel (sharp sportsbook)
 
-- **Role:** Second sharp book. NBA + MLB pregame O/U + MLB milestones. **No live FD MLB** (in-play skipped in `fd_api.py`).
+- **Role:** Second sharp book. NBA + MLB pregame O/U, MLB milestones, NBA live O/U + milestones (`live-sgp` / `player-combos`, rows tagged `is_live`). **No live FD MLB.**
 - **Code:** `fd_api.py`, `fd_engine.py`, `fd_parser.py`, `config/fd_markets.py`, `config/fd_competitions.py`
 - **Detail:** [docs/betting_odds/fanduel.md](docs/betting_odds/fanduel.md)
 
@@ -61,7 +61,7 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 | WNBA | Betr + DK (FD skipped) | `./ev --wnba` |
 | NBA | Betr + DK + FD | `./ev --nba` |
 
-`--live-only` scrapes in-progress games only: DK and ESPN skip pregame events, Betr keeps live rows, FD is skipped (`no_live_support`). It cannot combine with `--skip-scrape`.
+`--live-only` scrapes in-progress games only: DK and ESPN skip pregame events, Betr keeps live rows, FD scrapes NBA live games and skips leagues with no live tabs (`no_live_support`). It cannot combine with `--skip-scrape`.
 
 ## 4. Quantitative Modeling & Math
 

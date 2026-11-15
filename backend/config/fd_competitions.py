@@ -145,6 +145,36 @@ def extract_event_ids(
     return event_ids
 
 
+def extract_live_event_ids(
+    payload: dict[str, Any],
+    *,
+    competition_id: str | None = None,
+    require_matchup: bool = True,
+) -> list[str]:
+    """
+    Return the ``extract_event_ids`` events that are in progress.
+
+    Slate events carry no ``inPlay``; their markets do, so an event is live when any of
+    its markets is in play. The event page confirms the state at fetch time.
+    """
+    attachments = payload.get("attachments") or {}
+    markets = attachments.get("markets") or {}
+    in_play = {
+        str(market.get("eventId"))
+        for market in markets.values()
+        if market.get("inPlay")
+    }
+    return [
+        event_id
+        for event_id in extract_event_ids(
+            payload,
+            competition_id=competition_id,
+            require_matchup=require_matchup,
+        )
+        if event_id in in_play
+    ]
+
+
 def build_event_start_map(
     payload: dict[str, Any],
     *,

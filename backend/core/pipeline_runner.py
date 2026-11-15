@@ -537,7 +537,7 @@ def build_parser() -> argparse.ArgumentParser:
     mode.add_argument(
         "--live-only",
         action="store_true",
-        help="scrape only in-progress games and live props (skips pregame; FanDuel has no live)",
+        help="scrape only in-progress games and live props (skips pregame; FanDuel live is NBA only)",
     )
     mode.add_argument(
         "--scrape-only",

@@ -4,11 +4,17 @@ from pathlib import Path
 import httpx
 import pytest
 
-from config.fd_markets import parse_player_ou_market_type
+from config.fd_markets import (
+    FD_LIVE_SGP_TAB,
+    FD_LIVE_TAB_MARKETS_BY_LEAGUE,
+    parse_player_milestone_market_type,
+    parse_player_ou_market_type,
+)
 from scrapers.sportsbooks.fd_api import (
     count_fd_line_rows,
     fetch_and_flatten_event_page,
     flatten_event_page_response,
+    flatten_player_milestone_market,
     flatten_player_ou_market,
     group_fd_line_rows,
     merge_prop_rows,
@@ -346,3 +352,132 @@ def test_milestone_and_ou_group_separately():
     assert len(grouped) == 2
     kinds = {prop["line_kind"] for prop in grouped}
     assert kinds == {"ou", "milestone"}
+
+
+LIVE_EVENT_ID = "36257605"
+LIVE_SGP_FIXTURE_PATH = Path("tests/fixtures/fd_event_36257605_live_sgp.json")
+LIVE_COMBOS_FIXTURE_PATH = Path("tests/fixtures/fd_event_36257605_player_combos.json")
+LIVE_UNPRICED_FIXTURE_PATH = Path(
+    "tests/fixtures/fd_event_36257605_live_sgp_unpriced.json"
+)
+
+
+def _market_by_type(path: Path, market_type: str) -> dict:
+    markets = json.loads(path.read_text(encoding="utf-8"))["attachments"]["markets"]
+    return next(m for m in markets.values() if m["marketType"] == market_type)
+
+
+@pytest.mark.parametrize(
+    "path, market_type, player, market, line, threshold, over_odds",
+    [
+        # Prices are the capture's winRunnerOdds for each runner (2026-11-01, LAC@GS).
+        (LIVE_SGP_FIXTURE_PATH, "TO_SCORE_15+_POINTS", "Darius Garland",
+         "points", 14.5, 15, -146),
+        (LIVE_SGP_FIXTURE_PATH, "2+_MADE_THREES", "Darius Garland",
+         "threes", 1.5, 2, -168),
+        (LIVE_COMBOS_FIXTURE_PATH, "TO_RECORD_35+_PTS_+_AST", "Yaxel Lendeborg",
+         "pts+ast", 34.5, 35, -145),
+    ],
+)
+def test_flatten_nba_milestone_runner_row(
+    path, market_type, player, market, line, threshold, over_odds
+):
+    rows = flatten_player_milestone_market(
+        _market_by_type(path, market_type),
+        event_id=LIVE_EVENT_ID,
+        tab="live-sgp",
+        league="nba",
+    )
+    row = next(r for r in rows if r["player"] == player)
+    assert row["market"] == market
+    assert row["line"] == line
+    assert row["milestone_threshold"] == threshold
+    assert row["over_odds"] == over_odds
+    assert row["under_odds"] is None
+    assert row["line_kind"] == "milestone"
+
+
+def test_flatten_nba_milestone_drops_unpriced_runners():
+    """Both runners on this OPEN market are ACTIVE with no winRunnerOdds."""
+    fd_market = _market_by_type(LIVE_UNPRICED_FIXTURE_PATH, "8+_MADE_THREES")
+    assert parse_player_milestone_market_type(
+        fd_market["marketType"], league="nba"
+    ) == ("threes", 8)
+    rows = flatten_player_milestone_market(
+        fd_market, event_id=LIVE_EVENT_ID, tab="live-sgp", league="nba"
+    )
+    assert rows == []
+
+
+def test_flatten_nba_pregame_page_emits_no_milestones(event_page_payload):
+    """The pregame page carries a real TO_SCORE_25+_POINTS market. Read through the
+    multi-market branch, which does read milestones, with no market filter."""
+    props = flatten_event_page_response(
+        event_page_payload,
+        event_id=EVENT_ID,
+        tab="same-game-parlay-",
+        markets=None,
+        league="nba",
+    )
+    assert props, "pregame O/U rows should still flatten"
+    assert [p for p in props if p["line_kind"] == "milestone"] == []
+
+
+def _flatten_live_sgp(**overrides) -> list[dict]:
+    kwargs = {
+        "event_id": LIVE_EVENT_ID,
+        "tab": FD_LIVE_SGP_TAB,
+        "markets": set(FD_LIVE_TAB_MARKETS_BY_LEAGUE["nba"][FD_LIVE_SGP_TAB]),
+        "league": "nba",
+        "is_live": True,
+        **overrides,
+    }
+    payload = json.loads(LIVE_SGP_FIXTURE_PATH.read_text(encoding="utf-8"))
+    return flatten_event_page_response(payload, **kwargs)
+
+
+def _line(props: list[dict], player: str, market: str, line_kind: str) -> list[dict]:
+    return [
+        line
+        for p in props
+        if p["player"] == player and p["market"] == market and p["line_kind"] == line_kind
+        for line in p["lines"]
+    ]
+
+
+def test_flatten_live_page_ou_and_milestone_rows():
+    """Capture prices: Kris Dunn assists 4.5 at -146 / +110, Darius Garland 15+ points
+    at -146."""
+    props = _flatten_live_sgp()
+
+    assert [(r["line"], r["over_odds"], r["under_odds"]) for r in _line(
+        props, "Kris Dunn", "assists", "ou"
+    )] == [(4.5, -146, 110)]
+    garland = _line(props, "Darius Garland", "points", "milestone")
+    assert (14.5, -146) in [(r["line"], r["over_odds"]) for r in garland]
+
+
+@pytest.mark.parametrize(
+    "path, event_id, is_live",
+    [
+        (LIVE_SGP_FIXTURE_PATH, LIVE_EVENT_ID, False),  # page inPlay true
+        (EVENT_PAGE_FIXTURE_PATH, EVENT_ID, True),  # page inPlay false
+    ],
+)
+def test_flatten_skips_page_whose_in_play_differs(path, event_id, is_live):
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert flatten_event_page_response(
+        payload,
+        event_id=event_id,
+        tab="same-game-parlay-",
+        markets=None,
+        league="nba",
+        is_live=is_live,
+    ) == []
+
+
+def test_flatten_live_page_skips_suspended_markets():
+    """Brandin Podziemski's points O/U is SUSPENDED with both runners ACTIVE and priced."""
+    props = _flatten_live_sgp()
+    assert _line(props, "Kris Dunn", "assists", "ou"), "OPEN markets still flatten"
+    assert _line(props, "Brandin Podziemski", "points", "ou") == []

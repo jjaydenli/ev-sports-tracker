@@ -93,7 +93,7 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 ./ev --top-n 25 --min-ev 0.02   # top 25 with EV >= 2%
 ./ev --top-n all                # every ranked row (the live board adds --books dk,fd)
 ./ev --scrape-only              # scrape + normalize, skip EV
-./ev --live-only --nba          # in-progress games only (skips pregame and FanDuel)
+./ev --live-only --nba          # in-progress games only (skips pregame)
 ./ev --timing                   # wall-clock summary per pipeline stage
 ```
 

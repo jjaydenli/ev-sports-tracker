@@ -71,6 +71,20 @@ def test_cli_live_only_reaches_every_source(_mock_preflight, monkeypatch, tmp_pa
 
 
 @pytest.mark.asyncio
+async def test_fd_live_only_nba_hands_flag_to_engine(monkeypatch):
+    """NBA has FanDuel live tabs, so live_only must reach the engine, not skip FanDuel.
+
+    Oracle: the is_live flags on MIXED_PROPS. Without the flag the fake returns the
+    pregame rows too.
+    """
+    monkeypatch.setattr(pipeline_scrape, "FanDuelEngine", _FlagReportingEngine)
+
+    result = await pipeline_scrape.scrape_fd_league("nba", live_only=True)
+
+    assert (result.status, result.props) == ("ok", [LIVE_PROP])
+
+
+@pytest.mark.asyncio
 async def test_betr_default_keeps_all_props(monkeypatch):
     monkeypatch.setattr(pipeline_scrape, "BetrEngine", _FakeBetrEngine)
 

@@ -21,6 +21,7 @@ from config.fd_markets import (
     is_multi_market_tab,
     is_player_ou_market_for_tab,
     milestone_threshold_to_line,
+    milestones_are_live_only,
     parse_player_milestone_market_type,
     parse_player_ou_market_type,
 )
@@ -293,7 +294,7 @@ def flatten_player_milestone_market(
     tab: str,
     league: str = "nba",
 ) -> list[dict[str, Any]]:
-    """Flatten one FanDuel MLB milestone (N+) market into master-board rows."""
+    """Flatten one FanDuel milestone (N+) market into master-board rows."""
     market_type = str(fd_market.get("marketType") or "")
     parsed = parse_player_milestone_market_type(market_type, league=league)
     if not parsed:
@@ -429,15 +430,22 @@ def flatten_event_page_response(
     tab: str,
     markets: set[str] | None = None,
     league: str = "nba",
+    is_live: bool = False,
 ) -> list[dict[str, Any]]:
     """
     Flatten FanDuel event-page attachments.markets into grouped master-board props.
 
-    Uses main (PLAYER_*_TOTAL_* / PITCHER_*_TOTAL_*) and alt O/U ladders, plus MLB
-    milestone (TO_RECORD_* / PLAYER_TO_RECORD_*) one-sided N+ boards.
+    Uses main (PLAYER_*_TOTAL_* / PITCHER_*_TOTAL_*) and alt O/U ladders, plus
+    milestone (TO_RECORD_* / TO_SCORE_* / N+_MADE_THREES / PLAYER_TO_RECORD_*)
+    one-sided N+ boards.
+
+    ``is_live`` is the state the caller expects. A page whose ``inPlay`` disagrees,
+    as when a game tips off between the slate and the page fetch, returns nothing.
+    On live pages, markets that aren't OPEN are skipped: a suspended price isn't real.
     """
-    if event_page_in_play(payload, event_id):
-        logger.info(f"skip in-play fanduel event {event_id}")
+    if event_page_in_play(payload, event_id) != is_live:
+        page_state = "pregame" if is_live else "in-play"
+        logger.info(f"skip {page_state} fanduel event {event_id}")
         return []
 
     attachments = payload.get("attachments") or {}
@@ -447,6 +455,8 @@ def flatten_event_page_response(
     if tab == FD_SGP_TAB or is_multi_market_tab(tab, league=league):
         allowed = markets
         for fd_market in fd_markets.values():
+            if is_live and fd_market.get("marketStatus") != "OPEN":
+                continue
             market_type = str(fd_market.get("marketType") or "")
             parsed = parse_player_ou_market_type(market_type, league=league)
             if parsed:
@@ -466,6 +476,8 @@ def flatten_event_page_response(
 
             parsed_ms = parse_player_milestone_market_type(market_type, league=league)
             if parsed_ms:
+                if milestones_are_live_only(league) and not is_live:
+                    continue
                 canonical_market, _ = parsed_ms
                 if allowed is not None and canonical_market not in allowed:
                     continue
@@ -509,6 +521,7 @@ async def fetch_and_flatten_event_page(
     tab: str,
     markets: set[str] | None = None,
     league: str = "nba",
+    is_live: bool = False,
 ) -> list[dict[str, Any]]:
     """Fetch one event-page tab and return grouped O/U master-board props."""
     payload = await fetch_event_page(client, event_id, tab=tab)
@@ -520,4 +533,5 @@ async def fetch_and_flatten_event_page(
         tab=tab,
         markets=markets,
         league=league,
+        is_live=is_live,
     )

@@ -18,6 +18,12 @@ FD_CANONICAL_TO_TAB: dict[str, str] = {
 
 FD_SGP_TAB = "same-game-parlay-"
 
+# FanDuel's in-play tab slugs. Live SGP carries every player O/U plus single-stat N+
+# milestones; Player Combos is the only tab with combo N+ milestones. On a pregame
+# event Live SGP holds game lines only, so these are fetched for live games alone.
+FD_LIVE_SGP_TAB = "live-sgp"
+FD_LIVE_COMBOS_TAB = "player-combos"
+
 FD_PLAYER_PROP_TABS: tuple[str, ...] = tuple(FD_TAB_CANONICAL_MARKETS)
 
 FD_EXTENDED_OU_MARKETS: tuple[str, ...] = (
@@ -135,6 +141,20 @@ FD_MILESTONE_MARKETS_BY_LEAGUE: dict[str, tuple[str, ...]] = {
     "mlb": FD_MLB_MILESTONE_MARKETS,
 }
 
+# Leagues whose milestone (N+) markets flatten from in-play pages only. Pregame NBA
+# milestones are held back so pregame output is unchanged; removing "nba" turns them on.
+FD_LIVE_ONLY_MILESTONE_LEAGUES: frozenset[str] = frozenset({"nba"})
+
+# In-play tabs per league, keyed tab -> markets. Each market comes from exactly one tab:
+# both NBA tabs carry the combo O/Us, and fetching them twice would collide in the ladder.
+# A league with no entry is not scraped live.
+FD_LIVE_TAB_MARKETS_BY_LEAGUE: dict[str, dict[str, tuple[str, ...]]] = {
+    "nba": {
+        FD_LIVE_SGP_TAB: ("points", "rebounds", "assists", "threes"),
+        FD_LIVE_COMBOS_TAB: ("pts+reb", "pts+ast", "pra", "reb+ast"),
+    },
+}
+
 _STAT_SUFFIX_TO_CANONICAL_BY_LEAGUE: dict[str, tuple[tuple[str, str], ...]] = {
     "nba": _STAT_SUFFIX_TO_CANONICAL_NBA,
     "mlb": _STAT_SUFFIX_TO_CANONICAL_MLB,
@@ -161,6 +181,14 @@ FD_TO_RECORD_MILESTONE_RE = re.compile(
 )
 FD_TO_RECORD_SINGULAR_MILESTONE_RE = re.compile(
     r"^TO_RECORD_(?:A|AN)_(?P<stat>.+)$"
+)
+# TO_SCORE_15+_POINTS (NBA points milestones)
+FD_TO_SCORE_MILESTONE_RE = re.compile(
+    r"^TO_SCORE_(?P<threshold>\d+)\+_(?P<stat>.+)$"
+)
+# 2+_MADE_THREES (NBA threes milestones carry no TO_ prefix)
+FD_MADE_THREES_MILESTONE_RE = re.compile(
+    r"^(?P<threshold>\d+)\+_MADE_(?P<stat>THREES)$"
 )
 FD_PLAYER_TO_RECORD_HIT_RE = re.compile(r"^PLAYER_TO_RECORD_A_HIT$")
 FD_PLAYER_TO_RECORD_HITS_RE = re.compile(
@@ -195,6 +223,14 @@ def milestone_markets_for_league(league: str = "nba") -> tuple[str, ...]:
     return FD_MILESTONE_MARKETS_BY_LEAGUE.get(_league_key(league), ())
 
 
+def live_tab_markets_for_league(league: str = "nba") -> dict[str, tuple[str, ...]]:
+    return FD_LIVE_TAB_MARKETS_BY_LEAGUE.get(_league_key(league), {})
+
+
+def milestones_are_live_only(league: str = "nba") -> bool:
+    return _league_key(league) in FD_LIVE_ONLY_MILESTONE_LEAGUES
+
+
 def milestone_threshold_to_line(threshold: int) -> float:
     """Map FD N+ milestone to Betr half-point line (N+ -> line N - 0.5)."""
     return float(threshold) - 0.5
@@ -214,6 +250,8 @@ def canonical_to_tab_for_league(league: str = "nba") -> dict[str, str]:
 def is_multi_market_tab(tab: str, *, league: str = "nba") -> bool:
     """True when one tab fetch can return multiple canonical O/U markets."""
     key = _league_key(league)
+    if tab in live_tab_markets_for_league(key):
+        return True
     if key == "mlb":
         return tab in tab_markets_for_league(league)
     return tab == FD_SGP_TAB
@@ -240,33 +278,42 @@ def parse_player_milestone_market_type(
     league: str = "nba",
 ) -> tuple[str, int] | None:
     """
-    Return (canonical_market, threshold) for a FanDuel MLB milestone marketType.
+    Return (canonical_market, threshold) for a FanDuel milestone (N+) marketType.
 
-    Returns None for O/U boards, unmapped stats, and non-MLB leagues.
+    Stat suffixes resolve through the league's suffix table, so an unmapped stat
+    (double-double, steals, blocks) returns None. Also None for O/U boards, game
+    lines, and leagues with no suffix table.
     """
-    if _league_key(league) != "mlb":
+    key = _league_key(league)
+    if key not in _STAT_SUFFIX_TO_CANONICAL_BY_LEAGUE:
         return None
 
     text = market_type or ""
 
-    match = FD_PLAYER_TO_RECORD_HIT_RE.match(text)
-    if match:
-        return "hits", 1
+    if key == "mlb":
+        match = FD_PLAYER_TO_RECORD_HIT_RE.match(text)
+        if match:
+            return "hits", 1
 
-    match = FD_PLAYER_TO_RECORD_HITS_RE.match(text)
-    if match:
-        return "hits", int(match.group("threshold"))
+        match = FD_PLAYER_TO_RECORD_HITS_RE.match(text)
+        if match:
+            return "hits", int(match.group("threshold"))
 
-    match = FD_PLAYER_TO_RECORD_HRR_RE.match(text)
-    if match:
-        return "h+r+rbi", int(match.group("threshold"))
+        match = FD_PLAYER_TO_RECORD_HRR_RE.match(text)
+        if match:
+            return "h+r+rbi", int(match.group("threshold"))
 
-    match = FD_TO_RECORD_MILESTONE_RE.match(text)
-    if match:
-        stat = _canonical_for_stat_suffix(match.group("stat"), league=league)
-        if not stat:
-            return None
-        return stat, int(match.group("threshold"))
+    for pattern in (
+        FD_TO_RECORD_MILESTONE_RE,
+        FD_TO_SCORE_MILESTONE_RE,
+        FD_MADE_THREES_MILESTONE_RE,
+    ):
+        match = pattern.match(text)
+        if match:
+            stat = _canonical_for_stat_suffix(match.group("stat"), league=league)
+            if not stat:
+                return None
+            return stat, int(match.group("threshold"))
 
     match = FD_TO_RECORD_SINGULAR_MILESTONE_RE.match(text)
     if match:

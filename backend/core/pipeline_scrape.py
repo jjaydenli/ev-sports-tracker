@@ -10,6 +10,7 @@ from config.dk_subcategories import (
 )
 from config.espn_competitions import ESPN_LEAGUE_SLATES
 from config.fd_competitions import FD_LEAGUE_SLATES
+from config.fd_markets import live_tab_markets_for_league
 from config.pipeline_sources import dk_league_key, normalize_league
 from core.scrape_result import ScrapeResult
 from scrapers.dfs.betr.betr_engine import BetrEngine
@@ -128,15 +129,15 @@ async def scrape_dk_league(league: str, *, live_only: bool = False) -> ScrapeRes
 async def scrape_fd_league(league: str, *, live_only: bool = False) -> ScrapeResult:
     """Fetch FanDuel raw props for one league without persisting."""
     league_key = normalize_league(league)
-    if live_only:
-        # FanDuel rows are never marked live, and live Betr props only match live rows.
+    fd_slate = league_key.lower()
+    if live_only and not live_tab_markets_for_league(fd_slate):
+        # No in-play tabs for this league, and live Betr props only match live rows.
         return ScrapeResult(
             source="fd",
             league=league_key,
             status="skipped",
             reason="no_live_support",
         )
-    fd_slate = league_key.lower()
     if fd_slate not in FD_LEAGUE_SLATES:
         return ScrapeResult(
             source="fd",
@@ -145,7 +146,7 @@ async def scrape_fd_league(league: str, *, live_only: bool = False) -> ScrapeRes
             reason="not_configured",
         )
     try:
-        engine = FanDuelEngine(league=fd_slate)
+        engine = FanDuelEngine(league=fd_slate, live_only=live_only)
         props = await engine.scrape()
         if not props:
             return ScrapeResult(

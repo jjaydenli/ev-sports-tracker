@@ -1,5 +1,37 @@
+import json
+from pathlib import Path
+
+from config.fd_markets import FD_LIVE_SGP_TAB, FD_LIVE_TAB_MARKETS_BY_LEAGUE
+from core.engine import build_player_market_key
 from parsers.fd_parser import parse_fd_props
 from parsers.normalize import normalize_platform
+from scrapers.sportsbooks.fd_api import flatten_event_page_response
+
+
+def test_live_fd_row_keeps_is_live_through_normalize():
+    """A live FD row must key like a live Betr row (player|market|live), or it never
+    matches. The engine stamps is_live on each flattened prop; normalize must keep it."""
+    payload = json.loads(
+        Path("tests/fixtures/fd_event_36257605_live_sgp.json").read_text(encoding="utf-8")
+    )
+    props = flatten_event_page_response(
+        payload,
+        event_id="36257605",
+        tab=FD_LIVE_SGP_TAB,
+        markets=set(FD_LIVE_TAB_MARKETS_BY_LEAGUE["nba"][FD_LIVE_SGP_TAB]),
+        league="nba",
+        is_live=True,
+    )
+    for prop in props:
+        prop.update(league="NBA", event_start="2026-11-01T22:30:00Z", is_live=True)
+
+    dunn = [
+        row
+        for row in parse_fd_props(props)
+        if row["player"] == "Kris Dunn" and row["market"] == "assists"
+    ]
+    assert dunn
+    assert {build_player_market_key(row) for row in dunn} == {"kris dunn|assists|live"}
 
 
 def test_normalize_platform_dispatches_to_fd_parser():

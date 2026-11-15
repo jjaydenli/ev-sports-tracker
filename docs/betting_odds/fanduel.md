@@ -79,7 +79,15 @@ Regex: trailing `-{eventId}` — [`parse_event_id_from_url`](../../backend/confi
 
 **Builder:** [`build_event_page_url`](../../backend/config/fd_competitions.py)
 
-**Event-level fields** (event-page only): `inPlay`, `primaryMarketId`, `openDate`. In-play events are skipped during flatten (`event_page_in_play`).
+**Event-level fields** (event-page only): `inPlay`, `primaryMarketId`, `openDate`. `flatten_event_page_response(is_live=)` returns nothing when the page's `inPlay` differs from the state the engine expected (a game tipping off between slate and page fetch).
+
+### Live NBA (`FD_LIVE_TAB_MARKETS_BY_LEAGUE`)
+
+- **Discovery:** slate `attachments.events` has no `inPlay`, but `attachments.markets[*].inPlay` is true on every market of a live event (suspended ones included). `extract_live_event_ids` = `extract_event_ids` ∩ events with any in-play market. The competition filter matters: simulated games (competition `12687908`) are in play too.
+- **Tabs differ by state.** On a live event, `same-game-parlay-` carries only game markets and the per-stat tabs are gone. Player props are on `live-sgp` (points, rebounds, assists, threes: O/U plus `TO_SCORE_N+_POINTS`, `TO_RECORD_N+_*`, `N+_MADE_THREES`) and `player-combos` (the 4 combo O/Us plus combo milestones). Both carry the combo O/Us, so the registry partitions markets by tab: fetching one market twice would collide in the ladder.
+- **Live O/U is main line only** (2 runners, no `ALT_`). Non-`OPEN` markets are skipped on live pages: suspended markets keep priced `ACTIVE` runners, but the price isn't real.
+- **Routing (`fd_engine`):** live events take live tabs only and their rows get `is_live`; pregame events take the pregame tabs; `live_only` skips pregame events. Explicit `event_ids` have no slate, so they stay pregame-only. A league with no registry entry (MLB) is skipped under `--live-only` (`no_live_support`).
+- **Milestones:** NBA milestones flatten only on live pages (`FD_LIVE_ONLY_MILESTONE_LEAGUES`); pregame NBA output is O/U only.
 
 ### Market catalog
 
@@ -106,19 +114,19 @@ Parser: `parse_player_ou_market_type` — regex `^PLAYER_[A-Z]_(ALT_)?TOTAL_(?P<
 
 #### On the board but not scraped (sharp / EV)
 
-Present on event-page JSON (especially SGP and stat tabs) but **ignored** by `flatten_event_page_response` today:
+Present on pregame event-page JSON (especially SGP and stat tabs) but **ignored** by `flatten_event_page_response` today:
 
 | Family | Example `marketType` | Notes |
 |--------|-------------------|--------|
-| Milestone (score) | `TO_SCORE_10+_POINTS`, `TO_SCORE_25+_POINTS` | Yes/no ladders; unlike DK milestone sharp policy |
+| Milestone (score) | `TO_SCORE_10+_POINTS`, `TO_SCORE_25+_POINTS` | Parsed, flattened on live pages only (see *Live NBA*) |
 | Milestone (record) | `TO_RECORD_6+_REBOUNDS`, `TO_RECORD_10+_ASSISTS` | Same |
-| Made-threes milestone | `2+_MADE_THREES`, `N+_MADE_THREES` | Not O/U ladders |
-| Double / triple | `TO_RECORD_A_DOUBLE-DOUBLE`, triple-double variants | |
+| Made-threes milestone | `2+_MADE_THREES`, `N+_MADE_THREES` | Same |
+| Double / triple | `TO_RECORD_A_DOUBLE-DOUBLE`, triple-double variants | No canonical market |
 | Quarter / half | `1ST_QUARTER_-_TO_SCORE_*`, period splits | |
 | Game lines | `MONEY_LINE`, `TOTAL_POINTS_(OVER/UNDER)`, spreads | |
 | Steals / blocks O/U | — | **Not observed** on FD NBA event pages (2026-05-26 probe) |
 
-Future work: branch `feat/fd-milestone-props` — ingest `TO_SCORE_*` / `TO_RECORD_*` / double-double boards with DK-like milestone EV policy.
+Future work: pregame NBA milestones (remove `nba` from `FD_LIVE_ONLY_MILESTONE_LEAGUES`).
 
 #### Alternate lines
 
@@ -165,6 +173,8 @@ Do not add `fd_engine` / flatten until step 4 matches the browser slate.
 - [`backend/tests/fixtures/fd_event_35639109_player_points.json`](../../backend/tests/fixtures/fd_event_35639109_player_points.json) — redacted event-page (`player-points` tab)
 - [`backend/tests/fixtures/fd_event_35639109_player_rebounds.json`](../../backend/tests/fixtures/fd_event_35639109_player_rebounds.json) — `player-rebounds` tab
 - [`backend/tests/fixtures/fd_event_35639109_player_assists.json`](../../backend/tests/fixtures/fd_event_35639109_player_assists.json) — `player-assists` tab
+- [`backend/tests/fixtures/fd_league_nba_live.json`](../../backend/tests/fixtures/fd_league_nba_live.json) — 2026-11-01 slate with 2 live games (`36257605`, `36257607`), simulated in-play games and futures; first market per event
+- `fd_event_36257605_live_sgp.json`, `fd_event_36257605_player_combos.json`, `fd_event_36257605_live_sgp_unpriced.json` — live LAC@GS pages (suspended markets kept; the unpriced runner is a separate snapshot)
 
 SGP / extended O/U: use live `probe_fd_events --tab same-game-parlay-` or add a redacted fixture when stabilizing extended-market tests.
 

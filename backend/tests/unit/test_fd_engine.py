@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+import httpx
 import pytest
 
 from config.fd_markets import (
@@ -130,7 +131,7 @@ def mlb_pitcher_payload() -> dict:
 
 @pytest.mark.asyncio
 async def test_scrape_mlb_strikeouts_from_fixture(mlb_pitcher_payload, monkeypatch):
-    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba"):
+    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba", is_live=False):
         if league != "mlb" or tab != "pitcher-props":
             return []
         return flatten_event_page_response(
@@ -159,7 +160,7 @@ async def test_scrape_mlb_strikeouts_from_fixture(mlb_pitcher_payload, monkeypat
 
 @pytest.mark.asyncio
 async def test_scrape_flattens_points_from_fixture(event_page_payloads, monkeypatch):
-    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba"):
+    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba", is_live=False):
         for market, fixture_tab in TAB_BY_MARKET.items():
             if tab != fixture_tab:
                 continue
@@ -188,7 +189,7 @@ async def test_scrape_flattens_points_from_fixture(event_page_payloads, monkeypa
 
 @pytest.mark.asyncio
 async def test_scrape_flattens_all_core_markets(event_page_payloads, monkeypatch):
-    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba"):
+    async def mock_fetch(client, event_id, *, tab, markets=None, league="nba", is_live=False):
         for market, fixture_tab in TAB_BY_MARKET.items():
             if tab != fixture_tab:
                 continue
@@ -217,6 +218,97 @@ async def test_scrape_flattens_all_core_markets(event_page_payloads, monkeypatch
     assert markets == {"points", "rebounds", "assists"}
     assert len(props) == 4
     assert count_fd_line_rows(props) == 18 + 8 + 7
+
+
+LIVE_SLATE_FIXTURE = Path("tests/fixtures/fd_league_nba_live.json")
+LIVE_EVENT_ID = "36257605"
+LIVE_PAGE_FIXTURES = {
+    "live-sgp": Path("tests/fixtures/fd_event_36257605_live_sgp.json"),
+    "player-combos": Path("tests/fixtures/fd_event_36257605_player_combos.json"),
+}
+# The 2026-11-01 slate's NBA matchups other than the two in progress.
+PREGAME_EVENT_IDS = {
+    "36262171", "36262172", "36262173", "36262174", "36262175", "36262176",
+    "36262177", "36262178", "36262180", "36262181", "36262182", "36262184",
+}
+
+
+def _route_fd_traffic(monkeypatch) -> None:
+    """Serve the live slate, LAC@GS's live tabs, and a captured pregame points page.
+
+    Live pages answer only for LAC@GS (TOR@LAL has no capture, so it 404s), and the
+    pregame page answers only on its own tab, so each row's tab and event show which
+    fetch produced it.
+    """
+    slate = json.loads(LIVE_SLATE_FIXTURE.read_text(encoding="utf-8"))
+    live_pages = {
+        tab: json.loads(path.read_text(encoding="utf-8"))
+        for tab, path in LIVE_PAGE_FIXTURES.items()
+    }
+    pregame_points = json.loads(EVENT_PAGE_FIXTURES["points"].read_text(encoding="utf-8"))
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        params = request.url.params
+        if params.get("page") == "CUSTOM":
+            return httpx.Response(200, json=slate, request=request)
+        tab, event_id = params.get("tab"), params.get("eventId")
+        if event_id == LIVE_EVENT_ID and tab in live_pages:
+            return httpx.Response(200, json=live_pages[tab], request=request)
+        if event_id in PREGAME_EVENT_IDS and tab == TAB_BY_MARKET["points"]:
+            return httpx.Response(200, json=pregame_points, request=request)
+        return httpx.Response(404, request=request)
+
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(
+        "scrapers.sportsbooks.fd_engine.httpx.AsyncClient",
+        lambda **kwargs: real_client(transport=httpx.MockTransport(handler), **kwargs),
+    )
+
+
+@pytest.mark.asyncio
+async def test_scrape_routes_live_and_pregame_events_to_their_tabs(monkeypatch):
+    """Oracle: the slate's per-market inPlay flags and the capture's rows per tab.
+
+    Kris Dunn's assists 4.5 is on LAC@GS's live-sgp page, and pts+reb+ast is only on
+    its player-combos page, so both live tabs must have been fetched for that event.
+    """
+    _route_fd_traffic(monkeypatch)
+
+    props = await FanDuelEngine(league="nba").scrape()
+
+    live = [row for row in props if row.get("is_live")]
+    pregame = [row for row in props if not row.get("is_live")]
+    assert {row["event_id"] for row in live} == {LIVE_EVENT_ID}
+    assert {row["tab"] for row in live} == set(LIVE_PAGE_FIXTURES)
+    assert ("Kris Dunn", "assists") in {(row["player"], row["market"]) for row in live}
+    assert "pra" in {row["market"] for row in live}
+    assert {row["event_id"] for row in pregame} == PREGAME_EVENT_IDS
+    assert {row["tab"] for row in pregame} == {TAB_BY_MARKET["points"]}
+
+
+@pytest.mark.asyncio
+async def test_scrape_live_only_fetches_only_live_events(monkeypatch):
+    _route_fd_traffic(monkeypatch)
+
+    props = await FanDuelEngine(league="nba", live_only=True).scrape()
+
+    assert props
+    assert {row["event_id"] for row in props} == {LIVE_EVENT_ID}
+    assert all(row.get("is_live") for row in props)
+
+
+@pytest.mark.asyncio
+async def test_scrape_live_only_with_explicit_event_ids_returns_nothing(monkeypatch):
+    """Explicit ids skip the slate, so their state is unknown and they stay pregame-only.
+
+    A pregame id is the case that matters: its points page is served, so fetching it
+    under live_only would return rows.
+    """
+    _route_fd_traffic(monkeypatch)
+
+    engine = FanDuelEngine(event_ids=["36262178"], league="nba", live_only=True)
+
+    assert await engine.scrape() == []
 
 
 @pytest.mark.asyncio

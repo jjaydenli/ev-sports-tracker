@@ -1,0 +1,2777 @@
+{
+  "layout": {},
+  "attachments": {
+    "eventTypes": {
+      "7522": {
+        "name": "Basketball",
+        "eventTypeId": 7522
+      }
+    },
+    "competitions": {
+      "10547864": {
+        "name": "NBA",
+        "competitionId": 10547864,
+        "eventTypeId": 7522,
+        "eventId": 28049020
+      },
+      "12687908": {
+        "name": "eBasketball H2H GG League 4x5 Mins",
+        "competitionId": 12687908,
+        "eventTypeId": 7522,
+        "eventId": 33586006
+      },
+      "12739957": {
+        "name": "NBA Futures",
+        "competitionId": 12739957,
+        "eventTypeId": 7522,
+        "eventId": 34409523
+      }
+    },
+    "events": {
+      "28301194": {
+        "eventId": 28301194,
+        "name": " NBA Player Awards",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "US",
+        "openDate": "2023-07-08T00:05:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "34409523": {
+        "eventId": 34409523,
+        "name": "NBA Futures",
+        "eventTypeId": 7522,
+        "competitionId": 12739957,
+        "countryCode": "GB",
+        "openDate": "2026-06-10T19:55:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": false
+      },
+      "36257605": {
+        "eventId": 36257605,
+        "name": "Los Angeles Clippers @ Golden State Warriors",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T01:42:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36257607": {
+        "eventId": 36257607,
+        "name": "Toronto Raptors @ Los Angeles Lakers",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T02:12:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262171": {
+        "eventId": 36262171,
+        "name": "Boston Celtics @ Houston Rockets",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T01:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262172": {
+        "eventId": 36262172,
+        "name": "Phoenix Suns @ Golden State Warriors",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T03:10:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262173": {
+        "eventId": 36262173,
+        "name": "Sacramento Kings @ Dallas Mavericks",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T01:10:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262174": {
+        "eventId": 36262174,
+        "name": "Brooklyn Nets @ New York Knicks",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T00:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262175": {
+        "eventId": 36262175,
+        "name": "Portland Trail Blazers @ Denver Nuggets",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T02:10:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262176": {
+        "eventId": 36262176,
+        "name": "Utah Jazz @ San Antonio Spurs",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T01:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262177": {
+        "eventId": 36262177,
+        "name": "Washington Wizards @ Orlando Magic",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T00:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262178": {
+        "eventId": 36262178,
+        "name": "Oklahoma City Thunder @ Cleveland Cavaliers",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T00:10:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262180": {
+        "eventId": 36262180,
+        "name": "Milwaukee Bucks @ Minnesota Timberwolves",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T01:10:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262181": {
+        "eventId": 36262181,
+        "name": "Detroit Pistons @ Charlotte Hornets",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T00:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262182": {
+        "eventId": 36262182,
+        "name": "New Orleans Pelicans @ Memphis Grizzlies",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T01:10:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36262184": {
+        "eventId": 36262184,
+        "name": "Chicago Bulls @ Philadelphia 76ers",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "countryCode": "GB",
+        "openDate": "2026-11-03T00:40:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": true
+      },
+      "36266353": {
+        "eventId": 36266353,
+        "name": "Milwaukee Bucks (QUEEN) @ Memphis Grizzlies (BREAKER)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T02:43:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266355": {
+        "eventId": 36266355,
+        "name": "Denver Nuggets (LANES) @ Orlando Magic (CURSE)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T02:55:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266358": {
+        "eventId": 36266358,
+        "name": "New York Knicks (SKIPPER) @ Boston Celtics (FRENZY)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T03:03:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266362": {
+        "eventId": 36266362,
+        "name": "Orlando Magic (LEGACY) @ Denver Nuggets (WAVE)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T03:11:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266364": {
+        "eventId": 36266364,
+        "name": "Cleveland Cavaliers (CROCODILE) @ Phoenix Suns (PROXY)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T03:15:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266367": {
+        "eventId": 36266367,
+        "name": "Orlando Magic (COMMANDER) @ Charlotte Hornets (SURGEON)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T03:31:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266369": {
+        "eventId": 36266369,
+        "name": "New York Knicks (SKIPPER) @ Oklahoma City Thunder (AIRFORCE)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T03:35:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266371": {
+        "eventId": 36266371,
+        "name": "Charlotte Hornets (STRIKE) @ Orlando Magic (RADIANT)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T03:39:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": false
+      },
+      "36266372": {
+        "eventId": 36266372,
+        "name": "Charlotte Hornets (TAAPZ) @ Orlando Magic (CURSE)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T03:59:00.000Z",
+        "videoAvailable": true,
+        "statsAvailable": false
+      },
+      "36266373": {
+        "eventId": 36266373,
+        "name": "Denver Nuggets (SPARKZ) @ Dallas Mavericks (LANCE)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T04:03:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": false
+      },
+      "36266375": {
+        "eventId": 36266375,
+        "name": "Los Angeles Lakers (PIRATE) @ Boston Celtics (FRENZY)",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "countryCode": "GB",
+        "openDate": "2026-11-02T04:07:00.000Z",
+        "videoAvailable": false,
+        "statsAvailable": false
+      }
+    },
+    "markets": {
+      "734.174066650": {
+        "marketId": "734.174066650",
+        "eventTypeId": 7522,
+        "competitionId": 12739957,
+        "eventId": 34409523,
+        "marketName": "26-27 NBA Eastern Conference Winner",
+        "marketTime": "2027-06-19T00:40:00.000Z",
+        "marketType": "NBA_CONFERENCE_WINNER",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 15,
+        "numberOfActiveRunners": 15,
+        "numberOfWinners": 1,
+        "sortPriority": 10,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "COMPETITION"
+        ],
+        "runners": [
+          {
+            "selectionId": 237482,
+            "handicap": 0,
+            "runnerName": "New York Knicks",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/new_york_knicks.png",
+            "nameAbbr": "NY Knicks",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 380,
+                "americanOddsInt": 380
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.8
+                },
+                "fractionalOdds": {
+                  "numerator": 38,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 40274538,
+            "handicap": 0,
+            "runnerName": "Philadelphia 76ers",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/philadelphia_76ers.png",
+            "nameAbbr": "PHI 76ers",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 380,
+                "americanOddsInt": 380
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 4.8
+                },
+                "fractionalOdds": {
+                  "numerator": 38,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": false,
+        "associatedMarkets": [
+          {
+            "eventId": 34409523,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.587723024"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195050268": {
+        "marketId": "734.195050268",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262181,
+        "exchangeMarketId": "1.264922217",
+        "marketName": "Spread",
+        "marketTime": "2026-11-03T00:40:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 237474,
+            "handicap": -3.5,
+            "runnerName": "Detroit Pistons",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/detroit_pistons.png",
+            "nameAbbr": "DET Pistons",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 8622709,
+            "handicap": 3.5,
+            "runnerName": "Charlotte Hornets",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/charlotte_hornets.png",
+            "nameAbbr": "CHA Hornets",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262181,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621370048"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195323784": {
+        "marketId": "734.195323784",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262173,
+        "exchangeMarketId": "1.264923295",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-03T01:10:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 234.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -115,
+                "americanOddsInt": -115
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.869565217391304
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 115
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 234.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -105,
+                "americanOddsInt": -105
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.952380952380952
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 105
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262173,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621832844"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195178461": {
+        "marketId": "734.195178461",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36257607,
+        "exchangeMarketId": "1.264830499",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-02T02:12:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": true,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 233.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -106,
+                "americanOddsInt": -106
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.943396226415094
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 106
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 233.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -125,
+                "americanOddsInt": -125
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.8
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 125
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36257607,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621605063"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195201705": {
+        "marketId": "734.195201705",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262172,
+        "exchangeMarketId": "1.264923857",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-03T03:10:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 227.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -115,
+                "americanOddsInt": -115
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.869565217391304
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 115
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 227.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -105,
+                "americanOddsInt": -105
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.952380952380952
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 105
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262172,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621639978"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195178444": {
+        "marketId": "734.195178444",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36257605,
+        "exchangeMarketId": "1.264830772",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-02T01:42:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": true,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 230.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 230.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -114,
+                "americanOddsInt": -114
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.87719298245614
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 114
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36257605,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621605047"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195200462": {
+        "marketId": "734.195200462",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262174,
+        "exchangeMarketId": "1.264922930",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-03T00:40:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 221.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 221.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262174,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621638201"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195050270": {
+        "marketId": "734.195050270",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262176,
+        "exchangeMarketId": "1.264922086",
+        "marketName": "Moneyline",
+        "marketTime": "2026-11-03T01:40:00.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -9000,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 237484,
+            "handicap": 0,
+            "runnerName": "Utah Jazz",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/utah_jazz.png",
+            "nameAbbr": "UTA Jazz",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 810,
+                "americanOddsInt": 810
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 9.1
+                },
+                "fractionalOdds": {
+                  "numerator": 81,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 237471,
+            "handicap": 0,
+            "runnerName": "San Antonio Spurs",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/san_antonio_spurs.png",
+            "nameAbbr": "SA Spurs",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -1350,
+                "americanOddsInt": -1350
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.074074074074074
+                },
+                "fractionalOdds": {
+                  "numerator": 10,
+                  "denominator": 135
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262176,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621370035"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195321517": {
+        "marketId": "734.195321517",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262180,
+        "exchangeMarketId": "1.264921431",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-03T01:10:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 233.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -105,
+                "americanOddsInt": -105
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.952380952380952
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 105
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 233.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -115,
+                "americanOddsInt": -115
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.869565217391304
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 115
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262180,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621828958"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195320507": {
+        "marketId": "734.195320507",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262177,
+        "exchangeMarketId": "1.264921705",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-03T00:40:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 224.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 224.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262177,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621827377"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195050472": {
+        "marketId": "734.195050472",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262182,
+        "exchangeMarketId": "1.264920356",
+        "marketName": "Spread",
+        "marketTime": "2026-11-03T01:10:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7379341,
+            "handicap": 5.5,
+            "runnerName": "New Orleans Pelicans",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/new_orleans_pelicans.png",
+            "nameAbbr": "NO Pelicans",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -104,
+                "americanOddsInt": -104
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.961538461538462
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 104
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 237491,
+            "handicap": -5.5,
+            "runnerName": "Memphis Grizzlies",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/memphis_grizzlies.png",
+            "nameAbbr": "MEM Grizzlies",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -118,
+                "americanOddsInt": -118
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.847457627118644
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 118
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262182,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621370063"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195200406": {
+        "marketId": "734.195200406",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262178,
+        "exchangeMarketId": "1.264920775",
+        "marketName": "Total Points",
+        "marketTime": "2026-11-03T00:10:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 228.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 228.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262178,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621638137"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195050275": {
+        "marketId": "734.195050275",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262184,
+        "exchangeMarketId": "1.264921048",
+        "marketName": "Moneyline",
+        "marketTime": "2026-11-03T00:40:00.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -9000,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 237494,
+            "handicap": 0,
+            "runnerName": "Chicago Bulls",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/chicago_bulls.png",
+            "nameAbbr": "CHI Bulls",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 420,
+                "americanOddsInt": 420
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 5.2
+                },
+                "fractionalOdds": {
+                  "numerator": 42,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 40274538,
+            "handicap": 0,
+            "runnerName": "Philadelphia 76ers",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/philadelphia_76ers.png",
+            "nameAbbr": "PHI 76ers",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -560,
+                "americanOddsInt": -560
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.178571428571429
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 560
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262184,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621370053"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195050255": {
+        "marketId": "734.195050255",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262171,
+        "exchangeMarketId": "1.264924149",
+        "marketName": "Moneyline",
+        "marketTime": "2026-11-03T01:40:00.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -9000,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 60427,
+            "handicap": 0,
+            "runnerName": "Boston Celtics",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/boston_celtics.png",
+            "nameAbbr": "BOS Celtics",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 172,
+                "americanOddsInt": 172
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.72
+                },
+                "fractionalOdds": {
+                  "numerator": 172,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 237488,
+            "handicap": 0,
+            "runnerName": "Houston Rockets",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://cdn.sanity.io/images/pbwem9y5/sportsbook_prod/f7639aaadf326fc832aaa540f71394a9f8881634-96x96.png",
+            "nameAbbr": "HOU Rockets",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -205,
+                "americanOddsInt": -205
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.48780487804878
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 205
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262171,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621370026"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195050265": {
+        "marketId": "734.195050265",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 36262175,
+        "exchangeMarketId": "1.264922512",
+        "marketName": "Spread",
+        "marketTime": "2026-11-03T02:10:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": true,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": -8950,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 237480,
+            "handicap": 4.5,
+            "runnerName": "Portland Trail Blazers",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/portland_trail_blazers.png",
+            "nameAbbr": "POR Trail Blazers",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -115,
+                "americanOddsInt": -115
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.869565217391304
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 115
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 237492,
+            "handicap": -4.5,
+            "runnerName": "Denver Nuggets",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "logo": "https://assets.sportsbook.fanduel.com/images/team/nba/denver_nuggets.png",
+            "nameAbbr": "DEN Nuggets",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -105,
+                "americanOddsInt": -105
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.952380952380952
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 105
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36262175,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621370027"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195330517": {
+        "marketId": "734.195330517",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266369,
+        "marketName": "Total Points",
+        "marketTime": "2026-11-02T03:35:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15103,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 104.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -120,
+                "americanOddsInt": -120
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.833333333333333
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 120
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 104.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -120,
+                "americanOddsInt": -120
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.833333333333333
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 120
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266369,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621843373"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195327587": {
+        "marketId": "734.195327587",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266358,
+        "marketName": "Total Points",
+        "marketTime": "2026-11-02T03:03:35.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": true,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 0,
+        "numberOfWinners": 1,
+        "sortPriority": 15103,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "SUSPENDED",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 94.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "SUSPENDED",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -165,
+                "americanOddsInt": -165
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.606060606060606
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 165
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 94.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "SUSPENDED",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 115,
+                "americanOddsInt": 115
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2.15
+                },
+                "fractionalOdds": {
+                  "numerator": 115,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266358,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621838445"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195327180": {
+        "marketId": "734.195327180",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266355,
+        "marketName": "Spread",
+        "marketTime": "2026-11-02T03:01:42.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": true,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 0,
+        "numberOfWinners": 1,
+        "sortPriority": 15104,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "SUSPENDED",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 76205111,
+            "handicap": -2.5,
+            "runnerName": "Denver Nuggets (LANES)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "SUSPENDED",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -115,
+                "americanOddsInt": -115
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.869565217391304
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 115
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 83641726,
+            "handicap": 2.5,
+            "runnerName": "Orlando Magic (CURSE)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "SUSPENDED",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -125,
+                "americanOddsInt": -125
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.8
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 125
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266355,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621837679"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195332860": {
+        "marketId": "734.195332860",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266373,
+        "marketName": "Spread",
+        "marketTime": "2026-11-02T04:03:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15104,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 77260263,
+            "handicap": -2.5,
+            "runnerName": "Denver Nuggets (SPARKZ)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -130,
+                "americanOddsInt": -130
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.769230769230769
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 130
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 99060714,
+            "handicap": 2.5,
+            "runnerName": "Dallas Mavericks (LANCE)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266373,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621846477"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195326050": {
+        "marketId": "734.195326050",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266353,
+        "marketName": "Moneyline",
+        "marketTime": "2026-11-02T02:43:15.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": true,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 0,
+        "numberOfWinners": 1,
+        "sortPriority": 15100,
+        "bettingType": "ODDS",
+        "marketStatus": "SUSPENDED",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 92578527,
+            "handicap": 0,
+            "runnerName": "Milwaukee Bucks (QUEEN)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "SUSPENDED",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 1900,
+                "americanOddsInt": 1900
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 20
+                },
+                "fractionalOdds": {
+                  "numerator": 19,
+                  "denominator": 1
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 104214908,
+            "handicap": 0,
+            "runnerName": "Memphis Grizzlies (BREAKER)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "SUSPENDED",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -100000,
+                "americanOddsInt": -100000
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.001
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 100000
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266353,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621836044"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195332040": {
+        "marketId": "734.195332040",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266372,
+        "marketName": "Spread",
+        "marketTime": "2026-11-02T03:59:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15104,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 83118462,
+            "handicap": -2.5,
+            "runnerName": "Charlotte Hornets (TAAPZ)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -130,
+                "americanOddsInt": -130
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.769230769230769
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 130
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 83641726,
+            "handicap": 2.5,
+            "runnerName": "Orlando Magic (CURSE)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266372,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621845492"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195330262": {
+        "marketId": "734.195330262",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266367,
+        "marketName": "Spread",
+        "marketTime": "2026-11-02T03:31:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15104,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 90181782,
+            "handicap": -1.5,
+            "runnerName": "Orlando Magic (COMMANDER)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -130,
+                "americanOddsInt": -130
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.769230769230769
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 130
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 86377268,
+            "handicap": 1.5,
+            "runnerName": "Charlotte Hornets (SURGEON)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266367,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621842863"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195330620": {
+        "marketId": "734.195330620",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266371,
+        "marketName": "Spread",
+        "marketTime": "2026-11-02T03:39:00.000Z",
+        "marketType": "MATCH_HANDICAP_(2-WAY)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15104,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 86952253,
+            "handicap": 6.5,
+            "runnerName": "Charlotte Hornets (STRIKE)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -110,
+                "americanOddsInt": -110
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.909090909090909
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 110
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 97549815,
+            "handicap": -6.5,
+            "runnerName": "Orlando Magic (RADIANT)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -130,
+                "americanOddsInt": -130
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.769230769230769
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 130
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266371,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621843478"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195328145": {
+        "marketId": "734.195328145",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266364,
+        "marketName": "Moneyline",
+        "marketTime": "2026-11-02T03:15:00.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15100,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 99886417,
+            "handicap": 0,
+            "runnerName": "Cleveland Cavaliers (CROCODILE)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -140,
+                "americanOddsInt": -140
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.714285714285714
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 140
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 104214909,
+            "handicap": 0,
+            "runnerName": "Phoenix Suns (PROXY)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 100,
+                "americanOddsInt": 100
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 2
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 100
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266364,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621839571"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195328061": {
+        "marketId": "734.195328061",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266362,
+        "marketName": "Moneyline",
+        "marketTime": "2026-11-02T03:11:00.000Z",
+        "marketType": "MONEY_LINE",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15100,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 90716799,
+            "handicap": 0,
+            "runnerName": "Orlando Magic (LEGACY)",
+            "sortPriority": 1,
+            "result": {
+              "type": "AWAY"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -135,
+                "americanOddsInt": -135
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.740740740740741
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 135
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 99060713,
+            "handicap": 0,
+            "runnerName": "Denver Nuggets (WAVE)",
+            "sortPriority": 2,
+            "result": {
+              "type": "HOME"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -105,
+                "americanOddsInt": -105
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.952380952380952
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 105
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266362,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621839412"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.195332994": {
+        "marketId": "734.195332994",
+        "eventTypeId": 7522,
+        "competitionId": 12687908,
+        "eventId": 36266375,
+        "marketName": "Total Points",
+        "marketTime": "2026-11-02T04:07:00.000Z",
+        "marketType": "TOTAL_POINTS_(OVER/UNDER)",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 2,
+        "numberOfActiveRunners": 2,
+        "numberOfWinners": 1,
+        "sortPriority": 15103,
+        "bettingType": "MOVING_HANDICAP",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "AVB_EVENT"
+        ],
+        "runners": [
+          {
+            "selectionId": 7017823,
+            "handicap": 111.5,
+            "runnerName": "Over",
+            "sortPriority": 1,
+            "result": {
+              "type": "OVER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -120,
+                "americanOddsInt": -120
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.833333333333333
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 120
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 7017824,
+            "handicap": 111.5,
+            "runnerName": "Under",
+            "sortPriority": 2,
+            "result": {
+              "type": "UNDER"
+            },
+            "runnerStatus": "ACTIVE",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": -120,
+                "americanOddsInt": -120
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 1.833333333333333
+                },
+                "fractionalOdds": {
+                  "numerator": 100,
+                  "denominator": 120
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": true,
+        "associatedMarkets": [
+          {
+            "eventId": 36266375,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.621846953"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      },
+      "734.178528689": {
+        "marketId": "734.178528689",
+        "eventTypeId": 7522,
+        "competitionId": 10547864,
+        "eventId": 28301194,
+        "marketName": "26-27 NBA Eastern Conference Finals MVP",
+        "marketTime": "2027-04-14T23:00:00.000Z",
+        "marketType": "NBA_EASTERN_CONFERENCE_FINALS_MVP",
+        "bspMarket": false,
+        "sgmMarket": false,
+        "inPlay": false,
+        "numberOfRunners": 40,
+        "numberOfActiveRunners": 40,
+        "numberOfWinners": 1,
+        "sortPriority": 0,
+        "bettingType": "ODDS",
+        "marketStatus": "OPEN",
+        "marketLevels": [
+          "SUB_COMPETITION"
+        ],
+        "runners": [
+          {
+            "selectionId": 21359550,
+            "handicap": 0,
+            "runnerName": "Jalen Brunson",
+            "sortPriority": 1,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2026/57db104a-9786-4023-b38e-b3d9697c53be/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/new_york_knicks.png",
+            "isPlayerSelection": true,
+            "teamAbbr": "NYK",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 500,
+                "americanOddsInt": 500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 6
+                },
+                "fractionalOdds": {
+                  "numerator": 50,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          },
+          {
+            "selectionId": 13080925,
+            "handicap": 0,
+            "runnerName": "Jayson Tatum",
+            "sortPriority": 2,
+            "result": {},
+            "runnerStatus": "ACTIVE",
+            "logo": "https://fdx-api.sportsbook.fanduel.com/images/headshots/nba/2026/f85f9506-7f21-4906-939c-c7243eb73a04/120x120.png",
+            "secondaryLogo": "https://assets.sportsbook.fanduel.com/images/team/nba/boston_celtics.png",
+            "isPlayerSelection": true,
+            "teamAbbr": "BOS",
+            "winRunnerOdds": {
+              "americanDisplayOdds": {
+                "americanOdds": 500,
+                "americanOddsInt": 500
+              },
+              "trueOdds": {
+                "decimalOdds": {
+                  "decimalOdds": 6
+                },
+                "fractionalOdds": {
+                  "numerator": 50,
+                  "denominator": 10
+                }
+              }
+            },
+            "previousWinRunnerOdds": []
+          }
+        ],
+        "canTurnInPlay": false,
+        "associatedMarkets": [
+          {
+            "eventId": 28301194,
+            "eventTypeId": 7522,
+            "externalMarketId": "42.595438963"
+          }
+        ],
+        "isSuperSubEnabled": false,
+        "isBetProtectEligible": false,
+        "shouldDisplayStatsInRunner": true,
+        "eachwayAvailable": false,
+        "legTypes": [
+          "SIMPLE_SELECTION"
+        ]
+      }
+    }
+  }
+}

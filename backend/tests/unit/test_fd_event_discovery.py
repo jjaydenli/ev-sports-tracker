@@ -10,11 +10,13 @@ from config.fd_competitions import (
     build_event_game_map,
     build_event_page_url,
     extract_event_ids,
+    extract_live_event_ids,
     parse_event_id_from_url,
 )
 from scrapers.sportsbooks.fd_api import fetch_league_event_ids
 
 LEAGUE_FIXTURE_PATH = Path("tests/fixtures/fd_league_nba_events.json")
+LIVE_LEAGUE_FIXTURE_PATH = Path("tests/fixtures/fd_league_nba_live.json")
 MLB_LEAGUE_FIXTURE_PATH = Path("tests/fixtures/fd_league_mlb_events.json")
 NBA_COMPETITION_ID = "10547864"
 MLB_COMPETITION_ID = "11196870"
@@ -90,6 +92,19 @@ def test_build_event_game_map_nba_uses_betr_codes(league_payload):
         "35652199": "NY@OKC",
         "35652200": "NY@SA",
     }
+
+
+def test_extract_live_event_ids_returns_live_nba_games():
+    """Oracle: the 2026-11-01 slate capture, where LAC@GS and TOR@LAL were in progress.
+
+    Three simulated games in competition 12687908 also carry in-play markets, so only the
+    competition filter keeps them out; NBA Futures and awards are never in play.
+    """
+    payload = json.loads(LIVE_LEAGUE_FIXTURE_PATH.read_text(encoding="utf-8"))
+
+    live_ids = extract_live_event_ids(payload, competition_id=NBA_COMPETITION_ID)
+
+    assert sorted(live_ids) == ["36257605", "36257607"]
 
 
 def test_extract_event_ids_can_include_specials(league_payload):

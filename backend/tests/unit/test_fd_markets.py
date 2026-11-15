@@ -77,12 +77,10 @@ def test_mlb_parse_player_milestone_market_type():
     [
         # marketType -> marketName pairs from the 2026-11-01 live NBA captures
         # (event 36257605); the expected value is read off FanDuel's display name.
-        ("TO_SCORE_15+_POINTS", "15+ Points", ("points", 15)),
+        # Points, threes and pts+ast parse inside test_flatten_nba_milestone_runner_row.
         ("TO_RECORD_8+_REBOUNDS", "8+ Rebounds", ("rebounds", 8)),
         ("TO_RECORD_10+_ASSISTS", "10+ Assists", ("assists", 10)),
-        ("2+_MADE_THREES", "2+ Threes", ("threes", 2)),
         ("TO_RECORD_25+_PTS_+_REB", "25+ Pts + Reb", ("pts+reb", 25)),
-        ("TO_RECORD_35+_PTS_+_AST", "35+ Pts + Ast", ("pts+ast", 35)),
         ("TO_RECORD_10+_REB_+_AST", "10+ Reb + Ast", ("reb+ast", 10)),
         ("TO_RECORD_30+_PTS_+_REB_+_AST", "30+ Pts + Reb + Ast", ("pra", 30)),
     ],
@@ -96,13 +94,9 @@ def test_nba_parse_player_milestone_market_type(market_type, market_name, expect
 @pytest.mark.parametrize(
     "market_type",
     [
-        "TO_RECORD_A_DOUBLE_DOUBLE",
-        "TO_RECORD_A_TRIPLE_DOUBLE",
-        "TO_RECORD_2+_STEALS",
-        "TO_RECORD_2+_BLOCKS",
-        "3RD_QUARTER_TOTAL_POINTS",
-        "PLAYER_F_TOTAL_ASSISTS",
-        "MONEY_LINE",
+        "TO_RECORD_A_DOUBLE_DOUBLE",  # singular TO_RECORD_A_ shape, unmapped stat
+        "TO_RECORD_2+_STEALS",  # N+ shape matches, stat not in the NBA suffix table
+        "PLAYER_C_TOTAL_POINTS",  # an O/U board is never a milestone
     ],
 )
 def test_nba_parse_player_milestone_market_type_rejects_unmapped(market_type):

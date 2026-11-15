@@ -55,6 +55,8 @@ def parse_fd_prop(raw_prop: dict) -> dict | None:
     event_start = raw_prop.get("event_start")
     if event_start:
         normalized["event_start"] = str(event_start)
+    if raw_prop.get("is_live"):
+        normalized["is_live"] = True
     return normalized
 
 
@@ -84,6 +86,8 @@ def parse_fd_props(raw_props: list[dict]) -> list[dict]:
         event_start = raw_prop.get("event_start")
         if event_start:
             base["event_start"] = str(event_start)
+        if raw_prop.get("is_live"):
+            base["is_live"] = True
         for line_row in _line_entries(raw_prop):
             merged = {**base, **line_row}
             prop = parse_fd_prop(merged)

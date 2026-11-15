@@ -18,6 +18,12 @@ FD_CANONICAL_TO_TAB: dict[str, str] = {
 
 FD_SGP_TAB = "same-game-parlay-"
 
+# FanDuel's in-play tab slugs. Live SGP carries every player O/U plus single-stat N+
+# milestones; Player Combos is the only tab with combo N+ milestones. On a pregame
+# event Live SGP holds game lines only, so these are fetched for live games alone.
+FD_LIVE_SGP_TAB = "live-sgp"
+FD_LIVE_COMBOS_TAB = "player-combos"
+
 FD_PLAYER_PROP_TABS: tuple[str, ...] = tuple(FD_TAB_CANONICAL_MARKETS)
 
 FD_EXTENDED_OU_MARKETS: tuple[str, ...] = (
@@ -136,8 +142,18 @@ FD_MILESTONE_MARKETS_BY_LEAGUE: dict[str, tuple[str, ...]] = {
 }
 
 # Leagues whose milestone (N+) markets flatten from in-play pages only. Pregame NBA
-# milestones stay off until their pricing is ready; removing "nba" turns them on.
+# milestones are held back so pregame output is unchanged; removing "nba" turns them on.
 FD_LIVE_ONLY_MILESTONE_LEAGUES: frozenset[str] = frozenset({"nba"})
+
+# In-play tabs per league, keyed tab -> markets. Each market comes from exactly one tab:
+# both NBA tabs carry the combo O/Us, and fetching them twice would collide in the ladder.
+# A league with no entry is not scraped live.
+FD_LIVE_TAB_MARKETS_BY_LEAGUE: dict[str, dict[str, tuple[str, ...]]] = {
+    "nba": {
+        FD_LIVE_SGP_TAB: ("points", "rebounds", "assists", "threes"),
+        FD_LIVE_COMBOS_TAB: ("pts+reb", "pts+ast", "pra", "reb+ast"),
+    },
+}
 
 _STAT_SUFFIX_TO_CANONICAL_BY_LEAGUE: dict[str, tuple[tuple[str, str], ...]] = {
     "nba": _STAT_SUFFIX_TO_CANONICAL_NBA,
@@ -207,6 +223,10 @@ def milestone_markets_for_league(league: str = "nba") -> tuple[str, ...]:
     return FD_MILESTONE_MARKETS_BY_LEAGUE.get(_league_key(league), ())
 
 
+def live_tab_markets_for_league(league: str = "nba") -> dict[str, tuple[str, ...]]:
+    return FD_LIVE_TAB_MARKETS_BY_LEAGUE.get(_league_key(league), {})
+
+
 def milestones_are_live_only(league: str = "nba") -> bool:
     return _league_key(league) in FD_LIVE_ONLY_MILESTONE_LEAGUES
 
@@ -230,6 +250,8 @@ def canonical_to_tab_for_league(league: str = "nba") -> dict[str, str]:
 def is_multi_market_tab(tab: str, *, league: str = "nba") -> bool:
     """True when one tab fetch can return multiple canonical O/U markets."""
     key = _league_key(league)
+    if tab in live_tab_markets_for_league(key):
+        return True
     if key == "mlb":
         return tab in tab_markets_for_league(league)
     return tab == FD_SGP_TAB

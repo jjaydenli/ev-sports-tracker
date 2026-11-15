@@ -2,6 +2,7 @@ import pytest
 
 from config.fd_markets import (
     FD_DEFAULT_SCRAPE_MARKETS,
+    FD_LIVE_TAB_MARKETS_BY_LEAGUE,
     FD_MLB_DEFAULT_SCRAPE_MARKETS,
     FD_MLB_MILESTONE_MARKETS,
     canonical_to_tab_for_league,
@@ -101,6 +102,20 @@ def test_nba_parse_player_milestone_market_type(market_type, market_name, expect
 )
 def test_nba_parse_player_milestone_market_type_rejects_unmapped(market_type):
     assert parse_player_milestone_market_type(market_type, league="nba") is None
+
+
+def test_live_tab_markets_partition_each_leagues_default_markets():
+    """Live tabs must split a league's markets with no overlap: a market fetched from two
+    tabs gives two same-line O/U rows, and build_player_market_ladder drops the pm_key
+    when their prices differ."""
+    assert "nba" in FD_LIVE_TAB_MARKETS_BY_LEAGUE
+    for league, tabs in FD_LIVE_TAB_MARKETS_BY_LEAGUE.items():
+        seen: dict[str, str] = {}
+        for tab, markets in tabs.items():
+            for market in markets:
+                assert market not in seen, f"{league}: {market} in {seen[market]} and {tab}"
+                seen[market] = tab
+        assert set(seen) == set(default_scrape_markets_for_league(league)), league
 
 
 def test_milestone_threshold_to_line():

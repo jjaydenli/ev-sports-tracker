@@ -5,6 +5,8 @@ import httpx
 import pytest
 
 from config.fd_markets import (
+    FD_LIVE_SGP_TAB,
+    FD_LIVE_TAB_MARKETS_BY_LEAGUE,
     parse_player_milestone_market_type,
     parse_player_ou_market_type,
 )
@@ -419,3 +421,63 @@ def test_flatten_nba_pregame_page_emits_no_milestones(event_page_payload):
     )
     assert props, "pregame O/U rows should still flatten"
     assert [p for p in props if p["line_kind"] == "milestone"] == []
+
+
+def _flatten_live_sgp(**overrides) -> list[dict]:
+    kwargs = {
+        "event_id": LIVE_EVENT_ID,
+        "tab": FD_LIVE_SGP_TAB,
+        "markets": set(FD_LIVE_TAB_MARKETS_BY_LEAGUE["nba"][FD_LIVE_SGP_TAB]),
+        "league": "nba",
+        "is_live": True,
+        **overrides,
+    }
+    payload = json.loads(LIVE_SGP_FIXTURE_PATH.read_text(encoding="utf-8"))
+    return flatten_event_page_response(payload, **kwargs)
+
+
+def _line(props: list[dict], player: str, market: str, line_kind: str) -> list[dict]:
+    return [
+        line
+        for p in props
+        if p["player"] == player and p["market"] == market and p["line_kind"] == line_kind
+        for line in p["lines"]
+    ]
+
+
+def test_flatten_live_page_ou_and_milestone_rows():
+    """Capture prices: Kris Dunn assists 4.5 at -146 / +110, Darius Garland 15+ points
+    at -146."""
+    props = _flatten_live_sgp()
+
+    assert [(r["line"], r["over_odds"], r["under_odds"]) for r in _line(
+        props, "Kris Dunn", "assists", "ou"
+    )] == [(4.5, -146, 110)]
+    garland = _line(props, "Darius Garland", "points", "milestone")
+    assert (14.5, -146) in [(r["line"], r["over_odds"]) for r in garland]
+
+
+@pytest.mark.parametrize(
+    "path, event_id, is_live",
+    [
+        (LIVE_SGP_FIXTURE_PATH, LIVE_EVENT_ID, False),  # page inPlay true
+        (EVENT_PAGE_FIXTURE_PATH, EVENT_ID, True),  # page inPlay false
+    ],
+)
+def test_flatten_skips_page_whose_in_play_differs(path, event_id, is_live):
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert flatten_event_page_response(
+        payload,
+        event_id=event_id,
+        tab="same-game-parlay-",
+        markets=None,
+        league="nba",
+        is_live=is_live,
+    ) == []
+
+
+def test_flatten_live_page_skips_suspended_markets():
+    """Brandin Podziemski's points O/U is SUSPENDED with both runners ACTIVE and priced."""
+    props = _flatten_live_sgp()
+    assert _line(props, "Kris Dunn", "assists", "ou"), "OPEN markets still flatten"
+    assert _line(props, "Brandin Podziemski", "points", "ou") == []

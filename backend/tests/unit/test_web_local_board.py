@@ -9,15 +9,19 @@ through FastAPI's ``TestClient``; spawning ``./ev`` is the one mocked process bo
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterator
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 
 import pytest
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from core.pipeline_artifacts import (
     EV_OUTPUT_FILENAME,
+    LAST_GOOD_BOARD_DIRNAME,
     SCRAPE_COVERAGE_FILENAME,
     pipeline_run_in_progress,
     pipeline_run_lock,
@@ -28,8 +32,9 @@ from tests.unit.test_web_publish import (
     _write_board,
     _write_coverage,
 )
+from web.app import create_app
 from web.local_board import create_local_app
-from web.store import FileBoardStore
+from web.store import FileBoardStore, InMemoryBoardStore
 
 
 @dataclass
@@ -139,6 +144,86 @@ def test_mid_run_serves_the_last_board_and_run_from_memory(
     assert body["board"]["props"] == s1_ev_rows
     assert body["latest_run"]["run_id"] == "run-1"
     assert body["latest_run"]["outcome"] == "ok"
+
+
+def _wipe(data_dir: Path) -> None:
+    """What ``./ev`` does before it scrapes, so a run stopped mid-scrape leaves this."""
+    (data_dir / EV_OUTPUT_FILENAME).unlink()
+    (data_dir / SCRAPE_COVERAGE_FILENAME).unlink()
+
+
+def test_restart_after_a_stopped_run_serves_the_last_good_board(
+    tmp_path: Path, s1_ev_rows: list[dict]
+) -> None:
+    _write_ok_run(tmp_path, "run-1", s1_ev_rows)
+    written_at = FileBoardStore(tmp_path).latest_board()
+    assert written_at is not None
+    _wipe(tmp_path)
+
+    board = FileBoardStore(tmp_path).latest_board()  # a new process: nothing in memory
+    assert board is not None
+    assert board.run_id == "run-1"
+    assert board.props == s1_ev_rows
+    # The scrape's own time, read back from the coverage the test wrote, not the copy's.
+    saved_coverage = tmp_path / LAST_GOOD_BOARD_DIRNAME / SCRAPE_COVERAGE_FILENAME
+    coverage = json.loads(saved_coverage.read_text())
+    assert board.generated_at == datetime.fromisoformat(coverage["generated_at"])
+    assert board.generated_at == written_at.generated_at
+
+
+def test_restart_mid_run_serves_the_last_good_board(
+    tmp_path: Path, s1_ev_rows: list[dict]
+) -> None:
+    _write_ok_run(tmp_path, "run-1", s1_ev_rows)
+    FileBoardStore(tmp_path).latest_board()
+    _wipe(tmp_path)
+    with pipeline_run_lock(tmp_path):
+        board = FileBoardStore(tmp_path).latest_board()
+    assert board is not None
+    assert board.run_id == "run-1"
+
+
+def test_a_failed_run_never_replaces_the_saved_board(
+    tmp_path: Path, s1_ev_rows: list[dict]
+) -> None:
+    _write_ok_run(tmp_path, "run-a", s1_ev_rows)
+    FileBoardStore(tmp_path).latest_board()
+    # Betr auth failure: fresh coverage, the board file left at the prior run_id.
+    _write_coverage(tmp_path, "run-b", _AUTH_FAILURE)
+    FileBoardStore(tmp_path).latest_board()
+    _wipe(tmp_path)
+
+    board = FileBoardStore(tmp_path).latest_board()
+    assert board is not None
+    assert board.run_id == "run-a"
+    assert board.props == s1_ev_rows
+
+
+def test_a_newer_good_run_replaces_the_saved_board(
+    tmp_path: Path, s1_ev_rows: list[dict]
+) -> None:
+    store = FileBoardStore(tmp_path)
+    _write_ok_run(tmp_path, "run-1", s1_ev_rows)
+    store.latest_board()
+    _write_ok_run(tmp_path, "run-2", s1_ev_rows[:1])
+    store.latest_board()
+    _wipe(tmp_path)
+
+    board = FileBoardStore(tmp_path).latest_board()
+    assert board is not None
+    assert board.run_id == "run-2"
+    assert board.props == s1_ev_rows[:1]
+
+
+def test_live_app_has_no_local_routes(tmp_path: Path) -> None:
+    """Render runs ``web.app:app``; a run trigger there would let the cloud start scrapes."""
+
+    def local_paths(app: FastAPI) -> set[str]:
+        paths = {getattr(route, "path", "") for route in app.routes}
+        return {path for path in paths if path.startswith("/api/local")}
+
+    assert local_paths(create_local_app(tmp_path))  # the walk sees local routes where they exist
+    assert local_paths(create_app(store=InMemoryBoardStore())) == set()
 
 
 def test_upsert_is_refused(tmp_path: Path) -> None:

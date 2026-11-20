@@ -18,6 +18,8 @@ from core.ev_run_diff import EV_DIFF_FILENAME, EV_PREVIOUS_FILENAME
 
 SCRAPE_COVERAGE_FILENAME = "scrape_coverage.json"
 PIPELINE_RUN_LOCK_FILENAME = ".pipeline_run.lock"
+# The local board's copy of its newest ok run's coverage and EV board. No run wipes it.
+LAST_GOOD_BOARD_DIRNAME = "last_good_board"
 
 EV_OUTPUT_FILENAME = "ev_opportunities.json"
 MATCH_REPORT_FILENAME = "match_report.json"

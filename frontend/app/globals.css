@@ -31,6 +31,7 @@
   --mono-fg: #ffffff;
   --shadow: 0 8px 24px rgba(16, 24, 40, 0.14), 0 1px 3px rgba(16, 24, 40, 0.08);
   --scrim: rgba(10, 14, 20, 0.45);
+  --danger-fg: #ffffff;  /* text on a --red fill */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -64,6 +65,7 @@
     --mono-bg: #1f7a4a;
     --mono-fg: #ffffff;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    --danger-fg: #121417;
   }
 }
 
@@ -199,6 +201,103 @@ h1 {
 .pill-info:hover,
 .pill-info:focus-visible {
   color: var(--fg);
+}
+
+/* The local board's row: run buttons first, at a fixed left edge, so they never move when the
+   status text changes length; Shut down last, far right, away from them. */
+.local-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+.local-bar .pill { margin: 0; }
+.local-runs {
+  display: flex;
+  gap: 6px;
+}
+.pill-running .pill-dot,
+.pill-off .pill-dot { background: var(--faint); }
+.pill-off { color: var(--muted); }
+@media (prefers-reduced-motion: no-preference) {
+  .pill-running .pill-dot { animation: pill-pulse 1.2s ease-in-out infinite; }
+}
+@keyframes pill-pulse {
+  50% { opacity: 0.3; }
+}
+.local-btn {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--row);
+  color: var(--fg);
+  font-size: 0.85rem;
+  text-align: center;
+  cursor: pointer;
+}
+.local-btn:hover:not(:disabled) { border-color: var(--muted); }
+.local-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.local-btn:disabled {
+  color: var(--muted);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+/* Each slot is as wide as its longest label (Stopping…, Auto-refresh), so a label swap
+   never changes the width. */
+.local-btn-refresh { width: 6.75em; }
+.local-btn-auto { width: 8.5em; }
+.local-btn-danger { color: var(--red); }
+.local-btn-danger:hover:not(:disabled) { border-color: var(--red); }
+.local-shutdown { margin-left: auto; }
+.pill-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Shut down's confirmation. */
+.confirm {
+  width: min(400px, calc(100vw - 32px));
+  padding: 20px 20px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--row);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+}
+.confirm::backdrop { background: var(--scrim); }
+.confirm h2 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.confirm p {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.confirm code {
+  color: var(--fg);
+  font-size: 0.85em;
+}
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.local-btn-danger-fill {
+  border-color: var(--red);
+  background: var(--red);
+  color: var(--danger-fg);
+  font-weight: 600;
+}
+.local-btn-danger-fill:hover:not(:disabled) {
+  border-color: var(--red);
+  filter: brightness(1.08);
 }
 
 button {

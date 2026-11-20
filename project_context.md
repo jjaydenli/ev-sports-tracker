@@ -79,7 +79,7 @@ Default: all leagues (NBA, MLB, WNBA). Filter with `--mlb` / `--nba` / `--wnba` 
 
 ```text
 ev-sports-tracker/
-├── scripts/                            # check_arch_sync.sh
+├── scripts/                            # check_arch_sync.sh; local-board.sh (root package.json `npm run dev`: uvicorn web.local_board + next dev, BOARD_LOCAL=1)
 ├── docs/design/                        # architecture decision records
 ├── .github/workflows/                  # ci.yml; live-board.yml (4x/day scrape → web.publish)
 ├── frontend/                           # Next.js live board (app/, components/, lib/{board-fields,books,market-words}.json, lib/{filters,search,keys}.ts, lib/*.test.ts via Vitest, public/books/)
@@ -99,12 +99,12 @@ ev-sports-tracker/
     │   ├── ev_pipeline.py, ev_display.py  # ranked JSON + console table (column registry, EV% tiers, Stack/dim/ms-grey), ev_run_diff.py
     │   ├── pipeline_scrape.py, pipeline_artifacts.py, scrape_result.py
     │   ├── pipeline_timing.py, pipeline_runner.py  # exclusive processed-dir lock
-    ├── web/                            # app (board API), models, store (board_runs), publish (scrape-job poster)
+    ├── web/                            # app (board API), models, store (board_runs; FileBoardStore + last-good snapshot), publish (scrape-job poster), local_board (local-only app: disk board, page-started ./ev or ./loop, stop, shutdown)
     ├── archive/dabble/
-    ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev
+    ├── data/raw|processed/             # gitignored; .pipeline_run.lock for single-writer ./ev; processed/last_good_board/ (local board)
     └── tests/                          # fixtures, integration, unit
 ```
 
-**EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set). Live board: scheduled `./ev --top-n all --books dk,fd` (espn off while Cloudflare blocks it) → `web.publish` (board only on exit 0 + same `run_id` + ≥1 row) → `POST /api/runs` → `board_runs` → `GET /api/board` → page.
+**EV data flow:** `./ev` (exclusive lock on `data/processed`) → per-league scrape (betr; dk, fd, espn) → `normalize.py` (`unified_master_board.json`) → `ev_pipeline.py` (`ev_opportunities.json`, diffs, coverage) → match-context filter → sharp resolve → consensus → ranked JSON + colored console table (`ev_display.py`). `./loop` re-runs `./ev` (no default `--min-ev`), reprints the table with new-row highlight; toasts only for new `plus_ev` rows (and `ev >=` threshold when `--min-ev` is set). Live board: scheduled `./ev --top-n all --books dk,fd` (espn off while Cloudflare blocks it) → `web.publish` (board only on exit 0 + same `run_id` + ≥1 row) → `POST /api/runs` → `board_runs` → `GET /api/board` → page. Local board: same page over `data/processed` via `web.local_board` (never mounted by `create_app`); Refresh/Auto-refresh spawn `./ev`/`./loop --top-n all`, each its own Stop; `./ev` copies each board with rows to `last_good_board/` before it unlocks, which the local API reads mid-run, so every Auto-refresh run reaches the page and the last good board survives a wipe or a failed run.
 
 **Console table vocabulary** (`ev_display.py`): raw `adjustment_method` never renders. `Src` collapses to a real quote (`exact`, `exact·N` = N books corroborating) or an inferred one (`ms◆` one-sided milestone, `adj` line adjusted off the ladder), unknown → `?`. `Stat` renders `MARKET_ABBREV` (betting notation, keyed on canonical markets); `Side` renders `▲`/`▼` (`O/U` for an exact coin flip). A column registry owns order, headers, widths and per-column style roles. `Stack` marks every row of a same-team cluster with ≥2 distinct players; a per-player dim marks non-best rows, with one bright row kept per trust tier (exact and milestone independently). Milestone rows grey their Hit%/EV%/Src. Book identity and main-vs-alt stay in `board.json`'s `sharp_by_book`, not the terminal.

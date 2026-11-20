@@ -5,6 +5,7 @@ from __future__ import annotations
 import fcntl
 import json
 import os
+import shutil
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -18,6 +19,8 @@ from core.ev_run_diff import EV_DIFF_FILENAME, EV_PREVIOUS_FILENAME
 
 SCRAPE_COVERAGE_FILENAME = "scrape_coverage.json"
 PIPELINE_RUN_LOCK_FILENAME = ".pipeline_run.lock"
+# The local board's copy of its newest ok run's coverage and EV board. No run wipes it.
+LAST_GOOD_BOARD_DIRNAME = "last_good_board"
 
 EV_OUTPUT_FILENAME = "ev_opportunities.json"
 MATCH_REPORT_FILENAME = "match_report.json"
@@ -145,6 +148,41 @@ def pipeline_run_lock(data_dir: Path) -> Iterator[None]:
             yield
         finally:
             fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+
+
+def save_last_good_board(data_dir: Path) -> None:
+    """Copy a run's coverage and EV board into ``last_good_board/``.
+
+    ``./ev`` calls this for a board with rows, before it releases the lock. The next
+    ``./ev`` wipes both files as soon as it takes the lock, and ``./loop`` starts it at
+    once, so the copy is the only place the local board can read each run's board. Each
+    file lands whole (copy, then rename) because the local board reads it mid-run.
+    """
+    data_dir = Path(data_dir)
+    saved_dir = data_dir / LAST_GOOD_BOARD_DIRNAME
+    saved_dir.mkdir(exist_ok=True)
+    for name in (SCRAPE_COVERAGE_FILENAME, EV_OUTPUT_FILENAME):
+        partial = saved_dir / f"{name}.partial"
+        shutil.copyfile(data_dir / name, partial)
+        os.replace(partial, saved_dir / name)
+
+
+def pipeline_run_in_progress(data_dir: Path) -> bool:
+    """True while some ``./ev`` holds :func:`pipeline_run_lock` on ``data_dir``.
+
+    Probes with a shared, non-blocking ``flock`` and releases it at once: a held
+    exclusive lock refuses it, while concurrent probes never refuse each other.
+    """
+    lock_path = Path(data_dir) / PIPELINE_RUN_LOCK_FILENAME
+    if not lock_path.exists():
+        return False
+    with lock_path.open("a+", encoding="utf-8") as lock_file:
+        try:
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_SH | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+    return False
 
 
 def load_wrapped_board(path: Path) -> tuple[str | None, list[dict]]:

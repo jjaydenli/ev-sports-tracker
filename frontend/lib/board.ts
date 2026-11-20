@@ -54,16 +54,28 @@ export type TeamNames = Record<string, Record<string, string[]>>;
 export const REVALIDATE_SECONDS = 300;
 
 /**
+ * True when the page is the local board: `npm run dev` at the repo root sets `BOARD_LOCAL=1`.
+ * Server-side only (no `NEXT_PUBLIC_` prefix), so the live board's bundle never reads it.
+ */
+export function isLocalBoard(): boolean {
+  return process.env.BOARD_LOCAL === "1";
+}
+
+/**
  * Fetch the whole board. Throws on any failure: under ISR a thrown render keeps serving
- * the last good page, where a rendered error state would be cached in its place.
+ * the last good page, where a rendered error state would be cached in its place. The local
+ * board never caches, so a finished run shows on the next render.
  */
 export async function fetchBoard(): Promise<BoardResponse> {
   const apiUrl = process.env.BOARD_API_URL;
   if (!apiUrl) {
-    throw new Error("BOARD_API_URL is not set");
+    throw new Error(
+      "BOARD_API_URL is not set. For the local board, run `npm run dev` at the repo root; " +
+        "to read another board API, set BOARD_API_URL to its URL.",
+    );
   }
   const response = await fetch(`${apiUrl.replace(/\/+$/, "")}/api/board`, {
-    next: { revalidate: REVALIDATE_SECONDS },
+    next: { revalidate: isLocalBoard() ? 0 : REVALIDATE_SECONDS },
   });
   if (!response.ok) {
     throw new Error(`board API returned HTTP ${response.status}`);
@@ -345,13 +357,20 @@ export function oneSidedCaveat(row: BoardRow): string | null {
 
 const TIME_ZONE = "America/Los_Angeles";
 
-export function formatPacificTime(iso: string): string {
+/**
+ * `seconds` is for the local board, where back-to-back runs can land in the same minute.
+ * `date: false` drops the day for a time minutes away (when an auto-refresh stops).
+ */
+export function formatPacificTime(
+  iso: string,
+  { seconds = false, date = true }: { seconds?: boolean; date?: boolean } = {},
+): string {
   const text = new Intl.DateTimeFormat("en-US", {
     timeZone: TIME_ZONE,
-    month: "short",
-    day: "numeric",
+    ...(date && { month: "short", day: "numeric" }),
     hour: "numeric",
     minute: "2-digit",
+    ...(seconds && { second: "2-digit" }),
   }).format(new Date(iso));
   return `${text} PT`;
 }

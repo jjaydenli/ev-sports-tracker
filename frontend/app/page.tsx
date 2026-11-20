@@ -1,7 +1,7 @@
 import { BoardTable } from "@/components/BoardTable";
 import { StatusPill } from "@/components/StatusPill";
 import { TipLayer } from "@/components/Tip";
-import { SITE_NAME, SOURCE_URL, fetchBoard } from "@/lib/board";
+import { SITE_NAME, SOURCE_URL, fetchBoard, isLocalBoard } from "@/lib/board";
 
 // ISR: visitors get the cached page; only the background revalidation waits on the API.
 // Next reads this segment config statically, so it cannot import REVALIDATE_SECONDS
@@ -30,7 +30,7 @@ export default async function Page() {
           Each Betr pick&apos;em prop&apos;s fair hit chance from sportsbook no-vig odds, against
           Betr&apos;s breakeven. Select a row for the breakdown.
         </p>
-        <StatusPill run={latestRun} board={board} />
+        <StatusPill run={latestRun} board={board} local={isLocalBoard()} />
       </header>
       {board ? (
         <BoardTable rows={board.props} teamNames={teamNames} />

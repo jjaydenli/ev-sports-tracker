@@ -99,6 +99,24 @@ Runs all configured leagues (NBA, MLB, WNBA): parallel scrape → normalize → 
 
 Platform-specific API notes: [`docs/betting_odds/`](docs/betting_odds/)
 
+## Run the board locally
+
+```bash
+npm --prefix frontend ci   # once
+npm run dev                # from the repo root
+```
+
+Beyond [Setup](#setup), it needs no other configuration: it starts its own board API over this checkout's runs, so no URL or hosted service is involved. Refresh and Auto-refresh run a real scrape, so they need the Betr credentials from Setup.
+
+Serves the same board page at `http://localhost:3000` over this checkout's runs, with run controls in the status pill:
+
+- **Refresh** runs `./ev --top-n all` once. Terminal runs need `--top-n all` too for the full board.
+- **Auto-refresh** runs `./loop --top-n all` for about five minutes (the pill shows the stop time), and the page reloads after each run.
+- **Stop** (the button that started the run) ends a run the page started. A run stopped mid-scrape writes nothing, and the last good board stays up.
+- **Shut down** stops both servers and any page-started run, as Ctrl-C does in the terminal.
+
+To work on the page against another board API instead, run `npm run dev` inside `frontend/` with `BOARD_API_URL` set to that API: `cp frontend/.env.example frontend/.env.local` and fill it in. That page has no run controls, as on the live board.
+
 ## Repository layout
 
 ```

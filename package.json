@@ -1,0 +1,8 @@
+{
+  "name": "ev-local-board",
+  "private": true,
+  "description": "npm run dev serves the board page over local ./ev runs.",
+  "scripts": {
+    "dev": "scripts/local-board.sh"
+  }
+}

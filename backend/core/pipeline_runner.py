@@ -34,6 +34,7 @@ from core.pipeline_artifacts import (
     format_coverage_summary,
     load_wrapped_board,
     pipeline_run_lock,
+    save_last_good_board,
     wipe_files,
     write_scrape_coverage,
 )
@@ -482,6 +483,8 @@ def run_refresh(
             f"top={len(opportunities)} plus_ev={plus_ev_count} "
             f"(min_ev={min_ev}, top_n={top_n}) run_id={run_id}"
         )
+        if opportunities and not skip_scrape:
+            save_last_good_board(data_path)
         return 0
     finally:
         timer.log_summary()

@@ -10,7 +10,13 @@ from core.ev_pipeline import (
     FD_NORMALIZED,
     load_comparison_inputs,
 )
-from core.pipeline_artifacts import load_wrapped_board, save_wrapped_board
+from core.pipeline_artifacts import (
+    EV_OUTPUT_FILENAME,
+    LAST_GOOD_BOARD_DIRNAME,
+    SCRAPE_COVERAGE_FILENAME,
+    load_wrapped_board,
+    save_wrapped_board,
+)
 from core.pipeline_runner import (
     build_parser,
     merge_leagues_from_args,
@@ -532,3 +538,46 @@ def test_run_refresh_betr_auth_failure_keeps_prior_board(
         entry = coverage["sources"][f"betr:{league}"]
         assert (entry["status"], entry["reason"]) == ("failed", "auth")
         assert entry["error"]
+
+
+def _matched_nba(source: str, league: str, **_kwargs) -> ScrapeResult:
+    """One Betr prop and one DraftKings prop on the same NBA player and game: one EV row."""
+    if league != "NBA" or source not in {"betr", "dk"}:
+        return _no_events(source, league)
+    result = _ok_result(source, league, 1)
+    for prop in result.props:
+        prop["player"] = "Same Player"
+        prop["event_start"] = "2026-11-20T00:10:00+00:00"
+    return result
+
+
+@patch("core.pipeline_runner.scrape_source_league", new_callable=AsyncMock)
+@patch("core.pipeline_runner._preflight_betr_auth")
+def test_run_refresh_saves_a_board_with_rows_and_keeps_it_through_an_empty_run(
+    mock_preflight, mock_scrape, tmp_path
+):
+    """The local board reads this copy while the next ./ev holds the lock (./loop runs
+    them back to back), so ./ev writes it, and only for a board with rows."""
+    from core.pipeline_runner import run_refresh
+
+    saved = tmp_path / LAST_GOOD_BOARD_DIRNAME
+    names = (SCRAPE_COVERAGE_FILENAME, EV_OUTPUT_FILENAME)
+
+    async def matched(source: str, league: str, **kwargs) -> ScrapeResult:
+        return _matched_nba(source, league, **kwargs)
+
+    mock_scrape.side_effect = matched
+    assert run_refresh(data_dir=tmp_path, top_n=None) == 0
+    first_run_id, rows = load_wrapped_board(tmp_path / EV_OUTPUT_FILENAME)
+    assert len(rows) == 1
+    first = {name: (tmp_path / name).read_bytes() for name in names}
+    assert {name: (saved / name).read_bytes() for name in names} == first
+
+    async def unmatched(source: str, league: str, **_kwargs) -> ScrapeResult:
+        return _ok_result(source, league, 1) if league == "NBA" else _no_events(source, league)
+
+    mock_scrape.side_effect = unmatched
+    assert run_refresh(data_dir=tmp_path, top_n=None) == 0
+    second_run_id, rows = load_wrapped_board(tmp_path / EV_OUTPUT_FILENAME)
+    assert rows == [] and second_run_id != first_run_id
+    assert {name: (saved / name).read_bytes() for name in names} == first

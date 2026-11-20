@@ -153,14 +153,18 @@ def pipeline_run_lock(data_dir: Path) -> Iterator[None]:
 def save_last_good_board(data_dir: Path) -> None:
     """Copy a run's coverage and EV board into ``last_good_board/``.
 
-    ``./ev`` wipes both before it scrapes; the copy is what the local board serves through
-    that wipe and after a restart.
+    ``./ev`` calls this for a board with rows, before it releases the lock. The next
+    ``./ev`` wipes both files as soon as it takes the lock, and ``./loop`` starts it at
+    once, so the copy is the only place the local board can read each run's board. Each
+    file lands whole (copy, then rename) because the local board reads it mid-run.
     """
     data_dir = Path(data_dir)
     saved_dir = data_dir / LAST_GOOD_BOARD_DIRNAME
     saved_dir.mkdir(exist_ok=True)
     for name in (SCRAPE_COVERAGE_FILENAME, EV_OUTPUT_FILENAME):
-        shutil.copyfile(data_dir / name, saved_dir / name)
+        partial = saved_dir / f"{name}.partial"
+        shutil.copyfile(data_dir / name, partial)
+        os.replace(partial, saved_dir / name)
 
 
 def pipeline_run_in_progress(data_dir: Path) -> bool:

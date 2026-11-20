@@ -14,7 +14,6 @@ from psycopg.types.json import Jsonb
 from core.pipeline_artifacts import (
     LAST_GOOD_BOARD_DIRNAME,
     pipeline_run_in_progress,
-    save_last_good_board,
 )
 from web.models import RunOutcome
 from web.publish import build_run_payload
@@ -80,9 +79,11 @@ class FileBoardStore:
     reads skip the disk and serve those memories: the same last good board the cloud
     keeps. A directory with no coverage file contributes no run.
 
-    ``./ev`` wipes the disk before it scrapes, so a run stopped mid-scrape leaves no board.
-    Each new ``ok`` run's two inputs are therefore copied into ``last_good_board/``, and a
-    store with no board in memory (a restart) classifies that copy the same way.
+    ``./ev`` wipes the disk as soon as it takes the lock, and ``./loop`` starts the next
+    ``./ev`` at once, so a read can miss a finished run entirely. ``./ev`` therefore copies
+    each board with rows into ``last_good_board/`` before it releases the lock
+    (``save_last_good_board``); a read during a run, or with no board in memory (a
+    restart), classifies that copy the same way.
     """
 
     def __init__(self, data_dir: Path) -> None:
@@ -114,20 +115,22 @@ class FileBoardStore:
         )
 
     def _refresh(self) -> None:
-        if self._last_board is None:
+        locked = pipeline_run_in_progress(self._data_dir)
+        if locked or self._last_board is None:
             saved = self._read(self._saved_dir)
-            if saved is not None and saved.outcome == "ok":
+            if saved is not None and saved.outcome == "ok" and (
+                self._last_board is None or self._last_board.run_id != saved.run_id
+            ):
                 self._last_board = saved
-                self._last_run = self._last_run or saved
-        if pipeline_run_in_progress(self._data_dir):
+                if self._last_run is None or self._last_run.generated_at < saved.generated_at:
+                    self._last_run = saved
+        if locked:
             return
         run = self._read(self._data_dir)
         if run is None:
             return
         self._last_run = run
         if run.outcome == "ok":
-            if self._last_board is None or self._last_board.run_id != run.run_id:
-                save_last_good_board(self._data_dir)
             self._last_board = run
 
     def latest_run(self) -> StoredRun | None:

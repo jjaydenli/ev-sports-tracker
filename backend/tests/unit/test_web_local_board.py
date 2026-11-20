@@ -26,6 +26,7 @@ from core.pipeline_artifacts import (
     SCRAPE_COVERAGE_FILENAME,
     pipeline_run_in_progress,
     pipeline_run_lock,
+    save_last_good_board,
 )
 from tests.unit.test_web_publish import (
     _AUTH_FAILURE,
@@ -110,8 +111,10 @@ def _running(client: TestClient) -> bool:
 
 
 def _write_ok_run(data_dir: Path, run_id: str, rows: list[dict]) -> None:
+    """What an ``ok`` ``./ev`` leaves: coverage, the board, and the board's saved copy."""
     _write_coverage(data_dir, run_id, _HEALTHY_SOURCES)
     _write_board(data_dir, run_id, rows)
+    save_last_good_board(data_dir)
 
 
 def test_lock_probe_sees_a_held_lock_and_a_free_one(tmp_path: Path) -> None:
@@ -186,6 +189,24 @@ def _wipe(data_dir: Path) -> None:
     """What ``./ev`` does before it scrapes, so a run stopped mid-scrape leaves this."""
     (data_dir / EV_OUTPUT_FILENAME).unlink()
     (data_dir / SCRAPE_COVERAGE_FILENAME).unlink()
+
+
+def test_back_to_back_runs_each_show_their_board(
+    tmp_path: Path, board_client: TestClient, s1_ev_rows: list[dict]
+) -> None:
+    """``./loop`` starts the next ``./ev`` as soon as one exits, so no poll sees the lock
+    free between runs; each run's board must reach the page anyway."""
+    _write_ok_run(tmp_path, "run-1", s1_ev_rows)
+    assert _status(board_client)["board_run_id"] == "run-1"
+    with pipeline_run_lock(tmp_path):
+        _wipe(tmp_path)
+        _write_ok_run(tmp_path, "run-2", s1_ev_rows[:1])
+        _wipe(tmp_path)  # run 3 has started
+        status = _status(board_client)
+        body = board_client.get("/api/board").json()
+    assert status["board_run_id"] == "run-2"
+    assert body["board"]["props"] == s1_ev_rows[:1]
+    assert body["latest_run"]["run_id"] == "run-2"
 
 
 def test_restart_after_a_stopped_run_serves_the_last_good_board(

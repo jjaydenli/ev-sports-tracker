@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import shutil
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -13,10 +12,9 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 
 from core.pipeline_artifacts import (
-    EV_OUTPUT_FILENAME,
     LAST_GOOD_BOARD_DIRNAME,
-    SCRAPE_COVERAGE_FILENAME,
     pipeline_run_in_progress,
+    save_last_good_board,
 )
 from web.models import RunOutcome
 from web.publish import build_run_payload
@@ -115,11 +113,6 @@ class FileBoardStore:
             props=board["props"] if board is not None else None,
         )
 
-    def _save(self) -> None:
-        self._saved_dir.mkdir(exist_ok=True)
-        for name in (SCRAPE_COVERAGE_FILENAME, EV_OUTPUT_FILENAME):
-            shutil.copyfile(self._data_dir / name, self._saved_dir / name)
-
     def _refresh(self) -> None:
         if self._last_board is None:
             saved = self._read(self._saved_dir)
@@ -134,7 +127,7 @@ class FileBoardStore:
         self._last_run = run
         if run.outcome == "ok":
             if self._last_board is None or self._last_board.run_id != run.run_id:
-                self._save()
+                save_last_good_board(self._data_dir)
             self._last_board = run
 
     def latest_run(self) -> StoredRun | None:

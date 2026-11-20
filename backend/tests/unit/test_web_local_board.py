@@ -4,7 +4,8 @@ Oracle: the rows and ``run_id``s each test writes with the pipeline's own
 ``write_scrape_coverage``/``save_wrapped_board`` (via the ``test_web_publish`` helpers),
 the lock the test itself holds, and the local board's rules: serve the disk, keep the
 last good board while a run holds the lock, and start at most one run at a time. Every test goes
-through FastAPI's ``TestClient``; spawning ``./ev`` is the one mocked process boundary.
+through FastAPI's ``TestClient``. Spawning and stopping a run, and signalling the server's own
+process group, are the mocked process boundaries.
 """
 
 from __future__ import annotations
@@ -40,19 +41,40 @@ from web.store import FileBoardStore, InMemoryBoardStore
 @dataclass
 class _FakeChild:
     exit_code: int | None  # ``None``: still running, as ``Popen.poll()`` reports it
+    stopped: bool = False
 
     def poll(self) -> int | None:
         return self.exit_code
+
+    def stop(self) -> None:
+        self.stopped = True
+        self.exit_code = -15
 
 
 @dataclass
 class _FakeSpawn:
     child_exit_code: int | None = 0
     calls: list[list[str]] = field(default_factory=list)
+    children: list[_FakeChild] = field(default_factory=list)
 
-    def __call__(self, args: list[str]) -> _FakeChild:
-        self.calls.append(args)
-        return _FakeChild(self.child_exit_code)
+    def __call__(self, argv: list[str]) -> _FakeChild:
+        self.calls.append(argv)
+        self.children.append(_FakeChild(self.child_exit_code))
+        return self.children[-1]
+
+
+@dataclass
+class _FakeShutdown:
+    calls: int = 0
+
+    def __call__(self) -> None:
+        self.calls += 1
+
+
+# The commands Decisions 9 and 13 name, written out rather than read from the module.
+_REFRESH = ["./ev", "--top-n", "all"]
+_LOOP = ["./loop", "--top-n", "all"]
+_ROUTE = {"refresh": "/api/local/run", "loop": "/api/local/loop"}
 
 
 @pytest.fixture
@@ -61,15 +83,28 @@ def spawn() -> _FakeSpawn:
 
 
 @pytest.fixture
-def board_client(tmp_path: Path, spawn: _FakeSpawn) -> Iterator[TestClient]:
-    with TestClient(create_local_app(tmp_path, spawn=spawn)) as client:
+def shutdown() -> _FakeShutdown:
+    return _FakeShutdown()
+
+
+@pytest.fixture
+def board_client(
+    tmp_path: Path, spawn: _FakeSpawn, shutdown: _FakeShutdown
+) -> Iterator[TestClient]:
+    app = create_local_app(tmp_path, spawn=spawn, shutdown=shutdown)
+    with TestClient(app) as client:
         yield client
 
 
-def _running(client: TestClient) -> bool:
+def _status(client: TestClient) -> dict:
     response = client.get("/api/local/run")
     assert response.status_code == 200
-    running: bool = response.json()["running"]
+    body: dict = response.json()
+    return body
+
+
+def _running(client: TestClient) -> bool:
+    running: bool = _status(client)["running"]
     return running
 
 
@@ -239,7 +274,7 @@ def test_run_button_starts_one_full_board_run(
     response = board_client.post("/api/local/run")
     assert response.status_code == 202
     assert response.json() == {"running": True}
-    assert spawn.calls == [["--top-n", "all"]]
+    assert spawn.calls == [_REFRESH]
     # The fake child has already exited and no lock is held: idle again.
     assert _running(board_client) is False
 
@@ -262,4 +297,94 @@ def test_run_button_refused_while_its_child_starts_up(
     assert board_client.post("/api/local/run").status_code == 202
     assert _running(board_client) is True
     assert board_client.post("/api/local/run").status_code == 409
-    assert spawn.calls == [["--top-n", "all"]]
+    assert spawn.calls == [_REFRESH]
+
+
+def test_loop_button_starts_one_loop(board_client: TestClient, spawn: _FakeSpawn) -> None:
+    response = board_client.post("/api/local/loop")
+    assert response.status_code == 202
+    assert response.json() == {"running": True}
+    assert spawn.calls == [_LOOP]
+
+
+def test_loop_button_refused_while_a_terminal_run_holds_the_lock(
+    tmp_path: Path, board_client: TestClient, spawn: _FakeSpawn
+) -> None:
+    with pipeline_run_lock(tmp_path):
+        assert board_client.post("/api/local/loop").status_code == 409
+    assert spawn.calls == []
+
+
+@pytest.mark.parametrize(
+    ("first", "second"),
+    [("refresh", "loop"), ("loop", "refresh"), ("loop", "loop")],
+)
+def test_page_runs_never_overlap(
+    board_client: TestClient, spawn: _FakeSpawn, first: str, second: str
+) -> None:
+    spawn.child_exit_code = None
+    assert board_client.post(_ROUTE[first]).status_code == 202
+    assert board_client.post(_ROUTE[second]).status_code == 409
+    assert len(spawn.calls) == 1
+
+
+def test_stop_ends_a_running_loop(board_client: TestClient, spawn: _FakeSpawn) -> None:
+    spawn.child_exit_code = None
+    board_client.post("/api/local/loop")
+    assert _status(board_client)["looping"] is True
+
+    response = board_client.post("/api/local/stop")
+    assert response.status_code == 200
+    assert spawn.children[0].stopped is True
+    status = _status(board_client)
+    assert status["running"] is False
+    assert status["looping"] is False
+
+
+def test_stop_refuses_a_refresh_run(board_client: TestClient, spawn: _FakeSpawn) -> None:
+    """A single run ends in under 30 s and is not stoppable (Decision 16)."""
+    spawn.child_exit_code = None
+    board_client.post("/api/local/run")
+    assert _status(board_client)["looping"] is False
+
+    assert board_client.post("/api/local/stop").status_code == 409
+    assert spawn.children[0].stopped is False
+    assert _running(board_client) is True
+
+
+def test_stop_refused_with_nothing_running(board_client: TestClient) -> None:
+    assert board_client.post("/api/local/stop").status_code == 409
+
+
+def test_status_names_the_board_on_disk(
+    tmp_path: Path, board_client: TestClient, s1_ev_rows: list[dict]
+) -> None:
+    assert _status(board_client)["board_run_id"] is None
+    _write_ok_run(tmp_path, "run-1", s1_ev_rows)
+    assert _status(board_client)["board_run_id"] == "run-1"
+    # A loop's next run lands: the page reloads on this change.
+    _write_ok_run(tmp_path, "run-2", s1_ev_rows[:1])
+    assert _status(board_client)["board_run_id"] == "run-2"
+
+
+def test_server_shutdown_ends_a_page_started_run(
+    tmp_path: Path, spawn: _FakeSpawn, shutdown: _FakeShutdown
+) -> None:
+    """Ctrl-C reaches uvicorn, whose shutdown ends the child (Decision 15)."""
+    spawn.child_exit_code = None
+    with TestClient(create_local_app(tmp_path, spawn=spawn, shutdown=shutdown)) as client:
+        client.post("/api/local/loop")
+        assert spawn.children[0].stopped is False
+    assert spawn.children[0].stopped is True
+    assert shutdown.calls == 0
+
+
+def test_shut_down_button_ends_the_run_then_the_servers(
+    board_client: TestClient, spawn: _FakeSpawn, shutdown: _FakeShutdown
+) -> None:
+    spawn.child_exit_code = None
+    board_client.post("/api/local/run")
+    response = board_client.post("/api/local/shutdown")
+    assert response.status_code == 202
+    assert spawn.children[0].stopped is True
+    assert shutdown.calls == 1

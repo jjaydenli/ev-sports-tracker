@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { POST as loopPOST } from "../loop/route";
+import { POST as shutdownPOST } from "../shutdown/route";
+import { POST as stopPOST } from "../stop/route";
 import { POST } from "./route";
 
 const TUNNEL = "abc123-3000.usw2.devtunnels.ms";
@@ -47,5 +50,17 @@ describe("POST /api/local/run origin check", () => {
     expect(upstream).toHaveBeenCalledOnce();
     expect(upstream.mock.calls[0]?.[0]).toBe("http://127.0.0.1:8000/api/local/run");
     expect(upstream.mock.calls[0]?.[1]?.method).toBe("POST");
+  });
+
+  // Paths from the local API's routes (backend web/local_board.py), not from the handlers.
+  it.each([
+    ["Refresh", POST, "/api/local/run"],
+    ["Auto-refresh", loopPOST, "/api/local/loop"],
+    ["Stop", stopPOST, "/api/local/stop"],
+    ["Shut down", shutdownPOST, "/api/local/shutdown"],
+  ])("%s forwards to its own local API path", async (_name, handler, path) => {
+    const res = await handler(post({ origin: "http://localhost:3000", host: "localhost:3000" }));
+    expect(res.status).toBe(202);
+    expect(upstream.mock.calls[0]?.[0]).toBe(`http://127.0.0.1:8000${path}`);
   });
 });

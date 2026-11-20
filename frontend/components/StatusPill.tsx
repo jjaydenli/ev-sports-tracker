@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { LOCAL_TIP, LocalRunControls, runningPillState, useLocalRun } from "@/components/LocalRunControls";
+import { LOCAL_TIP, LocalBar, localPillState, useLocalRun } from "@/components/LocalRunControls";
 import {
   type Board,
   type LatestRun,
@@ -10,7 +10,7 @@ import {
   sourceBookName,
 } from "@/lib/board";
 
-type Tone = "green" | "amber" | "red" | "running";
+type Tone = "green" | "amber" | "red" | "running" | "off";
 
 const STALE_AFTER_MS = 18 * 60 * 60 * 1000;
 
@@ -82,8 +82,8 @@ export function pillState(
 /**
  * Client component so the relative age stays current inside cached HTML. The server
  * render (and the first client render, to match it) shows the absolute time only. `local`
- * (the page's `isLocalBoard()`) adds the run controls and seconds; the live board has
- * neither and never polls.
+ * (the page's `isLocalBoard()`) puts the pill in the local board's row of run controls and
+ * adds seconds; the live board has neither and never polls.
  */
 export function StatusPill({
   run,
@@ -102,14 +102,12 @@ export function StatusPill({
   }, []);
 
   const local = useLocalRun(isLocal);
-  const { tone, text } = local?.running
-    ? runningPillState(board)
-    : pillState(run, board, nowMs, isLocal);
-  return (
+  const { tone, text } =
+    (local && localPillState(local, board, Date.now())) ?? pillState(run, board, nowMs, isLocal);
+  const pill = (
     <p className={`pill pill-${tone}`} role="status">
       <span className="pill-dot" aria-hidden="true" />
       {text}
-      {local && <LocalRunControls local={local} />}
       <button
         type="button"
         className="pill-info"
@@ -124,4 +122,5 @@ export function StatusPill({
       </button>
     </p>
   );
+  return local ? <LocalBar local={local}>{pill}</LocalBar> : pill;
 }

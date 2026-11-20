@@ -1,9 +1,9 @@
 """The local board: the board API served from this machine.
 
 The cloud app's routes over :class:`~web.store.FileBoardStore`, plus the page's run
-controls: Refresh (one ``./ev``), Loop (``./loop``), Stop (ends a loop) and Shut down (ends
-any run, then both servers, as Ctrl-C does). Started by ``npm run dev`` at the repo root
-(``scripts/local-board.sh``), from ``backend``::
+controls: Refresh (one ``./ev``), Auto-refresh (``./loop``), Stop (ends either) and Shut
+down (ends any run, then both servers, as Ctrl-C does). Started by ``npm run dev`` at the
+repo root (``scripts/local-board.sh``), from ``backend``::
 
     uvicorn web.local_board:app --host 127.0.0.1 --port 8000
 """
@@ -16,6 +16,7 @@ import subprocess
 import threading
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -28,11 +29,15 @@ from web.store import FileBoardStore
 
 _BACKEND_DIR = Path(__file__).resolve().parents[1]
 _REPO_ROOT = _BACKEND_DIR.parent
-# What each run button starts, relative to the repo root. A loop brings ./loop's own
-# wall-clock cap and desktop toasts; the API passes it nothing else.
+# How long a page-started auto-refresh runs. Passed to ./loop rather than left to its
+# default, so the stop time the page shows is the one ./loop enforces. ./loop checks it
+# between runs, so a run going at the deadline still finishes.
+LOOP_SECONDS = 300
+# What each run button starts, relative to the repo root. A loop brings ./loop's desktop
+# toasts.
 RUN_COMMANDS: dict[str, list[str]] = {
     "refresh": ["./ev", "--top-n", "all"],
-    "loop": ["./loop", "--top-n", "all"],
+    "loop": ["./loop", "--timeout", str(LOOP_SECONDS), "--top-n", "all"],
 }
 RUN_LOG_FILENAME = "local_run.log"
 _STOP_GRACE_SECONDS = 5
@@ -107,6 +112,7 @@ def create_local_app(
     guard = threading.Lock()
     child: ChildProcess | None = None  # the child this app last spawned
     child_kind: str | None = None
+    loop_ends_at: datetime | None = None
 
     def child_alive() -> bool:
         return child is not None and child.poll() is None
@@ -121,12 +127,14 @@ def create_local_app(
         return child_kind == "loop" and child_alive()
 
     def begin(kind: str) -> dict[str, bool]:
-        nonlocal child, child_kind
+        nonlocal child, child_kind, loop_ends_at
         with guard:
             if running():
                 raise HTTPException(status_code=409, detail="a run is already going")
+            started = datetime.now(UTC)
             child = start(list(RUN_COMMANDS[kind]))
             child_kind = kind
+            loop_ends_at = started + timedelta(seconds=LOOP_SECONDS) if kind == "loop" else None
         return {"running": True}
 
     def end_child() -> None:
@@ -153,6 +161,8 @@ def create_local_app(
         return {
             "running": running(),
             "looping": looping(),
+            "stoppable": child_alive(),
+            "loop_ends_at": loop_ends_at.isoformat() if looping() and loop_ends_at else None,
             "board_run_id": board.run_id if board is not None else None,
         }
 
@@ -167,8 +177,8 @@ def create_local_app(
     @app.post("/api/local/stop")
     def post_local_stop() -> dict[str, bool]:
         with guard:
-            if not looping():
-                raise HTTPException(status_code=409, detail="no loop is running")
+            if not child_alive():
+                raise HTTPException(status_code=409, detail="no page-started run is going")
             assert child is not None
             child.stop()
         return {"running": running()}

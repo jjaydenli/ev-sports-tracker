@@ -19,6 +19,10 @@ describe("formatPacificTime", () => {
     expect(spaced(formatPacificTime(ISO, { seconds: true }))).toBe("Nov 19, 3:04:05 PM PT");
     expect(spaced(formatPacificTime(ISO, { seconds: false }))).toBe("Nov 19, 3:04 PM PT");
   });
+
+  it("drops the day only when asked", () => {
+    expect(spaced(formatPacificTime(ISO, { seconds: true, date: false }))).toBe("3:04:05 PM PT");
+  });
 });
 
 describe("fetchBoard cache window", () => {

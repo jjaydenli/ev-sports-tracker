@@ -13,7 +13,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -71,9 +71,10 @@ class _FakeShutdown:
         self.calls += 1
 
 
-# The commands Decisions 9 and 13 name, written out rather than read from the module.
+# The commands Decisions 9 and 13 name, written out rather than read from the module. The
+# loop's 300 s is the user's 5-minute cap, passed so the page can show when it stops.
 _REFRESH = ["./ev", "--top-n", "all"]
-_LOOP = ["./loop", "--top-n", "all"]
+_LOOP = ["./loop", "--timeout", "300", "--top-n", "all"]
 _ROUTE = {"refresh": "/api/local/run", "loop": "/api/local/loop"}
 
 
@@ -307,6 +308,25 @@ def test_loop_button_starts_one_loop(board_client: TestClient, spawn: _FakeSpawn
     assert spawn.calls == [_LOOP]
 
 
+def test_status_names_when_a_loop_stops(board_client: TestClient, spawn: _FakeSpawn) -> None:
+    """The stop time is 5 minutes after the click, and only while that loop runs."""
+    spawn.child_exit_code = None
+    before = datetime.now(UTC)
+    board_client.post("/api/local/loop")
+    after = datetime.now(UTC)
+    ends_at = datetime.fromisoformat(_status(board_client)["loop_ends_at"])
+    assert before + timedelta(minutes=5) <= ends_at <= after + timedelta(minutes=5)
+
+    board_client.post("/api/local/stop")
+    assert _status(board_client)["loop_ends_at"] is None
+
+
+def test_refresh_run_has_no_stop_time(board_client: TestClient, spawn: _FakeSpawn) -> None:
+    spawn.child_exit_code = None
+    board_client.post("/api/local/run")
+    assert _status(board_client)["loop_ends_at"] is None
+
+
 def test_loop_button_refused_while_a_terminal_run_holds_the_lock(
     tmp_path: Path, board_client: TestClient, spawn: _FakeSpawn
 ) -> None:
@@ -341,15 +361,26 @@ def test_stop_ends_a_running_loop(board_client: TestClient, spawn: _FakeSpawn) -
     assert status["looping"] is False
 
 
-def test_stop_refuses_a_refresh_run(board_client: TestClient, spawn: _FakeSpawn) -> None:
-    """A single run ends in under 30 s and is not stoppable (Decision 16)."""
+def test_stop_ends_a_refresh_run(board_client: TestClient, spawn: _FakeSpawn) -> None:
+    """Any run the page started can be stopped, a single Refresh included (user, 2026-11-19)."""
     spawn.child_exit_code = None
     board_client.post("/api/local/run")
-    assert _status(board_client)["looping"] is False
+    assert _status(board_client)["stoppable"] is True
 
-    assert board_client.post("/api/local/stop").status_code == 409
-    assert spawn.children[0].stopped is False
-    assert _running(board_client) is True
+    assert board_client.post("/api/local/stop").status_code == 200
+    assert spawn.children[0].stopped is True
+    status = _status(board_client)
+    assert status["running"] is False
+    assert status["stoppable"] is False
+
+
+def test_stop_refuses_a_terminal_run(
+    tmp_path: Path, board_client: TestClient, spawn: _FakeSpawn
+) -> None:
+    """The page can only stop what it started; a terminal ./ev holds the lock, not a child."""
+    with pipeline_run_lock(tmp_path):
+        assert _status(board_client)["stoppable"] is False
+        assert board_client.post("/api/local/stop").status_code == 409
 
 
 def test_stop_refused_with_nothing_running(board_client: TestClient) -> None:

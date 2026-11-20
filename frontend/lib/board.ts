@@ -354,12 +354,17 @@ export function oneSidedCaveat(row: BoardRow): string | null {
 
 const TIME_ZONE = "America/Los_Angeles";
 
-/** `seconds` is for the local board, where back-to-back runs can land in the same minute. */
-export function formatPacificTime(iso: string, { seconds = false }: { seconds?: boolean } = {}): string {
+/**
+ * `seconds` is for the local board, where back-to-back runs can land in the same minute.
+ * `date: false` drops the day for a time minutes away (when an auto-refresh stops).
+ */
+export function formatPacificTime(
+  iso: string,
+  { seconds = false, date = true }: { seconds?: boolean; date?: boolean } = {},
+): string {
   const text = new Intl.DateTimeFormat("en-US", {
     timeZone: TIME_ZONE,
-    month: "short",
-    day: "numeric",
+    ...(date && { month: "short", day: "numeric" }),
     hour: "numeric",
     minute: "2-digit",
     ...(seconds && { second: "2-digit" }),

@@ -69,7 +69,10 @@ export function isLocalBoard(): boolean {
 export async function fetchBoard(): Promise<BoardResponse> {
   const apiUrl = process.env.BOARD_API_URL;
   if (!apiUrl) {
-    throw new Error("BOARD_API_URL is not set");
+    throw new Error(
+      "BOARD_API_URL is not set. For the local board, run `npm run dev` at the repo root; " +
+        "to read another board API, set BOARD_API_URL to its URL.",
+    );
   }
   const response = await fetch(`${apiUrl.replace(/\/+$/, "")}/api/board`, {
     next: { revalidate: isLocalBoard() ? 0 : REVALIDATE_SECONDS },

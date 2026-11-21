@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <title>AlphaOdds</title>
   <style>
-    .letter { stroke: #1a1d21; }
+    .letter { stroke: #252a34; }
     .slash { stroke: #2457c5; }
     @media (prefers-color-scheme: dark) {
-      .letter { stroke: #e7e9ec; }
+      .letter { stroke: #e6eaf1; }
       .slash { stroke: #7ea6ff; }
     }
   </style>

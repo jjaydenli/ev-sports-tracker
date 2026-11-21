@@ -1,33 +1,37 @@
+/* Palette "Slate": blue-tinted slate neutrals after the Ghostty terminal default (#282c34).
+   Each hue has one meaning. Blue: the over side, the logo slash, interaction. Red: under, live,
+   danger. Green: +EV and healthy. Amber: warning, near breakeven. */
 :root {
   color-scheme: light dark;
   --bg: #ffffff;
-  --fg: #1a1d21;
-  --muted: #5d6670;
-  --border: #dde1e6;
+  --fg: #252a34;
+  --muted: #576274;
+  --border: #d2d9e3;
   --green: #1d8a45;
   --amber: #b26a00;
   --red: #c4302b;
-  --faint: #8a939c;
-  --surface: #f7f8fa;
-  --sep: #eef0f3;
-  --hover: #f1f5fb;
+  --faint: #8791a3;
+  --surface: #f5f7fb;
+  --sep: #e4e9f0;
+  --hover: #edf1f7;
   --focus: #2457c5;
   --edge-2: #c9ebd5;
   --edge-fg: #11612f;
-  --page: #f4f6fa;
+  --page: #edf1f7;
   --row: #ffffff;
   --accent: #2457c5;
   --accent-soft: #e8eefb;
   --accent-fg: #1d4aa8;
+  --hover-line: color-mix(in srgb, var(--accent) 50%, var(--row));
   /* Hit % fill by edge over breakeven; foreground contrast in the comment. */
   --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 2.5+ pts above   5.3:1 */
   --hit-e2: #8fd19e; --hit-e2-fg: #0b3d1a;  /* 1-2.5 above      6.9:1 */
   --hit-e1: #d6f0dc; --hit-e1-fg: #0f5223;  /* 0-1 above        7.7:1 */
   --hit-near: #fde9c6; --hit-near-fg: #6e4300;  /* within 1 below  7.2:1 */
   --live: #c4302b;
-  --over: #1f5fc4;
+  --over: #2457c5;
   --under: #c4302b;
-  --mono-bg: #0b6b3a;
+  --mono-bg: #576274;
   --mono-fg: #ffffff;
   --shadow: 0 8px 24px rgba(16, 24, 40, 0.14), 0 1px 3px rgba(16, 24, 40, 0.08);
   --scrim: rgba(10, 14, 20, 0.45);
@@ -49,22 +53,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121417;
-    --fg: #e7e9ec;
-    --muted: #9aa3ad;
-    --border: #2b3036;
+    --bg: #252a34;
+    --fg: #e6eaf1;
+    --muted: #99a3b5;
+    --border: #3c4454;
     --green: #4cc27a;
     --amber: #e3a23b;
-    --red: #f06a64;
-    --faint: #6e7781;
-    --surface: #171a1e;
-    --sep: #1f2328;
-    --hover: #1b2230;
+    --red: #f37670;
+    --faint: #7c8598;
+    --surface: #2a303b;
+    --sep: #323946;
+    --hover: #2e3542;
     --focus: #7ea6ff;
     --edge-2: #1a4229;
     --edge-fg: #7ee0a3;
-    --page: #0e1013;
-    --row: #16191d;
+    --page: #1d2129;
+    --row: #252a34;
     --accent: #7ea6ff;
     --accent-soft: #18233a;
     --accent-fg: #a9c3ff;
@@ -72,13 +76,13 @@
     --hit-e2: #22603a; --hit-e2-fg: #e8f6ec;  /* 6.7:1 */
     --hit-e1: #173a26; --hit-e1-fg: #8fe0ab;  /* 8.0:1 */
     --hit-near: #4a3413; --hit-near-fg: #ffd28f;  /* 8.3:1 */
-    --live: #f06a64;
+    --live: #f37670;
     --over: #7ea6ff;
-    --under: #f06a64;
-    --mono-bg: #1f7a4a;
+    --under: #f37670;
+    --mono-bg: #4a5366;
     --mono-fg: #ffffff;
     --shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
-    --danger-fg: #121417;
+    --danger-fg: #1d2129;
   }
 }
 
@@ -1101,11 +1105,11 @@ table.board {
   height: 52px;
   padding-top: 7px;
   padding-bottom: 7px;
-  background: var(--accent-soft);
+  background: var(--row);
   border-bottom: 1px solid var(--border);
   font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--accent-fg);
+  color: var(--muted);
 }
 
 /* Rows touch, alternate rows striped. */
@@ -1148,7 +1152,7 @@ table.board {
 }
 
 .board th[aria-sort] .sort {
-  color: var(--accent-fg);
+  color: var(--fg);
 }
 
 .board th .sort .arrow {
@@ -1184,15 +1188,15 @@ table.board {
 /* Hover: one accent outline round the whole row, drawn inside the cells so it never sits
    on the dividers between them. */
 .board tbody tr.prop:hover td {
-  box-shadow: inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+  box-shadow: inset 0 2px 0 var(--hover-line), inset 0 -2px 0 var(--hover-line);
 }
 
 .board tbody tr.prop:hover td:first-child {
-  box-shadow: inset 2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+  box-shadow: inset 2px 2px 0 var(--hover-line), inset 0 -2px 0 var(--hover-line);
 }
 
 .board tbody tr.prop:hover td:last-child {
-  box-shadow: inset -2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+  box-shadow: inset -2px 2px 0 var(--hover-line), inset 0 -2px 0 var(--hover-line);
 }
 
 .board tr.prop:focus-visible {

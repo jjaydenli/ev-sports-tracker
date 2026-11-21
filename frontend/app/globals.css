@@ -10,7 +10,6 @@
   --green: #1d8a45;
   --amber: #b26a00;
   --red: #c4302b;
-  --faint: #8791a3;
   --surface: #f5f7fb;
   --sep: #e4e9f0;
   --hover: #edf1f7;
@@ -23,11 +22,12 @@
   --accent-soft: #e8eefb;
   --accent-fg: #1d4aa8;
   --hover-line: color-mix(in srgb, var(--accent) 50%, var(--row));
-  /* Hit % fill by edge over breakeven; foreground contrast in the comment. */
-  --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 2.5+ pts above   5.3:1 */
-  --hit-e2: #8fd19e; --hit-e2-fg: #0b3d1a;  /* 1-2.5 above      6.9:1 */
-  --hit-e1: #d6f0dc; --hit-e1-fg: #0f5223;  /* 0-1 above        7.7:1 */
-  --hit-near: #fde9c6; --hit-near-fg: #6e4300;  /* within 1 below  7.2:1 */
+  /* Hit % fill by edge over breakeven: tints, so the number (in --fg) stays the loudest
+     thing in the row. Contrast of --fg on each fill in the comment. */
+  --hit-e3: #b2d7c0;    /* 2.5+ pts above  9.2:1 */
+  --hit-e2: #cde5d6;    /* 1-2.5 above    10.8:1 */
+  --hit-e1: #e4f1e9;    /* 0-1 above      12.4:1 */
+  --hit-near: #f3e7d6;  /* within 1 below 11.8:1 */
   --live: #c4302b;
   --over: #2457c5;
   --under: #c4302b;
@@ -60,7 +60,6 @@
     --green: #4cc27a;
     --amber: #e3a23b;
     --red: #f37670;
-    --faint: #7c8598;
     --surface: #2a303b;
     --sep: #323946;
     --hover: #2e3542;
@@ -72,10 +71,10 @@
     --accent: #7ea6ff;
     --accent-soft: #18233a;
     --accent-fg: #a9c3ff;
-    --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 5.3:1 */
-    --hit-e2: #22603a; --hit-e2-fg: #e8f6ec;  /* 6.7:1 */
-    --hit-e1: #173a26; --hit-e1-fg: #8fe0ab;  /* 8.0:1 */
-    --hit-near: #4a3413; --hit-near-fg: #ffd28f;  /* 8.3:1 */
+    --hit-e3: #256b3f;    /* 5.3:1 */
+    --hit-e2: #255436;    /* 7.3:1 */
+    --hit-e1: #25412f;    /* 9.3:1 */
+    --hit-near: #473e31;  /* 8.7:1 */
     --live: #f37670;
     --over: #7ea6ff;
     --under: #f37670;
@@ -98,9 +97,9 @@ body {
 }
 
 main {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  padding: 24px 32px 48px;
 }
 
 h1 {
@@ -237,7 +236,7 @@ h1 {
   gap: 6px;
 }
 .pill-running .pill-dot,
-.pill-off .pill-dot { background: var(--faint); }
+.pill-off .pill-dot { background: var(--muted); }
 .pill-off { color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) {
   .pill-running .pill-dot { animation: pill-pulse 1.2s ease-in-out infinite; }
@@ -430,7 +429,7 @@ button {
   top: 50%;
   left: 9px;
   transform: translateY(-50%);
-  color: var(--faint);
+  color: var(--muted);
   pointer-events: none;
 }
 
@@ -620,7 +619,7 @@ button {
   font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .opt .nm {
@@ -640,7 +639,7 @@ button {
 
 .opt .n {
   font-size: var(--fs-sm);
-  color: var(--faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -706,7 +705,7 @@ button {
   margin-left: auto;
   font-weight: 400;
   letter-spacing: 0;
-  color: var(--faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -970,15 +969,11 @@ body:has([aria-modal="true"]) .sbox .skey {
   display: none;
 }
 
-/* Empty, the field hugs its placeholder (width set inline) so the hint follows the words. */
-.sbox input:placeholder-shown {
-  flex: none;
-  min-width: 0;
-}
-
+/* The popup's hint sits at the field's right edge, like the main search box's. */
 .lsearch .skey {
   position: absolute;
   top: 50%;
+  right: 9px;
   transform: translateY(-50%);
   pointer-events: none;
 }
@@ -1112,13 +1107,9 @@ table.board {
   color: var(--muted);
 }
 
-/* Rows touch, alternate rows striped. */
+/* Rows touch, a hairline between them. */
 .board td {
   background: var(--row);
-}
-
-.board tbody tr.alt td {
-  background: var(--surface);
 }
 
 .board .sticky-col {
@@ -1127,6 +1118,14 @@ table.board {
   z-index: 1;
   width: 1%;
   border-right: 1px solid var(--border);
+}
+
+/* Desktop: room for a player headshot. A phone keeps the column at its content. */
+@media (min-width: 721px) {
+  .board .sticky-col {
+    width: 380px;
+    min-width: 380px;
+  }
 }
 
 .board thead .sticky-col {
@@ -1204,7 +1203,7 @@ table.board {
   outline-offset: -2px;
 }
 
-/* Player and pick: name | matchup LIVE, then side+line | MARKET breakeven [Betr]. */
+/* Player and pick: name | matchup LIVE, then side+line | MARKET breakeven. */
 .idrow,
 .pickrow {
   display: flex;
@@ -1267,11 +1266,11 @@ table.board {
 
 .pickrow .be {
   font-size: var(--fs-sm);
-  color: var(--faint);
+  color: var(--muted);
 }
 
 /* Hit %, the whole cell filled by its edge over Betr's breakeven, EV under it. The fills
-   run unbroken down the column: no rule between them, and stripe, hover and an opened row
+   run unbroken down the column: no rule between them, and hover and an opened row
    never repaint them. */
 .board td.metric {
   padding: 0;
@@ -1305,16 +1304,16 @@ table.board {
   font-weight: 500;
 }
 
-.board tbody tr.prop td.metric.e3 { background: var(--hit-e3); color: var(--hit-e3-fg); }
-.board tbody tr.prop td.metric.e2 { background: var(--hit-e2); color: var(--hit-e2-fg); }
-.board tbody tr.prop td.metric.e1 { background: var(--hit-e1); color: var(--hit-e1-fg); }
-.board tbody tr.prop td.metric.near { background: var(--hit-near); color: var(--hit-near-fg); }
+.board tbody tr.prop td.metric.e3 { background: var(--hit-e3); }
+.board tbody tr.prop td.metric.e2 { background: var(--hit-e2); }
+.board tbody tr.prop td.metric.e1 { background: var(--hit-e1); }
+.board tbody tr.prop td.metric.near { background: var(--hit-near); }
 .board tbody tr.prop td.metric:not(.e3, .e2, .e1, .near) { background: var(--row); }
 
 /* One book cell: over/under inline, the picked side bold. */
 .slash {
   font-size: var(--fs-md);
-  color: var(--faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1329,7 +1328,7 @@ table.board {
 
 .board .none,
 .slash .on.none {
-  color: var(--faint);
+  color: var(--muted);
   font-weight: 400;
 }
 

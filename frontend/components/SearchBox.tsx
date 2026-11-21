@@ -41,8 +41,6 @@ export function SearchBox({
         enterKeyHint="search"
         autoComplete="off"
         spellCheck={false}
-        // Empty, the field hugs its placeholder so the key hint sits right after the words.
-        style={text ? undefined : { width: `${PLACEHOLDER.length * 0.85 + 0.5}ch` }}
         value={text}
         onChange={(event) => onText(event.target.value)}
         onKeyDown={(event) => {

@@ -283,11 +283,7 @@ export function FiltersPopup({
                       }}
                     />
                     {!query && (
-                      <kbd
-                        className="skey"
-                        aria-hidden="true"
-                        style={{ left: `calc(34px + ${facet.search.length}ch + 8px)` }}
-                      >
+                      <kbd className="skey" aria-hidden="true">
                         /
                       </kbd>
                     )}

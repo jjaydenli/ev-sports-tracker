@@ -16,7 +16,6 @@ import { isSlashShortcut } from "@/lib/keys";
 import { SearchBox } from "@/components/SearchBox";
 
 import {
-  BETR,
   type Book,
   type BoardRow,
   DASH,
@@ -151,7 +150,6 @@ function PlayerCell({ row }: { row: BoardRow }) {
         <span className="be" data-tip={`Betr breakeven ${formatPct(breakeven, 2)}`}>
           {formatOdds(pctToAmerican(breakeven))}
         </span>
-        <Logo book={BETR} />
       </span>
     </>
   );
@@ -544,7 +542,7 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
               return (
                 <Fragment key={id}>
                   <tr
-                    className={pos % 2 ? "prop alt" : "prop"}
+                    className="prop"
                     data-pos={pos}
                     tabIndex={0}
                     aria-expanded={isOpen}

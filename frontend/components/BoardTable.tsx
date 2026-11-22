@@ -11,12 +11,12 @@ import {
 } from "react";
 
 import { ChipRow } from "@/components/ChipRow";
+import { InfoTip } from "@/components/InfoTip";
 import { FiltersPopup } from "@/components/FiltersPopup";
 import { isSlashShortcut } from "@/lib/keys";
 import { SearchBox } from "@/components/SearchBox";
 
 import {
-  BETR,
   type Book,
   type BoardRow,
   DASH,
@@ -36,6 +36,7 @@ import {
   num,
   oneSidedCaveat,
   pctToAmerican,
+  hitHeaderTip,
   pickLine,
   type Prices,
   str,
@@ -74,6 +75,8 @@ type Column = {
   header: ReactNode;
   /** Set on a sortable column; its header becomes a sort button. */
   sortKey?: SortKey;
+  /** A header tip; the header then shows an ⓘ. */
+  tip?: string;
   className?: string;
   /** A per-row class on the cell, added to `className` (the Hit % fill step). */
   cellClass?: (row: BoardRow) => string | null;
@@ -131,7 +134,6 @@ function Logo({ book }: { book: Book }) {
 
 function PlayerCell({ row }: { row: BoardRow }) {
   const side = str(row, F.side);
-  const breakeven = num(row, F.betrBreakevenPct);
   return (
     <>
       <span className="idrow">
@@ -146,12 +148,7 @@ function PlayerCell({ row }: { row: BoardRow }) {
       </span>
       <span className="pickrow">
         <span className={`sl ${side ?? ""}`}>{pickLine(row)}</span>
-        <span className="bar" aria-hidden="true" />
         <span className="mk">{marketWords(str(row, F.market))}</span>
-        <span className="be" data-tip={`Betr breakeven ${formatPct(breakeven, 2)}`}>
-          {formatOdds(pctToAmerican(breakeven))}
-        </span>
-        <Logo book={BETR} />
       </span>
     </>
   );
@@ -261,6 +258,7 @@ function columnsFor(rows: BoardRow[]): Column[] {
       id: "hit",
       header: "Hit %",
       sortKey: "hit",
+      tip: hitHeaderTip(rows),
       className: "metric",
       cellClass: (row) => edgeStep(edgePts(row)),
       cell: (row) => <HitCell row={row} />,
@@ -380,6 +378,7 @@ function SortHeader({
           {active ? (sort.dir < 0 ? "▾" : "▴") : ""}
         </span>
       </button>
+      {col.tip && <InfoTip tip={col.tip} label={`About ${col.header}`} />}
     </th>
   );
 }
@@ -544,7 +543,7 @@ export function BoardTable({ rows, teamNames }: { rows: BoardRow[]; teamNames: T
               return (
                 <Fragment key={id}>
                   <tr
-                    className={pos % 2 ? "prop alt" : "prop"}
+                    className="prop"
                     data-pos={pos}
                     tabIndex={0}
                     aria-expanded={isOpen}

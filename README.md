@@ -4,9 +4,9 @@
 
 **Live board: https://alphaodds.vercel.app** (the latest scheduled scrape, refreshed four times a day)
 
-![The live board at alphaodds.vercel.app](docs/images/live-board.png)
+![The AlphaOdds board ranking NBA player props by fair hit chance](docs/images/live-board.png)
 
-*Ranked plays from the latest scrape. The status pill shows when it ran and whether every source succeeded.*
+*Ranked plays from an NBA slate, best fair hit chance first; green rows clear Betr's breakeven. The status pill shows when the scrape ran and whether every source succeeded.*
 
 Finds +EV (positive expected value) player prop bets by comparing fixed-payout DFS lines (Betr) against sharp sportsbook prices. A Python pipeline scrapes, normalizes, and de-vigs three sportsbooks with undocumented APIs (DraftKings, FanDuel, and theScore Bet, formerly ESPN BET) and ranks opportunities by edge; a FastAPI and Next.js board publishes the results.
 
@@ -33,7 +33,7 @@ Each run scrapes all configured sources in parallel, normalizes to a shared `Nor
 
 ![Ranked output from ./ev](docs/images/cli-ranked.png)
 
-*Ranked output from `./ev` on an NBA slate where no line cleared 0% EV, so every row is negative. `[TEAM]` is the player's team, a shared color bar marks teammates (a correlated stack), a dimmed row is a player's weaker duplicate, and `exact·2` means two books quoted the exact line. ESPN is empty because theScore Bet is scraped for MLB and WNBA only.*
+*Ranked output from `./ev` on the same slate. `[TEAM]` is the player's team, a shared color bar marks teammates (a correlated stack), a dimmed row is a player's weaker duplicate, and `exact·2` means two books quoted the exact line. ESPN is empty because theScore Bet is scraped for MLB and WNBA only.*
 
 Architecture decisions: [`docs/design/`](docs/design/)
 

@@ -82,7 +82,7 @@ ev-sports-tracker/
 ├── scripts/                            # check_arch_sync.sh; local-board.sh (root package.json `npm run dev`: uvicorn web.local_board + next dev, BOARD_LOCAL=1)
 ├── docs/design/                        # architecture decision records
 ├── .github/workflows/                  # ci.yml; live-board.yml (4x/day scrape → web.publish)
-├── frontend/                           # Next.js live board (app/, components/, lib/{board-fields,books,market-words}.json, lib/{filters,search,keys}.ts, lib/*.test.ts via Vitest, public/books/)
+├── frontend/                           # Next.js live board (app/, components/, fonts/ (OFL caps subset), lib/{board-fields,books,market-words}.json, lib/{filters,search,keys}.ts, lib/*.test.ts via Vitest, public/books/)
 ├── ev                                    # → backend pipeline_runner
 ├── loop                                  # ./ev loop; all leagues, no default --min-ev; colored table + toast
 └── backend/

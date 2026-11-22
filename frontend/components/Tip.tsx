@@ -9,8 +9,8 @@ const EDGE = 8;
 type Shown = { text: string; target: HTMLElement };
 
 /**
- * The page's one tooltip: any element with `data-tip` shows its text on hover and on
- * keyboard focus, in a fixed layer so the table's scroll box cannot clip it. An element
+ * The page's one tooltip: any element with `data-tip` shows its text on hover, on
+ * keyboard focus and on tap (until the next tap elsewhere), in a fixed layer so the table's scroll box cannot clip it. An element
  * that already names itself to screen readers sets `data-tip-named`, so the tip is not
  * read twice; any other target is described by the tip while it shows.
  */
@@ -30,6 +30,8 @@ export function TipLayer() {
       if (target && text) setShown({ text, target });
     };
     const hide = (event: PointerEvent | FocusEvent) => {
+      // A finger lifting fires pointerout at once: on touch the tip stays until the next tap.
+      if (event instanceof PointerEvent && event.pointerType === "touch") return;
       const target = tipTarget(event);
       // Moving onto the target's own child is not leaving it.
       if (target && event.relatedTarget instanceof Node && target.contains(event.relatedTarget)) {
@@ -38,11 +40,17 @@ export function TipLayer() {
       setShown((current) => (current && current.target === target ? null : current));
     };
     const hideAll = () => setShown(null);
+    const tapAway = (event: PointerEvent) => {
+      if (event.pointerType !== "touch") return;
+      const target = tipTarget(event);
+      setShown((current) => (current && current.target === target ? current : null));
+    };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") hideAll();
     };
     document.addEventListener("pointerover", show);
     document.addEventListener("pointerout", hide);
+    document.addEventListener("pointerdown", tapAway);
     document.addEventListener("focusin", show);
     document.addEventListener("focusout", hide);
     document.addEventListener("keydown", onKey);
@@ -50,6 +58,7 @@ export function TipLayer() {
     return () => {
       document.removeEventListener("pointerover", show);
       document.removeEventListener("pointerout", hide);
+      document.removeEventListener("pointerdown", tapAway);
       document.removeEventListener("focusin", show);
       document.removeEventListener("focusout", hide);
       document.removeEventListener("keydown", onKey);

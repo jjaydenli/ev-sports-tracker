@@ -1,8 +1,18 @@
 import type { Metadata } from "next";
+import { Cinzel, Courier_Prime, Familjen_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
 
 import { SITE_NAME } from "@/lib/board";
 
 import "./globals.css";
+
+const sans = Familjen_Grotesk({ subsets: ["latin"], variable: "--font-sans" });
+const serif = Cinzel({ subsets: ["latin"], weight: "600", variable: "--font-serif" });
+// Familjen Medium with lower case redrawn as Bold capitals at 0.8: small caps at a set ratio,
+// which browsers cannot synthesise (they fix it at ~0.69). Licence: fonts/OFL.txt.
+const caps = localFont({ src: "../fonts/familjen-caps.woff2", weight: "500", variable: "--font-caps" });
+// Filter chips only, which no first view shows: fetched when a chip appears, not preloaded.
+const mono = Courier_Prime({ subsets: ["latin"], weight: "400", variable: "--font-mono", preload: false });
 
 export const metadata: Metadata = {
   title: SITE_NAME,
@@ -13,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sans.variable} ${serif.variable} ${caps.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

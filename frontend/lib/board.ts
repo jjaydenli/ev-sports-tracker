@@ -284,11 +284,22 @@ export function lineSourceWords(row: BoardRow): string {
   return LINE_SOURCE_WORDS[source] ?? source;
 }
 
-/** "u7.5": the pick's side letter and Betr's line. */
+/** "Under 6.5": the pick's side spelled out and Betr's line. */
 export function pickLine(row: BoardRow): string {
   const side = str(row, F.side);
-  const letter = side === "over" ? "o" : side === "under" ? "u" : "";
-  return `${letter}${num(row, F.line) ?? DASH}`;
+  const word = side === "over" ? "Over" : side === "under" ? "Under" : "";
+  return `${word} ${num(row, F.line) ?? DASH}`.trim();
+}
+
+/**
+ * The Hit % header's tip: Betr's payout and breakeven, once, since they are the same on
+ * every board row. The lowest breakeven is the standard one; a flat line only raises it.
+ */
+export function hitHeaderTip(rows: BoardRow[]): string | undefined {
+  const pcts = rows.map((row) => num(row, F.betrBreakevenPct)).filter((p) => p !== null);
+  if (pcts.length === 0) return undefined;
+  const pct = Math.min(...pcts);
+  return `Betr pays ${formatOdds(pctToAmerican(pct))} on every pick. Breakeven ${formatPct(pct, 2)}.`;
 }
 
 export type MatchupPart = { text: string; own: boolean };

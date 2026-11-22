@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <title>AlphaOdds</title>
   <style>
-    .letter { stroke: #1a1d21; }
-    .slash { stroke: #2457c5; }
+    .letter { stroke: #262626; }
+    .slash { stroke: #7d5b3b; }
     @media (prefers-color-scheme: dark) {
-      .letter { stroke: #e7e9ec; }
-      .slash { stroke: #7ea6ff; }
+      .letter { stroke: #f0f0f0; }
+      .slash { stroke: #bb976e; }
     }
   </style>
   <!-- Lowercase alpha: an "o" and a "u" (over/under) sharing one upright, crossed by the board's

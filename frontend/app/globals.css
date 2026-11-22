@@ -1,73 +1,64 @@
+/* Palette "Bronze": dark only, on neutral greys with no tint. Each hue has one meaning.
+   Bronze: the logo slash and interaction. Blue: the over side. Red: under, live, danger.
+   Green: +EV and healthy. Amber: warning, near breakeven. */
 :root {
-  color-scheme: light dark;
-  --bg: #ffffff;
-  --fg: #1a1d21;
-  --muted: #5d6670;
-  --border: #dde1e6;
-  --green: #1d8a45;
-  --amber: #b26a00;
-  --red: #c4302b;
-  --faint: #8a939c;
-  --surface: #f7f8fa;
-  --sep: #eef0f3;
-  --hover: #f1f5fb;
-  --focus: #2457c5;
-  --edge-2: #c9ebd5;
-  --edge-fg: #11612f;
-  --page: #f4f6fa;
-  --row: #ffffff;
-  --accent: #2457c5;
-  --accent-soft: #e8eefb;
-  --accent-fg: #1d4aa8;
-  /* Hit % fill by edge over breakeven; foreground contrast in the comment. */
-  --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 2.5+ pts above   5.3:1 */
-  --hit-e2: #8fd19e; --hit-e2-fg: #0b3d1a;  /* 1-2.5 above      6.9:1 */
-  --hit-e1: #d6f0dc; --hit-e1-fg: #0f5223;  /* 0-1 above        7.7:1 */
-  --hit-near: #fde9c6; --hit-near-fg: #6e4300;  /* within 1 below  7.2:1 */
-  --live: #c4302b;
-  --over: #1f5fc4;
-  --under: #c4302b;
-  --mono-bg: #0b6b3a;
+  color-scheme: dark;
+  /* Motion: overlays open and close; in-page content opens only, and closes at once. */
+  --t-quick: 160ms;   /* colour and border changes */
+  --t-open: 240ms;
+  --t-close: 120ms;
+  --ease-open: cubic-bezier(0.19, 1, 0.22, 1);  /* expo-out: most of the way at once, then settles */
+  --ease-close: cubic-bezier(0.2, 0, 1, 0.9);   /* accelerates away */
+  --rise: 6px;
+  --bg: #262626;
+  --fg: #f0f0f0;
+  --muted: #a8a8a8;
+  --border: #404040;
+  --green: #4cc27a;
+  --amber: #edcc48;
+  --red: #f37670;
+  --surface: #2c2c2c;
+  --sep: #343434;
+  --hover: #303030;
+  --focus: #bb976e;
+  --edge-2: #1a4229;
+  --edge-fg: #7ee0a3;
+  --page: #1a1a1a;
+  --row: #262626;
+  --accent: #bb976e;
+  --accent-soft: #3e301f;
+  --accent-fg: #dbb68d;
+  --hover-line: color-mix(in srgb, var(--accent) 50%, var(--row));
+  /* Hit % fill by edge over breakeven: tints, so the number (in --fg) stays the loudest
+     thing in the row. Contrast of --fg on each fill in the comment. */
+  --hit-e3: #256b3f;    /* 2.5+ pts above  5.7:1 */
+  --hit-e2: #255436;    /* 1-2.5 above     7.7:1 */
+  --hit-e1: #25412f;    /* 0-1 above       9.8:1 */
+  --hit-near: #423e25;  /* within 1 below  9.5:1 */
+  --live: #f37670;
+  --over: #7ea6ff;
+  --under: #f37670;
+  --mono-bg: #4f4f4f;
   --mono-fg: #ffffff;
-  --shadow: 0 8px 24px rgba(16, 24, 40, 0.14), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
   --scrim: rgba(10, 14, 20, 0.45);
-  --danger-fg: #ffffff;  /* text on a --red fill */
+  --danger-fg: #1a1a1a;  /* text on a --red fill */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-pill: 999px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-base: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 30px;
+  /* Installed Gill Sans (macOS, iOS; Gill Sans MT with Office), else the body face: no download. */
+  --font-control: "Gill Sans", "Gill Sans MT", var(--font-sans), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #121417;
-    --fg: #e7e9ec;
-    --muted: #9aa3ad;
-    --border: #2b3036;
-    --green: #4cc27a;
-    --amber: #e3a23b;
-    --red: #f06a64;
-    --faint: #6e7781;
-    --surface: #171a1e;
-    --sep: #1f2328;
-    --hover: #1b2230;
-    --focus: #7ea6ff;
-    --edge-2: #1a4229;
-    --edge-fg: #7ee0a3;
-    --page: #0e1013;
-    --row: #16191d;
-    --accent: #7ea6ff;
-    --accent-soft: #18233a;
-    --accent-fg: #a9c3ff;
-    --hit-e3: #2b7a3b; --hit-e3-fg: #ffffff;  /* 5.3:1 */
-    --hit-e2: #22603a; --hit-e2-fg: #e8f6ec;  /* 6.7:1 */
-    --hit-e1: #173a26; --hit-e1-fg: #8fe0ab;  /* 8.0:1 */
-    --hit-near: #4a3413; --hit-near-fg: #ffd28f;  /* 8.3:1 */
-    --live: #f06a64;
-    --over: #7ea6ff;
-    --under: #f06a64;
-    --mono-bg: #1f7a4a;
-    --mono-fg: #ffffff;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
-    --danger-fg: #121417;
-  }
-}
+:is(.source-link, .confirm, .filters input[type="search"], .fpop, .fcat, .opt, .sbox, .skey,
+  .grid, .logo .mono, .verdict, .more, .tip) { corner-shape: squircle; }
 
 * {
   box-sizing: border-box;
@@ -77,18 +68,21 @@ body {
   margin: 0;
   background: var(--page);
   color: var(--fg);
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  font: var(--fs-base)/1.45 var(--font-sans), system-ui, sans-serif;
 }
 
 main {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 24px 16px 48px;
+  padding: 24px 32px 48px;
 }
 
 h1 {
   margin: 0 0 4px;
-  font-size: 1.6rem;
+  font-family: var(--font-serif), serif;
+  font-size: var(--fs-xl);
+  font-weight: 600;
+  letter-spacing: 0.1em;
 }
 
 /* Header: logo and name, the source link at the right. */
@@ -98,22 +92,28 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 8px 16px;
-  margin: 0 0 6px;
+  margin: 0 0 22px;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   margin: 0;
-  letter-spacing: -0.01em;
 }
 
 .brand img {
   flex: none;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   margin-left: -4px;
+}
+
+/* Phone: smaller so the name and the GitHub button share one line. */
+@media (max-width: 640px) {
+  :root {
+    --fs-xl: 23px;
+  }
 }
 
 /* Ghost button: quiet beside the name, full colour on hover. */
@@ -124,10 +124,10 @@ h1 {
   min-height: 32px;
   padding: 0 11px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--r-md);
   background: var(--row);
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--fs-base);
   font-weight: 500;
   text-decoration: none;
 }
@@ -148,10 +148,18 @@ h1 {
   outline-offset: 1px;
 }
 
+/* The description: two short labels in spaced caps, split by a bar like the pick line. */
 .lede {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
   margin: 0 0 12px;
   color: var(--muted);
-  max-width: 70ch;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .pill {
@@ -161,9 +169,9 @@ h1 {
   margin: 0 0 16px;
   padding: 4px 12px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--row);
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
 }
 
 .pill-dot {
@@ -183,23 +191,25 @@ h1 {
 .pill-red .pill-dot { background: var(--red); }
 .pill-red { color: var(--red); }
 
-/* The schedule tip's trigger: muted until hovered or focused, so the time stays the read. */
-.pill-info {
+/* The info icon: muted until hovered or focused, so the fact beside it stays the read. The
+   padding makes the 24px hit target. */
+.info-btn {
   display: inline-flex;
-  margin: 0 -4px 0 -2px;
-  padding: 2px;
+  vertical-align: middle;
+  margin: -5px -4px -5px 0;
+  padding: 5px;
   border: 0;
   border-radius: 50%;
   background: none;
   color: var(--muted);
-  cursor: help;
+  cursor: pointer;
 }
-.pill-info svg {
+.info-btn svg {
   width: 14px;
   height: 14px;
 }
-.pill-info:hover,
-.pill-info:focus-visible {
+.info-btn:hover,
+.info-btn:focus-visible {
   color: var(--fg);
 }
 
@@ -218,7 +228,7 @@ h1 {
   gap: 6px;
 }
 .pill-running .pill-dot,
-.pill-off .pill-dot { background: var(--faint); }
+.pill-off .pill-dot { background: var(--muted); }
 .pill-off { color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) {
   .pill-running .pill-dot { animation: pill-pulse 1.2s ease-in-out infinite; }
@@ -229,10 +239,11 @@ h1 {
 .local-btn {
   padding: 5px 12px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: var(--row);
   color: var(--fg);
-  font-size: 0.85rem;
+  font-size: var(--fs-md);
+  font-family: var(--font-control);
   text-align: center;
   cursor: pointer;
 }
@@ -255,7 +266,7 @@ h1 {
 .local-shutdown { margin-left: auto; }
 .pill-note {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: var(--fs-md);
 }
 
 /* Shut down's confirmation. */
@@ -263,7 +274,7 @@ h1 {
   width: min(400px, calc(100vw - 32px));
   padding: 20px 20px 16px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--r-lg);
   background: var(--row);
   color: var(--fg);
   box-shadow: var(--shadow);
@@ -271,13 +282,13 @@ h1 {
 .confirm::backdrop { background: var(--scrim); }
 .confirm h2 {
   margin: 0 0 6px;
-  font-size: 1.05rem;
+  font-size: var(--fs-lg);
   font-weight: 600;
 }
 .confirm p {
   margin: 0 0 20px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: var(--fs-base);
   line-height: 1.45;
 }
 .confirm code {
@@ -319,12 +330,14 @@ button {
   white-space: nowrap;
 }
 
-/* Filters row, with the match count at its right. */
+/* Filters row, with the match count at its right. Text controls, no boxes: groups part by
+   space. Choices (+EV only, game state) in sentence case, the one action (Filters) in
+   tracked caps, picks (chips) in monospace caps. */
 .filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 10px;
+  gap: 8px 20px;
   margin: 0 0 10px;
 }
 
@@ -335,69 +348,119 @@ button {
   align-items: center;
   gap: 6px;
   margin: -2px 0 10px;
+  --chip-h: 28px;
 }
 
 .chips .link {
-  margin-left: 4px;
-  font-size: 13px;
+  min-height: var(--chip-h);
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-/* The +EV toggle and the menu buttons share one shape with the search box and segments. */
-.filters .evt,
-.trig {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* The choices (+EV only, game state): text in Gill Sans where the system has it, else the
+   body face; muted until hovered or picked. */
+:is(.seg button, .filters .evt) {
   min-height: 32px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--row);
-  color: var(--fg);
-  font-size: 14px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-family: var(--font-control);
+  font-size: var(--fs-base);
   cursor: pointer;
 }
 
-.filters .evt {
-  color: var(--muted);
+:is(.seg button, .filters .evt):is(:hover, [aria-pressed="true"]) {
+  color: var(--fg);
 }
 
-.filters .evt[aria-pressed="true"] {
-  background: var(--accent-soft);
-  color: var(--accent-fg);
+:is(.seg button, .filters .evt) { transition: color var(--t-quick); }
+
+/* +EV only: a checkbox, filled in the accent when on. */
+.filters .evt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+}
+
+.filters .evt::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+}
+
+.filters .evt[aria-pressed="true"]::before {
+  border-color: var(--accent);
+  background: var(--accent)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2 5 8.5l4.5-5' fill='none' stroke='white' stroke-width='1.8'/%3E%3C/svg%3E")
+    center / 10px no-repeat;
+}
+
+/* Filters: the one action, in tracked caps; a hairline box on hover and while open. */
+.trig {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid transparent;
+  background: none;
+  color: var(--fg);
+  font-size: var(--fs-xs);
   font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trig:hover,
+.trig[aria-expanded="true"] {
+  border-color: var(--fg);
 }
 
 .trig svg {
   flex: none;
-  color: var(--muted);
 }
 
-.trig .tl {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* The pick count, raised: FILTERS (2). */
+.trig .tn {
+  margin-left: -4px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
 }
 
-.trig[aria-expanded="true"] {
-  border-color: var(--focus);
-}
-
-.trig.set .tl {
-  font-weight: 600;
-}
+.trig { transition: border-color var(--t-quick); }
 
 .filters input[type="search"] {
   width: 180px;
   min-height: 32px;
   padding: 5px 8px 5px 31px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
   background: var(--row);
   color: var(--fg);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--fs-base);
+}
+
+/* Player names and both search fields: capitals at full size, lower case as small capitals
+   (the caps face loaded in layout.tsx), so a name and what is typed to find it look
+   alike and Shift or Caps Lock letters show full size. Prompts stay in the body face. */
+.player,
+.filters :is(.sbox, .lsearch) input {
+  font-family: var(--font-caps), var(--font-sans), sans-serif;
+  font-size: var(--fs-base);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.filters :is(.sbox, .lsearch) input::placeholder {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 400;
+  letter-spacing: normal;
 }
 
 .lsearch {
@@ -411,7 +474,7 @@ button {
   top: 50%;
   left: 9px;
   transform: translateY(-50%);
-  color: var(--faint);
+  color: var(--muted);
   pointer-events: none;
 }
 
@@ -436,7 +499,7 @@ button {
   width: 640px;
   max-width: calc(100vw - 32px);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--r-lg);
   background: var(--row);
   box-shadow: var(--shadow);
 }
@@ -462,10 +525,10 @@ button {
   min-height: 38px;
   padding: 0 10px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--r-md);
   background: none;
   color: var(--fg);
-  font-size: 14px;
+  font-size: var(--fs-base);
   text-align: left;
   cursor: pointer;
 }
@@ -483,10 +546,10 @@ button {
 .fcat .fn {
   min-width: 20px;
   padding: 1px 6px;
-  border-radius: 10px;
+  border-radius: var(--r-pill);
   background: var(--focus);
   color: var(--bg);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 600;
   text-align: center;
 }
@@ -520,12 +583,12 @@ button {
   margin: 0;
   padding: 8px 12px 0;
   border-top: 1px solid var(--sep);
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--muted);
 }
 
 .ftext .link {
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 .ftext + .ffoot {
@@ -545,7 +608,7 @@ button {
   width: 100%;
   height: 38px;
   padding: 0 12px 0 34px;
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background: var(--surface);
 }
 
@@ -567,10 +630,10 @@ button {
   min-height: 38px;
   padding: 0 10px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--r-md);
   background: none;
   color: var(--fg);
-  font-size: 14px;
+  font-size: var(--fs-base);
   text-align: left;
   cursor: pointer;
 }
@@ -598,10 +661,10 @@ button {
 }
 
 .opt .tag {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: var(--faint);
+  color: var(--muted);
 }
 
 .opt .nm {
@@ -616,12 +679,12 @@ button {
 }
 
 .opt .live {
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 
 .opt .n {
-  font-size: 12px;
-  color: var(--faint);
+  font-size: var(--fs-sm);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -663,7 +726,7 @@ button {
   border-top: 1px solid var(--sep);
   background: none;
   color: var(--fg);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-align: left;
@@ -676,7 +739,7 @@ button {
 }
 
 .lhead .fold {
-  transition: transform 0.15s;
+  transition: transform var(--t-quick);
 }
 
 .lhead[aria-expanded="false"] .fold {
@@ -687,14 +750,14 @@ button {
   margin-left: auto;
   font-weight: 400;
   letter-spacing: 0;
-  color: var(--faint);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
 .nomatch {
   margin: 0;
   padding: 12px 10px;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--muted);
 }
 
@@ -705,7 +768,7 @@ button {
   border-radius: 50%;
   background: var(--surface);
   color: var(--fg);
-  font-size: 18px;
+  font-size: var(--fs-lg);
   line-height: 1;
   cursor: pointer;
 }
@@ -714,11 +777,6 @@ button {
   background: var(--hover);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .lhead .fold {
-    transition: none;
-  }
-}
 
 /* Phone: the popup becomes a full-height sheet over a scrim, with category tabs on top. */
 @media (max-width: 720px) {
@@ -732,7 +790,7 @@ button {
     max-width: none;
     height: 92vh;
     padding: 12px 0 0;
-    border-radius: 14px 14px 0 0;
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
   }
 
   .fpop .phead {
@@ -744,7 +802,7 @@ button {
 
   .fpop .phead h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--fs-lg);
   }
 
   .fbody {
@@ -768,7 +826,7 @@ button {
     gap: 8px;
     min-height: 40px;
     border: 1px solid var(--border);
-    border-radius: 20px;
+    border-radius: var(--r-pill);
   }
 
   .fpanel {
@@ -799,56 +857,49 @@ button {
   }
 }
 
+/* Game state: text tabs. The underline grows from the left on hover and stays under the pick. */
 .seg {
   display: inline-flex;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  gap: 4px;
 }
 
 .seg button {
-  min-height: 30px;
-  padding: 5px 10px;
-  border: 0;
-  background: var(--row);
-  color: var(--muted);
-  font-size: 14px;
-  cursor: pointer;
+  position: relative;
+  padding: 0 6px;
 }
 
-.seg button + button {
-  border-left: 1px solid var(--border);
+.seg button::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 3px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
-.seg button[aria-pressed="true"] {
-  background: var(--accent-soft);
-  color: var(--accent-fg);
-  font-weight: 600;
+.seg button:hover::after,
+.seg button[aria-pressed="true"]::after {
+  transform: scaleX(1);
 }
+
+.seg button::after { transition: transform var(--t-open) var(--ease-open); }
 
 .count {
   margin-left: auto;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
 /* One set of states for every control: hover, pressed, keyboard focus. */
-.seg button:hover,
 .more:hover,
-.trig:hover,
-.filters .evt:hover,
 .filters input[type="search"]:hover {
   background: var(--hover);
 }
 
-.trig:hover,
-.filters .evt:hover,
-.filters input[type="search"]:hover {
-  border-color: var(--muted);
-}
-
-.seg button:active,
 .more:active,
 .board th .sort:active {
   transform: translateY(1px);
@@ -866,24 +917,6 @@ input:focus-visible,
   outline-offset: 1px;
 }
 
-/* A filter set away from All: accent border, so a narrowed board is visible at a glance. */
-.trig.set,
-.filters .evt[aria-pressed="true"] {
-  border-color: var(--focus);
-  box-shadow: inset 0 0 0 1px var(--focus);
-}
-
-/* Focused, the outline already says "accent": drop the set border so the two don't stack. */
-.trig.set:focus-visible {
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.seg button[aria-pressed="true"]:hover,
-.filters .evt[aria-pressed="true"]:hover {
-  background: var(--accent-soft);
-}
-
 .sbox {
   position: relative;
   flex: 0 1 380px;
@@ -895,7 +928,7 @@ input:focus-visible,
   min-height: 32px;
   padding: 2px 6px 2px 31px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--r-md);
   background: var(--row);
 }
 
@@ -922,7 +955,6 @@ input:focus-visible,
   background: none;
   color: var(--fg);
   font: inherit;
-  font-size: 14px;
 }
 
 .sbox input:focus-visible {
@@ -936,11 +968,11 @@ input:focus-visible,
   height: 20px;
   padding: 0 5px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background: var(--surface);
   color: var(--muted);
   font: inherit;
-  font-size: 12px;
+  font-size: var(--fs-sm);
   line-height: 18px;
   text-align: center;
 }
@@ -951,15 +983,11 @@ body:has([aria-modal="true"]) .sbox .skey {
   display: none;
 }
 
-/* Empty, the field hugs its placeholder (width set inline) so the hint follows the words. */
-.sbox input:placeholder-shown {
-  flex: none;
-  min-width: 0;
-}
-
+/* The popup's hint sits at the field's right edge, like the main search box's. */
 .lsearch .skey {
   position: absolute;
   top: 50%;
+  right: 9px;
   transform: translateY(-50%);
   pointer-events: none;
 }
@@ -985,7 +1013,7 @@ body:has([aria-modal="true"]) .sbox .skey {
   border-radius: 50%;
   background: none;
   color: var(--muted);
-  font-size: 16px;
+  font-size: var(--fs-lg);
   line-height: 1;
   cursor: pointer;
 }
@@ -995,19 +1023,28 @@ body:has([aria-modal="true"]) .sbox .skey {
   color: var(--fg);
 }
 
+/* A pick: monospace caps in a square hairline box. The × leads, so removing a chip slides
+   the next one's × under the pointer. */
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   max-width: 100%;
-  height: 26px;
-  padding: 0 0 0 8px;
-  border-radius: 13px;
-  background: var(--accent-soft);
-  color: var(--accent-fg);
-  font-size: 13px;
-  font-weight: 600;
+  height: var(--chip-h);
+  padding: 0 11px 0 4px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* Space past the last chip, wider than its ×: removing that chip slides Clear all left, never
+   under the pointer. On the chip, not on Clear all, so a wrapped Clear all starts flush. */
+.chip:last-of-type {
+  margin-right: 32px;
 }
 
 .chip .cname {
@@ -1017,19 +1054,18 @@ body:has([aria-modal="true"]) .sbox .skey {
 
 .chip button {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border: 0;
-  border-radius: 50%;
   background: none;
   color: inherit;
-  font-size: 16px;
+  font-size: var(--fs-base);
   line-height: 1;
   cursor: pointer;
 }
 
 .chip button:hover {
-  background: var(--hover);
+  color: var(--fg);
 }
 
 .opt.picked .tick svg {
@@ -1037,7 +1073,7 @@ body:has([aria-modal="true"]) .sbox .skey {
 }
 
 .opt .code {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 400;
   color: var(--muted);
 }
@@ -1058,7 +1094,7 @@ body:has([aria-modal="true"]) .sbox .skey {
   overflow: auto;
   max-height: calc(100vh - 150px);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--r-md);
   background: var(--row);
 }
 
@@ -1067,7 +1103,7 @@ table.board {
   border-spacing: 0;
   width: max-content;
   min-width: 100%;
-  font-size: 14px;
+  font-size: var(--fs-base);
 }
 
 .board th,
@@ -1086,20 +1122,16 @@ table.board {
   height: 52px;
   padding-top: 7px;
   padding-bottom: 7px;
-  background: var(--accent-soft);
+  background: var(--row);
   border-bottom: 1px solid var(--border);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 600;
-  color: var(--accent-fg);
+  color: var(--muted);
 }
 
-/* Rows touch, alternate rows striped. */
+/* Rows touch, a hairline between them. */
 .board td {
   background: var(--row);
-}
-
-.board tbody tr.alt td {
-  background: var(--surface);
 }
 
 .board .sticky-col {
@@ -1108,6 +1140,14 @@ table.board {
   z-index: 1;
   width: 1%;
   border-right: 1px solid var(--border);
+}
+
+/* Desktop: room for a player headshot. A phone keeps the column at its content. */
+@media (min-width: 721px) {
+  .board .sticky-col {
+    width: 380px;
+    min-width: 380px;
+  }
 }
 
 .board thead .sticky-col {
@@ -1133,7 +1173,7 @@ table.board {
 }
 
 .board th[aria-sort] .sort {
-  color: var(--accent-fg);
+  color: var(--fg);
 }
 
 .board th .sort .arrow {
@@ -1169,15 +1209,15 @@ table.board {
 /* Hover: one accent outline round the whole row, drawn inside the cells so it never sits
    on the dividers between them. */
 .board tbody tr.prop:hover td {
-  box-shadow: inset 0 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+  box-shadow: inset 0 2px 0 var(--hover-line), inset 0 -2px 0 var(--hover-line);
 }
 
 .board tbody tr.prop:hover td:first-child {
-  box-shadow: inset 2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+  box-shadow: inset 2px 2px 0 var(--hover-line), inset 0 -2px 0 var(--hover-line);
 }
 
 .board tbody tr.prop:hover td:last-child {
-  box-shadow: inset -2px 2px 0 var(--accent), inset 0 -2px 0 var(--accent);
+  box-shadow: inset -2px 2px 0 var(--hover-line), inset 0 -2px 0 var(--hover-line);
 }
 
 .board tr.prop:focus-visible {
@@ -1185,7 +1225,7 @@ table.board {
   outline-offset: -2px;
 }
 
-/* Player and pick: name | matchup LIVE, then side+line | MARKET breakeven [Betr]. */
+/* Player and pick: name | matchup LIVE, then PICK LINE   MARKET. */
 .idrow,
 .pickrow {
   display: flex;
@@ -1203,13 +1243,8 @@ table.board {
   background: var(--border);
 }
 
-.player {
-  font-size: 15px;
-  font-weight: 600;
-}
-
 .matchup {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 
@@ -1220,7 +1255,7 @@ table.board {
 
 .live {
   color: var(--live);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -1230,33 +1265,30 @@ table.board {
   font-variant-numeric: tabular-nums;
 }
 
-.pickrow .sl {
-  font-size: 15px;
-  font-weight: 700;
+.pickrow .sl,
+.pickrow .mk {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pickrow {
+  gap: 14px;
 }
 
 .pickrow .sl.over { color: var(--over); }
 .pickrow .sl.under { color: var(--under); }
 
 .pickrow .mk {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
   color: var(--muted);
 }
 
-.pickrow .be {
-  font-size: 12px;
-  color: var(--faint);
-}
-
 /* Hit %, the whole cell filled by its edge over Betr's breakeven, EV under it. The fills
-   run unbroken down the column: no rule between them, and stripe, hover and an opened row
+   run unbroken down the column: no rule between them, and hover and an opened row
    never repaint them. */
 .board td.metric {
   padding: 0;
-  border-bottom-color: transparent;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
@@ -1271,17 +1303,17 @@ table.board {
 }
 
 .hit {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: var(--fs-lg);
+  font-weight: 700;
 }
 
 .evline {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   color: var(--muted);
 }
 
-.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) .hit {
-  font-weight: 700;
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) {
+  border-bottom-color: transparent;
 }
 
 .board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) .evline {
@@ -1290,16 +1322,16 @@ table.board {
   font-weight: 500;
 }
 
-.board tbody tr.prop td.metric.e3 { background: var(--hit-e3); color: var(--hit-e3-fg); }
-.board tbody tr.prop td.metric.e2 { background: var(--hit-e2); color: var(--hit-e2-fg); }
-.board tbody tr.prop td.metric.e1 { background: var(--hit-e1); color: var(--hit-e1-fg); }
-.board tbody tr.prop td.metric.near { background: var(--hit-near); color: var(--hit-near-fg); }
+.board tbody tr.prop td.metric.e3 { background: var(--hit-e3); }
+.board tbody tr.prop td.metric.e2 { background: var(--hit-e2); }
+.board tbody tr.prop td.metric.e1 { background: var(--hit-e1); }
+.board tbody tr.prop td.metric.near { background: var(--hit-near); }
 .board tbody tr.prop td.metric:not(.e3, .e2, .e1, .near) { background: var(--row); }
 
 /* One book cell: over/under inline, the picked side bold. */
 .slash {
-  font-size: 13px;
-  color: var(--faint);
+  font-size: var(--fs-md);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
 
@@ -1314,7 +1346,7 @@ table.board {
 
 .board .none,
 .slash .on.none {
-  color: var(--faint);
+  color: var(--muted);
   font-weight: 400;
 }
 
@@ -1330,25 +1362,25 @@ table.board {
   display: block;
   width: 18px;
   height: 18px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
 }
 
 .board thead .logo img,
 .board thead .logo .mono {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
+  border-radius: var(--r-md);
 }
 
 .logo .mono {
   background: var(--mono-bg);
   color: var(--mono-fg);
-  font: 700 10px/18px system-ui, sans-serif;
+  font-weight: 700; font-size: var(--fs-xs); line-height: 18px;
   text-align: center;
 }
 
 .board thead .logo .mono {
-  font-size: 12px;
+  font-size: var(--fs-sm);
   line-height: 28px;
 }
 
@@ -1382,7 +1414,7 @@ table.board {
 
 .why {
   margin: 0 0 14px;
-  font-size: 15px;
+  font-size: var(--fs-base);
 }
 
 .why b {
@@ -1394,10 +1426,10 @@ table.board {
   margin-right: 8px;
   padding: 1px 7px;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background: var(--bg);
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   vertical-align: 1px;
 }
@@ -1410,7 +1442,7 @@ table.board {
 
 .source {
   margin: 0 0 8px;
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--muted);
 }
 
@@ -1436,11 +1468,11 @@ table.board {
 }
 
 .book-prices .slash {
-  font-size: 14px;
+  font-size: var(--fs-base);
 }
 
 .book-prices .vig {
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1448,7 +1480,7 @@ table.board {
 .caveat {
   margin: 12px 0 0;
   color: var(--amber);
-  font-size: 13px;
+  font-size: var(--fs-md);
 }
 
 /* "Show more" is the table's last row; its contents stay in view on a sideways scroll. */
@@ -1467,7 +1499,7 @@ table.board {
 }
 
 .more-inner .progress {
-  font-size: 13px;
+  font-size: var(--fs-md);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
@@ -1476,10 +1508,10 @@ table.board {
   min-height: 32px;
   padding: 5px 14px;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--r-md);
   background: var(--row);
   color: var(--fg);
-  font-size: 14px;
+  font-size: var(--fs-base);
   cursor: pointer;
 }
 
@@ -1488,7 +1520,7 @@ table.board {
   border: 0;
   background: none;
   color: var(--focus);
-  font-size: 14px;
+  font-size: var(--fs-base);
   cursor: pointer;
 }
 
@@ -1502,10 +1534,10 @@ table.board {
   z-index: 10;
   max-width: 320px;
   padding: 5px 8px;
-  border-radius: 5px;
+  border-radius: var(--r-sm);
   background: var(--fg);
   color: var(--bg);
-  font-size: 12px;
+  font-size: var(--fs-sm);
   line-height: 1.35;
   pointer-events: none;
   font-variant-numeric: tabular-nums;
@@ -1513,4 +1545,92 @@ table.board {
 
 .tip[hidden] {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-quick: 0s; --t-open: 0s; --t-close: 0s; }
+}
+
+@keyframes rise {
+  from { opacity: 0; translate: 0 var(--rise); }
+}
+
+@keyframes drop {
+  from { opacity: 0; translate: 0 calc(-1 * var(--rise)); }
+}
+
+@keyframes drop-out {
+  to { opacity: 0; translate: 0 calc(-1 * var(--rise)); }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes grow {
+  from { opacity: 0; scale: 0.96; }
+}
+
+@keyframes shrink {
+  to { opacity: 0; scale: 0.96; }
+}
+
+/* Hover and pick states ease at the colour speed. Zero specificity, so a rule's own
+   transition wins. */
+:where(button, a, input, .opt, .fcat, .lhead, .sbox, .board tbody tr.prop td),
+.filters .evt::before {
+  transition: color var(--t-quick), background-color var(--t-quick),
+    border-color var(--t-quick), box-shadow var(--t-quick);
+}
+
+/* Overlays: the Filters popup drops in from its button (a sheet rises on phones). */
+.fpop { animation: drop var(--t-open) var(--ease-open); }
+.fpop.closing { animation: drop-out var(--t-close) var(--ease-close) forwards; }
+.scrim { animation: fade var(--t-open) var(--ease-open); }
+.scrim.closing { animation: fade-out var(--t-close) var(--ease-close) forwards; }
+
+@media (max-width: 720px) {
+  .fpop { --rise: -24px; }
+}
+
+/* Shut down's dialog: fades and settles in, and back out, with its backdrop. */
+.confirm,
+.confirm::backdrop {
+  opacity: 0;
+  transition:
+    opacity var(--t-close) var(--ease-close),
+    scale var(--t-close) var(--ease-close),
+    overlay var(--t-close) allow-discrete,
+    display var(--t-close) allow-discrete;
+}
+.confirm { scale: 0.97; }
+.confirm[open],
+.confirm[open]::backdrop {
+  opacity: 1;
+  scale: 1;
+  transition-duration: var(--t-open);
+  transition-timing-function: var(--ease-open);
+}
+@starting-style {
+  .confirm[open],
+  .confirm[open]::backdrop { opacity: 0; }
+  .confirm[open] { scale: 0.97; }
+}
+
+.tip:not([hidden]) { animation: rise calc(var(--t-open) / 2) var(--ease-open); }
+
+/* In-page content opens with motion and closes at once, so nothing below it waits. */
+.board tr.detail .detail-inner { animation: rise var(--t-open) var(--ease-open); }
+.opt.unfold { animation: fade var(--t-open) var(--ease-open); }
+.chip { animation: grow var(--t-open) var(--ease-open); }
+
+/* A removed chip is the one in-page close with motion: short, then the chips after it slide
+   into the gap (ChipRow, on --t-open). */
+.chip.leaving {
+  animation: shrink calc(var(--t-close) * 0.75) var(--ease-close) forwards;
+  pointer-events: none;
 }

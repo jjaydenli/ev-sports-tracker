@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { InfoTip } from "@/components/InfoTip";
 import { LOCAL_TIP, LocalBar, localPillState, useLocalRun } from "@/components/LocalRunControls";
 import {
   type Board,
@@ -64,9 +65,6 @@ export function pillState(
   if (run.outcome === "empty") {
     return { tone: "amber", text: `Latest run found no props${showing}` };
   }
-  if (failures.length) {
-    return { tone: "amber", text: `Partial prices: ${failures.join(", ")}${showing}` };
-  }
   const scrapedAt = Date.parse(run.generated_at);
   const at = time(run.generated_at);
   if (nowMs === null) {
@@ -108,18 +106,10 @@ export function StatusPill({
     <p className={`pill pill-${tone}`} role="status">
       <span className="pill-dot" aria-hidden="true" />
       {text}
-      <button
-        type="button"
-        className="pill-info"
-        aria-label={local ? "About the local board" : "Refresh schedule"}
-        data-tip={local ? LOCAL_TIP : SCHEDULE_TIP}
-      >
-        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-          <circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
-          <circle cx="8" cy="4.9" r="1" fill="currentColor" />
-          <path d="M8 7.2v4.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
-      </button>
+      <InfoTip
+        label={local ? "About the local board" : "Refresh schedule"}
+        tip={local ? LOCAL_TIP : SCHEDULE_TIP}
+      />
     </p>
   );
   return local ? <LocalBar local={local}>{pill}</LocalBar> : pill;

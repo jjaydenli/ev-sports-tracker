@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 
-import { Chevron, Magnifier, Tick } from "@/components/icons";
+import { Chevron, Magnifier, Sliders, Tick } from "@/components/icons";
 import {
   allLabel,
   FACET_KEYS,
@@ -70,9 +70,19 @@ export function FiltersPopup({
   const total = pickCount(filters);
   const text = filters.text.trim();
 
+  /** Set while the popup plays its way out; it unmounts when that ends. */
+  const [closing, setClosing] = useState(false);
+  /** The league just unfolded, whose rows fade in; any other mount of a row stays still. */
+  const [unfolded, setUnfolded] = useState<string | null>(null);
+
   const close = (refocus: boolean) => {
-    setOpen(false);
     if (refocus) triggerRef.current?.focus();
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) setOpen(false);
+    else setClosing(true);
+  };
+  const closed = () => {
+    setOpen(false);
+    setClosing(false);
   };
 
   const focusList = () =>
@@ -82,7 +92,7 @@ export function FiltersPopup({
     if (!open) return;
     focusList();
     const onDown = (event: MouseEvent) => {
-      if (!wrapRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!wrapRef.current?.contains(event.target as Node)) close(false);
     };
     // `/` jumps to this category's search; Leagues has none, so it does nothing there.
     const onKey = (event: globalThis.KeyboardEvent) => {
@@ -101,14 +111,17 @@ export function FiltersPopup({
   }, [open]);
 
   const openOrClose = () => {
-    if (open) return close(false);
-    setQuery("");
+    if (open && !closing) return close(false);
+    if (!open) setQuery("");
+    setClosing(false);
+    setUnfolded(null);
     setOpen(true);
   };
 
   const pickCategory = (key: FacetKey) => {
     setCat(key);
     setQuery("");
+    setUnfolded(null);
   };
 
   const toggle = (o: MenuOption) => {
@@ -137,6 +150,7 @@ export function FiltersPopup({
   const toggleFold = (lg: string) => {
     const next = new Set(folded);
     if (!next.delete(lg)) next.add(lg);
+    setUnfolded(next.has(lg) ? null : lg);
     setFoldState((state) => ({ ...state, [cat]: next }));
   };
 
@@ -183,7 +197,9 @@ export function FiltersPopup({
       <button
         key={o.value}
         type="button"
-        className={`${tagged ? "opt" : "opt notag"}${o === only ? " armed" : ""}`}
+        className={`${tagged ? "opt" : "opt notag"}${o === only ? " armed" : ""}${
+          !tagged && o.league === unfolded ? " unfold" : ""
+        }`}
         aria-pressed={picked.has(o.value)}
         onClick={() => toggle(o)}
       >
@@ -212,20 +228,24 @@ export function FiltersPopup({
       <button
         ref={triggerRef}
         type="button"
-        className={total ? "trig set" : "trig"}
+        className="trig"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? popId : undefined}
         onClick={openOrClose}
       >
-        <span className="tl">{total ? `Filters · ${total}` : "Filters"}</span>
-        <Chevron />
+        <Sliders />
+        Filters
+        {total > 0 && <sup className="tn">({total})</sup>}
       </button>
       {open && (
         <>
-          <div className="scrim" onClick={() => close(true)} />
+          <div className={closing ? "scrim closing" : "scrim"} onClick={() => close(true)} />
           <div
-            className="fpop"
+            className={closing ? "fpop closing" : "fpop"}
+            onAnimationEnd={(event) => {
+              if (closing && event.target === event.currentTarget) closed();
+            }}
             id={popId}
             role="dialog"
             aria-modal="true"
@@ -283,11 +303,7 @@ export function FiltersPopup({
                       }}
                     />
                     {!query && (
-                      <kbd
-                        className="skey"
-                        aria-hidden="true"
-                        style={{ left: `calc(34px + ${facet.search.length}ch + 8px)` }}
-                      >
+                      <kbd className="skey" aria-hidden="true">
                         /
                       </kbd>
                     )}

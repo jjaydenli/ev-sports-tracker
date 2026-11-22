@@ -45,7 +45,7 @@
   --fs-md: 15px;
   --fs-base: 16px;
   --fs-lg: 18px;
-  --fs-xl: 32px;
+  --fs-xl: 40px;
 }
 
 :is(.source-link, .confirm, .trig, .filters input[type="search"], .fpop, .fcat, .opt, .seg,
@@ -116,21 +116,21 @@ h1 {
   align-items: center;
   justify-content: space-between;
   gap: 8px 16px;
-  margin: 0 0 6px;
+  margin: 0 0 22px;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .brand img {
   flex: none;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   margin-left: -4px;
 }
 
@@ -166,10 +166,18 @@ h1 {
   outline-offset: 1px;
 }
 
+/* The description: two short labels in spaced caps, split by a bar like the pick line. */
 .lede {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
   margin: 0 0 12px;
   color: var(--muted);
-  max-width: 70ch;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .pill {
@@ -201,23 +209,25 @@ h1 {
 .pill-red .pill-dot { background: var(--red); }
 .pill-red { color: var(--red); }
 
-/* The schedule tip's trigger: muted until hovered or focused, so the time stays the read. */
-.pill-info {
+/* The info icon: muted until hovered or focused, so the fact beside it stays the read. The
+   padding makes the 24px hit target. */
+.info-btn {
   display: inline-flex;
-  margin: 0 -4px 0 -2px;
-  padding: 2px;
+  vertical-align: middle;
+  margin: -5px -4px -5px 0;
+  padding: 5px;
   border: 0;
   border-radius: 50%;
   background: none;
   color: var(--muted);
-  cursor: help;
+  cursor: pointer;
 }
-.pill-info svg {
+.info-btn svg {
   width: 14px;
   height: 14px;
 }
-.pill-info:hover,
-.pill-info:focus-visible {
+.info-btn:hover,
+.info-btn:focus-visible {
   color: var(--fg);
 }
 
@@ -1203,7 +1213,7 @@ table.board {
   outline-offset: -2px;
 }
 
-/* Player and pick: name | matchup LIVE, then side+line | MARKET breakeven. */
+/* Player and pick: name | matchup LIVE, then PICK LINE   MARKET. */
 .idrow,
 .pickrow {
   display: flex;
@@ -1248,24 +1258,22 @@ table.board {
   font-variant-numeric: tabular-nums;
 }
 
-.pickrow .sl {
-  font-size: var(--fs-base);
-  font-weight: 600;
+.pickrow .sl,
+.pickrow .mk {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pickrow {
+  gap: 14px;
 }
 
 .pickrow .sl.over { color: var(--over); }
 .pickrow .sl.under { color: var(--under); }
 
 .pickrow .mk {
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.pickrow .be {
-  font-size: var(--fs-sm);
   color: var(--muted);
 }
 

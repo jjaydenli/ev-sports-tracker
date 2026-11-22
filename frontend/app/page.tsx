@@ -27,8 +27,9 @@ export default async function Page() {
           </a>
         </div>
         <p className="lede">
-          Each Betr pick&apos;em prop&apos;s fair hit chance from sportsbook no-vig odds, against
-          Betr&apos;s breakeven. Select a row for the breakdown.
+          <span>Fair hit chance vs Betr breakeven</span>
+          <span className="bar" aria-hidden="true" />
+          <span>Select a row for the breakdown</span>
         </p>
         <StatusPill run={latestRun} board={board} local={isLocalBoard()} />
       </header>

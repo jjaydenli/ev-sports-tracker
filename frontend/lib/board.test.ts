@@ -1,6 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { REVALIDATE_SECONDS, fetchBoard, formatPacificTime } from "@/lib/board";
+import {
+  F,
+  REVALIDATE_SECONDS,
+  fetchBoard,
+  formatPacificTime,
+  hitHeaderTip,
+  pickLine,
+} from "@/lib/board";
 
 // 23:04:05 UTC on Nov 19 is 3:04:05 PM in Los Angeles (PST, UTC-8).
 const ISO = "2026-11-19T23:04:05Z";
@@ -49,5 +56,28 @@ describe("fetchBoard cache window", () => {
 
   it.each([undefined, "", "0"])("keeps the live window when BOARD_LOCAL is %j", async (value) => {
     expect(await revalidateFor(value)).toBe(REVALIDATE_SECONDS);
+  });
+});
+
+describe("pickLine", () => {
+  it("spells the side out before Betr's line", () => {
+    expect(pickLine({ [F.side]: "under", [F.line]: 6.5 })).toBe("Under 6.5");
+    expect(pickLine({ [F.side]: "over", [F.line]: 24.5 })).toBe("Over 24.5");
+  });
+
+  it("shows only the line when the side is missing", () => {
+    expect(pickLine({ [F.line]: 6.5 })).toBe("6.5");
+  });
+});
+
+describe("hitHeaderTip", () => {
+  // -120 implies 120 / 220 = 54.5454...%, shown to two places.
+  it("states Betr's payout and breakeven from the lowest breakeven on the board", () => {
+    const rows = [{ [F.betrBreakevenPct]: 57.1 }, { [F.betrBreakevenPct]: 54.5455 }];
+    expect(hitHeaderTip(rows)).toBe("Betr pays -120 on every pick. Breakeven 54.55%.");
+  });
+
+  it("has no tip when no row carries a breakeven", () => {
+    expect(hitHeaderTip([{}])).toBeUndefined();
   });
 });

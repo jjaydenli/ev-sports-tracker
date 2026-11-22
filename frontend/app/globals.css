@@ -45,7 +45,7 @@
   --fs-md: 15px;
   --fs-base: 16px;
   --fs-lg: 18px;
-  --fs-xl: 40px;
+  --fs-xl: 30px;
 }
 
 :is(.source-link, .confirm, .trig, .filters input[type="search"], .fpop, .fcat, .opt, .seg,
@@ -106,7 +106,8 @@ h1 {
   margin: 0 0 4px;
   font-family: var(--font-serif), serif;
   font-size: var(--fs-xl);
-  font-weight: 400;
+  font-weight: 600;
+  letter-spacing: 0.1em;
 }
 
 /* Header: logo and name, the source link at the right. */
@@ -124,7 +125,6 @@ h1 {
   align-items: center;
   gap: 12px;
   margin: 0;
-  letter-spacing: -0.01em;
 }
 
 .brand img {
@@ -132,6 +132,13 @@ h1 {
   width: 40px;
   height: 40px;
   margin-left: -4px;
+}
+
+/* Phone: smaller so the name and the GitHub button share one line. */
+@media (max-width: 640px) {
+  :root {
+    --fs-xl: 23px;
+  }
 }
 
 /* Ghost button: quiet beside the name, full colour on hover. */
@@ -426,6 +433,23 @@ button {
   color: var(--fg);
   font: inherit;
   font-size: var(--fs-base);
+}
+
+/* Player names and both search fields: capitals at full size, lower case as small capitals
+   (the caps face loaded in layout.tsx), so a name and what is typed to find it look
+   alike and Shift or Caps Lock letters show full size. Prompts stay in the body face. */
+.player,
+.filters :is(.sbox, .lsearch) input {
+  font-family: var(--font-caps), var(--font-sans), sans-serif;
+  font-size: var(--fs-base);
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.filters :is(.sbox, .lsearch) input::placeholder {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 400;
+  letter-spacing: normal;
 }
 
 .lsearch {
@@ -950,7 +974,6 @@ input:focus-visible,
   background: none;
   color: var(--fg);
   font: inherit;
-  font-size: var(--fs-base);
 }
 
 .sbox input:focus-visible {
@@ -1229,11 +1252,6 @@ table.board {
   width: 1px;
   height: 14px;
   background: var(--border);
-}
-
-.player {
-  font-size: var(--fs-base);
-  font-weight: 500;
 }
 
 .matchup {

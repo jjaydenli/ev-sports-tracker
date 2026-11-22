@@ -1,41 +1,41 @@
-/* Palette "Slate": blue-tinted slate neutrals after the Ghostty terminal default (#282c34).
-   Each hue has one meaning. Blue: the over side, the logo slash, interaction. Red: under, live,
-   danger. Green: +EV and healthy. Amber: warning, near breakeven. */
+/* Palette "Bronze": dark only, on neutral greys with no tint. Each hue has one meaning.
+   Bronze: the logo slash and interaction. Blue: the over side. Red: under, live, danger.
+   Green: +EV and healthy. Amber: warning, near breakeven. */
 :root {
-  color-scheme: light dark;
-  --bg: #ffffff;
-  --fg: #252a34;
-  --muted: #576274;
-  --border: #d2d9e3;
-  --green: #1d8a45;
-  --amber: #b26a00;
-  --red: #c4302b;
-  --surface: #f5f7fb;
-  --sep: #e4e9f0;
-  --hover: #edf1f7;
-  --focus: #2457c5;
-  --edge-2: #c9ebd5;
-  --edge-fg: #11612f;
-  --page: #edf1f7;
-  --row: #ffffff;
-  --accent: #2457c5;
-  --accent-soft: #e8eefb;
-  --accent-fg: #1d4aa8;
+  color-scheme: dark;
+  --bg: #262626;
+  --fg: #f0f0f0;
+  --muted: #a8a8a8;
+  --border: #404040;
+  --green: #4cc27a;
+  --amber: #edcc48;
+  --red: #f37670;
+  --surface: #2c2c2c;
+  --sep: #343434;
+  --hover: #303030;
+  --focus: #bb976e;
+  --edge-2: #1a4229;
+  --edge-fg: #7ee0a3;
+  --page: #1a1a1a;
+  --row: #262626;
+  --accent: #bb976e;
+  --accent-soft: #3e301f;
+  --accent-fg: #dbb68d;
   --hover-line: color-mix(in srgb, var(--accent) 50%, var(--row));
   /* Hit % fill by edge over breakeven: tints, so the number (in --fg) stays the loudest
      thing in the row. Contrast of --fg on each fill in the comment. */
-  --hit-e3: #b2d7c0;    /* 2.5+ pts above  9.2:1 */
-  --hit-e2: #cde5d6;    /* 1-2.5 above    10.8:1 */
-  --hit-e1: #e4f1e9;    /* 0-1 above      12.4:1 */
-  --hit-near: #f3e7d6;  /* within 1 below 11.8:1 */
-  --live: #c4302b;
-  --over: #2457c5;
-  --under: #c4302b;
-  --mono-bg: #576274;
+  --hit-e3: #256b3f;    /* 2.5+ pts above  5.7:1 */
+  --hit-e2: #255436;    /* 1-2.5 above     7.7:1 */
+  --hit-e1: #25412f;    /* 0-1 above       9.8:1 */
+  --hit-near: #423e25;  /* within 1 below  9.5:1 */
+  --live: #f37670;
+  --over: #7ea6ff;
+  --under: #f37670;
+  --mono-bg: #4f4f4f;
   --mono-fg: #ffffff;
-  --shadow: 0 8px 24px rgba(16, 24, 40, 0.14), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
   --scrim: rgba(10, 14, 20, 0.45);
-  --danger-fg: #ffffff;  /* text on a --red fill */
+  --danger-fg: #1a1a1a;  /* text on a --red fill */
   --r-sm: 4px;
   --r-md: 8px;
   --r-lg: 12px;
@@ -52,40 +52,6 @@
 
 :is(.source-link, .confirm, .filters input[type="search"], .fpop, .fcat, .opt, .sbox, .skey,
   .grid, .logo .mono, .verdict, .more, .tip) { corner-shape: squircle; }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #252a34;
-    --fg: #e6eaf1;
-    --muted: #99a3b5;
-    --border: #3c4454;
-    --green: #4cc27a;
-    --amber: #e3a23b;
-    --red: #f37670;
-    --surface: #2a303b;
-    --sep: #323946;
-    --hover: #2e3542;
-    --focus: #7ea6ff;
-    --edge-2: #1a4229;
-    --edge-fg: #7ee0a3;
-    --page: #1d2129;
-    --row: #252a34;
-    --accent: #7ea6ff;
-    --accent-soft: #18233a;
-    --accent-fg: #a9c3ff;
-    --hit-e3: #256b3f;    /* 5.3:1 */
-    --hit-e2: #255436;    /* 7.3:1 */
-    --hit-e1: #25412f;    /* 9.3:1 */
-    --hit-near: #473e31;  /* 8.7:1 */
-    --live: #f37670;
-    --over: #7ea6ff;
-    --under: #f37670;
-    --mono-bg: #4a5366;
-    --mono-fg: #ffffff;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04);
-    --danger-fg: #1d2129;
-  }
-}
 
 * {
   box-sizing: border-box;

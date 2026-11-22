@@ -1575,6 +1575,18 @@ table.board {
   from { opacity: 0; scale: 0.96; }
 }
 
+@keyframes shrink {
+  to { opacity: 0; scale: 0.96; }
+}
+
+/* Hover and pick states ease at the colour speed. Zero specificity, so a rule's own
+   transition wins. */
+:where(button, a, input, .opt, .fcat, .lhead, .sbox, .board tbody tr.prop td),
+.filters .evt::before {
+  transition: color var(--t-quick), background-color var(--t-quick),
+    border-color var(--t-quick), box-shadow var(--t-quick);
+}
+
 /* Overlays: the Filters popup drops in from its button (a sheet rises on phones). */
 .fpop { animation: drop var(--t-open) var(--ease-open); }
 .fpop.closing { animation: drop-out var(--t-close) var(--ease-close) forwards; }
@@ -1615,3 +1627,10 @@ table.board {
 .board tr.detail .detail-inner { animation: rise var(--t-open) var(--ease-open); }
 .opt.unfold { animation: fade var(--t-open) var(--ease-open); }
 .chip { animation: grow var(--t-open) var(--ease-open); }
+
+/* A removed chip is the one in-page close with motion: short, then the chips after it slide
+   into the gap (ChipRow, on --t-open). */
+.chip.leaving {
+  animation: shrink calc(var(--t-close) * 0.75) var(--ease-close) forwards;
+  pointer-events: none;
+}

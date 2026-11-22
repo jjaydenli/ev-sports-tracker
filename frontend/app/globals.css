@@ -46,10 +46,12 @@
   --fs-base: 16px;
   --fs-lg: 18px;
   --fs-xl: 30px;
+  /* Installed Gill Sans (macOS, iOS; Gill Sans MT with Office), else the body face: no download. */
+  --font-control: "Gill Sans", "Gill Sans MT", var(--font-sans), sans-serif;
 }
 
-:is(.source-link, .confirm, .trig, .filters input[type="search"], .fpop, .fcat, .opt, .seg,
-  .sbox, .skey, .grid, .logo .mono, .verdict, .more, .tip) { corner-shape: squircle; }
+:is(.source-link, .confirm, .filters input[type="search"], .fpop, .fcat, .opt, .sbox, .skey,
+  .grid, .logo .mono, .verdict, .more, .tip) { corner-shape: squircle; }
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -268,6 +270,7 @@ h1 {
   background: var(--row);
   color: var(--fg);
   font-size: var(--fs-md);
+  font-family: var(--font-control);
   text-align: center;
   cursor: pointer;
 }
@@ -354,12 +357,14 @@ button {
   white-space: nowrap;
 }
 
-/* Filters row, with the match count at its right. */
+/* Filters row, with the match count at its right. Text controls, no boxes: groups part by
+   space. Choices (+EV only, game state) in sentence case, the one action (Filters) in
+   tracked caps, picks (chips) in monospace caps. */
 .filters {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 10px;
+  gap: 8px 20px;
   margin: 0 0 10px;
 }
 
@@ -370,64 +375,101 @@ button {
   align-items: center;
   gap: 6px;
   margin: -2px 0 10px;
+  --chip-h: 28px;
 }
 
 .chips .link {
-  margin-left: 4px;
-  font-size: var(--fs-md);
+  min-height: var(--chip-h);
+  color: var(--fg);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
-/* The +EV toggle and the menu buttons share one shape with the search box and segments. */
-.filters .evt,
-.trig {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* The choices (+EV only, game state): text in Gill Sans where the system has it, else the
+   body face; muted until hovered or picked. */
+:is(.seg button, .filters .evt) {
   min-height: 32px;
-  padding: 0 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--row);
-  color: var(--fg);
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-family: var(--font-control);
   font-size: var(--fs-base);
   cursor: pointer;
 }
 
-.filters .evt {
-  color: var(--muted);
+:is(.seg button, .filters .evt):is(:hover, [aria-pressed="true"]) {
+  color: var(--fg);
 }
 
-.filters .evt[aria-pressed="true"] {
-  background: var(--accent-soft);
-  color: var(--accent-fg);
+@media (prefers-reduced-motion: no-preference) {
+  :is(.seg button, .filters .evt) { transition: color 160ms; }
+}
+
+/* +EV only: a checkbox, filled in the accent when on. */
+.filters .evt {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+}
+
+.filters .evt::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+}
+
+.filters .evt[aria-pressed="true"]::before {
+  border-color: var(--accent);
+  background: var(--accent)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2 5 8.5l4.5-5' fill='none' stroke='white' stroke-width='1.8'/%3E%3C/svg%3E")
+    center / 10px no-repeat;
+}
+
+/* Filters: the one action, in tracked caps; a hairline box on hover and while open. */
+.trig {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1.5px solid transparent;
+  background: none;
+  color: var(--fg);
+  font-size: var(--fs-xs);
   font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.trig:hover,
+.trig[aria-expanded="true"] {
+  border-color: var(--fg);
 }
 
 .trig svg {
   flex: none;
-  color: var(--muted);
 }
 
-.trig .tl {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* The pick count, raised: FILTERS (2). */
+.trig .tn {
+  margin-left: -4px;
+  font-size: 10px;
+  letter-spacing: 0.05em;
 }
 
-.trig[aria-expanded="true"] {
-  border-color: var(--focus);
-}
-
-.trig.set .tl {
-  font-weight: 600;
+@media (prefers-reduced-motion: no-preference) {
+  .trig { transition: border-color 160ms; }
 }
 
 .filters input[type="search"] {
   width: 180px;
   min-height: 32px;
   padding: 5px 8px 5px 31px;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: var(--r-md);
   background: var(--row);
   color: var(--fg);
@@ -851,31 +893,36 @@ button {
   }
 }
 
+/* Game state: text tabs. The underline grows from the left on hover and stays under the pick. */
 .seg {
   display: inline-flex;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
+  gap: 4px;
 }
 
 .seg button {
-  min-height: 30px;
-  padding: 5px 10px;
-  border: 0;
-  background: var(--row);
-  color: var(--muted);
-  font-size: var(--fs-base);
-  cursor: pointer;
+  position: relative;
+  padding: 0 6px;
 }
 
-.seg button + button {
-  border-left: 1px solid var(--border);
+.seg button::after {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  bottom: 3px;
+  height: 1.5px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
 }
 
-.seg button[aria-pressed="true"] {
-  background: var(--accent-soft);
-  color: var(--accent-fg);
-  font-weight: 600;
+.seg button:hover::after,
+.seg button[aria-pressed="true"]::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .seg button::after { transition: transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1); }
 }
 
 .count {
@@ -886,21 +933,11 @@ button {
 }
 
 /* One set of states for every control: hover, pressed, keyboard focus. */
-.seg button:hover,
 .more:hover,
-.trig:hover,
-.filters .evt:hover,
 .filters input[type="search"]:hover {
   background: var(--hover);
 }
 
-.trig:hover,
-.filters .evt:hover,
-.filters input[type="search"]:hover {
-  border-color: var(--muted);
-}
-
-.seg button:active,
 .more:active,
 .board th .sort:active {
   transform: translateY(1px);
@@ -916,24 +953,6 @@ input:focus-visible,
 .logo:focus-visible {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
-}
-
-/* A filter set away from All: accent border, so a narrowed board is visible at a glance. */
-.trig.set,
-.filters .evt[aria-pressed="true"] {
-  border-color: var(--focus);
-  box-shadow: inset 0 0 0 1px var(--focus);
-}
-
-/* Focused, the outline already says "accent": drop the set border so the two don't stack. */
-.trig.set:focus-visible {
-  border-color: transparent;
-  box-shadow: none;
-}
-
-.seg button[aria-pressed="true"]:hover,
-.filters .evt[aria-pressed="true"]:hover {
-  background: var(--accent-soft);
 }
 
 .sbox {
@@ -1042,19 +1061,28 @@ body:has([aria-modal="true"]) .sbox .skey {
   color: var(--fg);
 }
 
+/* A pick: monospace caps in a square hairline box. The × leads, so removing a chip slides
+   the next one's × under the pointer. */
 .chip {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   max-width: 100%;
-  height: 26px;
-  padding: 0 0 0 8px;
-  border-radius: var(--r-pill);
-  background: var(--accent-soft);
-  color: var(--accent-fg);
-  font-size: var(--fs-md);
-  font-weight: 600;
+  height: var(--chip-h);
+  padding: 0 11px 0 4px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* Space past the last chip, wider than its ×: removing that chip slides Clear all left, never
+   under the pointer. On the chip, not on Clear all, so a wrapped Clear all starts flush. */
+.chip:last-of-type {
+  margin-right: 32px;
 }
 
 .chip .cname {
@@ -1064,19 +1092,18 @@ body:has([aria-modal="true"]) .sbox .skey {
 
 .chip button {
   flex: none;
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
   border: 0;
-  border-radius: 50%;
   background: none;
   color: inherit;
-  font-size: var(--fs-lg);
+  font-size: var(--fs-base);
   line-height: 1;
   cursor: pointer;
 }
 
 .chip button:hover {
-  background: var(--hover);
+  color: var(--fg);
 }
 
 .opt.picked .tick svg {

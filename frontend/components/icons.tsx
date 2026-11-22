@@ -15,6 +15,19 @@ export function Chevron({ className }: { className?: string }) {
   );
 }
 
+/** Two slider rails with knobs: the Filters trigger. */
+export function Sliders() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" {...ICON_PROPS}>
+      <g fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
+        <path d="M2 5h6M12 5h2M2 11h2M8 11h6" />
+        <circle cx="10" cy="5" r="1.8" />
+        <circle cx="6" cy="11" r="1.8" />
+      </g>
+    </svg>
+  );
+}
+
 export function Magnifier() {
   return (
     <svg className="mag" width="16" height="16" viewBox="0 0 16 16" {...ICON_PROPS}>

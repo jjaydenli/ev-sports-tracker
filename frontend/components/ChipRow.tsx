@@ -57,7 +57,6 @@ export function ChipRow({
     <div className="chips" role="group" aria-label="Picked filters" ref={rowRef}>
       {chips.map((chip, i) => (
         <span key={chip.id} title={chip.title} className="chip">
-          <span className="cname">{chip.label}</span>
           <button
             type="button"
             aria-label={`Remove ${chip.label}`}
@@ -68,6 +67,7 @@ export function ChipRow({
           >
             ×
           </button>
+          <span className="cname">{chip.label}</span>
         </span>
       ))}
       <button

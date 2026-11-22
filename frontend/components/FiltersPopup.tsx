@@ -10,7 +10,7 @@ import {
   useState,
 } from "react";
 
-import { Chevron, Magnifier, Tick } from "@/components/icons";
+import { Chevron, Magnifier, Sliders, Tick } from "@/components/icons";
 import {
   allLabel,
   FACET_KEYS,
@@ -212,14 +212,15 @@ export function FiltersPopup({
       <button
         ref={triggerRef}
         type="button"
-        className={total ? "trig set" : "trig"}
+        className="trig"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-controls={open ? popId : undefined}
         onClick={openOrClose}
       >
-        <span className="tl">{total ? `Filters · ${total}` : "Filters"}</span>
-        <Chevron />
+        <Sliders />
+        Filters
+        {total > 0 && <sup className="tn">({total})</sup>}
       </button>
       {open && (
         <>

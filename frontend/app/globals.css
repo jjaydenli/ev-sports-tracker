@@ -3,6 +3,13 @@
    Green: +EV and healthy. Amber: warning, near breakeven. */
 :root {
   color-scheme: dark;
+  /* Motion: overlays open and close; in-page content opens only, and closes at once. */
+  --t-quick: 160ms;   /* colour and border changes */
+  --t-open: 240ms;
+  --t-close: 120ms;
+  --ease-open: cubic-bezier(0.19, 1, 0.22, 1);  /* expo-out: most of the way at once, then settles */
+  --ease-close: cubic-bezier(0.2, 0, 1, 0.9);   /* accelerates away */
+  --rise: 6px;
   --bg: #262626;
   --fg: #f0f0f0;
   --muted: #a8a8a8;
@@ -367,9 +374,7 @@ button {
   color: var(--fg);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  :is(.seg button, .filters .evt) { transition: color 160ms; }
-}
+:is(.seg button, .filters .evt) { transition: color var(--t-quick); }
 
 /* +EV only: a checkbox, filled in the accent when on. */
 .filters .evt {
@@ -427,9 +432,7 @@ button {
   letter-spacing: 0.05em;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .trig { transition: border-color 160ms; }
-}
+.trig { transition: border-color var(--t-quick); }
 
 .filters input[type="search"] {
   width: 180px;
@@ -736,7 +739,7 @@ button {
 }
 
 .lhead .fold {
-  transition: transform 0.15s;
+  transition: transform var(--t-quick);
 }
 
 .lhead[aria-expanded="false"] .fold {
@@ -774,11 +777,6 @@ button {
   background: var(--hover);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .lhead .fold {
-    transition: none;
-  }
-}
 
 /* Phone: the popup becomes a full-height sheet over a scrim, with category tabs on top. */
 @media (max-width: 720px) {
@@ -887,9 +885,7 @@ button {
   transform: scaleX(1);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .seg button::after { transition: transform 240ms cubic-bezier(0.2, 0.7, 0.2, 1); }
-}
+.seg button::after { transition: transform var(--t-open) var(--ease-open); }
 
 .count {
   margin-left: auto;
@@ -1293,7 +1289,6 @@ table.board {
    never repaint them. */
 .board td.metric {
   padding: 0;
-  border-bottom-color: transparent;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
@@ -1315,6 +1310,10 @@ table.board {
 .evline {
   font-size: var(--fs-sm);
   color: var(--muted);
+}
+
+.board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) {
+  border-bottom-color: transparent;
 }
 
 .board tbody tr.prop td.metric:is(.e3, .e2, .e1, .near) .evline {
@@ -1547,3 +1546,72 @@ table.board {
 .tip[hidden] {
   display: none;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-quick: 0s; --t-open: 0s; --t-close: 0s; }
+}
+
+@keyframes rise {
+  from { opacity: 0; translate: 0 var(--rise); }
+}
+
+@keyframes drop {
+  from { opacity: 0; translate: 0 calc(-1 * var(--rise)); }
+}
+
+@keyframes drop-out {
+  to { opacity: 0; translate: 0 calc(-1 * var(--rise)); }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+}
+
+@keyframes fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes grow {
+  from { opacity: 0; scale: 0.96; }
+}
+
+/* Overlays: the Filters popup drops in from its button (a sheet rises on phones). */
+.fpop { animation: drop var(--t-open) var(--ease-open); }
+.fpop.closing { animation: drop-out var(--t-close) var(--ease-close) forwards; }
+.scrim { animation: fade var(--t-open) var(--ease-open); }
+.scrim.closing { animation: fade-out var(--t-close) var(--ease-close) forwards; }
+
+@media (max-width: 720px) {
+  .fpop { --rise: -24px; }
+}
+
+/* Shut down's dialog: fades and settles in, and back out, with its backdrop. */
+.confirm,
+.confirm::backdrop {
+  opacity: 0;
+  transition:
+    opacity var(--t-close) var(--ease-close),
+    scale var(--t-close) var(--ease-close),
+    overlay var(--t-close) allow-discrete,
+    display var(--t-close) allow-discrete;
+}
+.confirm { scale: 0.97; }
+.confirm[open],
+.confirm[open]::backdrop {
+  opacity: 1;
+  scale: 1;
+  transition-duration: var(--t-open);
+  transition-timing-function: var(--ease-open);
+}
+@starting-style {
+  .confirm[open],
+  .confirm[open]::backdrop { opacity: 0; }
+  .confirm[open] { scale: 0.97; }
+}
+
+.tip:not([hidden]) { animation: rise calc(var(--t-open) / 2) var(--ease-open); }
+
+/* In-page content opens with motion and closes at once, so nothing below it waits. */
+.board tr.detail .detail-inner { animation: rise var(--t-open) var(--ease-open); }
+.opt.unfold { animation: fade var(--t-open) var(--ease-open); }
+.chip { animation: grow var(--t-open) var(--ease-open); }
